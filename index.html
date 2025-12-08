@@ -311,8 +311,7 @@
 	genreEl.addEventListener('change', applyFilters);
 	sortEl.addEventListener('change', applyFilters);
 	favFilterEl.addEventListener('change', applyFilters);
-
-	renderList(SAMPLE_ANIMES);
+	
 	const backToTop = document.getElementById('backToTop');
 	window.addEventListener('scroll', () => {
 	  if (window.scrollY > 50) {
@@ -334,6 +333,7 @@
 		document.querySelector('header').classList.remove('sticky');
 	  }
 	});
+	applyFilters();
   </script>
 </body>
 </html>
