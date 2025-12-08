@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AnimeHub — Prototype</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#9ca3af; --accent:#06b6d4;
+      --glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,#0b1220 0%, #061226 100%); color:#e6eef6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+    .container{max-width:1100px; margin:32px auto; padding:20px;}
+    header{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;}
+    h1{font-size:28px; margin:0}
+    p.lead{color:var(--muted); margin:6px 0 0; font-size:14px}
+    .controls{display:flex; gap:10px; align-items:center;}
+    input.search{padding:10px 12px 10px 36px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:var(--glass); color:inherit; min-width:220px;}
+    .select, .select-sm{padding:9px 10px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:inherit;}
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; margin-top:18px;}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06)); border-radius:12px; overflow:hidden; box-shadow: 0 6px 18px rgba(2,6,23,0.6); transition:transform .12s ease, box-shadow .12s ease;}
+    .card:hover{transform:translateY(-6px); box-shadow:0 12px 30px rgba(2,6,23,0.8);}
+    .card img{width:100%; height:300px; object-fit:cover; display:block; background:#111}
+    .card-body{padding:12px;}
+    .meta{display:flex; justify-content:space-between; align-items:center; gap:8px; color:var(--muted); font-size:13px}
+    .title{font-weight:700; margin:8px 0 6px; font-size:16px}
+    .genres{font-size:12px; color:var(--muted);}
+    .btn{background:var(--accent); color:#052226; padding:8px 10px; border-radius:8px; border:none; cursor:pointer; font-weight:700;}
+    .rating{background:rgba(0,0,0,0.45); padding:6px 8px; border-radius:8px; font-weight:700; font-size:13px;}
+    .fav-btn{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--accent);
+      padding:6px 8px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+    }
+    /* modal */
+    .modal-backdrop{position:fixed; inset:0; background:linear-gradient(90deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85)); display:flex; align-items:center; justify-content:center; z-index:80; padding:20px;}
+    .modal{max-width:900px; width:100%; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06)); border-radius:12px; padding:18px; display:flex; gap:16px; color:inherit;}
+    .modal img{width:220px; height:320px; object-fit:cover; border-radius:8px}
+    .modal .info{flex:1}
+    .close{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:6px 8px; border-radius:8px; cursor:pointer;}
+    footer{text-align:center; color:var(--muted); margin-top:24px; font-size:13px}
+    /* small screens */
+    @media (max-width:720px){
+      header{flex-direction:column; align-items:flex-start}
+      .controls{width:100%; margin-top:10px; flex-wrap:wrap}
+      .card img{height:220px}
+      .modal{flex-direction:column; align-items:center}
+      .modal img{width:180px; height:260px}
+    }
+    /* search icon */
+    .search-wrap{position:relative}
+    .search-wrap svg{position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:0.8}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>AnimeHub</h1>
+        <p class="lead">Prototype — découvre des animes et filtre par genre / note / favoris.</p>
+      </div>
+      <div class="controls">
+        <div class="search-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="#9ca3af" stroke-width="2"></circle></svg>
+          <input id="search" class="search" placeholder="Rechercher un anime..." />
+        </div>
+        <select id="genre" class="select">
+          <option>Tout</option>
+        </select>
+        <select id="sort" class="select-sm">
+          <option value="top">Top rating</option>
+          <option value="new">Les plus récents</option>
+        </select>
+        <select id="favFilter" class="select-sm">
+          <option value="all">Tous</option>
+          <option value="fav">Favoris seulement</option>
+        </select>
+      </div>
+    </header>
+
+    <main>
+      <div id="grid" class="grid"></div>
+      <div id="empty" style="display:none; color:var(--muted); text-align:center; padding:40px 0;">Aucun résultat...</div>
+    </main>
+
+    <footer>Ajoute tes propres animes dans le fichier HTML (variable <code>SAMPLE_ANIMES</code>).</footer>
+  </div>
+
+  <!-- Modal template -->
+  <div id="modalRoot" style="display:none"></div>
+
+  <script>
+    const SAMPLE_ANIMES = [
+      { id:1, 
+	  title:'One Piece', 
+	  genre:['Adventure','Action'], 
+	  rating:8.8, 
+	  year:1999, 
+	  img:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', 
+	  summary:'One Piece suit Monkey D. Luffy, un ado qui veut devenir Roi des Pirates après avoir mangé un fruit magique qui rend son corps élastique. Il part sur les mers pour trouver le légendaire trésor, le One Piece, et se crée petit à petit un équipage aux pouvoirs et aux rêves différents, les Mugiwara. Ensemble, ils affrontent des pirates, des marines, des tyrans et des monstres, tout en vivant des aventures incroyables et en se rapprochant de la vérité sur le monde et sur le passé caché.', 
+	  fav:false },
+      { id:2, title:'Solo Leveling', 
+	  genre:['Action','Fantasy'], 
+	  rating:7.7, 
+	  year:2024, 
+	  img:'https://cdn.myanimelist.net/images/anime/1448/147351.jpg', 
+	  summary:'Dans un monde où des portails font apparaître des monstres, les humains “chasseurs” risquent leur vie pour les affronter. Sung Jin-Woo, considéré comme le chasseur le plus faible, survit par miracle à un donjon terrifiant. Après ça, il reçoit un pouvoir unique : il peut devenir plus fort sans limite, comme dans un jeu vidéo, en accomplissant des quêtes et en gagnant des niveaux. À partir de là, Jin-Woo grimpe en puissance à une vitesse folle, affronte des ennemis de plus en plus dangereux, et découvre les secrets derrière les portails et sa propre ascension.', 
+	  fav:false },
+      { id:3, 
+	  title:'Death Note', 
+	  genre:['Mystery','Thriller'], 
+	  rating:9.9, 
+	  year:2006, 
+	  img:'https://cdn.myanimelist.net/images/anime/1079/138100.jpg', 
+	  summary:'Death Note raconte l’histoire de Light Yagami, un étudiant japonais brillant mais désabusé, qui trouve un carnet surnaturel appelé Death Note. Ce carnet permet de tuer toute personne dont on écrit le nom dedans. Convaincu qu’il peut créer un monde parfait en éliminant les criminels, Light se transforme en justicier impitoyable sous le nom de Kira. Face à lui, L, un détective génial et mystérieux, se lance dans une lutte intellectuelle intense pour l’arrêter. Entre manipulations, trahisons et stratégies mentales, le combat entre Light et L devient une véritable partie d’échecs mortelle.', 
+	  fav:false },
+      { id:4, 
+	  title:'Jujutsu Kaisen', 
+	  genre:['Action','Supernatural'], 
+	  rating:8.3, 
+	  year:2020, 
+	  img:'https://cdn.myanimelist.net/images/anime/1180/153379.jpg', 
+	  summary:'L’histoire suit Yuji Itadori, un lycéen super sportif qui découvre un monde caché rempli de malédictions, des esprits créés par les émotions négatives des humains. Quand il avale un doigt maudit contenant une puissante malédiction, Ryomen Sukuna, il devient son hôte. Yuji rejoint alors l’école de Jujutsu, où il apprend à combattre les malédictions avec ses nouveaux pouvoirs, tout en essayant de protéger les innocents et de découvrir comment vaincre Sukuna définitivement.', 
+	  fav:false },
+      { id:5, 
+	  title:'Oshi No Ko', 
+	  genre:['Drama','Mystery'], 
+	  rating:8.1, 
+	  year:2023, 
+	  img:'https://cdn.myanimelist.net/images/anime/1979/153329.jpg', 
+	  summary:'L’histoire suit Aquamarine “Aqua” et Ruby, des jumeaux nés dans l’industrie du divertissement après une série d’événements tragiques liés à leur mère, une idole populaire. Le manga explore les coulisses sombres du showbiz, les ambitions, les manipulations et les secrets des célébrités, tout en suivant leur quête de justice et de vérité sur le passé de leur famille.', 
+	  fav:false },
+	  { id:6,
+	  title:'Fairy Tail',
+	  genre:['Action','Adventure'],
+	  rating:5.6,
+	  year:2009,
+	  img:'https://cdn.myanimelist.net/images/anime/5/18179.jpg',
+	  summary:`L'histoire suit Natsu Dragnir, un mage de feu, et ses amis de la guilde Fairy Tail, connus pour leur énergie, leur courage et leur sens de la camaraderie. Ensemble, ils accomplissent des missions, affrontent des ennemis redoutables et découvrent des secrets sur le monde et sur eux-mêmes. Au fil des aventures, le manga met surtout l’accent sur l’amitié, la persévérance et la magie spectaculaire, avec des combats intenses et des moments émouvants qui renforcent les liens entre les personnages.`,
+	  fav:false }
+	];
+	
+	
+	const genreEl = document.getElementById('genre');
+	const sortEl = document.getElementById('sort');
+	const favFilterEl = document.getElementById('favFilter');
+	const grid = document.getElementById('grid');
+	const searchInput = document.getElementById('search');
+	const empty = document.getElementById('empty');
+	const modalRoot = document.getElementById('modalRoot');
+
+	// Charger favoris depuis localStorage
+	const storedFavs = JSON.parse(localStorage.getItem('animeFavs') || '{}');
+	SAMPLE_ANIMES.forEach(a => { if(storedFavs[a.id]) a.fav = true; });
+
+	// Remplir select genres
+	const genres = new Set(['Tout']);
+	SAMPLE_ANIMES.forEach(a => a.genre.forEach(g => genres.add(g)));
+	genres.forEach(g => { const o = document.createElement('option'); o.textContent=o.value=g; genreEl.appendChild(o); });
+
+	function renderList(list){
+	  grid.innerHTML = '';
+	  if(!list.length){ empty.style.display='block'; return; }
+	  empty.style.display='none';
+
+	  list.forEach(a=>{
+		const card = document.createElement('div'); card.className='card';
+		card.innerHTML=`
+		  <img src="${a.img}" alt="${a.title}">
+		  <div class="card-body">
+			<div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
+			<div class="title">${a.title}</div>
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+			  <div style="color:var(--muted); font-size:13px">${a.year}</div>
+			  <div style="display:flex; gap:6px;">
+				<button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
+				<button class="btn" data-id="${a.id}">Voir</button>
+			  </div>
+			</div>
+		  </div>`;
+		grid.appendChild(card);
+	  });
+
+	  // Modale et favoris
+	  grid.querySelectorAll('.btn').forEach(b => b.addEventListener('click', ()=>openModal(SAMPLE_ANIMES.find(a=>a.id==b.dataset.id))));
+	  grid.querySelectorAll('.fav-btn').forEach(b => b.addEventListener('click', e=>{
+		e.stopPropagation(); toggleFavorite(Number(b.dataset.id));
+	  }));
+	}
+
+	function openModal(a){
+	  modalRoot.innerHTML = `
+		<div class="modal-backdrop" id="backdrop">
+		  <div class="modal">
+			<img src="${a.img}" alt="${a.title}">
+			<div class="info">
+			  <h2 style="margin:0 0 6px">${a.title}</h2>
+			  <div style="color:var(--muted); margin-bottom:10px">${a.genre.join(' • ')} • ${a.year}</div>
+			  <p style="margin:0 0 12px; line-height:1.5; color:#dbeafe;">${a.summary}</p>
+			  <div style="display:flex; gap:8px; align-items:center">
+				<div class="rating">${a.rating.toFixed(1)}</div>
+				<button class="close" id="closeBtn">Fermer</button>
+			  </div>
+			</div>
+		  </div>
+		</div>`;
+	  modalRoot.style.display='block';
+	  document.getElementById('backdrop').addEventListener('click', closeModal);
+	  document.getElementById('closeBtn').addEventListener('click', closeModal);
+	  document.addEventListener('keydown', escHandler);
+	}
+
+	function closeModal(){ modalRoot.style.display='none'; modalRoot.innerHTML=''; document.removeEventListener('keydown', escHandler); }
+	function escHandler(e){ if(e.key==='Escape') closeModal(); }
+
+	function toggleFavorite(id){
+	  const a = SAMPLE_ANIMES.find(a=>a.id===id);
+	  a.fav = !a.fav;
+	  // sauvegarder dans localStorage
+	  const favs = SAMPLE_ANIMES.reduce((acc, a)=> { if(a.fav) acc[a.id]=true; return acc; }, {});
+	  localStorage.setItem('animeFavs', JSON.stringify(favs));
+	  applyFilters();
+	}
+
+	function applyFilters(){
+	  const q = searchInput.value.toLowerCase();
+	  const g = genreEl.value;
+	  const s = sortEl.value;
+	  const f = favFilterEl.value;
+	  let list = SAMPLE_ANIMES.filter(a=>a.title.toLowerCase().includes(q));
+	  if(g!=='Tout') list = list.filter(a=>a.genre.includes(g));
+	  if(f==='fav') list = list.filter(a=>a.fav);
+	  if(s==='top') list.sort((a,b)=>b.rating-b.rating);
+	  if(s==='new') list.sort((a,b)=>b.year-b.year);
+	  renderList(list);
+	}
+
+	searchInput.addEventListener('input', applyFilters);
+	genreEl.addEventListener('change', applyFilters);
+	sortEl.addEventListener('change', applyFilters);
+	favFilterEl.addEventListener('change', applyFilters);
+
+	renderList(SAMPLE_ANIMES);
+	window.AnimeHub = { SAMPLE_ANIMES, renderList, applyFilters };
+  </script>
+</body>
+</html>
