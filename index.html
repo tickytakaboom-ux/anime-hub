@@ -56,6 +56,31 @@
     /* search icon */
     .search-wrap{position:relative}
     .search-wrap svg{position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:0.8}
+	#backToTop {
+	  position: fixed;
+	  bottom: 22px;
+	  right: 22px;
+	  padding: 10px 14px;
+	  font-size: 16px;
+	  border-radius: 10px;
+	  background: var(--accent);
+	  color: #052226;
+	  border: none;
+	  cursor: pointer;
+	  font-weight: 700;
+	  display: none;
+	  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+	  transition: opacity .2s ease, transform .2s ease;
+	}
+	#backToTop.show {
+	  display: block;
+	  opacity: 1;
+	  transform: translateY(0);
+	}
+	#backToTop.hide {
+	  opacity: 0;
+	  transform: translateY(10px);
+	}
   </style>
 </head>
 <body>
@@ -94,6 +119,7 @@
 
   <!-- Modal template -->
   <div id="modalRoot" style="display:none"></div>
+  <button id="backToTop">↑ Top</button>
 
   <script>
     const SAMPLE_ANIMES = [
@@ -215,7 +241,6 @@
 	  document.getElementById('closeBtn').addEventListener('click', closeModal);
 	  document.addEventListener('keydown', escHandler);
 	}
-
 	function closeModal(){ modalRoot.style.display='none'; modalRoot.innerHTML=''; document.removeEventListener('keydown', escHandler); }
 	function escHandler(e){ if(e.key==='Escape') closeModal(); }
 
@@ -247,6 +272,19 @@
 	favFilterEl.addEventListener('change', applyFilters);
 
 	renderList(SAMPLE_ANIMES);
+	const backToTop = document.getElementById('backToTop');
+	window.addEventListener('scroll', () => {
+	  if (window.scrollY > 50) {
+		backToTop.classList.add('show');
+		backToTop.classList.remove('hide');
+	  } else {
+		backToTop.classList.add('hide');
+		setTimeout(() => backToTop.classList.remove('show'), 200);
+	  }
+	});
+	backToTop.addEventListener('click', () => {
+	  window.scrollTo({ top: 0, behavior: 'smooth' });
+	});
 	window.AnimeHub = { SAMPLE_ANIMES, renderList, applyFilters };
   </script>
 </body>
