@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AnimeHub — Prototype</title>
+  <title>AnimeHub</title>
   <style>
     :root{
       --bg:#0f1724; --card:#0b1220; --muted:#9ca3af; --accent:#06b6d4;
@@ -38,6 +38,32 @@
       font-weight:700;
       font-size:14px;
     }
+	.select option, .select-sm option {color: #e6eef6;background-color: #0b1220
+	}
+	header {
+	  display: flex;
+	  align-items: center;
+	  justify-content: space-between;
+	  gap: 16px;
+	  margin-bottom: 18px;
+
+	  position: sticky; 
+	  top: 0;             
+	  z-index: 100;     
+	  background: linear-gradient(180deg, rgba(11,18,32,0.95) 0%, rgba(6,18,38,0.95) 100%);
+	  backdrop-filter: blur(6px); 
+	}
+	header {
+	  transition: box-shadow 0.2s ease, background 0.2s ease;
+	}
+	header.sticky {
+	  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+	}
+	header {
+	  width: 90vw;
+	  padding: 16px 40px;
+	  box-sizing: border-box;
+	}
     /* modal */
     .modal-backdrop{position:fixed; inset:0; background:linear-gradient(90deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85)); display:flex; align-items:center; justify-content:center; z-index:80; padding:20px;}
     .modal{max-width:900px; width:100%; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06)); border-radius:12px; padding:18px; display:flex; gap:16px; color:inherit;}
@@ -81,6 +107,20 @@
 	  opacity: 0;
 	  transform: translateY(10px);
 	}
+	@keyframes fadeUp {
+	  0% {
+		opacity: 0;
+		transform: translateY(20px);
+	  }
+	  100% {
+		opacity: 1;
+		transform: translateY(0);
+	  }
+	}
+
+	.card {
+	  animation: fadeUp 0.4s ease forwards;
+	}
   </style>
 </head>
 <body>
@@ -88,7 +128,7 @@
     <header>
       <div>
         <h1>AnimeHub</h1>
-        <p class="lead">Prototype — découvre des animes et filtre par genre / note / favoris.</p>
+        <p class="lead">Ton univers anime à portée de clic</p>
       </div>
       <div class="controls">
         <div class="search-wrap">
@@ -114,7 +154,7 @@
       <div id="empty" style="display:none; color:var(--muted); text-align:center; padding:40px 0;">Aucun résultat...</div>
     </main>
 
-    <footer>Ajoute tes propres animes dans le fichier HTML (variable <code>SAMPLE_ANIMES</code>).</footer>
+    <footer>Il manque ton anime ? N'hésite pas à demander pour que je le rajoute.</footer>
   </div>
 
   <!-- Modal template -->
@@ -195,24 +235,25 @@
 	  if(!list.length){ empty.style.display='block'; return; }
 	  empty.style.display='none';
 
-	  list.forEach(a=>{
-		const card = document.createElement('div'); card.className='card';
-		card.innerHTML=`
-		  <img src="${a.img}" alt="${a.title}">
-		  <div class="card-body">
-			<div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
-			<div class="title">${a.title}</div>
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-			  <div style="color:var(--muted); font-size:13px">${a.year}</div>
-			  <div style="display:flex; gap:6px;">
-				<button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
-				<button class="btn" data-id="${a.id}">Voir</button>
+	  list.forEach((a, index) => {
+		  const card = document.createElement('div'); 
+		  card.className = 'card';
+		  card.style.animationDelay = `${index * 0.08}s`; // 0.08s entre chaque carte
+		  card.innerHTML = `
+			<img src="${a.img}" alt="${a.title}">
+			<div class="card-body">
+			  <div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
+			  <div class="title">${a.title}</div>
+			  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+				<div style="color:var(--muted); font-size:13px">${a.year}</div>
+				<div style="display:flex; gap:6px;">
+				  <button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
+				  <button class="btn" data-id="${a.id}">Voir</button>
+				</div>
 			  </div>
-			</div>
-		  </div>`;
-		grid.appendChild(card);
-	  });
-
+			</div>`;
+		  grid.appendChild(card);
+		});
 	  // Modale et favoris
 	  grid.querySelectorAll('.btn').forEach(b => b.addEventListener('click', ()=>openModal(SAMPLE_ANIMES.find(a=>a.id==b.dataset.id))));
 	  grid.querySelectorAll('.fav-btn').forEach(b => b.addEventListener('click', e=>{
@@ -261,8 +302,8 @@
 	  let list = SAMPLE_ANIMES.filter(a=>a.title.toLowerCase().includes(q));
 	  if(g!=='Tout') list = list.filter(a=>a.genre.includes(g));
 	  if(f==='fav') list = list.filter(a=>a.fav);
-	  if(s==='top') list.sort((a,b)=>b.rating-b.rating);
-	  if(s==='new') list.sort((a,b)=>b.year-b.year);
+	  if(s==='top') list.sort((a,b)=> b.rating - a.rating);
+	  if(s==='new') list.sort((a,b)=> b.year - a.year);
 	  renderList(list);
 	}
 
@@ -286,6 +327,13 @@
 	  window.scrollTo({ top: 0, behavior: 'smooth' });
 	});
 	window.AnimeHub = { SAMPLE_ANIMES, renderList, applyFilters };
+	window.addEventListener('scroll', () => {
+	  if(window.scrollY > 20){
+		document.querySelector('header').classList.add('sticky');
+	  } else {
+		document.querySelector('header').classList.remove('sticky');
+	  }
+	});
   </script>
 </body>
 </html>
