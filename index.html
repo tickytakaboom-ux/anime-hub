@@ -60,8 +60,8 @@
 	  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 	}
 	header {
-	  width: 90vw;
-	  padding: 16px 40px;
+	  width: 100%;
+	  padding: 40px 40px;
 	  box-sizing: border-box;
 	}
     /* modal */
@@ -124,7 +124,6 @@
   </style>
 </head>
 <body>
-  <div class="container">
     <header>
       <div>
         <h1>AnimeHub</h1>
@@ -148,7 +147,7 @@
         </select>
       </div>
     </header>
-
+	<div class="container">
     <main>
       <div id="grid" class="grid"></div>
       <div id="empty" style="display:none; color:var(--muted); text-align:center; padding:40px 0;">Aucun résultat...</div>
@@ -166,7 +165,7 @@
       { id:1, 
 	  title:'One Piece', 
 	  genre:['Adventure','Action'], 
-	  rating:8.8, 
+	  rating:8.9, 
 	  year:1999, 
 	  img:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', 
 	  summary:'One Piece suit Monkey D. Luffy, un ado qui veut devenir Roi des Pirates après avoir mangé un fruit magique qui rend son corps élastique. Il part sur les mers pour trouver le légendaire trésor, le One Piece, et se crée petit à petit un équipage aux pouvoirs et aux rêves différents, les Mugiwara. Ensemble, ils affrontent des pirates, des marines, des tyrans et des monstres, tout en vivant des aventures incroyables et en se rapprochant de la vérité sur le monde et sur le passé caché.', 
@@ -189,7 +188,7 @@
       { id:4, 
 	  title:'Jujutsu Kaisen', 
 	  genre:['Action','Supernatural'], 
-	  rating:8.3, 
+	  rating:8.4, 
 	  year:2020, 
 	  img:'https://cdn.myanimelist.net/images/anime/1180/153379.jpg', 
 	  summary:'L’histoire suit Yuji Itadori, un lycéen super sportif qui découvre un monde caché rempli de malédictions, des esprits créés par les émotions négatives des humains. Quand il avale un doigt maudit contenant une puissante malédiction, Ryomen Sukuna, il devient son hôte. Yuji rejoint alors l’école de Jujutsu, où il apprend à combattre les malédictions avec ses nouveaux pouvoirs, tout en essayant de protéger les innocents et de découvrir comment vaincre Sukuna définitivement.', 
@@ -204,11 +203,35 @@
 	  fav:false },
 	  { id:6,
 	  title:'Fairy Tail',
-	  genre:['Action','Adventure'],
-	  rating:5.6,
+	  genre:['Action','Adventure','Fantasy'],
+	  rating:5.7,
 	  year:2009,
 	  img:'https://cdn.myanimelist.net/images/anime/5/18179.jpg',
-	  summary:`L'histoire suit Natsu Dragnir, un mage de feu, et ses amis de la guilde Fairy Tail, connus pour leur énergie, leur courage et leur sens de la camaraderie. Ensemble, ils accomplissent des missions, affrontent des ennemis redoutables et découvrent des secrets sur le monde et sur eux-mêmes. Au fil des aventures, le manga met surtout l’accent sur l’amitié, la persévérance et la magie spectaculaire, avec des combats intenses et des moments émouvants qui renforcent les liens entre les personnages.`,
+	  summary:`L'histoire suit Natsu Dragnir, un mage de feu, et ses amis de la guilde Fairy Tail, connus pour leur énergie, leur courage et leur sens de la camaraderie. Ensemble, ils accomplissent des missions, affrontent des ennemis redoutables et découvrent des secrets sur le monde et sur eux-mêmes. Au fil des aventures, l’anime met surtout l’accent sur l’amitié, la persévérance et la magie spectaculaire, avec des combats intenses et des moments émouvants qui renforcent les liens entre les personnages.`,
+	  fav:false },
+	  { id:7,
+	  title:'Shangri-La Frontier',
+	  genre:['Isekai','Fantasy','Game'],
+	  rating:5.4,
+	  year:2023,
+	  img:'https://cdn.myanimelist.net/images/anime/1851/148885.jpg',
+	  summary:`L'histoire suit Sunraku, un gamer hardcore qui adore les jeux vidéo tout buggés. Un jour, il décide de tester Shangri-La Frontier, un VRMMORPG extrêmement populaire et bien fait. Grâce à son expérience dans des jeux “horribles”, Sunraku devient incroyablement fort dans ce monde virtuel. Il se lance alors dans une aventure pleine de boss légendaires, de défis absurdes, de rencontres marquantes et de moments très drôles, tout en essayant de percer les secrets du jeu.`,
+	  fav:false },
+	  { id:8,
+	  title:'My Hero Academia',
+	  genre:['Superheroes','Action'],
+	  rating:7.3,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/1959/151055.jpg',
+	  summary:'Dans un monde où presque tout le monde possède un pouvoir appelé Alter, Izuku Midoriya naît… sans aucun pouvoir. Son rêve pourtant : devenir un grand héros comme son idole All Might. Sa vie bascule quand All Might lui transmet son Alter, One For All. Izuku intègre alors l’école de héros UA, où il s’entraîne avec d’autres élèves pour devenir pro, affronte des vilains de plus en plus dangereux et découvre les secrets derrière son nouveau pouvoir.',
+	  fav:false },
+	  { id:9,
+	  title:`L'Attaque Des Titans`,
+	  genre:['Dark Fantasy','Action','Drama'],
+	  rating:9.9,
+	  year:2013,
+	  img:'https://cdn.myanimelist.net/images/anime/1279/131078.jpg',
+	  summary:'L’histoire suit Eren Yeager, qui vit dans une cité entourée de gigantesques murs pour protéger l’humanité des Titans, des créatures qui dévorent les humains. Après que sa ville est détruite et que sa mère meurt, Eren jure d’exterminer tous les Titans. Il rejoint alors l’armée avec Mikasa et Armin, et découvre peu à peu la vérité : les Titans, les murs, le monde extérieur… rien n’est vraiment comme on le leur a raconté. L’histoire devient une montée en tension entre guerre, secrets et survie, où chaque révélation change totalement la vision du monde.',
 	  fav:false }
 	];
 	
