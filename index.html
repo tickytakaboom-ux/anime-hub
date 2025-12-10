@@ -121,6 +121,65 @@
 	.card {
 	  animation: fadeUp 0.4s ease forwards;
 	}
+	#authContainer {
+	  display: flex;
+	  gap: 8px;
+	  align-items: center;
+	  background: rgba(255,255,255,0.05);
+	  padding: 6px 12px;
+	  border-radius: 12px;
+	  backdrop-filter: blur(4px);
+	}
+
+	#authContainer input {
+	  padding: 6px 10px;
+	  border-radius: 8px;
+	  border: 1px solid rgba(255,255,255,0.1);
+	  background: rgba(0,0,0,0.2);
+	  color: #e6eef6;
+	  outline: none;
+	  font-size: 14px;
+	  height: 36px;
+	}
+
+	#authContainer button {
+	  padding: 0px 12px;
+	  border-radius: 8px;
+	  border: none;
+	  cursor: pointer;
+	  background: var(--accent);
+	  color: #052226;
+	  font-weight: 700;
+	  transition: 0.2s;
+	  height: 36px;
+	}
+
+	#authContainer button:hover {
+	  background: #0fc1e5;
+	}
+	header {
+	  padding: 20px 40px; /* au lieu de 40px */
+	  flex-wrap: wrap;     /* permet aux éléments de descendre si besoin */
+	}
+
+	#authContainer {
+	  display: flex;
+	  gap: 8px;
+	  align-items: center;
+	  flex-wrap: wrap;     /* pour que les inputs passent à la ligne sur mobile */
+	}
+	@media (max-width:720px){
+	  #authContainer {
+		width: 100%;
+		justify-content: flex-start;
+	  }
+	  #authContainer input {
+		flex: 1;  /* prend toute la largeur dispo */
+	  }
+	  #authContainer button {
+		flex-shrink: 0;
+	  }
+	}
   </style>
 </head>
 <body>
@@ -135,17 +194,25 @@
           <input id="search" class="search" placeholder="Rechercher un anime..." />
         </div>
         <select id="genre" class="select">
-          <option>Tout</option>
         </select>
         <select id="sort" class="select-sm">
           <option value="top">Top rating</option>
           <option value="new">Les plus récents</option>
+		  <option value="az">Alphabétique (A → Z)</option>
+		  <option value="za">Alphabétique (Z → A)</option>
         </select>
         <select id="favFilter" class="select-sm">
           <option value="all">Tous</option>
           <option value="fav">Favoris seulement</option>
         </select>
       </div>
+	  <div id="authContainer">
+		<input type="email" id="email" placeholder="Email">
+		<input type="password" id="password" placeholder="Mot de passe">
+		<button id="signupBtn">S'inscrire</button>
+		<button id="loginBtn">Connexion</button>
+		<button id="logoutBtn" style="display:none">Déconnexion</button>
+	  </div>
     </header>
 	<div class="container">
     <main>
@@ -252,6 +319,11 @@
 	const genres = new Set(['Tout']);
 	SAMPLE_ANIMES.forEach(a => a.genre.forEach(g => genres.add(g)));
 	genres.forEach(g => { const o = document.createElement('option'); o.textContent=o.value=g; genreEl.appendChild(o); });
+	
+	const ITEMS_PER_LOAD = 6; // combien de cartes à charger à chaque fois
+	let currentIndex = 0; // index de départ pour le rendu
+	let filteredList = []; // liste filtrée après recherche/tri
+
 
 	function renderList(list){
 	  grid.innerHTML = '';
@@ -283,7 +355,42 @@
 		e.stopPropagation(); toggleFavorite(Number(b.dataset.id));
 	  }));
 	}
+	function renderNextBatch() {
+	  const grid = document.getElementById('grid');
+	  if(currentIndex >= filteredList.length) return;
 
+	  const nextBatch = filteredList.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
+	  nextBatch.forEach((a, index) => {
+		const card = document.createElement('div');
+		card.className = 'card';
+		card.style.animationDelay = `${(currentIndex + index) * 0.08}s`;
+		card.innerHTML = `
+		  <img src="${a.img}" alt="${a.title}">
+		  <div class="card-body">
+			<div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
+			<div class="title">${a.title}</div>
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+			  <div style="color:var(--muted); font-size:13px">${a.year}</div>
+			  <div style="display:flex; gap:6px;">
+				<button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
+				<button class="btn" data-id="${a.id}">Voir</button>
+			  </div>
+			</div>
+		  </div>`;
+		grid.appendChild(card);
+	  });
+
+	  // Modale et favoris
+	  grid.querySelectorAll('.btn').forEach(b => b.addEventListener('click', ()=>openModal(filteredList.find(a=>a.id==b.dataset.id))));
+	  grid.querySelectorAll('.fav-btn').forEach(b => b.addEventListener('click', e=>{
+		e.stopPropagation(); toggleFavorite(Number(b.dataset.id));
+	  }));
+
+	  currentIndex += ITEMS_PER_LOAD;
+
+	  // Afficher message si plus de résultats
+	  empty.style.display = currentIndex >= filteredList.length && filteredList.length === 0 ? 'block' : 'none';
+	}
 	function openModal(a){
 	  modalRoot.innerHTML = `
 		<div class="modal-backdrop" id="backdrop">
@@ -316,20 +423,25 @@
 	  localStorage.setItem('animeFavs', JSON.stringify(favs));
 	  applyFilters();
 	}
-
-	function applyFilters(){
+	function applyFilters() {
 	  const q = searchInput.value.toLowerCase();
 	  const g = genreEl.value;
 	  const s = sortEl.value;
 	  const f = favFilterEl.value;
-	  let list = SAMPLE_ANIMES.filter(a=>a.title.toLowerCase().includes(q));
-	  if(g!=='Tout') list = list.filter(a=>a.genre.includes(g));
-	  if(f==='fav') list = list.filter(a=>a.fav);
-	  if(s==='top') list.sort((a,b)=> b.rating - a.rating);
-	  if(s==='new') list.sort((a,b)=> b.year - a.year);
-	  renderList(list);
-	}
 
+	  filteredList = SAMPLE_ANIMES.filter(a => a.title.toLowerCase().includes(q));
+	  if(g !== 'Tout') filteredList = filteredList.filter(a => a.genre.includes(g));
+	  if(f === 'fav') filteredList = filteredList.filter(a => a.fav);
+	  if(s === 'top') filteredList.sort((a,b) => b.rating - a.rating);
+	  if(s === 'new') filteredList.sort((a,b) => b.year - a.year);
+	  if(s === 'az') filteredList.sort((a,b) => a.title.localeCompare(b.title));
+	  if(s === 'za') filteredList.sort((a,b) => b.title.localeCompare(a.title));
+
+	  // reset
+	  currentIndex = 0;
+	  grid.innerHTML = '';
+	  renderNextBatch();
+	}
 	searchInput.addEventListener('input', applyFilters);
 	genreEl.addEventListener('change', applyFilters);
 	sortEl.addEventListener('change', applyFilters);
@@ -355,8 +467,108 @@
 	  } else {
 		document.querySelector('header').classList.remove('sticky');
 	  }
+
+	  // Infinite scroll
+	  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+		renderNextBatch();
+	  }
 	});
 	applyFilters();
+  </script>
+  <script type="module">
+	// Import the functions you need from the SDKs you need
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+	import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+	// TODO: Add SDKs for Firebase products that you want to use
+	// https://firebase.google.com/docs/web/setup#available-libraries
+
+	// Your web app's Firebase configuration
+	// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+	const firebaseConfig = {
+	  apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+	  authDomain: "animehub-7.firebaseapp.com",
+	  projectId: "animehub-7",
+	  storageBucket: "animehub-7.firebasestorage.app",
+	  messagingSenderId: "159114039206",
+	  appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+	  measurementId: "G-6K4MB0XQEV"
+	};
+
+	// Initialize Firebase
+	const app = initializeApp(firebaseConfig);
+	const analytics = getAnalytics(app);
+	  
+	const emailInput = document.getElementById('email');
+	const passwordInput = document.getElementById('password');
+	const signupBtn = document.getElementById('signupBtn');
+	const loginBtn = document.getElementById('loginBtn');
+	const logoutBtn = document.getElementById('logoutBtn');
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+	const auth = getAuth(app);
+	signupBtn.addEventListener('click', () => {
+	  createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+		.then(userCredential => {
+		  alert('Compte créé !');
+		})
+		.catch(err => alert(err.message));
+	});
+
+	loginBtn.addEventListener('click', () => {
+	  signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+		.then(async (userCredential) => {
+		  alert('Connecté !');
+		  logoutBtn.style.display = 'inline-block';
+		  loginBtn.style.display = 'none';
+		  signupBtn.style.display = 'none';
+
+		  // Charger les favoris depuis Firestore
+		  const uid = auth.currentUser.uid;
+		  const userFavs = await loadFavorites(uid);
+		  SAMPLE_ANIMES.forEach(a => a.fav = !!userFavs[a.id]);
+		  applyFilters();
+		})
+		.catch(err => alert(err.message));
+	});
+	logoutBtn.addEventListener('click', () => {
+	  signOut(auth).then(() => {
+		alert('Déconnecté !');
+		logoutBtn.style.display = 'none';
+		loginBtn.style.display = 'inline-block';
+		signupBtn.style.display = 'inline-block';
+
+		// Réinitialiser tous les favoris à false
+		SAMPLE_ANIMES.forEach(a => a.fav = false);
+		localStorage.removeItem('animeFavs'); // si tu veux supprimer les favoris locaux
+		applyFilters();
+	  });
+	});
+	import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+	const db = getFirestore(app);
+
+	async function saveFavorites(uid, favs) {
+	  await setDoc(doc(db, "favorites", uid), favs);
+	}
+
+	async function loadFavorites(uid) {
+	  const docSnap = await getDoc(doc(db, "favorites", uid));
+	  return docSnap.exists() ? docSnap.data() : {};
+	}
+
+	function toggleFavorite(id) {
+	  const a = SAMPLE_ANIMES.find(a => a.id === id);
+	  a.fav = !a.fav;
+	  
+	  if(auth.currentUser) {
+		const uid = auth.currentUser.uid;
+		const favs = SAMPLE_ANIMES.reduce((acc, a) => { if(a.fav) acc[a.id] = true; return acc; }, {});
+		saveFavorites(uid, favs);
+	  } else {
+		// fallback localStorage
+		const favs = SAMPLE_ANIMES.reduce((acc, a) => { if(a.fav) acc[a.id] = true; return acc; }, {});
+		localStorage.setItem('animeFavs', JSON.stringify(favs));
+	  }
+	}
   </script>
 </body>
 </html>
