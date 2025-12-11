@@ -180,6 +180,70 @@
 		flex-shrink: 0;
 	  }
 	}
+	#userBox {
+	  background: rgba(255,255,255,0.05);
+	  padding: 6px 12px;
+	  border-radius: 8px;
+	  color: var(--accent);
+	  font-weight: 700;
+	  display: flex;
+	  align-items: center;
+	  gap: 8px;
+	}
+	#authContainer {
+	   flex-direction: column;
+	}
+	#authButtons {
+	  display: flex;
+	  flex-direction: column; 
+	  gap: 6px;
+	  width: 100%; /* pour que ça rende propre même en réduit */
+	}
+	#authButtons button {
+	  width: 100%;
+	}
+	.modal-auth {
+	  position: fixed;
+	  inset: 0;
+	  background: rgba(0,0,0,0.65);
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  z-index: 200;
+	}
+
+	.modal-auth-content {
+	  background: var(--card);
+	  padding: 20px;
+	  border-radius: 12px;
+	  width: 300px;
+	  display: flex;
+	  flex-direction: column;
+	  gap: 12px;
+	  animation: fadeUp .25s ease;
+	}
+
+	.modal-auth-content input {
+	  padding: 10px;
+	  border-radius: 8px;
+	  border: 1px solid rgba(255,255,255,0.15);
+	  background: var(--glass);
+	  color: #fff;
+	}
+
+	.modal-auth-content button {
+	  padding: 10px;
+	  border-radius: 8px;
+	  border: none;
+	  cursor: pointer;
+	  font-weight: 700;
+	}
+
+	.close-auth {
+	  background: transparent;
+	  border: 1px solid rgba(255,255,255,0.15);
+	  color: var(--muted);
+	}
   </style>
 </head>
 <body>
@@ -207,11 +271,24 @@
         </select>
       </div>
 	  <div id="authContainer">
-		<input type="email" id="email" placeholder="Email">
-		<input type="password" id="password" placeholder="Mot de passe">
-		<button id="signupBtn">S'inscrire</button>
-		<button id="loginBtn">Connexion</button>
-		<button id="logoutBtn" style="display:none">Déconnexion</button>
+		<button id="openLogin">Connexion</button>
+		<button id="openSignup">Inscription</button>
+
+		<div id="userBox" style="display:none; align-items:center; gap:8px;">
+		  <span id="username"></span>
+		  <button id="logoutBtn">Déconnexion</button>
+		</div>
+	  </div>
+	  <div id="authModal" class="modal-auth" style="display:none;">
+	    <div class="modal-auth-content">
+		  <h2 id="authTitle">Connexion</h2>
+
+		  <input type="email" id="authEmail" placeholder="Email">
+		  <input type="password" id="authPassword" placeholder="Mot de passe">
+
+		  <button id="authSubmit">Valider</button>
+		  <button id="authClose" class="close-auth">Fermer</button>
+	    </div>
 	  </div>
     </header>
 	<div class="container">
@@ -226,7 +303,6 @@
   <!-- Modal template -->
   <div id="modalRoot" style="display:none"></div>
   <button id="backToTop">↑ Top</button>
-
   <script>
     const SAMPLE_ANIMES = [
       { id:1, 
@@ -499,6 +575,14 @@
 	  year:2025,
 	  img:'https://cdn.myanimelist.net/images/anime/1758/148719.jpg',
 	  summary:'Le perso principal, Taro Sakamoto, c’était un tueur à gages légendaire, craint et respecté dans le milieu. Mais un jour il tombe amoureux, décide d’abandonner la vie d’assassin, se marie, a une fille, et ouvre une petite supérette pour mener une vie tranquille. Il est devenu un mari/papa un peu rondouillard — mais toujours costaud dans l’âme. Sauf que son passé le rattrape : d’anciens ennemis, des chasseurs de primes, des assassins reviennent pour lui. Pour protéger sa famille, Sakamoto doit reprendre du service — mais tout en essayant de garder sa promesse (ne plus tuer) et sa nouvelle vie paisible.',
+	  fav:false },
+	  { id:35,
+	  title:'Dragon Ball',
+	  genre:['Action','Adventure','Fantasy'],
+	  rating:9.2,
+	  year:1986,
+	  img:'https://cdn.myanimelist.net/images/anime/1723/145231.jpg',
+	  summary:'L’histoire suit Goku, un jeune garçon doté d’une force surhumaine et d’une queue de singe. Il part à l’aventure pour retrouver les Dragon Balls, sept boules magiques qui, une fois réunies, permettent de faire apparaître le dragon Shenron et d’exaucer un vœu. Au fil de ses voyages, Goku rencontre des amis comme Bulma, Krillin et Yamcha, affronte des ennemis redoutables, participe à des tournois d’arts martiaux, et découvre peu à peu ses origines extraterrestres et ses incroyables pouvoirs. L’anime mélange action, humour, aventures et leçons sur l’amitié et le courage.',
 	  fav:false }
 	];
 	
@@ -672,12 +756,34 @@
 		renderNextBatch();
 	  }
 	});
+	const authModal = document.getElementById("authModal");
+	const authTitle = document.getElementById("authTitle");
+	const authSubmit = document.getElementById("authSubmit");
+	const authEmail = document.getElementById("authEmail");
+	const authPassword = document.getElementById("authPassword");
+
+	document.getElementById("openLogin").onclick = () => {
+	  authTitle.textContent = "Connexion";
+	  authSubmit.dataset.mode = "login";
+	  authModal.style.display = "flex";
+	};
+
+	document.getElementById("openSignup").onclick = () => {
+	  authTitle.textContent = "Inscription";
+	  authSubmit.dataset.mode = "signup";
+	  authModal.style.display = "flex";
+	};
+
+	document.getElementById("authClose").onclick = () => {
+	  authModal.style.display = "none";
+	};
 	applyFilters();
   </script>
   <script type="module">
 	// Import the functions you need from the SDKs you need
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 	import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 	// TODO: Add SDKs for Firebase products that you want to use
 	// https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -695,79 +801,55 @@
 
 	// Initialize Firebase
 	const app = initializeApp(firebaseConfig);
-	const analytics = getAnalytics(app);
-	  
-	const emailInput = document.getElementById('email');
-	const passwordInput = document.getElementById('password');
-	const signupBtn = document.getElementById('signupBtn');
-	const loginBtn = document.getElementById('loginBtn');
-	const logoutBtn = document.getElementById('logoutBtn');
-	import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 	const auth = getAuth(app);
-	signupBtn.addEventListener('click', () => {
-	  createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-		.then(userCredential => {
-		  alert('Compte créé !');
-		})
-		.catch(err => alert(err.message));
+	const analytics = getAnalytics(app);
+
+	// éléments
+	const authModal = document.getElementById("authModal");
+	const authTitle = document.getElementById("authTitle");
+	const authEmail = document.getElementById("authEmail");
+	const authPassword = document.getElementById("authPassword");
+	const authSubmit = document.getElementById("authSubmit");
+	const authClose = document.getElementById("authClose");
+
+	let isLogin = true; // pour savoir si c'est login ou signup
+
+	// ouvrir le modal
+	document.getElementById("openLogin").addEventListener("click", () => {
+	  authModal.style.display = "flex";
+	  authTitle.textContent = "Connexion";
+	  isLogin = true;
 	});
 
-	loginBtn.addEventListener('click', () => {
-	  signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-		.then(async (userCredential) => {
-		  alert('Connecté !');
-		  logoutBtn.style.display = 'inline-block';
-		  loginBtn.style.display = 'none';
-		  signupBtn.style.display = 'none';
-
-		  // Charger les favoris depuis Firestore
-		  const uid = auth.currentUser.uid;
-		  const userFavs = await loadFavorites(uid);
-		  SAMPLE_ANIMES.forEach(a => a.fav = !!userFavs[a.id]);
-		  applyFilters();
-		})
-		.catch(err => alert(err.message));
+	document.getElementById("openSignup").addEventListener("click", () => {
+	  authModal.style.display = "flex";
+	  authTitle.textContent = "Inscription";
+	  isLogin = false;
 	});
-	logoutBtn.addEventListener('click', () => {
-	  signOut(auth).then(() => {
-		alert('Déconnecté !');
-		logoutBtn.style.display = 'none';
-		loginBtn.style.display = 'inline-block';
-		signupBtn.style.display = 'inline-block';
 
-		// Réinitialiser tous les favoris à false
-		SAMPLE_ANIMES.forEach(a => a.fav = false);
-		localStorage.removeItem('animeFavs'); // si tu veux supprimer les favoris locaux
-		applyFilters();
-	  });
-	});
-	import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+	// fermer le modal
+	authClose.addEventListener("click", () => authModal.style.display = "none");
 
-	const db = getFirestore(app);
+	// clic sur Valider
+	authSubmit.addEventListener("click", async () => {
+	  const email = authEmail.value;
+	  const password = authPassword.value;
 
-	async function saveFavorites(uid, favs) {
-	  await setDoc(doc(db, "favorites", uid), favs);
-	}
-
-	async function loadFavorites(uid) {
-	  const docSnap = await getDoc(doc(db, "favorites", uid));
-	  return docSnap.exists() ? docSnap.data() : {};
-	}
-
-	function toggleFavorite(id) {
-	  const a = SAMPLE_ANIMES.find(a => a.id === id);
-	  a.fav = !a.fav;
-	  
-	  if(auth.currentUser) {
-		const uid = auth.currentUser.uid;
-		const favs = SAMPLE_ANIMES.reduce((acc, a) => { if(a.fav) acc[a.id] = true; return acc; }, {});
-		saveFavorites(uid, favs);
-	  } else {
-		// fallback localStorage
-		const favs = SAMPLE_ANIMES.reduce((acc, a) => { if(a.fav) acc[a.id] = true; return acc; }, {});
-		localStorage.setItem('animeFavs', JSON.stringify(favs));
+	  try {
+		if(isLogin){
+		  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+		  alert("Connexion réussie : " + userCredential.user.email);
+		} else {
+		  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+		  alert("Inscription réussie : " + userCredential.user.email);
+		}
+		authEmail.value = "";
+		authPassword.value = "";
+		authModal.style.display = "none";
+	  } catch(error) {
+		alert("Erreur : " + error.message);
 	  }
-	}
+	});
   </script>
 </body>
 </html>
