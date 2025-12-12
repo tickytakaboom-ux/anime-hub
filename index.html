@@ -181,14 +181,14 @@
 	  }
 	}
 	#userBox {
-	  background: rgba(255,255,255,0.05);
+	  background: rgba(255,255,255,0.12);
 	  padding: 6px 12px;
-	  border-radius: 8px;
-	  color: var(--accent);
-	  font-weight: 700;
-	  display: flex;
+	  border-radius: 6px;
+	  display: none;
 	  align-items: center;
-	  gap: 8px;
+	}
+	#userBox span {
+	  color: white;
 	}
 	#authContainer {
 	   flex-direction: column;
@@ -244,6 +244,12 @@
 	  border: 1px solid rgba(255,255,255,0.15);
 	  color: var(--muted);
 	}
+	#logoutBtn {
+	  padding: 4px 10px;
+	  border: none;
+	  border-radius: 4px;
+	  cursor: pointer;
+	}
   </style>
 </head>
 <body>
@@ -274,8 +280,8 @@
 		<button id="openLogin">Connexion</button>
 		<button id="openSignup">Inscription</button>
 
-		<div id="userBox" style="display:none; align-items:center; gap:8px;">
-		  <span id="username"></span>
+		<div id="userBox" style="display:none; align-items:center; gap:10px;">
+		  <span id="username" style="font-weight:bold;"></span>
 		  <button id="logoutBtn">Déconnexion</button>
 		</div>
 	  </div>
@@ -780,44 +786,59 @@
 	applyFilters();
   </script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } 
-            from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+      import { 
+          initializeApp 
+      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
-        authDomain: "animehub-7.firebaseapp.com",
-        projectId: "animehub-7",
-        storageBucket: "animehub-7.firebasestorage.app",
-        messagingSenderId: "159114039206",
-        appId: "1:159114039206:web:0461d676e7ffff25c4c967",
-        measurementId: "G-6K4MB0XQEV"
-    };
+      import { 
+          getAuth, onAuthStateChanged, signOut 
+      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+      const firebaseConfig = {
+          apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+          authDomain: "animehub-7.firebaseapp.com",
+          projectId: "animehub-7",
+          storageBucket: "animehub-7.firebasestorage.app",
+          messagingSenderId: "159114039206",
+          appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+          measurementId: "G-6K4MB0XQEV"
+      };
 
-    const authContainer = document.getElementById("authContainer");
-    const userBox = document.getElementById("userBox");
-    const username = document.getElementById("username");
-    const logoutBtn = document.getElementById("logoutBtn");
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const userBox = document.getElementById("userBox");
+      const username = document.getElementById("username");
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            authContainer.style.display = "none";
-            userBox.style.display = "flex";
+      const openLogin = document.getElementById("openLogin");
+      const openSignup = document.getElementById("openSignup");
+      const logoutBtn = document.getElementById("logoutBtn");
 
-            username.textContent = user.email.split("@")[0];
-        } else {
-            authContainer.style.display = "flex";
-            userBox.style.display = "none";
-        }
-    });
+      onAuthStateChanged(auth, (user) => {
 
-    logoutBtn.addEventListener("click", async () => {
-        await signOut(auth);
-        window.location.href = "auth.html"; 
-    });
+          if (user) {
+
+              if (openLogin) openLogin.style.display = "none";
+              if (openSignup) openSignup.style.display = "none";
+
+              userBox.style.display = "flex";
+
+              // Nom utilisateur = email avant le @
+              username.textContent = user.email.split("@")[0];
+
+          } else {
+
+              if (openLogin) openLogin.style.display = "inline-block";
+              if (openSignup) openSignup.style.display = "inline-block";
+
+              userBox.style.display = "none";
+          }
+      });
+
+      // Bouton déconnexion
+      logoutBtn?.addEventListener("click", async () => {
+          await signOut(auth);
+          window.location.href = "auth.html"; 
+      });
   </script>
 </body>
 </html>
