@@ -66,64 +66,97 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { 
-      getAuth, 
-      onAuthStateChanged, 
-      signInWithEmailAndPassword, 
-      createUserWithEmailAndPassword 
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { 
+	getAuth, 
+	onAuthStateChanged, 
+	signInWithEmailAndPassword, 
+	createUserWithEmailAndPassword 
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+  import { 
+	getFirestore, 
+	doc, 
+	setDoc 
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
-      authDomain: "animehub-7.firebaseapp.com",
-      projectId: "animehub-7",
-      storageBucket: "animehub-7.firebasestorage.app",
-      messagingSenderId: "159114039206",
-      appId: "1:159114039206:web:0461d676e7ffff25c4c967",
-    };
+  const firebaseConfig = {
+	apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+	authDomain: "animehub-7.firebaseapp.com",
+	projectId: "animehub-7",
+	storageBucket: "animehub-7.firebasestorage.app",
+	messagingSenderId: "159114039206",
+	appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const authTitle = document.getElementById("authTitle");
-    const switchBtn = document.getElementById("switchMode");
-    const submitBtn = document.getElementById("authSubmit");
+  const authTitle = document.getElementById("authTitle");
+  const switchBtn = document.getElementById("switchMode");
+  const submitBtn = document.getElementById("authSubmit");
 
-    let mode = "login";
+  let mode = "login";
 
-    switchBtn.addEventListener("click", () => {
-      if (mode === "login") {
-        mode = "signup";
-        authTitle.textContent = "Inscription";
-        switchBtn.textContent = "Déjà un compte ? Connexion";
-      } else {
-        mode = "login";
-        authTitle.textContent = "Connexion";
-        switchBtn.textContent = "Pas de compte ? Inscription";
-      }
-    });
+  switchBtn.addEventListener("click", () => {
+	if (mode === "login") {
+	  mode = "signup";
+	  authTitle.textContent = "Inscription";
+	  switchBtn.textContent = "Déjà un compte ? Connexion";
+	} else {
+	  mode = "login";
+	  authTitle.textContent = "Connexion";
+	  switchBtn.textContent = "Pas de compte ? Inscription";
+	}
+  });
 
-    submitBtn.addEventListener("click", async () => {
-      const email = document.getElementById("authEmail").value;
-      const password = document.getElementById("authPassword").value;
+  submitBtn.addEventListener("click", async () => {
+	const email = document.getElementById("authEmail").value;
+	const password = document.getElementById("authPassword").value;
 
-      try {
-        if (mode === "login") {
-          await signInWithEmailAndPassword(auth, email, password);
-        } else {
-          await createUserWithEmailAndPassword(auth, email, password);
-        }
+	try {
+	  if (mode === "login") {
+		await signInWithEmailAndPassword(auth, email, password);
+		console.log("Utilisateur connecté :", email);
 
-        window.location.href = "index.html";
-      } catch (err) {
-        alert(err.message);
-      }
-    });
+	  } else {
+		const cred = await createUserWithEmailAndPassword(auth, email, password);
+		console.log("Compte créé avec succès :", cred.user.uid);
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) window.location.href = "index.html";
-    });
+		try {
+		  const userDoc = doc(db, "users", cred.user.uid);
+
+		  await setDoc(userDoc, {
+			username: email.split("@")[0],
+			email: email,
+			favorites: [],
+			ratings: {},
+			createdAt: new Date()
+		  });
+
+		  console.log("Utilisateur ajouté à Firestore !");
+		  alert("Compte créé et enregistré dans Firestore !");
+
+		} catch(firestoreErr) {
+		  console.error("Erreur Firestore :", firestoreErr);
+		  alert("Le compte a été créé, mais impossible d'enregistrer les données supplémentaires.");
+		}
+	  }
+
+	  window.location.href = "index.html";
+
+	} catch (err) {
+	  console.error("Erreur Auth :", err);
+	  alert("Erreur : " + err.message);
+	}
+  });
+
+  onAuthStateChanged(auth, (user) => {
+	if (user) {
+	  console.log("Utilisateur déjà connecté :", user.email);
+	  window.location.href = "index.html";
+	}
+  });
   </script>
 </body>
 </html>

@@ -129,7 +129,6 @@
 	  flex-direction: row;
 	  white-space: nowrap;
 	  pointer-events: auto;
-	  margin-left: auto;
 	}
 
 	#authContainer input {
@@ -323,7 +322,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', 
 	  summary:'One Piece suit Monkey D. Luffy, un ado qui veut devenir Roi des Pirates après avoir mangé un fruit magique qui rend son corps élastique. Il part sur les mers pour trouver le légendaire trésor, le One Piece, et se crée petit à petit un équipage aux pouvoirs et aux rêves différents, les Mugiwara. Ensemble, ils affrontent des pirates, des marines, des tyrans et des monstres, tout en vivant des aventures incroyables et en se rapprochant de la vérité sur le monde et sur le passé caché.', 
 	  fav:false },
-      { id:2, title:'Solo Leveling', 
+      { id:2, 
+	  title:'Solo Leveling', 
 	  genre:['Action','Fantasy'], 
 	  rating:8.2, 
 	  year:2024, 
@@ -793,10 +793,12 @@
       import { 
           initializeApp 
       } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-
       import { 
           getAuth, onAuthStateChanged, signOut 
       } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+	  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+
 
       const firebaseConfig = {
           apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -815,38 +817,51 @@
 
       const openLogin = document.getElementById("openLogin");
       const openSignup = document.getElementById("openSignup");
-      const logoutBtn = document.getElementById("logoutBtn");
+	  const db = getFirestore(app);
+
 	  
 	  userBox.addEventListener("click", () => {
         window.location.href = "profile.html";
       });
 
-      onAuthStateChanged(auth, (user) => {
+	  onAuthStateChanged(auth, async (user) => {
+	    if (user) {
+		  if (openLogin) openLogin.style.display = "none";
+		  if (openSignup) openSignup.style.display = "none";
 
-          if (user) {
+		  userBox.style.display = "flex";
 
-              if (openLogin) openLogin.style.display = "none";
-              if (openSignup) openSignup.style.display = "none";
+		  try {
+		    const userDocRef = doc(db, "users", user.uid);
+		    const userSnap = await getDoc(userDocRef);
 
-              userBox.style.display = "flex";
+		    if (userSnap.exists()) {
+		      const data = userSnap.data();
+			  username.textContent = data.username || user.email.split("@")[0];
+		    } else {
+			  // Crée le doc Firestore si inexistant (utile pour comptes créés avant Firestore)
+			  const userData = {
+			    username: user.email.split("@")[0],
+			    email: user.email,
+			    favorites: [],
+			    ratings: {}
+			  };
+			  await setDoc(userDocRef, userData);
+			  username.textContent = userData.username;
+		    }
 
-              // Nom utilisateur = email avant le @
-              username.textContent = user.email.split("@")[0];
+		  } catch (err) {
+		    console.error("Erreur récupération Firestore:", err);
+		    username.textContent = user.email.split("@")[0]; // fallback
+		  }
 
-          } else {
-
-              if (openLogin) openLogin.style.display = "inline-block";
-              if (openSignup) openSignup.style.display = "inline-block";
-			  userBox.style.display = "none";
-			  window.location.href = "auth.html";
-          }
-      });
-
-      // Bouton déconnexion
-      logoutBtn?.addEventListener("click", async () => {
-          await signOut(auth);
-          window.location.href = "auth.html"; 
-      });
+	    } else {
+		  if (openLogin) openLogin.style.display = "inline-block";
+		  if (openSignup) openSignup.style.display = "inline-block";
+		  userBox.style.display = "none";
+		  window.location.href = "auth.html";
+	    }
+	  });
   </script>
 </body>
 </html>

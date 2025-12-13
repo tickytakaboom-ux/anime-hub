@@ -41,9 +41,7 @@
       margin: 0 auto 16px;
     }
 
-    h2 {
-      margin: 0;
-    }
+    h2 { margin: 0; }
 
     .email {
       color: #9ca3af;
@@ -77,10 +75,12 @@
 
 <body>
 
-  <div class="profile-card">
-    <div class="avatar" id="avatar">U</div>
-    <h2 id="username">Utilisateur</h2>
-    <div class="email" id="email">email@email.com</div>
+	<div class="profile-card">
+	  <div class="avatar" id="avatar"></div>
+	  <h2 id="username">Chargement...</h2>
+	  <div class="email" id="email">Chargement...</div>
+	  <h2 id="username"></h2>
+	  <div class="email" id="email"></div>
 
     <div class="actions">
       <button onclick="location.href='index.html'">Retour à l’accueil</button>
@@ -90,8 +90,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } 
-      from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -101,26 +101,50 @@
       messagingSenderId: "159114039206",
       appId: "1:159114039206:web:0461d676e7ffff25c4c967"
     };
-
+  
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const usernameEl = document.getElementById("username");
     const emailEl = document.getElementById("email");
     const avatarEl = document.getElementById("avatar");
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // 🔒 pas connecté → retour auth
         window.location.href = "auth.html";
         return;
       }
 
-      const name = user.email.split("@")[0];
+      const userRef = doc(db, "users", user.uid);
+      let userData;
 
-      usernameEl.textContent = name;
-      emailEl.textContent = user.email;
-      avatarEl.textContent = name[0].toUpperCase();
+      try {
+        const snap = await getDoc(userRef);
+
+        if (!snap.exists()) {
+          // 🔹 création auto du doc (anciens comptes inclus)
+          userData = {
+            username: user.email.split("@")[0],
+            email: user.email,
+            favorites: [],
+            ratings: {}
+          };
+          await setDoc(userRef, userData);
+        } else {
+          userData = snap.data();
+        }
+
+        // 🔹 affichage sécurisé
+        const name = userData.username || user.email.split("@")[0];
+
+        usernameEl.textContent = name;
+        emailEl.textContent = userData.email || user.email;
+        avatarEl.textContent = name.charAt(0).toUpperCase();
+
+      } catch (err) {
+        console.error("Erreur profil :", err);
+      }
     });
 
     document.getElementById("logoutBtn").addEventListener("click", async () => {
