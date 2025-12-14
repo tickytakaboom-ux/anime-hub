@@ -596,6 +596,7 @@
 	  fav:false }
 	];
 	
+
 	const genreEl = document.getElementById('genre');
 	const sortEl = document.getElementById('sort');
 	const favFilterEl = document.getElementById('favFilter');
@@ -603,10 +604,6 @@
 	const searchInput = document.getElementById('search');
 	const empty = document.getElementById('empty');
 	const modalRoot = document.getElementById('modalRoot');
-
-	// Charger favoris depuis localStorage
-	const storedFavs = JSON.parse(localStorage.getItem('animeFavs') || '{}');
-	SAMPLE_ANIMES.forEach(a => { if(storedFavs[a.id]) a.fav = true; });
 
 	// Remplir select genres
 	const genres = new Set(['Tout']);
@@ -673,12 +670,6 @@
 		grid.appendChild(card);
 	  });
 
-	  // Modale et favoris
-	  grid.querySelectorAll('.btn').forEach(b => b.addEventListener('click', ()=>openModal(filteredList.find(a=>a.id==b.dataset.id))));
-	  grid.querySelectorAll('.fav-btn').forEach(b => b.addEventListener('click', e=>{
-		e.stopPropagation(); toggleFavorite(Number(b.dataset.id));
-	  }));
-
 	  currentIndex += ITEMS_PER_LOAD;
 
 	  // Afficher message si plus de résultats
@@ -707,15 +698,7 @@
 	}
 	function closeModal(){ modalRoot.style.display='none'; modalRoot.innerHTML=''; document.removeEventListener('keydown', escHandler); }
 	function escHandler(e){ if(e.key==='Escape') closeModal(); }
-
-	function toggleFavorite(id){
-	  const a = SAMPLE_ANIMES.find(a=>a.id===id);
-	  a.fav = !a.fav;
-	  // sauvegarder dans localStorage
-	  const favs = SAMPLE_ANIMES.reduce((acc, a)=> { if(a.fav) acc[a.id]=true; return acc; }, {});
-	  localStorage.setItem('animeFavs', JSON.stringify(favs));
-	  applyFilters();
-	}
+    
 	function applyFilters() {
 	  const q = searchInput.value.toLowerCase();
 	  const g = genreEl.value;
@@ -796,10 +779,11 @@
       import { 
           getAuth, onAuthStateChanged, signOut 
       } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-	  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-
-
+	  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+	  import { 
+			updateDoc, arrayUnion, arrayRemove 
+	  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+	  
       const firebaseConfig = {
           apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
           authDomain: "animehub-7.firebaseapp.com",
@@ -811,15 +795,14 @@
       };
 
       const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
       const userBox = document.getElementById("userBox");
       const username = document.getElementById("username");
 
       const openLogin = document.getElementById("openLogin");
       const openSignup = document.getElementById("openSignup");
 	  const db = getFirestore(app);
+	  const auth = getAuth(app);
 
-	  
 	  userBox.addEventListener("click", () => {
         window.location.href = "profile.html";
       });
@@ -828,8 +811,9 @@
 	    if (user) {
 		  if (openLogin) openLogin.style.display = "none";
 		  if (openSignup) openSignup.style.display = "none";
-
 		  userBox.style.display = "flex";
+		  await loadFavorites();
+		  applyFilters();
 
 		  try {
 		    const userDocRef = doc(db, "users", user.uid);
@@ -862,6 +846,82 @@
 		  window.location.href = "auth.html";
 	    }
 	  });
+	  async function toggleFavorite(animeId) {
+	    if (!auth.currentUser) {
+		  alert("Connecte-toi pour ajouter un favori !");
+		  return;
+	    }
+
+	    const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
+	    if (!anime) return;
+
+	    // 🔁 Toggle local
+	    anime.fav = !anime.fav;
+
+	    // 🔥 Firestore
+	    const userFavoritesRef = doc(db, "users", auth.currentUser.uid);
+
+	    await setDoc(
+		  userFavoritesRef,
+		  {
+		    favorites: SAMPLE_ANIMES
+			  .filter(a => a.fav)
+			  .map(a => a.id)
+		  },
+		  { merge: true }
+	    );
+
+	    // 🎨 UI
+	    const btn = document.querySelector(`.fav-btn[data-id="${animeId}"]`);
+	    if (btn) btn.textContent = anime.fav ? "★" : "☆";
+	  }
+
+	  // Modale
+	  grid.addEventListener('click', e => {
+	    if (e.target.classList.contains('btn')) {
+		  const id = Number(e.target.dataset.id);
+		  const anime = filteredList.find(a => a.id === id);
+		  if (anime) openModal(anime);
+	    }
+	  });
+
+	  // Favoris
+	  grid.addEventListener('click', e => {
+	   if (e.target.classList.contains('fav-btn')) {
+		  e.stopPropagation();
+		  const id = Number(e.target.dataset.id);
+		  toggleFavorite(id);
+	    }
+	  });
+	  async function loadFavorites() {
+	    const user = auth.currentUser;
+	    if (!user) return;
+
+	    const userRef = doc(db, "users", user.uid);
+	    const snap = await getDoc(userRef);
+
+	    if (!snap.exists()) return;
+
+	    const data = snap.data();
+	    if (!Array.isArray(data.favorites)) return;
+
+	    // 🔥 Synchronisation Firestore → UI
+	    SAMPLE_ANIMES.forEach(anime => {
+		  anime.fav = data.favorites.includes(anime.id);
+	    });
+	  }
+
+	  function updateFavoriteButtons() {
+	    grid.querySelectorAll('.fav-btn').forEach(b => {
+		  const id = Number(b.dataset.id);
+		  const anime = filteredList.find(a => a.id === id);
+		  if (anime && anime.isFavorite) {
+		    b.classList.add('favorited'); // ou ton style CSS
+		  } else {
+		    b.classList.remove('favorited');
+		  }
+		})
+	  };	
   </script>
 </body>
 </html>
