@@ -779,10 +779,7 @@
       import { 
           getAuth, onAuthStateChanged, signOut 
       } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-	  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-	  import { 
-			updateDoc, arrayUnion, arrayRemove 
-	  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 	  
       const firebaseConfig = {
           apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -847,33 +844,45 @@
 	    }
 	  });
 	  async function toggleFavorite(animeId) {
-	    if (!auth.currentUser) {
+	    const user = auth.currentUser;
+	    if (!user) {
 		  alert("Connecte-toi pour ajouter un favori !");
 		  return;
-	    }
+	   }
 
 	    const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
 	    if (!anime) return;
 
-	    // 🔁 Toggle local
-	    anime.fav = !anime.fav;
+	    const userRef = doc(db, "users", user.uid);
+	    const animeRef = doc(db, "animes", String(animeId));
 
-	    // 🔥 Firestore
-	    const userFavoritesRef = doc(db, "users", auth.currentUser.uid);
+	    const wasFav = anime.fav;
+	    anime.fav = !wasFav;
 
-	    await setDoc(
-		  userFavoritesRef,
-		  {
-		    favorites: SAMPLE_ANIMES
-			  .filter(a => a.fav)
-			  .map(a => a.id)
-		  },
-		  { merge: true }
-	    );
+	    try {
+		  // 🔹 S'assurer que le doc anime existe
+		  const snap = await getDoc(animeRef);
+		  if (!snap.exists()) {
+		    await setDoc(animeRef, { likes: 0 }, { merge: true });
+		  }
 
-	    // 🎨 UI
+		  // 🔹 Mettre à jour les favoris de l'utilisateur
+		  if (!wasFav) {
+		    await updateDoc(userRef, { favorites: arrayUnion(animeId) });
+		    await updateDoc(animeRef, { likes: increment(1) });
+		  } else {
+		    await updateDoc(userRef, { favorites: arrayRemove(animeId) });
+		    await updateDoc(animeRef, { likes: increment(-1) });
+		  }
+	    } catch (err) {
+		  console.error("Erreur toggleFavorite:", err);
+	    }
+
+	    // 🔹 Mettre à jour l'UI
 	    const btn = document.querySelector(`.fav-btn[data-id="${animeId}"]`);
 	    if (btn) btn.textContent = anime.fav ? "★" : "☆";
+
+	    applyFilters(); // refresh UI
 	  }
 
 	  // Modale
