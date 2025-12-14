@@ -253,6 +253,17 @@
 	#userBox:hover {
 	  background: rgba(255,255,255,0.2);
 	}
+	.badge-trending {
+	  position: absolute;
+	  top: 8px;
+	  left: 8px;
+	  background: #ff4500;
+	  color: white;
+	  font-size: 12px;
+	  padding: 4px 6px;
+	  border-radius: 6px;
+	  font-weight: bold;
+	}
   </style>
 </head>
 <body>
@@ -273,6 +284,7 @@
           <option value="new">Les plus récents</option>
 		  <option value="az">Alphabétique (A → Z)</option>
 		  <option value="za">Alphabétique (Z → A)</option>
+		  <option value="popular">🔥 Popularité</option>
         </select>
         <select id="favFilter" class="select-sm">
           <option value="all">Tous</option>
@@ -321,7 +333,8 @@
 	  year:1999, 
 	  img:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', 
 	  summary:'One Piece suit Monkey D. Luffy, un ado qui veut devenir Roi des Pirates après avoir mangé un fruit magique qui rend son corps élastique. Il part sur les mers pour trouver le légendaire trésor, le One Piece, et se crée petit à petit un équipage aux pouvoirs et aux rêves différents, les Mugiwara. Ensemble, ils affrontent des pirates, des marines, des tyrans et des monstres, tout en vivant des aventures incroyables et en se rapprochant de la vérité sur le monde et sur le passé caché.', 
-	  fav:false },
+	  fav:false,
+	  like: 0 },
       { id:2, 
 	  title:'Solo Leveling', 
 	  genre:['Action','Fantasy'], 
@@ -329,7 +342,8 @@
 	  year:2024, 
 	  img:'https://cdn.myanimelist.net/images/anime/1448/147351.jpg', 
 	  summary:'Dans un monde où des portails font apparaître des monstres, les humains “chasseurs” risquent leur vie pour les affronter. Sung Jin-Woo, considéré comme le chasseur le plus faible, survit par miracle à un donjon terrifiant. Après ça, il reçoit un pouvoir unique : il peut devenir plus fort sans limite, comme dans un jeu vidéo, en accomplissant des quêtes et en gagnant des niveaux. À partir de là, Jin-Woo grimpe en puissance à une vitesse folle, affronte des ennemis de plus en plus dangereux, et découvre les secrets derrière les portails et sa propre ascension.', 
-	  fav:false },
+	  fav:false,
+	  like: 0 },
       { id:3, 
 	  title:'Death Note', 
 	  genre:['Mystery','Thriller'], 
@@ -337,7 +351,8 @@
 	  year:2006, 
 	  img:'https://cdn.myanimelist.net/images/anime/1079/138100.jpg', 
 	  summary:'Death Note raconte l’histoire de Light Yagami, un étudiant japonais brillant mais désabusé, qui trouve un carnet surnaturel appelé Death Note. Ce carnet permet de tuer toute personne dont on écrit le nom dedans. Convaincu qu’il peut créer un monde parfait en éliminant les criminels, Light se transforme en justicier impitoyable sous le nom de Kira. Face à lui, L, un détective génial et mystérieux, se lance dans une lutte intellectuelle intense pour l’arrêter. Entre manipulations, trahisons et stratégies mentales, le combat entre Light et L devient une véritable partie d’échecs mortelle.', 
-	  fav:false },
+	  fav:false,
+	  like: 0 },
       { id:4, 
 	  title:'Jujutsu Kaisen', 
 	  genre:['Action','Supernatural'], 
@@ -345,7 +360,8 @@
 	  year:2020, 
 	  img:'https://cdn.myanimelist.net/images/anime/1180/153379.jpg', 
 	  summary:'L’histoire suit Yuji Itadori, un lycéen super sportif qui découvre un monde caché rempli de malédictions, des esprits créés par les émotions négatives des humains. Quand il avale un doigt maudit contenant une puissante malédiction, Ryomen Sukuna, il devient son hôte. Yuji rejoint alors l’école de Jujutsu, où il apprend à combattre les malédictions avec ses nouveaux pouvoirs, tout en essayant de protéger les innocents et de découvrir comment vaincre Sukuna définitivement.', 
-	  fav:false },
+	  fav:false,
+	  like: 0  },
       { id:5, 
 	  title:'Oshi No Ko', 
 	  genre:['Drama','Mystery'], 
@@ -353,7 +369,8 @@
 	  year:2023, 
 	  img:'https://cdn.myanimelist.net/images/anime/1979/153329.jpg', 
 	  summary:'L’histoire suit Aquamarine “Aqua” et Ruby, des jumeaux nés dans l’industrie du divertissement après une série d’événements tragiques liés à leur mère, une idole populaire. Le manga explore les coulisses sombres du showbiz, les ambitions, les manipulations et les secrets des célébrités, tout en suivant leur quête de justice et de vérité sur le passé de leur famille.', 
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:6,
 	  title:'Fairy Tail',
 	  genre:['Action','Adventure','Fantasy'],
@@ -361,7 +378,8 @@
 	  year:2009,
 	  img:'https://cdn.myanimelist.net/images/anime/5/18179.jpg',
 	  summary:`L'histoire suit Natsu Dragnir, un mage de feu, et ses amis de la guilde Fairy Tail, connus pour leur énergie, leur courage et leur sens de la camaraderie. Ensemble, ils accomplissent des missions, affrontent des ennemis redoutables et découvrent des secrets sur le monde et sur eux-mêmes. Au fil des aventures, l’anime met surtout l’accent sur l’amitié, la persévérance et la magie spectaculaire, avec des combats intenses et des moments émouvants qui renforcent les liens entre les personnages.`,
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:7,
 	  title:'Shangri-La Frontier',
 	  genre:['Isekai','Fantasy','Game'],
@@ -369,7 +387,8 @@
 	  year:2023,
 	  img:'https://cdn.myanimelist.net/images/anime/1851/148885.jpg',
 	  summary:`L'histoire suit Sunraku, un gamer hardcore qui adore les jeux vidéo tout buggés. Un jour, il décide de tester Shangri-La Frontier, un VRMMORPG extrêmement populaire et bien fait. Grâce à son expérience dans des jeux “horribles”, Sunraku devient incroyablement fort dans ce monde virtuel. Il se lance alors dans une aventure pleine de boss légendaires, de défis absurdes, de rencontres marquantes et de moments très drôles, tout en essayant de percer les secrets du jeu.`,
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:8,
 	  title:'My Hero Academia',
 	  genre:['Superheroes','Action'],
@@ -377,7 +396,8 @@
 	  year:2016,
 	  img:'https://cdn.myanimelist.net/images/anime/1959/151055.jpg',
 	  summary:'Dans un monde où presque tout le monde possède un pouvoir appelé Alter, Izuku Midoriya naît… sans aucun pouvoir. Son rêve pourtant : devenir un grand héros comme son idole All Might. Sa vie bascule quand All Might lui transmet son Alter, One For All. Izuku intègre alors l’école de héros UA, où il s’entraîne avec d’autres élèves pour devenir pro, affronte des vilains de plus en plus dangereux et découvre les secrets derrière son nouveau pouvoir.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:9,
 	  title:'Attack On Titan',
 	  genre:['Dark','Fantasy','Action','Drama'],
@@ -385,7 +405,8 @@
 	  year:2013,
 	  img:'https://cdn.myanimelist.net/images/anime/1948/120625.jpg',
 	  summary:'L’histoire suit Eren Yeager, qui vit dans une cité entourée de gigantesques murs pour protéger l’humanité des Titans, des créatures qui dévorent les humains. Après que sa ville est détruite et que sa mère meurt, Eren jure d’exterminer tous les Titans. Il rejoint alors l’armée avec Mikasa et Armin, et découvre peu à peu la vérité : les Titans, les murs, le monde extérieur… rien n’est vraiment comme on le leur a raconté. L’histoire devient une montée en tension entre guerre, secrets et survie, où chaque révélation change totalement la vision du monde.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:10,
 	  title:'Classroom Of The Elite',
 	  genre:['Psychological','School Life','Drama','Thriller'],
@@ -393,15 +414,17 @@
 	  year:2017,
 	  img:'https://cdn.myanimelist.net/images/anime/1176/153626.jpg',
 	  summary:'L’histoire suit Kiyotaka Ayanokōji, un élève apparemment banal placé dans la classe D, la classe la plus faible d’un lycée d’élite où tout fonctionne selon un système de points, de compétition et de manipulation. Très vite, on comprend qu’Ayanokōji cache un niveau d’intelligence et de stratégie monstrueux, qu’il utilise discrètement pour faire progresser sa classe, manipuler les autres groupes et naviguer dans un système scolaire impitoyable où chaque élève cherche à grimper socialement. L’anime repose sur des jeux psychologiques, des alliances, des trahisons, et les secrets autour du passé d’Ayanokōji.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:11,
 	  title:'Rascal Does Not Dream Of ...',
 	  genre:['Romance','Drama','Psychological','Slice Of Life','Supernatural'],
 	  rating:7.9,
 	  year:2018,
 	  img:'https://cdn.myanimelist.net/images/anime/1823/149858.jpg',
-	  summary:'L’histoire suit Sakuta Azusagawa, un lycéen qui rencontre Mai Sakurajima, une actrice célèbre devenue invisible aux yeux du monde à cause d’un phénomène lié au “syndrome de l’adolescence”. En cherchant à l’aider, Sakuta découvre que d’autres élèves vivent aussi des phénomènes surnaturels qui reflètent leurs blessures émotionnelles : harcèlement, pression, jalousie, identité… À chaque fois, il doit comprendre leur problème pour les aider à s’en sortir, tout en développant une relation touchante et sincère avec Mai. C’est un anime qui mélange romance, émotions et un soupçon de surnaturel de manière très chill.',
-	  fav:false },
+	  summary:'L’histoire suit Sakuta Azusagawa, un lycéen qui rencontre Mai Sakurajima, une actrice célèbre devenue invisible aux yeux du monde à cause d’un phénomène lié au “syndrome de la puberté”. En cherchant à l’aider, Sakuta découvre que d’autres élèves vivent aussi des phénomènes surnaturels qui reflètent leurs blessures émotionnelles : harcèlement, pression, jalousie, identité… À chaque fois, il doit comprendre leur problème pour les aider à s’en sortir, tout en développant une relation touchante et sincère avec Mai. C’est un anime qui mélange romance, émotions et un soupçon de surnaturel de manière très chill.',
+	  fav:false,
+	  like: 0 },
 	  { id:12,
 	  title:'Your Lie In April',
 	  genre:['Drama','Romance','Musical'],
@@ -409,7 +432,8 @@
 	  year:2014,
 	  img:'https://cdn.myanimelist.net/images/anime/1405/143284.jpg',
 	  summary:'L’histoire suit Kōsei Arima, un ancien prodige du piano qui a complètement arrêté de jouer après la mort de sa mère. Il vit dans un monde “sans couleurs”, incapable d’entendre la musique correctement. Sa vie change le jour où il rencontre Kaori Miyazono, une violoniste pleine d’énergie qui joue avec passion et liberté. Grâce à elle, Kōsei se remet petit à petit au piano, retrouve goût à la musique et commence à guérir de ses traumatismes… mais Kaori cache un secret qui rend leur histoire encore plus bouleversante.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:13,
 	  title:'Kaguya-Sama : Love Is War',
 	  genre:['Romance','Comedy','Psychological','School Life'],
@@ -417,7 +441,8 @@
 	  year:2019,
 	  img:'https://cdn.myanimelist.net/images/anime/1160/122627.jpg',
 	  summary:'L’histoire suit Kaguya Shinomiya et Miyuki Shirogane, les deux cadors du conseil des élèves, intelligents, respectés… et secrètement amoureux l’un de l’autre. Sauf qu’ils sont trop fiers pour avouer. Du coup, ils transforment chaque interaction en bataille mentale pour pousser l’autre à craquer en premier : manipulations, pièges psychologiques, stratégies ridicules… tout y passe. Entre leurs plans qui tournent souvent au fiasco, l’énergie chaotique de Chika, et les problèmes des autres membres du conseil, la “guerre” devient une romcom hilarante où avouer ses sentiments est l’objectif final.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:14,
 	  title:'Hunter X Hunter',
 	  genre:['Adventure','Action','Fantasy','Psychological'],
@@ -425,7 +450,8 @@
 	  year:2011,
 	  img:'https://cdn.myanimelist.net/images/anime/1337/99013.jpg',
 	  summary:'L’histoire suit Gon Freecss, un garçon qui découvre que son père, qu’il croyait mort, est en réalité un Hunter légendaire. Gon décide de devenir lui aussi Hunter pour le retrouver. En chemin, il se lie d’amitié avec Killua, Leorio et Kurapika. Ensemble, ils passent des examens dangereux, affrontent des ennemis redoutables et explorent un monde rempli de créatures, secrets et pouvoirs surnaturels. Les combats reposent souvent sur stratégie et intelligence, pas juste sur la force brute.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:15,
 	  title:'Fruits Basket',
 	  genre:['Romance','Drama','Slice Of Life'],
@@ -433,7 +459,8 @@
 	  year:2019,
 	  img:'https://cdn.myanimelist.net/images/anime/1085/114792.jpg',
 	  summary:'L’histoire suit Tohru Honda, une lycéenne orpheline qui finit par vivre avec la famille Soma, maudite par le zodiaque chinois : chaque membre se transforme en animal lorsqu’il est stressé ou en contact avec quelqu’un du sexe opposé. Au fil du temps, Tohru découvre les secrets et blessures de chaque membre, les aide à s’accepter et guérir, et crée des liens forts d’amitié et de famille. L’anime mélange humour, émotions et moments touchants tout au long de l’histoire.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:16,
 	  title:'Chainsaw Man',
 	  genre:['Dark','Fantasy','Action','Horror'],
@@ -441,7 +468,8 @@
 	  year:2022,
 	  img:'https://cdn.myanimelist.net/images/anime/1806/126216.jpg',
 	  summary:'L’histoire suit Denji, un jeune homme pauvre endetté, qui chasse des démons pour rembourser ses dettes. Après avoir été trahi et tué, il fusionne avec son chien-démon Pochita et devient Chainsaw Man, capable de se transformer en humain avec des tronçonneuses sortant de son corps. Il rejoint alors l’Agence des Chasseurs de Démons et combat des créatures terrifiantes tout en découvrant les vérités sombres sur les démons, les humains et ses propres désirs. L’histoire mélange action sanglante, humour noir et drame émotionnel.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:17,
 	  title:'Tokyo Revengers',
 	  genre:['Action','Drama','Time Travel'],
@@ -449,7 +477,8 @@
 	  year:2021,
 	  img:'https://cdn.myanimelist.net/images/anime/1340/148694.jpg',
 	  summary:'L’histoire suit Takemichi Hanagaki, un jeune homme raté qui apprend que son ex-petite amie de lycée, Hinata, a été tuée par un gang. Un jour, il revient mystérieusement 12 ans dans le passé et décide de changer le destin de Hinata en infiltrant et en remontant les rangs du gang Tokyo Manji. Au fil du temps, Takemichi se retrouve mêlé à des bagarres, trahisons et alliances, tout en essayant de changer l’avenir et de protéger ses amis. L’anime mélange action, drame et voyages dans le temps, avec un fort côté émotionnel.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:18,
 	  title:'Horimiya',
 	  genre:['Romance','Slice Of Life','Comedy','School Life'],
@@ -457,23 +486,26 @@
 	  year:2021,
 	  img:'https://cdn.myanimelist.net/images/anime/1695/111486.jpg',
 	  summary:'L’histoire suit Hori, une lycéenne populaire et studieuse, et Miyamura, un camarade discret avec un côté rebelle caché. Malgré leurs apparences publiques opposées, ils découvrent leur vrai visage l’un pour l’autre et deviennent amis puis amoureux. L’anime explore leur vie quotidienne au lycée, les relations avec leurs amis, et la façon dont chacun apprend à s’accepter et à se confier. C’est une romance douce, drôle et touchante.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:19,
 	  title:'Blue Box',
 	  genre:['Romance','Sports','Slice Of Life'],
 	  rating:7.4,
 	  year:2024,
 	  img:'https://cdn.myanimelist.net/images/anime/1496/147108.jpg',
-	  summary:'L’histoire suit Taiki Inomata, un lycéen passionné de badminton, et Chika Aoshima, une star du basketball dans le même lycée. Ils se rapprochent peu à peu malgré leur timidité et les rivalités sportives, découvrant des sentiments naissants l’un pour l’autre. L’anime mélange romance douce, compétitions sportives et moments du quotidien, montrant comment leur passion pour le sport et leurs émotions s’entremêlent.',
-	  fav:false },
+	  summary:'L’histoire suit Taiki Inomata, un lycéen passionné de badminton, et Chinatsu Kano, une star du basketball dans le même lycée. Ils se rapprochent peu à peu malgré leur timidité et les rivalités sportives, découvrant des sentiments naissants l’un pour l’autre. L’anime mélange romance douce, compétitions sportives et moments du quotidien, montrant comment leur passion pour le sport et leurs émotions s’entremêlent.',
+	  fav:false,
+	  like: 0 },
 	  { id:20,
 	  title:'The Angel Next Door Spoils Me Rotten',
 	  genre:['Romance','Slice Of Life','School Life'],
 	  rating:7.3,
 	  year:2023,
 	  img:'https://cdn.myanimelist.net/images/anime/1746/152415.jpg',
-	  summary:'L’histoire suit Mahiru Shiraishi, un lycéen ordinaire, et Amane Fujimiya, sa voisine parfaite et attentionnée, surnommée “l’ange”. Amane commence à prendre soin de Mahiru, que ce soit pour les repas, les vêtements ou les petites attentions quotidiennes. Au fil du temps, leur proximité et leurs gestes tendres font naître des sentiments, et ils apprennent à s’ouvrir l’un à l’autre tout en partageant des moments simples et touchants du quotidien.',
-	  fav:false },
+	  summary:'L’histoire suit Amane Fujimiya, un lycéen ordinaire, et Mahiru Shiina, sa voisine parfaite et attentionnée, surnommée “l’ange”. Mahiru commence à prendre soin de Amane, que ce soit pour les repas, les vêtements ou les petites attentions quotidiennes. Au fil du temps, leur proximité et leurs gestes tendres font naître des sentiments, et ils apprennent à s’ouvrir l’un à l’autre tout en partageant des moments simples et touchants du quotidien.',
+	  fav:false,
+	  like: 0 },
 	  { id:21,
 	  title:'Alya Sometimes Hides Her Feelings In Russian',
 	  genre:['Comedy','Romance','Slice Of Life','School Life'],
@@ -481,7 +513,8 @@
 	  year:2024,
 	  img:'https://cdn.myanimelist.net/images/anime/1277/153378.jpg',
 	  summary:'Dans une académie japonaise, il y a Alisa Mikhailovna Kujou (surnommée “Alya”), une demi‑Russe demi‑Japonaise : belle, brillante et froide — le genre “princesse inaccessible”. Elle s’assoit à côté d’un élève un peu flemmard, Masachika Kuze, et malgré son attitude distante, Alya murmure parfois — en russe — des confidences et compliments adressés à lui (pensant qu’il ne comprend pas). Masachika comprend parfaitement le russe, mais il fait semblant de ne rien piger. Résultat ? Une série de quiproquos, de regards gênés, de malentendus et de sentiments qui grandissent… tout en douceur.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:22,
 	  title:'My Teen Romantic Comedy SNAFU',
 	  genre:['Romance','Comedy','School Life','Slice Of Life','Psychological'],
@@ -489,15 +522,17 @@
 	  year:2013,
 	  img:'https://cdn.myanimelist.net/images/anime/1958/107912.jpg',
 	  summary:'L’histoire suit Hachiman Hikigaya, un lycéen cynique et solitaire, qui croit que les relations humaines sont superficielles. Pour “apprendre la vie”, il est forcé de rejoindre le Service Club, dirigé par Yukino Yukinoshita, une fille brillante mais froide. Le club a pour mission d’aider les élèves avec leurs problèmes personnels. À travers des situations sociales, des quiproquos et des débats philosophiques, Hachiman et Yukino (avec l’aide de Yui Yuigahama) explorent les complexités de l’amitié, de l’amour et des attentes sociales, souvent de manière réaliste et pleine de sarcasme.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:23,
 	  title:'My First Girlfriend is a Gal',
 	  genre:['Ecchi','Romance','Comedy','School Life'],
 	  rating:5.5,
 	  year:2017,
 	  img:'https://cdn.myanimelist.net/images/anime/9/86826.jpg',
-	  summary:'L’histoire suit Junichi Hashiba, un lycéen timide qui n’a jamais eu de petite amie. Après avoir demandé conseil à ses amis, il finit par sortir avec Yui Kashii, une fille populaire et sexy, ce qui le plonge dans des situations gênantes, embarrassantes et drôles. Au fil du temps, Junichi découvre que Yui n’est pas juste une “gal superficielle” : elle a ses propres sentiments et failles. L’anime mélange romance, humour et moments un peu coquins, tout en montrant la croissance du couple.',
-	  fav:false },
+	  summary:'L’histoire suit Junichi Hashiba, un lycéen timide qui n’a jamais eu de petite amie. Après avoir demandé conseil à ses amis, il finit par sortir avec Yukana Yame, une fille populaire et sexy, ce qui le plonge dans des situations gênantes, embarrassantes et drôles. Au fil du temps, Junichi découvre que Yukana n’est pas juste une “gal superficielle” : elle a ses propres sentiments et failles. L’anime mélange romance, humour et moments un peu coquins, tout en montrant la croissance du couple.',
+	  fav:false,
+	  like: 0 },
 	  { id:24,
 	  title:'Maid Sama!',
 	  genre:['Romance','Comedy','School Life'],
@@ -505,7 +540,8 @@
 	  year:2010,
 	  img:'https://cdn.myanimelist.net/images/anime/6/25254.jpg',
 	  summary:'L’histoire suit Misaki Ayuzawa, présidente du conseil des élèves d’un lycée auparavant réservé aux garçons, connue pour sa rigueur et son sérieux. En secret, elle travaille dans un maid café pour aider sa famille. Quand Takumi Usui, le garçon le plus populaire du lycée, découvre son secret, il commence à la taquiner tout en la soutenant. Au fil du temps, leur relation évolue entre humour, romance et moments touchants, montrant comment Misaki apprend à faire confiance et à s’ouvrir aux autres.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:25,
 	  title:`Don't Toys With Me, Miss Nagatoro`,
 	  genre:['Comedy','Romance','School Life','Slice Of Life'],
@@ -513,7 +549,8 @@
 	  year:2021,
 	  img:'https://cdn.myanimelist.net/images/anime/1902/129579.jpg',
 	  summary:'L’histoire suit un lycéen timide, souvent appelé Senpai, qui se fait taquiner et provoquer sans arrêt par Nagatoro, une élève plus jeune et très espiègle. Au fil des épisodes, leurs interactions passent du simple harcèlement léger à une relation plus profonde et complice, où Nagatoro montre qu’elle tient vraiment à lui, et où Senpai gagne en confiance. L’anime mélange humour, romance et moments mignons du quotidien scolaire.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:26,
 	  title:'The Fragrant Flower Blooms with Dignity',
 	  genre:['Romance','Drama','School Life','Slice Of Life'],
@@ -521,7 +558,8 @@
 	  year:2025,
 	  img:'https://cdn.myanimelist.net/images/anime/1744/150433.jpg',
 	  summary:'L’histoire suit Rintarō Tsumugi, un lycéen qui a l’air intimidant et rebelle — mais en réalité, c’est un mec gentil et doux. Il travaille dans la boulangerie familiale. Un jour, il croise Kaoruko Waguri, une élève d’un lycée privé prestigieux pour filles, très différent de son école. Elle ne le juge pas sur son apparence, et pour la première fois, Rintarō sent qu’il pourrait exister quelqu’un qui le voit pour ce qu’il est vraiment. Malgré la rivalité entre leurs deux lycées, ils apprennent à se connaître, à se rapprocher, à dépasser les préjugés… et à construire peu à peu une relation sincère, faite de douceur, de petits gestes et de soutien mutuel. L’anime met l’accent sur les émotions vraies, la timidité, les doutes, les différences sociales et la beauté d’une romance “normale” mais touchante.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:27,
 	  title:'Cyberpunk : Edgerunners',
 	  genre:['Action','Science Fiction','Cyberpunk','Drama'],
@@ -529,7 +567,8 @@
 	  year:2022,
 	  img:'https://cdn.myanimelist.net/images/anime/1818/126435.jpg',
 	  summary:'L’histoire suit David Martinez, un adolescent des rues dans la ville dystopique de Night City, obsédé par la technologie et les implants cybernétiques. Après un tragique incident, il décide de rejoindre un groupe de mercenaires appelés les Edgerunners pour survivre et s’élever dans ce monde cruel. Au fil de l’histoire, David et son équipe affrontent des gangs, corporations et ennemis puissants, tout en explorant des thèmes de loyauté, survie, ambition et humanité dans un univers violent et futuriste. L’anime combine action explosive, émotion et tragédie.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:28,
 	  title:'Romantic Killer',
 	  genre:['Comedy','Romance','Slice Of Life','School Life','Supernatural'],
@@ -537,7 +576,8 @@
 	  year:2022,
 	  img:'https://cdn.myanimelist.net/images/anime/1764/142001.jpg',
 	  summary:'L’héroïne, Anzu Hoshino, est une lycéenne qui adore les jeux vidéo, le chocolat et son chat — mais n’a absolument aucun intérêt pour l’amour ou les garçons. Un jour, un sorcier bizarre nommé Riri débarque de nulle part et décide qu’Anzu doit vivre une “simulation de drague” en plein lycée, entourée de plusieurs beaux garçons. Pour la forcer à tomber amoureuse, il lui enlève ses trois passions : jeux vidéo, chocolat et son chat. Anzu, qui ne veut surtout pas tomber dans un cliché romantique, décide alors de résister de toutes ses forces. Mais plus l’histoire avance, plus ses “quasi‑rencontres” la poussent à reconsidérer ce qu’elle veut vraiment… et la romance forcée risque bien de devenir quelque chose de plus vrai que prévu.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:29,
 	  title:'DanDaDan',
 	  genre:['Action','Adventure','Supernatural','Horror','Comedy','Romance'],
@@ -545,7 +585,8 @@
 	  year:2024,
 	  img:'https://cdn.myanimelist.net/images/anime/1721/149001.jpg',
 	  summary:'L’histoire commence avec deux lycéens : Momo Ayase, convaincue que les fantômes existent, et Ken Takakura (surnommé “Okarun”), qui croit lui aux extraterrestres. Pour savoir lequel a raison, ils décident de vérifier — Momo explore un lieu supposé hanté, Ken un spot d’ovni. Résultat : ils ont tous les deux raison… Fantômes et extraterrestres sont réels, et ce qu’ils découvrent dépasse l’horreur et le WTF. À partir de là ils se retrouvent embarqués dans des aventures folles : exorcismes, batailles surnaturelles, créatures bizarres, complots occultes, alliés improbables — le tout dans un bordel cohérent, entre frissons, action et humour. En plus, entre deux monstres ou combats, y a des moments plus humains — doutes, amitié, rapprochements — ce qui donne un côté épique + sensible à l’histoire.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:30,
 	  title:'Wistoria : Wand And Sword',
 	  genre:['Fantasy','Adventure','Action'],
@@ -553,7 +594,8 @@
 	  year:2024,
 	  img:'https://cdn.myanimelist.net/images/anime/1428/154046.jpg',
 	  summary:'On suit Will Serfort, un étudiant dans une académie magique appelée Rigarden Magical Academy. Son rêve : devenir un des plus puissants magiciens, les “Magia Vander”, pour tenir une promesse faite à son amie d’enfance. Le souci : Will n’a aucun talent pour la magie — il ne peut lancer aucun sort. Du coup, il compense avec ses talents d’épéiste : il entre dans l’académie et affronte des monstres dans des donjons avec son épée, espérant prouver sa valeur malgré son absence de magie. Au fil des épisodes/chapitres, on découvre que le monde dans lequel il vit est riche : magie, factions, monstres, école magique, et enjeux lourds. Will se fait des alliés mais aussi des rivaux, et montre que même sans magie, on peut se battre pour ses rêves — avec courage et détermination.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:31,
 	  title:'Demon Slayer',
 	  genre:['Action','Dark','Fantasy','Adventure'],
@@ -561,7 +603,8 @@
 	  year:2019,
 	  img:'https://cdn.myanimelist.net/images/anime/1565/142711.jpg',
 	  summary:'L’histoire suit Tanjiro Kamado, un jeune garçon dont la famille a été massacrée par des démons. Sa sœur Nezuko est la seule survivante, mais elle a été transformée en démon. Tanjiro décide de devenir un Demon Slayer pour venger sa famille et trouver un moyen de rendre sa sœur humaine. Accompagné de compagnons comme Zenitsu et Inosuke, il affronte des démons puissants, découvre les secrets de leur monde, et apprend ce que signifient courage, loyauté et compassion.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:32,
 	  title:'My Dress-Up Darling',
 	  genre:['Romance','Comedy','Slice Of Life','School Life'],
@@ -569,15 +612,17 @@
 	  year:2022,
 	  img:'https://cdn.myanimelist.net/images/anime/1024/150787.jpg',
 	  summary:'L’histoire suit Wakana Gojo, un lycéen passionné par la confection de poupées traditionnelles mais très timide, et Marin Kitagawa, une camarade de classe extravertie et fan de cosplay. Marin découvre le talent de Wakana pour créer des costumes et lui demande de l’aider à réaliser ses cosplays de rêve. Au fil du temps, leur collaboration les rapproche, et ils découvrent une relation douce, drôle et complice, entre rires, moments gênants et passions partagées.',
-	  fav:false },
+	  fav:false,
+	  like: 0 },
 	  { id:33,
 	  title:'Bleach',
 	  genre:['Action','Adventure','Supernatural'],
 	  rating:8.7,
 	  year:2004,
 	  img:'https://cdn.myanimelist.net/images/anime/1488/150890.jpg',
-	  summary:'L’histoire suit Ichigo Kurosaki, un lycéen capable de voir les fantômes. Sa vie change lorsqu’il rencontre Rukia Kuchiki, une shinigami (faucheuse d’âmes), qui lui transfère ses pouvoirs pour qu’il protège sa famille et les vivants des Hollows, des esprits maléfiques. Ichigo devient alors un shinigami temporaire, combattant des ennemis puissants et découvrant un monde spirituel complexe, tout en protégeant ses amis et en affrontant des dilemmes moraux. L’anime mélange action, aventures, drame et liens d’amitié.',
-	  fav:false },
+	  summary:'L’histoire suit Ichigo Kurosaki, un lycéen capable de voir les fantômes. Sa vie change lorsqu’il rencontre Rukia Kuchiki, une shinigami (Dieu de la mort), qui lui transfère ses pouvoirs pour qu’il protège sa famille et les vivants des Hollows, des esprits maléfiques. Ichigo devient alors un shinigami temporaire, combattant des ennemis puissants et découvrant un monde spirituel complexe, tout en protégeant ses amis et en affrontant des dilemmes moraux. L’anime mélange action, aventures, drame et liens d’amitié.',
+	  fav:false,
+	  like: 0},
 	  { id:34,
 	  title:'Sakamoto Days',
 	  genre:['Action','Comedy','Slice Of Life'],
@@ -585,7 +630,8 @@
 	  year:2025,
 	  img:'https://cdn.myanimelist.net/images/anime/1758/148719.jpg',
 	  summary:'Le perso principal, Taro Sakamoto, c’était un tueur à gages légendaire, craint et respecté dans le milieu. Mais un jour il tombe amoureux, décide d’abandonner la vie d’assassin, se marie, a une fille, et ouvre une petite supérette pour mener une vie tranquille. Il est devenu un mari/papa un peu rondouillard — mais toujours costaud dans l’âme. Sauf que son passé le rattrape : d’anciens ennemis, des chasseurs de primes, des assassins reviennent pour lui. Pour protéger sa famille, Sakamoto doit reprendre du service — mais tout en essayant de garder sa promesse (ne plus tuer) et sa nouvelle vie paisible.',
-	  fav:false },
+	  fav:false,
+	  like: 0},
 	  { id:35,
 	  title:'Dragon Ball',
 	  genre:['Action','Adventure','Fantasy'],
@@ -593,7 +639,8 @@
 	  year:1986,
 	  img:'https://cdn.myanimelist.net/images/anime/1723/145231.jpg',
 	  summary:'L’histoire suit Goku, un jeune garçon doté d’une force surhumaine et d’une queue de singe. Il part à l’aventure pour retrouver les Dragon Balls, sept boules magiques qui, une fois réunies, permettent de faire apparaître le dragon Shenron et d’exaucer un vœu. Au fil de ses voyages, Goku rencontre des amis comme Bulma, Krillin et Yamcha, affronte des ennemis redoutables, participe à des tournois d’arts martiaux, et découvre peu à peu ses origines extraterrestres et ses incroyables pouvoirs. L’anime mélange action, humour, aventures et leçons sur l’amitié et le courage.',
-	  fav:false }
+	  fav:false,
+	  like: 0}
 	];
 	
 
@@ -658,7 +705,10 @@
 		  <img src="${a.img}" alt="${a.title}">
 		  <div class="card-body">
 			<div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
-			<div class="title">${a.title}</div>
+			<div class="title">
+			  ${a.title}
+			  ${a.likes >= 2 ? `<span class="badge-trending">🔥 Tendance</span>` : ''}
+			</div>
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
 			  <div style="color:var(--muted); font-size:13px">${a.year}</div>
 			  <div style="display:flex; gap:6px;">
@@ -712,7 +762,7 @@
 	  if(s === 'new') filteredList.sort((a,b) => b.year - a.year);
 	  if(s === 'az') filteredList.sort((a,b) => a.title.localeCompare(b.title));
 	  if(s === 'za') filteredList.sort((a,b) => b.title.localeCompare(a.title));
-
+	  if (s === 'popular') { filteredList.sort((a, b) => (b.likes || 0) - (a.likes || 0)); }
 	  // reset
 	  currentIndex = 0;
 	  grid.innerHTML = '';
@@ -779,7 +829,7 @@
       import { 
           getAuth, onAuthStateChanged, signOut 
       } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 	  
       const firebaseConfig = {
           apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -810,6 +860,7 @@
 		  if (openSignup) openSignup.style.display = "none";
 		  userBox.style.display = "flex";
 		  await loadFavorites();
+		  await loadPopularity();
 		  applyFilters();
 
 		  try {
@@ -917,6 +968,20 @@
 	    // 🔥 Synchronisation Firestore → UI
 	    SAMPLE_ANIMES.forEach(anime => {
 		  anime.fav = data.favorites.includes(anime.id);
+	    });
+	  }
+	  
+	  async function loadPopularity() {
+	    const snap = await getDocs(collection(db, "animes"));
+
+	    snap.forEach(docSnap => {
+		  const animeId = Number(docSnap.id);
+		  const data = docSnap.data();
+
+		  const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
+		  if (anime) {
+		    anime.likes = data.likes ?? 0;
+		  }
 	    });
 	  }
 
