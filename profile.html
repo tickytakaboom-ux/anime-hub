@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profil – AnimeHub</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: linear-gradient(180deg,#0b1220,#061226);
+      color: #e6eef6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .profile-card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(6px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #06b6d4;
+      color: #052226;
+      font-size: 36px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+
+    h2 { margin: 0; }
+
+    .email {
+      color: #9ca3af;
+      font-size: 14px;
+      margin: 6px 0 20px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      background: #06b6d4;
+      color: #052226;
+    }
+
+    .secondary {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #e6eef6;
+    }
+  </style>
+  <!-- Favicon classique -->
+  <link rel="icon" type="image/png" href="AnimeHub/icon_animehub.png">
+  <!-- Icône Apple touch (pour iPhone/iPad) -->
+  <link rel="apple-touch-icon" href="AnimeHub/icon_animehub.png">
+</head>
+
+<body>
+
+	<div class="profile-card">
+	  <div class="avatar" id="avatar"></div>
+	  <h2 id="username">Chargement...</h2>
+	  <div class="email" id="email">Chargement...</div>
+	  <h2 id="username"></h2>
+	  <div class="email" id="email"></div>
+
+    <div class="actions">
+      <button onclick="location.href='index.html'">Retour à l’accueil</button>
+      <button class="secondary" id="logoutBtn">Déconnexion</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain: "animehub-7.firebaseapp.com",
+      projectId: "animehub-7",
+      storageBucket: "animehub-7.firebasestorage.app",
+      messagingSenderId: "159114039206",
+      appId: "1:159114039206:web:0461d676e7ffff25c4c967"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const usernameEl = document.getElementById("username");
+    const emailEl = document.getElementById("email");
+    const avatarEl = document.getElementById("avatar");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "auth.html";
+        return;
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      let userData;
+
+      try {
+        const snap = await getDoc(userRef);
+
+        if (!snap.exists()) {
+          // 🔹 création auto du doc (anciens comptes inclus)
+          userData = {
+            username: user.email.split("@")[0],
+            email: user.email,
+            favorites: [],
+            ratings: {}
+          };
+          await setDoc(userRef, userData);
+        } else {
+          userData = snap.data();
+        }
+
+        // 🔹 affichage sécurisé
+        const name = userData.username || user.email.split("@")[0];
+
+        usernameEl.textContent = name;
+        emailEl.textContent = userData.email || user.email;
+        avatarEl.textContent = name.charAt(0).toUpperCase();
+
+      } catch (err) {
+        console.error("Erreur profil :", err);
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "auth.html";
+    });
+  </script>
+</body>
+</html>
