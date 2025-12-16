@@ -730,10 +730,8 @@
 			  <div class="rating-box">
 			    <select class="rate-select" data-id="${a.id}">
 				  <option value="">Noter</option>
-				  ${Array.from({ length: 10 }, (_, i) =>
-				    `<option value="${i + 1}">${i + 1}</option>`
-				  ).join("")}
-			    </select>
+				  ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+				</select>
 			  </div>
 				<button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
 				<button class="btn" data-id="${a.id}">Voir</button>
@@ -894,6 +892,7 @@
 		  await loadFavorites();
 		  await loadPopularity();
 		  await loadRatings();
+		  await loadUserRatings();
 		  applyFilters();
 
 		  try {
@@ -970,39 +969,74 @@
 	  }
 	  
 	  async function rateAnime(animeId, newRating) {
-	    try {
-		  const ratingRef = doc(db, "ratings", String(animeId));
-		  const snap = await getDoc(ratingRef);
+	    const user = auth.currentUser;
+	    if (!user) {
+		  alert("Connecte-toi pour noter un anime !");
+		  return;
+	    }
 
-		  if (!snap.exists()) {
-		    await setDoc(ratingRef, {
-			  total: newRating,
-			  count: 1
-		    });
-		  } else {
-		    await updateDoc(ratingRef, {
-			  total: increment(newRating),
-			  count: increment(1)
-		    });
+	    if (newRating < 1 || newRating > 10) return;
+
+	    const userRef = doc(db, "users", user.uid);
+	    const animeRef = doc(db, "animes", String(animeId));
+
+	    try {
+		  // 🔹 Récup user
+		  const userSnap = await getDoc(userRef);
+		  if (!userSnap.exists()) return;
+
+		  const userData = userSnap.data();
+		  const oldRating = userData.ratings?.[animeId] ?? null;
+
+		  // 🔹 Récup anime
+		  const animeSnap = await getDoc(animeRef);
+
+		  let ratingSum = 0;
+		  let ratingCount = 0;
+
+		  if (animeSnap.exists()) {
+		    const data = animeSnap.data();
+		    ratingSum = data.ratingSum ?? 0;
+		    ratingCount = data.ratingCount ?? 0;
+		  }
+ 
+		  // 🔹 Cas 1 : première note
+		  if (oldRating === null) {
+		    ratingSum += newRating;
+		    ratingCount += 1;
+		  } 
+		  // 🔹 Cas 2 : modification de note
+		  else {
+		    ratingSum += (newRating - oldRating);
 		  }
 
-		  // recalcul de la moyenne
-		  const updated = await getDoc(ratingRef);
-		  const data = updated.data();
-		  const avg = data.total / data.count;
+		  const avgRating = ratingSum / ratingCount;
 
-		  // mise à jour locale
+		  // 🔹 Update anime
+		  await setDoc(animeRef, {
+		    ratingSum,
+		    ratingCount,
+		    avgRating
+		  }, { merge: true });
+
+		  // 🔹 Sauvegarde note utilisateur (1 seule par anime)
+		  await updateDoc(userRef, {
+		    [`ratings.${animeId}`]: newRating
+		  });
+
+		  // 🔹 Update UI locale
 		  const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
 		  if (anime) {
-		    anime.rating = avg;
-		    applyFilters(); // refresh affichage
+		    anime.rating = avgRating;
 		  }
 
+		  applyFilters(); // refresh affichage
+
 	    } catch (err) {
-		  console.error("Erreur notation :", err);
+		  console.error("Erreur rateAnime:", err);
 	    }
 	  }
-	  
+
 	  window.rateAnime = rateAnime;
 	  
 	  // Modale
@@ -1065,6 +1099,21 @@
 		  if (anime && data.avgRating !== undefined) {
 		    anime.rating = data.avgRating;
 		  }
+	    });
+	  }
+	  
+	  async function loadUserRatings() {
+	    const user = auth.currentUser;
+	    if (!user) return;
+
+	    const userRef = doc(db, "users", user.uid);
+	    const snap = await getDoc(userRef);
+	    if (!snap.exists()) return;
+
+	    const ratings = snap.data().ratings || {};
+
+	    SAMPLE_ANIMES.forEach(anime => {
+	   	  anime.userRating = ratings[anime.id] ?? null;
 	    });
 	  }
 
