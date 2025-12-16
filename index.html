@@ -709,52 +709,69 @@
 	}
 	function renderNextBatch() {
 	  const grid = document.getElementById('grid');
-	  if(currentIndex >= filteredList.length) return;
+	  if (currentIndex >= filteredList.length) return;
 
 	  const nextBatch = filteredList.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
+
 	  nextBatch.forEach((a, index) => {
 		const card = document.createElement('div');
 		card.className = 'card';
 		card.style.animationDelay = `${(currentIndex + index) * 0.08}s`;
+
 		card.innerHTML = `
 		  <img src="${a.img}" alt="${a.title}">
 		  <div class="card-body">
-			<div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
+			<div class="meta">
+			  <div class="genres">${a.genre.join(' • ')}</div>
+			  <div class="rating">${a.rating.toFixed(1)}</div>
+			</div>
+
 			<div class="title">
 			  ${a.title}
 			  ${a.likes >= 3 ? `<span class="badge-trending">🔥 Tendance</span>` : ''}
 			</div>
+
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
 			  <div style="color:var(--muted); font-size:13px">${a.year}</div>
-			  <div style="display:flex; gap:6px;">
-			  <div class="rating-box">
-			    <select class="rate-select" data-id="${a.id}">
-				  <option value="">Noter</option>
-				  ${Array.from({ length: 20 }, (_, i) => {
-				    const val = (i + 1) * 0.5;
-				    return `<option value="${val}">${val}</option>`;
-				  }).join('')}
-				</select>
-			  </div>
-				<button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
+
+			  <div style="display:flex; gap:6px; align-items:center;">
+				<div class="rating-box">
+				  <select class="rate-select" data-id="${a.id}">
+					<option value="">Noter</option>
+					${Array.from({ length: 20 }, (_, i) => {
+					  const val = (i + 1) * 0.5;
+					  return `<option value="${val}">${val}</option>`;
+					}).join('')}
+				  </select>
+				</div>
+				<button class="fav-btn" data-id="${a.id}">${a.fav ? '★' : '☆'}</button>
 				<button class="btn" data-id="${a.id}">Voir</button>
 			  </div>
 			</div>
-		  </div>`;
-		grid.appendChild(card);
-		grid.querySelectorAll('.rate-select').forEach(select => {
-		  select.addEventListener('change', (e) => {
-			const animeId = Number(e.target.dataset.id);
-			const rating = Number(e.target.value);
-			if (!rating) return;
+		  </div>
+		`;
 
-			rateAnime(animeId, rating);
-		  });
+		grid.appendChild(card);
+
+		const select = card.querySelector('.rate-select');;
+		
+		// 🔁 Affichage de la note utilisateur au rechargement
+		if (a.userRating !== null) {
+		  select.value = a.userRating;
+		}
+
+		select.addEventListener('change', (e) => {
+		  const animeId = Number(e.target.dataset.id);
+		  const rating = Number(e.target.value);
+		  if (!rating) return;
+
+		  // 🔹 sauvegarde Firestore
+		  rateAnime(animeId, rating);
 		});
 	  });
 
 	  currentIndex += ITEMS_PER_LOAD;
-
+	  
 	  // Afficher message si plus de résultats
 	  empty.style.display = currentIndex >= filteredList.length && filteredList.length === 0 ? 'block' : 'none';
 	}
@@ -1031,6 +1048,7 @@
 		  const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
 		  if (anime) {
 		    anime.rating = avgRating;
+			anime.userRating = newRating;
 		  }
 
 		  applyFilters(); // refresh affichage
