@@ -31,7 +31,6 @@
       width: 90px;
       height: 90px;
       border-radius: 50%;
-      background: #06b6d4;
       color: #052226;
       font-size: 36px;
       font-weight: 800;
@@ -39,9 +38,29 @@
       align-items: center;
       justify-content: center;
       margin: 0 auto 16px;
+      background: #06b6d4;
     }
 
-    h2 { margin: 0; }
+    .pulsing {
+      animation: pulseGlow 1.5s infinite ease-in-out;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+      50% { transform: scale(1.15); box-shadow: 0 0 20px rgba(6,182,212,0.7); }
+      100% { transform: scale(1); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+    }
+
+    h2, .email {
+      margin: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .fade-in {
+      opacity: 1 !important;
+    }
 
     .email {
       color: #9ca3af;
@@ -71,9 +90,8 @@
       color: #e6eef6;
     }
   </style>
-  <!-- Favicon classique -->
+
   <link rel="icon" type="image/png" href="icon_animehub.png">
-  <!-- Icône Apple touch (pour iPhone/iPad) -->
   <link rel="apple-touch-icon" sizes="180x180" href="icon_animehub.png">
   <link rel="apple-touch-icon" sizes="152x152" href="icon_animehub.png">
   <link rel="apple-touch-icon" sizes="120x120" href="icon_animehub.png">
@@ -81,13 +99,10 @@
 </head>
 
 <body>
-
-	<div class="profile-card">
-	  <div class="avatar" id="avatar"></div>
-	  <h2 id="username">Chargement...</h2>
-	  <div class="email" id="email">Chargement...</div>
-	  <h2 id="username"></h2>
-	  <div class="email" id="email"></div>
+  <div class="profile-card">
+    <div class="avatar pulsing" id="avatar">?</div>
+    <h2 id="username">Chargement...</h2>
+    <div class="email" id="email">Chargement...</div>
 
     <div class="actions">
       <button onclick="location.href='index.html'">Retour à l’accueil</button>
@@ -130,7 +145,6 @@
         const snap = await getDoc(userRef);
 
         if (!snap.exists()) {
-          // 🔹 création auto du doc (anciens comptes inclus)
           userData = {
             username: user.email.split("@")[0],
             email: user.email,
@@ -142,12 +156,18 @@
           userData = snap.data();
         }
 
-        // 🔹 affichage sécurisé
         const name = userData.username || user.email.split("@")[0];
 
         usernameEl.textContent = name;
         emailEl.textContent = userData.email || user.email;
         avatarEl.textContent = name.charAt(0).toUpperCase();
+
+        // stop pulsation
+        avatarEl.classList.remove("pulsing");
+
+        // fade-in texte
+        usernameEl.classList.add("fade-in");
+        emailEl.classList.add("fade-in");
 
       } catch (err) {
         console.error("Erreur profil :", err);
