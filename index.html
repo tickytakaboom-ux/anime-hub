@@ -729,13 +729,40 @@
 	  summary:'L’histoire suit Kafka Hibino, un homme de 32 ans qui rêvait enfant de combattre les kaijū, des monstres géants qui ravagent les villes. Mais après plusieurs échecs, il travaille comme agent de nettoyage, chargé d’éliminer les restes des monstres après les combats. Tout change quand il se retrouve capable de se transformer en kaijū lui-même, devenant le mystérieux Kaiju N°8. Coincé entre son rêve de rejoindre les Forces de Défense et le danger d’être considéré comme un ennemi, Kafka doit cacher sa véritable nature tout en protégeant l’humanité. C’est un mélange d’action, de tension, de dépassement de soi et de moments plus humains.',
 	  fav:false,
 	  likes: 0},	  
-	 { id:37,
+	  { id:37,
 	  title:'Fullmetal Alchemist Brotherhood',
 	  genre:['Action','Fantasy','Adventure','Drama'],
 	  rating:9.10,
 	  year:2009,
 	  img:'https://cdn.myanimelist.net/images/anime/1208/94745.jpg',
 	  summary:'L’histoire suit Edward et Alphonse Elric, deux frères qui utilisent l’alchimie. Après avoir tenté de ramener leur mère à la vie par une transmutation interdite, ils en paient un prix terrible : Edward perd un bras et une jambe, et Alphonse perd tout son corps, son âme étant liée à une armure. Pour retrouver leurs corps, ils partent à la recherche de la Pierre Philosophale, en découvrant peu à peu les secrets sombres de leur pays, des complots, des guerres passées et des ennemis appelés Homunculus. L’anime mêle action, drame, émotions fortes et une vraie réflexion sur le prix des choix humains.',
+	  fav:false,
+      likes: 0},
+	  { id:38,
+	  title:'One Punch Man',
+	  genre:['Action','Superheroes','Comedy'],
+	  rating:6.8,
+	  year:2015,
+	  img:'https://cdn.myanimelist.net/images/anime/1168/148347.jpg',
+	  summary:'L’histoire suit Saitama, un héros tellement puissant qu’il bat tous ses ennemis… en un seul coup. Après s’être entraîné de manière absurde, il cherche surtout à retrouver un peu d’adrénaline, car plus aucun combat ne lui procure de défi. Il rejoint l’Association des Héros, rencontre des alliés comme Genos, et affronte des monstres de plus en plus dangereux, tout en restant étonnamment inconnu et sous-estimé. L’anime mélange action spectaculaire, humour absurde et parodie des shōnen classiques.',
+	  fav:false,
+      likes: 0},
+	  { id:39,
+	  title:'Sword Art Online',
+	  genre:['Isekai','Action','Science Fiction','Adventure','Romance'],
+	  rating:7.3,
+	  year:2012,
+	  img:'https://cdn.myanimelist.net/images/anime/1335/145505.jpg',
+	  summary:'L’histoire suit Kirito, un joueur piégé avec des milliers d’autres personnes dans un jeu de réalité virtuelle appelé Sword Art Online. Le problème : mourir dans le jeu signifie mourir dans la vraie vie. Pour s’échapper, les joueurs doivent terminer les 100 niveaux du jeu. Kirito progresse en solo, affronte des boss puissants, rencontre Asuna, et tisse des liens forts tout en survivant dans ce monde dangereux. La série mélange action, aventure, drame et romance, en explorant les limites entre le virtuel et le réel.',
+	  fav:false,
+      likes: 0},
+	  { id:40,
+	  title:'Naruto',
+	  genre:['Action','Adventure','Fantasy'],
+	  rating:8.2,
+	  year:2002,
+	  img:'https://cdn.myanimelist.net/images/anime/1378/137310.jpg',
+	  summary:'',
 	  fav:false,
       likes: 0}
 	];
@@ -1188,7 +1215,6 @@
 		    anime.rating = avgRating;
 			anime.userRating = newRating;
 		  }
-
 		  applyFilters(); // refresh affichage
 
 	    } catch (err) {
@@ -1248,7 +1274,7 @@
 		    filteredAnime.userRating = null;
 		    filteredAnime.rating = update.avgRating ?? 0;
 		  }
-
+ 
 		  // 🔹 mettre à jour le select directement
 		  const select = document.querySelector(`.rate-select[data-id="${animeId}"]`);
 		  if (select) select.value = "";
@@ -1351,8 +1377,13 @@
 	    snapshot.docs.forEach(docSnap => {
 		  const notif = docSnap.data();
 		  const li = document.createElement("li");
-		  li.textContent = notif.title;
-		
+		  li.innerHTML = `
+		    <strong>${notif.title}</strong><br>
+		    <span style="font-size: 0.85em; opacity: 0.8;">
+			  ${notif.message}
+		    </span>
+		  `;
+
 		  // Si non lu, on peut mettre un style
 		  if(!notif.read) {
 		    li.style.fontWeight = "700";
@@ -1373,17 +1404,94 @@
 	    if(unreadCount > 0) notifBadge.classList.add("show");
 	    else notifBadge.classList.remove("show");
 	  }
-	  async function sendNotificationToAllUsers(message) {
+	  async function sendNotificationToAllUsers(title, message = "") {
+	    if (!title) {
+		  console.warn("❌ Notification annulée : title manquant");
+		  return;
+	    }
+
+	    const usersSnap = await getDocs(collection(db, "users"));
+	    const promises = [];
+
+	    usersSnap.forEach(userDoc => {
+		  promises.push(
+		    addDoc(collection(db, "notifications"), {
+			  userId: userDoc.id,
+			  title: title,
+			  message: message,
+			  read: false,
+			  createdAt: serverTimestamp()
+		    })
+		  );
+	    });
+
+	    await Promise.all(promises);
+	    console.log("✅ Notification envoyée à tous les utilisateurs");
+	  }
+
+	  async function sendSiteUpdateNotification(version, message) {
+	    const metaRef = doc(db, "meta", "lastSiteUpdate");
+	    const snap = await getDoc(metaRef);
+ 
+	    // Empêche d'envoyer 2 fois la même mise à jour
+	    if (snap.exists() && snap.data().version === version) return;
+
 	    const usersSnap = await getDocs(collection(db, "users"));
 
-	    usersSnap.forEach(async (userDoc) => {
-		  await addDoc(collection(db, "notifications"), {
-		    userId: userDoc.id,
-		    title: message,
-		    read: false,
-		    createdAt: serverTimestamp()
-		  });
+	    const promises = [];
+	    usersSnap.forEach(userDoc => {
+	  	  promises.push(
+		    addDoc(collection(db, "notifications"), {
+			  userId: userDoc.id,
+			  title: `🚀 Mise à jour du site (${version})`,
+			  message: message,
+			  read: false,
+			  createdAt: serverTimestamp()
+		    })
+		  );
 	    });
+
+	    await Promise.all(promises);
+
+	    await setDoc(metaRef, {
+		  version,
+		  createdAt: serverTimestamp()
+	    });
+
+	    console.log("✅ Notification de mise à jour envoyée");
+	  }
+	  async function notifyNewAnimeOnce(animeId, animeTitle) {
+	    const metaRef = doc(db, "meta", `anime_${animeId}`);
+	    const snap = await getDoc(metaRef);
+
+	    // ⛔ Déjà notifié → on stop
+	    if (snap.exists()) return;
+
+	    const usersSnap = await getDocs(collection(db, "users"));
+
+	    const promises = [];
+	    usersSnap.forEach(userDoc => {
+		  promises.push(
+		    addDoc(collection(db, "notifications"), {
+			  userId: userDoc.id,
+			  title: "🆕 Nouvel anime ajouté",
+			  message: animeTitle,
+			  read: false,
+			  createdAt: serverTimestamp()
+		    })
+	  	  );
+	    });
+
+	    await Promise.all(promises);
+
+	    // 🔒 Marque cet anime comme "déjà notifié"
+	    await setDoc(metaRef, {
+		  animeId,
+		  animeTitle,
+		  createdAt: serverTimestamp()
+	    });
+
+	    console.log(`✅ Notification envoyée pour l'anime : ${animeTitle}`);
 	  }
 
 	  function updateFavoriteButtons() {
@@ -1398,6 +1506,8 @@
 		})
 	  };	
 	  await sendNotificationToAllUsers
+	  await sendSiteUpdateNotification;
+	  await notifyNewAnimeOnce('40', 'Naruto')
   </script>
 </body>
 </html>
