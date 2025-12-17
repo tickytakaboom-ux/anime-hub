@@ -272,6 +272,63 @@
 	  padding: 6px;
 	  font-size: 13px;
 	}
+	.notif-container {
+	  position: relative;
+	  cursor: pointer;
+	  margin-right: 10px;
+	}
+
+	.notif-badge {
+	  position: absolute;
+	  top: -5px;
+	  right: -5px;
+	  background-color: red;
+	  color: white;
+	  font-size: 12px;
+	  font-weight: bold;
+	  padding: 2px 6px;
+	  border-radius: 50%;
+	  display: none; /* caché si 0 notif */
+	}
+
+	#notifBell {
+	  font-size: 24px;
+	  color: #fff;
+	}
+	@keyframes bounce {
+	  0%, 100% { transform: translateY(0); }
+	  50% { transform: translateY(-5px); }
+	}
+
+	.notif-badge.show {
+	  display: inline-block;
+	  animation: bounce 0.5s ease;
+	}
+	.notif-dropdown {
+	  position: absolute;
+	  top: 28px; /* juste en dessous de la cloche */
+	  right: 0;
+	  background: var(--card);
+	  border-radius: 12px;
+	  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+	  width: 280px;
+	  max-height: 400px;
+	  overflow-y: auto;
+	  z-index: 500;
+	  padding: 10px 0;
+	}
+
+	.notif-dropdown li {
+	  padding: 10px 16px;
+	  font-size: 14px;
+	  color: #e6eef6;
+	  border-bottom: 1px solid rgba(255,255,255,0.08);
+	  cursor: pointer;
+	}
+
+	.notif-dropdown li:hover {
+	  background: rgba(255,255,255,0.05);
+	}
   </style>
   <!-- Favicon classique -->
   <link rel="icon" type="image/png" href="icon_animehub.png">
@@ -280,6 +337,8 @@
   <link rel="apple-touch-icon" sizes="152x152" href="icon_animehub.png">
   <link rel="apple-touch-icon" sizes="120x120" href="icon_animehub.png">
   <link rel="apple-touch-icon" sizes="76x76" href="icon_animehub.png">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
     <header>
@@ -290,7 +349,7 @@
       <div class="controls">
         <div class="search-wrap">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="#9ca3af" stroke-width="2"></circle></svg>
-          <input id="search" class="search" placeholder="Rechercher un anime..." autocomplete="off"/>
+          <input id="search" class="search" placeholder="Rechercher un anime..."/>
         </div>
         <select id="genre" class="select">
         </select>
@@ -307,13 +366,18 @@
         </select>
       </div>
 	  <div id="authContainer">
+	    <div class="notif-container">
+		  <i class="fa-solid fa-bell" id="notifBell"></i>
+		  <span class="notif-badge" id="notifBadge">0</span>
+		</div>
+		<div class="notif-dropdown" id="notifDropdown" style="display:none;">
+		  <ul id="notifList" style="list-style:none; margin:0; padding:0;"></ul>
+		</div>
+		<a href="profile.html" id="userBox">
+          <span id="username"></span>
+        </a>
 		<button id="openLogin">Connexion</button>
 		<button id="openSignup">Inscription</button>
-
-	  <a href="profile.html" id="userBox">
-        <span id="username"></span>
-      </a>
-
 	  </div>
 	  <div id="authModal" class="modal-auth" style="display:none;">
 	    <div class="modal-auth-content">
@@ -664,7 +728,16 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1177/150344.jpg',
 	  summary:'L’histoire suit Kafka Hibino, un homme de 32 ans qui rêvait enfant de combattre les kaijū, des monstres géants qui ravagent les villes. Mais après plusieurs échecs, il travaille comme agent de nettoyage, chargé d’éliminer les restes des monstres après les combats. Tout change quand il se retrouve capable de se transformer en kaijū lui-même, devenant le mystérieux Kaiju N°8. Coincé entre son rêve de rejoindre les Forces de Défense et le danger d’être considéré comme un ennemi, Kafka doit cacher sa véritable nature tout en protégeant l’humanité. C’est un mélange d’action, de tension, de dépassement de soi et de moments plus humains.',
 	  fav:false,
-	  likes: 0}
+	  likes: 0},	  
+	 { id:37,
+	  title:'Fullmetal Alchemist Brotherhood',
+	  genre:['Action','Fantasy','Adventure','Drama'],
+	  rating:9.10,
+	  year:2009,
+	  img:'https://cdn.myanimelist.net/images/anime/1208/94745.jpg',
+	  summary:'L’histoire suit Edward et Alphonse Elric, deux frères qui utilisent l’alchimie. Après avoir tenté de ramener leur mère à la vie par une transmutation interdite, ils en paient un prix terrible : Edward perd un bras et une jambe, et Alphonse perd tout son corps, son âme étant liée à une armure. Pour retrouver leurs corps, ils partent à la recherche de la Pierre Philosophale, en découvrant peu à peu les secrets sombres de leur pays, des complots, des guerres passées et des ennemis appelés Homunculus. L’anime mêle action, drame, émotions fortes et une vraie réflexion sur le prix des choix humains.',
+	  fav:false,
+      likes: 0}
 	];
 	
 
@@ -824,7 +897,19 @@
 	  modalRoot.style.display = 'none';
 	  modalRoot.innerHTML = '';
 	}
+	// 🔹 ouverture modale via URL (?anime=ID)
+	const params = new URLSearchParams(window.location.search);
+	const animeId = params.get("anime");
 
+	if (animeId) {
+	  const anime = SAMPLE_ANIMES.find(a => a.id == animeId);
+	  if (anime && typeof openModal === "function") {
+		openModal(anime);
+
+		// optionnel : nettoyer l'URL
+		window.history.replaceState({}, "", "index.html");
+	  }
+	}
 	function applyFilters() {
 	  const q = searchInput.value.toLowerCase();
 	  const g = genreEl.value;
@@ -905,7 +990,7 @@
       import { 
           getAuth, onAuthStateChanged, signOut 
       } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, collection, getDocs, deleteField } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, collection, getDocs, deleteField, query, where, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 	  
       const firebaseConfig = {
           apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -926,7 +1011,17 @@
 	  const db = getFirestore(app);
 	  const auth = getAuth(app);
 	  const grid = document.getElementById("grid"); // ou le bon id
-
+	  const notifBell = document.getElementById("notifBell");
+	  const notifBadge = document.getElementById("notifBadge");
+	  const notifDropdown = document.getElementById("notifDropdown");
+	  const notifList = document.getElementById("notifList");
+	  
+	  let notifVisible = false;
+	  
+	  notifBell.addEventListener("click", () => {
+	    notifVisible = !notifVisible;
+	    notifDropdown.style.display = notifVisible ? "block" : "none";
+	  });
 	  userBox.addEventListener("click", () => {
         window.location.href = "profile.html";
       });
@@ -940,6 +1035,7 @@
 		  await loadPopularity();
 		  await loadRatings();
 		  await loadUserRatings();
+		  await loadNotifications(user.uid);
 		  applyFilters();
 
 		  try {
@@ -973,6 +1069,20 @@
 		  window.location.href = "auth.html";
 	    }
 	  });
+	  async function sendNotification(userId, title) {
+	    try {
+		  await addDoc(collection(db, "notifications"), {
+		    userId: userId,
+		    title: title,
+		    read: false,
+		    createdAt: serverTimestamp()
+		  });
+		  // Recharge les notifications pour mettre à jour le badge
+		  await loadNotifications(userId);
+	    } catch (err) {
+	  	  console.error("Erreur lors de l'envoi de notification:", err);
+	    }
+	  }
 	  async function toggleFavorite(animeId) {
 	    const user = auth.currentUser;
 	    if (!user) {
@@ -1000,6 +1110,7 @@
 		  if (!wasFav) {
 		    await updateDoc(userRef, { favorites: arrayUnion(animeId) });
 		    await updateDoc(animeRef, { likes: increment(1) });
+			await sendNotification(user.uid, `Tu as ajouté ${anime.title} à tes favoris !`);
 		  } else {
 		    await updateDoc(userRef, { favorites: arrayRemove(animeId) });
 		    await updateDoc(animeRef, { likes: increment(-1) });
@@ -1228,6 +1339,52 @@
 	   	  anime.userRating = ratings[anime.id] ?? null;
 	    });
 	  }
+	  
+	  async function loadNotifications(userId) {
+	    const notifCol = collection(db, "notifications");
+	    const q = query(notifCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
+	    const snapshot = await getDocs(q);
+	    notifList.innerHTML = "";
+	  
+	    let unreadCount = 0;
+	  
+	    snapshot.docs.forEach(docSnap => {
+		  const notif = docSnap.data();
+		  const li = document.createElement("li");
+		  li.textContent = notif.title;
+		
+		  // Si non lu, on peut mettre un style
+		  if(!notif.read) {
+		    li.style.fontWeight = "700";
+		    unreadCount++;
+		  }
+		
+		  li.addEventListener("click", async () => {
+		    // Marquer comme lu
+		    await updateDoc(doc(db, "notifications", docSnap.id), { read: true });
+		    li.style.fontWeight = "400";
+		    loadNotifications(userId); // reload pour mettre à jour le badge
+		  });
+		
+		  notifList.appendChild(li);
+	    });
+	  
+	    notifBadge.textContent = unreadCount;
+	    if(unreadCount > 0) notifBadge.classList.add("show");
+	    else notifBadge.classList.remove("show");
+	  }
+	  async function sendNotificationToAllUsers(message) {
+	    const usersSnap = await getDocs(collection(db, "users"));
+
+	    usersSnap.forEach(async (userDoc) => {
+		  await addDoc(collection(db, "notifications"), {
+		    userId: userDoc.id,
+		    title: message,
+		    read: false,
+		    createdAt: serverTimestamp()
+		  });
+	    });
+	  }
 
 	  function updateFavoriteButtons() {
 	    grid.querySelectorAll('.fav-btn').forEach(b => {
@@ -1240,6 +1397,7 @@
 		  }
 		})
 	  };	
+	  await sendNotificationToAllUsers
   </script>
 </body>
 </html>
