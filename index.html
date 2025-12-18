@@ -792,7 +792,7 @@
 	  summary:'L’histoire suit Rintarou Okabe, un scientifique excentrique qui découvre avec ses amis comment envoyer des messages dans le passé grâce à un micro-ondes modifié. Rapidement, ils réalisent que leurs expériences déclenchent des changements dangereux dans le temps, attirant l’attention d’une organisation puissante. Okabe doit alors naviguer entre univers parallèles, paradoxes temporels et pertes personnelles, tout en essayant de protéger ses amis et de réparer les conséquences de leurs manipulations. L’anime mêle science-fiction, suspense, drame et romance subtile.',
 	  fav:false,
       likes: 0},
-      { id:44,
+	  { id:44,
 	  title:'A Silent Voice',
 	  genre:['Drama','Romance','Slice Of Life'],
 	  rating:8.9,
@@ -1141,20 +1141,21 @@
 		  window.location.href = "auth.html";
 	    }
 	  });
-	  async function sendNotification(userId, title) {
+	  async function sendNotification(userId, title, message = "") {
 	    try {
 		  await addDoc(collection(db, "notifications"), {
 		    userId: userId,
 		    title: title,
+		    message: message,
 		    read: false,
 		    createdAt: serverTimestamp()
 		  });
-		  // Recharge les notifications pour mettre à jour le badge
 		  await loadNotifications(userId);
 	    } catch (err) {
-	  	  console.error("Erreur lors de l'envoi de notification:", err);
+		  console.error("Erreur notification:", err);
 	    }
 	  }
+
 	  async function toggleFavorite(animeId) {
 	    const user = auth.currentUser;
 	    if (!user) {
@@ -1190,6 +1191,12 @@
 	    } catch (err) {
 		  console.error("Erreur toggleFavorite:", err);
 	    }
+		if (anime.likes === 3) {
+		  sendNotificationToAllUsers(
+			"🔥 Anime tendance",
+			anime.title
+		  );
+		}
 
 	    // 🔹 Mettre à jour l'UI
 	    const btn = document.querySelector(`.fav-btn[data-id="${animeId}"]`);
@@ -1260,6 +1267,32 @@
 		    anime.rating = avgRating;
 			anime.userRating = newRating;
 		  }
+		  if (oldRating === null) {
+		    sendNotification(
+			  user.uid,
+			  "⭐ Première note !",
+			  `Tu as noté ${anime.title}`
+		    );
+		  }
+
+		  if (oldRating !== null && oldRating !== newRating) {
+		    sendNotification(
+			  user.uid,
+			  "🔁 Note modifiée",
+			  `${anime.title} : ${oldRating} → ${newRating}`
+		    );
+		  }
+		  // 🔹 Objectif : 5 animes notés
+		  const ratingCountUser = Object.keys(userData.ratings || {}).length + (oldRating === null ? 1 : 0);
+
+		  if (ratingCountUser === 5) {
+		    sendNotification(
+			  user.uid,
+			  "🏆 Objectif atteint",
+			  "5 animes notés !"
+		    );
+		  }
+
 		  applyFilters(); // refresh affichage
 
 	    } catch (err) {
@@ -1319,7 +1352,12 @@
 		    filteredAnime.userRating = null;
 		    filteredAnime.rating = update.avgRating ?? 0;
 		  }
- 
+		  sendNotification(
+		    user.uid,
+		    "❌ Note supprimée",
+		    anime.title
+		  );
+
 		  // 🔹 mettre à jour le select directement
 		  const select = document.querySelector(`.rate-select[data-id="${animeId}"]`);
 		  if (select) select.value = "";
@@ -1552,7 +1590,7 @@
 	  };	
 	  await sendNotificationToAllUsers
 	  await sendSiteUpdateNotification;
-	  await notifyNewAnimeOnce('41', 'Tokyo Ghoul')
+	  await notifyNewAnimeOnce('45', 'No Game, No Life')
   </script>
 </body>
 </html>
