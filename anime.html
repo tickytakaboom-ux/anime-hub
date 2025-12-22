@@ -119,10 +119,12 @@
       color: #052226;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
       margin-top: 10px;
       width: fit-content;
       box-shadow: 0 4px 15px rgba(6,182,212,0.4);
+	  position: relative;
+	  overflow: hidden;
     }
     .btn:hover {
       transform: translateY(-3px);
@@ -156,6 +158,237 @@
       .anime-info .btn { margin: 0 auto; display: block; }
       .anime-info .genres { justify-content: center; }
     }
+	/* ⭐ Select Noter */
+	#rateSelect {
+	  appearance: none;
+	  -webkit-appearance: none;
+	  -moz-appearance: none;
+
+	  background: linear-gradient(
+		135deg,
+		rgba(6, 182, 212, 0.18),
+		rgba(15, 193, 229, 0.25)
+	  );
+	  border: 1px solid rgba(6, 182, 212, 0.4);
+	  color: #e6eef6;
+
+	  padding: 10px 42px 10px 14px;
+	  border-radius: 12px;
+	  font-size: 15px;
+	  font-weight: 600;
+	  cursor: pointer;
+
+	  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.25);
+	  transition: all 0.25s ease;
+	  margin-top: 12px;
+	  width: fit-content;
+	}
+
+	/* 🔽 Flèche custom */
+	#rateSelect {
+	  background-image:
+		linear-gradient(45deg, transparent 50%, #06b6d4 50%),
+		linear-gradient(135deg, #06b6d4 50%, transparent 50%);
+	  background-position:
+		calc(100% - 20px) 50%,
+		calc(100% - 14px) 50%;
+	  background-size: 6px 6px;
+	  background-repeat: no-repeat;
+	}
+
+	/* 🖱 Hover */
+	#rateSelect:hover {
+	  transform: translateY(-2px);
+	  box-shadow: 0 10px 28px rgba(6, 182, 212, 0.45);
+	  border-color: #06b6d4;
+	}
+
+	/* 🎯 Focus */
+	#rateSelect:focus {
+	  outline: none;
+	  box-shadow:
+		0 0 0 2px rgba(6, 182, 212, 0.4),
+		0 12px 30px rgba(6, 182, 212, 0.6);
+	}
+
+	/* 📋 Options */
+	#rateSelect option {
+	  background: #0b1220;
+	  color: #e6eef6;
+	  font-weight: 500;
+	}
+	#favBtn.favorited {
+	  background: linear-gradient(135deg, #facc15, #f97316);
+	  color: #3a2000;
+	  box-shadow: 0 12px 30px rgba(250,204,21,0.6);
+	}
+	/* Petit bounce */
+	#favBtn.pop {
+	  animation: favPop 0.35s ease;
+	}
+
+	@keyframes favPop {
+	  0%   { transform: scale(0.9); }
+	  60%  { transform: scale(1.15); }
+	  100% { transform: scale(1); }
+	}
+
+	#favBtn.favorited::after {
+	  opacity: 1;
+	  transform: translateY(-50%) scale(1);
+	}
+	#toast {
+	  position: fixed;
+	  bottom: 30px;
+	  left: 50%;
+	  transform: translateX(-50%) translateY(20px);
+	  background: linear-gradient(135deg, #22c55e, #16a34a);
+	  color: #022c22;
+	  padding: 14px 24px;
+	  border-radius: 14px;
+	  font-weight: 700;
+	  font-size: 14px;
+	  box-shadow: 0 10px 30px rgba(34,197,94,0.45);
+	  opacity: 0;
+	  pointer-events: none;
+	  transition: all 0.35s ease;
+	  z-index: 9999;
+	}
+
+	#toast.show {
+	  opacity: 1;
+	  transform: translateX(-50%) translateY(0);
+	}
+
+	#toast.remove {
+	  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+	  color: #042a3f;
+	  box-shadow: 0 10px 30px rgba(14,165,233,0.45);
+	}
+	/* Cœur qui poppe */
+	#favBtn::before {
+	  content: "❤️";
+	  position: absolute;
+	  left: 50%;
+	  top: 50%;
+	  transform: translate(-50%, -50%) scale(0);
+	  font-size: 1.8em;
+	  opacity: 0;
+	  pointer-events: none;
+	  text-shadow: 0 0 5px #fff, 0 0 10px #f00, 0 0 15px #f00;
+	}
+
+	#favBtn.liked::before {
+	  animation: heartPop 0.6s forwards;
+	}
+
+	@keyframes heartPop {
+	  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+	  30%  { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+	  60%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+	  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+	}
+
+	/* Particules container */
+	#favParticles {
+	  position: absolute;
+	  pointer-events: none;
+	  left: 0; top: 0;
+	  width: 100%; height: 100%;
+	  overflow: visible;
+	}
+	#favBtn.removed::before {
+	  content: "💔"; /* ou "❤️" si tu veux juste fade-out */
+	  position: absolute;
+	  left: 50%;
+	  top: 50%;
+	  transform: translate(-50%, -50%) scale(1);
+	  font-size: 1.8em;
+	  opacity: 1;
+	  pointer-events: none;
+	  color: #f00;
+	  animation: heartFade 0.5s forwards;
+	}
+
+	@keyframes heartFade {
+	  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+	  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+	}
+	/* Conteneur boutons header */
+	.header-actions {
+	  display: flex;
+	  gap: 12px;
+	  align-items: center;
+	}
+
+	/* Boutons favoris et profil */
+	.header-actions button, .header-actions a {
+	  display: inline-flex;
+	  align-items: center;
+	  justify-content: center;
+	  padding: 8px 16px;
+	  font-weight: 700;
+	  font-size: 14px;
+	  border-radius: var(--radius);
+	  border: 1px solid rgba(6,182,212,0.6);
+	  cursor: pointer;
+	  transition: all 0.3s ease;
+	  text-decoration: none;
+	  color: #e6eef6;
+	  background: linear-gradient(135deg, rgba(6,182,212,0.05), rgba(15,193,229,0.1));
+	  box-shadow: 0 0 6px rgba(6,182,212,0.5), 0 4px 12px rgba(6,182,212,0.3);
+	  position: relative;
+	  overflow: hidden;
+	}
+
+	/* Hover */
+	.header-actions button:hover, .header-actions a:hover {
+	  background: linear-gradient(135deg, var(--accent), var(--accent2));
+	  color: #052226;
+	  transform: translateY(-2px) scale(1.05);
+	  box-shadow:
+	    0 0 8px var(--accent),
+		0 0 12px var(--accent2),
+		0 4px 20px rgba(6,182,212,0.6),
+		0 6px 30px rgba(6,182,212,0.3);
+	}
+
+	/* Icônes dans les boutons */
+	.header-actions button i, .header-actions a i {
+	  margin-right: 6px;
+	  font-size: 16px;
+	}
+
+	/* Favoris actif */
+	.header-actions .favorited {
+	  background: linear-gradient(135deg, #facc15, #f97316);
+	  color: #3a2000;
+	  box-shadow:
+	    0 0 10px #facc15,
+		0 0 15px #f97316,
+		0 6px 24px rgba(250,204,21,0.5);
+	}
+
+	/* Petit pop animation */
+	.header-actions button.pop {
+	  animation: favPop 0.35s ease;
+	}
+	@keyframes favPop {
+	  0%   { transform: scale(0.9); }
+	  60%  { transform: scale(1.15); }
+	  100% { transform: scale(1); }
+	}
+	/* Glow animé pulse */
+	@keyframes neonPulse {
+	  0%, 100% { box-shadow: 0 0 6px var(--accent), 0 0 12px var(--accent2); }
+	  50% { box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2); }
+	}
+
+	/* Animation continue */
+	.header-actions button.glow,
+	.header-actions a.glow {
+	  animation: neonPulse 1.5s infinite alternate;
+	}
   </style>
 </head>
 <body>
@@ -163,33 +396,33 @@
   <div id="particles"></div>
 
   <header>
-    <h1>AnimeHub</h1>
-    <nav>
-      <a href="index.html">Accueil</a>
-      <a href="#">Favoris</a>
-      <a href="#">Profil</a>
-    </nav>
+    <h1 id="homeLogo" style="cursor:pointer;">AnimeHub</h1>
+    <div class="header-actions">
+	  <button id="goFavs" class="icon-btn">Favoris</button>
+	  <button id="goProfile" class="icon-btn">Profil</button>
+	</div>
   </header>
 
   <div class="container">
     <div class="anime-details">
       <img id="animeImg" src="" alt="Anime Image">
       <div class="anime-info">
-        <h2 id="animeTitle">Titre Anime</h2>
+        <h2 id="animeTitle"></h2>
         <div class="genres" id="animeGenres">
           <!-- Badges genres cliquables -->
         </div>
-        <p class="rating" id="animeRating">Note : …</p>
+        <div class="rating" id="animeRating"></div>
         <button class="btn" id="favBtn">Ajouter aux favoris</button>
+		<select class="rateSelect" id="rateSelect">
+          <option value="">Noter</option>
+        </select>
       </div>
     </div>
-    <div class="anime-summary" id="animeSummary">
-      Résumé de l’anime…
-    </div>
+    <p class="anime-summary" id="animeSummary"></p>
   </div>
-
+  <div id="toast"></div>
   <footer>
-    © 2025 AnimeSite
+    © 2025 AnimeHub
   </footer>
 
   <script>
@@ -736,32 +969,6 @@
       likes: 0}
 	];
 
-    const params = new URLSearchParams(window.location.search);
-    const animeId = parseInt(params.get('id'));
-    const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
-
-    if(anime){
-      document.getElementById('animeTitle').textContent = anime.title;
-      const genreContainer = document.getElementById('animeGenres');
-      anime.genre.forEach(g => {
-        const a = document.createElement('a');
-        a.textContent = g;
-        a.href = `index.html?genre=${encodeURIComponent(g)}`; // <-- lien vers la page principale avec filtre
-        genreContainer.appendChild(a);
-      });
-      document.getElementById('animeRating').textContent = "Note : " + anime.rating;
-      document.getElementById('animeImg').src = anime.img;
-      document.getElementById('animeImg').alt = anime.title;
-      document.getElementById('animeSummary').textContent = anime.summary;
-    } else {
-      document.querySelector('.anime-details').innerHTML = '<p>Anime non trouvé</p>';
-      document.getElementById('animeSummary').textContent = '';
-    }
-
-    document.getElementById('favBtn').addEventListener('click', () => {
-      if(anime) alert(anime.title + " ajouté aux favoris !");
-    });
-
     const canvas = document.createElement('canvas');
     document.getElementById('particles').appendChild(canvas);
     const ctx = canvas.getContext('2d');
@@ -803,7 +1010,332 @@
       const offset = window.scrollY;
       animeImg.style.transform = `translateY(${offset*0.1}px)`;
     });
-  </script>
+	document.getElementById("goFavs")?.addEventListener("click", () => {
+	  // Redirection vers la page d'accueil avec filtre favoris
+	  window.location.href = "index.html?fav=1";
+	});
 
+	document.getElementById("goProfile")?.addEventListener("click", () => {
+	  window.location.href = "profile.html";
+	});
+	document.getElementById("homeLogo").addEventListener("click", () => {
+	  window.location.href = "index.html";
+	});
+  </script>
+  <script type="module">
+	  /*****************************************************
+	 * 1️⃣ IMPORTS FIREBASE
+	 *****************************************************/
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+	import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+	import {
+	  getFirestore, doc, getDoc, setDoc, updateDoc,
+	  arrayUnion, arrayRemove, increment, deleteField
+	} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+	/*****************************************************
+	 * 2️⃣ FIREBASE INIT
+	 *****************************************************/
+	const firebaseConfig = {
+	  apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+	  authDomain: "animehub-7.firebaseapp.com",
+	  projectId: "animehub-7",
+	  storageBucket: "animehub-7.firebasestorage.app",
+	  messagingSenderId: "159114039206",
+	  appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+	  measurementId: "G-6K4MB0XQEV"
+	};
+
+	const app = initializeApp(firebaseConfig);
+	const auth = getAuth(app);
+	const db = getFirestore(app);
+
+	/*****************************************************
+	 * 3️⃣ VARIABLES & DOM
+	 *****************************************************/
+	const params = new URLSearchParams(window.location.search);
+	const animeId = Number(params.get("id"));
+
+	const img = document.getElementById("animeImg");
+	const title = document.getElementById("animeTitle");
+	const genresBox = document.getElementById("animeGenres");
+	const ratingBox = document.getElementById("animeRating");
+	const summary = document.getElementById("animeSummary");
+	const favBtn = document.getElementById("favBtn");
+	const rateSelect = document.getElementById("rateSelect");
+
+	let currentAnime = null;
+
+	/*****************************************************
+	 * 4️⃣ UI HELPERS
+	 *****************************************************/
+	function updateFavUI(anime, animate = true) {
+	  favBtn.classList.toggle("favorited", anime.fav);
+	  favBtn.textContent = anime.fav ? "★ Favori" : "☆ Favori";
+
+	  if (!animate) return;
+	  favBtn.classList.remove("pop");
+	  void favBtn.offsetWidth;
+	  favBtn.classList.add("pop");
+	}
+
+	function showToast(msg, type = "rate") {
+	  const toast = document.getElementById("toast");
+	  toast.textContent = msg;
+	  toast.classList.toggle("remove", type === "remove");
+	  toast.classList.add("show");
+	  setTimeout(() => toast.classList.remove("show"), 2200);
+	}
+	function animateFavParticles(button) {
+	  const rect = button.getBoundingClientRect();
+	  const particles = [];
+	  const count = 18;
+
+	  for (let i = 0; i < count; i++) {
+		particles.push({
+		  x: rect.left + rect.width / 2,
+		  y: rect.top + rect.height / 2,
+		  dx: (Math.random() - 0.5) * 10,
+		  dy: (Math.random() - 1.5) * 10,
+		  size: Math.random() * 4 + 3,
+		  life: 40
+		});
+	  }
+
+	  const canvas = document.createElement("canvas");
+	  canvas.width = window.innerWidth;
+	  canvas.height = window.innerHeight;
+	  canvas.style.position = "fixed";
+	  canvas.style.top = 0;
+	  canvas.style.left = 0;
+	  canvas.style.pointerEvents = "none";
+	  document.body.appendChild(canvas);
+
+	  const ctx = canvas.getContext("2d");
+
+	  function animate() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		particles.forEach(p => {
+		  p.x += p.dx;
+		  p.y += p.dy;
+		  p.dy += 0.3;
+		  ctx.fillStyle = "#ffd86b";
+		  ctx.beginPath();
+		  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+		  ctx.fill();
+		  p.life--;
+		});
+
+		if (particles.some(p => p.life > 0)) {
+		  requestAnimationFrame(animate);
+		} else {
+		  document.body.removeChild(canvas);
+		}
+	  }
+	  animate();
+	}
+	function playFavAnimation(button) {
+	  button.classList.add("liked");
+	  animateFavParticles(button);
+	  setTimeout(() => button.classList.remove("liked"), 600);
+	}
+	/*****************************************************
+	 * 5️⃣ FAVORIS
+	 *****************************************************/
+	async function syncFavoriteState(animeId) {
+	  const user = auth.currentUser;
+	  if (!user) return;
+
+	  const snap = await getDoc(doc(db, "users", user.uid));
+	  if (!snap.exists()) return;
+
+	  const favorites = snap.data().favorites || [];
+	  const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
+	  if (!anime) return;
+
+	  anime.fav = favorites.includes(animeId);
+	  updateFavUI(anime, false);
+	}
+
+	async function toggleFavorite(animeId) {
+	  const user = auth.currentUser;
+	  if (!user) return;
+
+	  const userRef = doc(db, "users", user.uid);
+	  const animeRef = doc(db, "animes", String(animeId));
+
+	  const userSnap = await getDoc(userRef);
+	  const favorites = userSnap.data().favorites || [];
+
+	  const alreadyFav = favorites.includes(animeId);
+
+	  if (alreadyFav) {
+		await updateDoc(userRef, { favorites: arrayRemove(animeId) });
+		await updateDoc(animeRef, { likes: increment(-1) });
+		currentAnime.fav = false;
+		showToast("💔 Retiré des favoris", "remove");
+	  } else {
+		await updateDoc(userRef, { favorites: arrayUnion(animeId) });
+		await updateDoc(animeRef, { likes: increment(1) });
+		currentAnime.fav = true;
+		showToast("❤️ Ajouté aux favoris");
+	  }
+
+	  if (currentAnime.fav) {
+		playFavAnimation(favBtn); // ❤️ + confettis
+	  } else {
+		favBtn.classList.add("removed"); // 💔
+		setTimeout(() => favBtn.classList.remove("removed"), 500);
+	  }
+
+	  updateFavUI(currentAnime, false); // pas de double anim
+	  }
+
+	async function syncUserData(animeId) {
+	  const user = auth.currentUser;
+	  if (!user) return;
+
+	  const userSnap = await getDoc(doc(db, "users", user.uid));
+	  if (!userSnap.exists()) return;
+
+	  const data = userSnap.data();
+
+	  /* FAVORIS */
+	  const favorites = data.favorites || [];
+	  currentAnime.fav = favorites.includes(animeId);
+	  updateFavUI(currentAnime, false); // ❌ PAS d'animation au chargement
+
+	  /* NOTE */
+	  const userRating = data.ratings?.[animeId] ?? null;
+	  if (userRating !== null) {
+		rateSelect.value = userRating;
+		rateSelect.classList.add("rated");
+	  } else {
+		rateSelect.value = "";
+		rateSelect.classList.remove("rated");
+	  }
+	}
+	/*****************************************************
+	 * 6️⃣ NOTES
+	 *****************************************************/
+	async function rateAnime(animeId, newRating) {
+	  const user = auth.currentUser;
+	  if (!user) return;
+
+	  const userRef = doc(db, "users", user.uid);
+	  const animeRef = doc(db, "animes", String(animeId));
+
+	  const userSnap = await getDoc(userRef);
+	  const animeSnap = await getDoc(animeRef);
+
+	  const oldRating = userSnap.data().ratings?.[animeId] ?? null;
+	  let ratingSum = animeSnap.data()?.ratingSum ?? 0;
+	  let ratingCount = animeSnap.data()?.ratingCount ?? 0;
+
+	  if (oldRating === null) {
+		ratingSum += newRating;
+		ratingCount++;
+	  } else {
+		ratingSum += (newRating - oldRating);
+	  }
+
+	  const avgRating = ratingSum / ratingCount;
+
+	  await setDoc(animeRef, { ratingSum, ratingCount, avgRating }, { merge: true });
+	  await updateDoc(userRef, { [`ratings.${animeId}`]: newRating });
+
+	  currentAnime.rating = avgRating;
+	  ratingBox.textContent = `⭐ ${avgRating.toFixed(1)}`;
+	}
+
+	async function removeRating(animeId) {
+	  const user = auth.currentUser;
+	  if (!user) return;
+
+	  const userRef = doc(db, "users", user.uid);
+	  const animeRef = doc(db, "animes", String(animeId));
+
+	  const userSnap = await getDoc(userRef);
+	  const animeSnap = await getDoc(animeRef);
+
+	  const oldRating = userSnap.data().ratings?.[animeId];
+	  if (oldRating == null) return;
+
+	  let { ratingSum = 0, ratingCount = 0 } = animeSnap.data();
+	  ratingSum -= oldRating;
+	  ratingCount--;
+
+	  const avgRating = ratingCount > 0 ? ratingSum / ratingCount : 0;
+
+	  await setDoc(animeRef, { ratingSum, ratingCount, avgRating }, { merge: true });
+	  await updateDoc(userRef, { [`ratings.${animeId}`]: deleteField() });
+
+	  ratingBox.textContent = avgRating ? `⭐ ${avgRating.toFixed(1)}` : "Pas encore noté";
+	  rateSelect.value = "";
+	}
+	// 🔹 Remplir le select de notes
+	rateSelect.innerHTML = '<option value="">Noter</option>';
+	for (let i = 0.5; i <= 10; i += 0.5) {
+	  const opt = document.createElement("option");
+	  opt.value = i;
+	  opt.textContent = i;
+	  rateSelect.appendChild(opt);
+	}
+	/*****************************************************
+	 * 7️⃣ INIT PAGE
+	 *****************************************************/
+	onAuthStateChanged(auth, async (user) => {
+	  if (!user) return;
+
+	  currentAnime = SAMPLE_ANIMES.find(a => a.id === animeId);
+	  if (!currentAnime) return;
+	  /* 🎨 INFOS ANIME (UNE SEULE FOIS) */
+	  img.src = currentAnime.img;
+	  img.alt = currentAnime.title;
+	  title.textContent = currentAnime.title;
+	  summary.textContent = currentAnime.summary;
+
+	  /* 🎭 GENRES CLIQUABLES */
+	  genresBox.innerHTML = "";
+	  currentAnime.genre.forEach(g => {
+		const a = document.createElement("a");
+		a.textContent = g;
+		a.href = `index.html?genre=${encodeURIComponent(g)}`;
+		genresBox.appendChild(a);
+	  });
+
+	  // 🔹 Charger la moyenne depuis Firestore AU LOAD
+	  const animeSnap = await getDoc(doc(db, "animes", String(animeId)));
+	  if (animeSnap.exists()) {
+		const data = animeSnap.data();
+		if (data.avgRating) {
+		  currentAnime.rating = data.avgRating;
+		  ratingBox.textContent = `⭐ ${data.avgRating.toFixed(1)}`;
+		} else {
+		  ratingBox.textContent = "Pas encore noté";
+		}
+	  } else {
+		ratingBox.textContent = "Pas encore noté";
+	  }
+
+	  img.src = currentAnime.img;
+	  title.textContent = currentAnime.title;
+	  summary.textContent = currentAnime.summary;
+
+	  await syncUserData(animeId);
+
+	  favBtn.onclick = () => toggleFavorite(animeId);
+
+	  rateSelect.addEventListener("change", e => {
+		if (e.target.value === "") {
+		  removeRating(animeId);
+		  rateSelect.classList.remove("rated");
+		} else {
+		  rateAnime(animeId, Number(e.target.value));
+		  rateSelect.classList.add("rated");
+		}
+	  });
+	});
+  </script>
 </body>
 </html>
