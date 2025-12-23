@@ -64,6 +64,7 @@
 	  color: inherit;
 	  min-width: 220px;
 	  transition: 0.3s;
+	  box-shadow: 0 0 4px rgba(255,255,255,0.1);
 	}
 	input.search:focus { border-color: var(--accent); box-shadow: 0 0 12px rgba(6,182,212,0.3); outline: none; }
 	.select, .select-sm {
@@ -73,10 +74,13 @@
 	  border: 1px solid rgba(255,255,255,0.06);
 	  color: inherit;
 	  transition: 0.3s;
+	  box-shadow: 0 0 4px rgba(255,255,255,0.1);
 	}
 	.select:hover, .select-sm:hover { border-color: var(--accent); box-shadow: 0 0 10px rgba(6,182,212,0.25); }
 	.select option, .select-sm option { color: #e6eef6; background-color: var(--card); }
-
+	@media (max-width:720px) {
+		.controls > select, input.search { flex: 1 1 100%; }
+	}
 	/* Grid cartes anime */
 	.grid {
 	  display: grid;
@@ -90,15 +94,15 @@
 	  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));
 	  border-radius: 14px;
 	  overflow: hidden;
-	  box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+	  box-shadow: 0 6px 18px rgba(6,182,212,0.4);
 	  transition: transform 0.2s ease, box-shadow 0.2s ease;
 	  position: relative;
 	}
 	.card:hover {
-	  transform: translateY(-6px) scale(1.02);
+	  transform: translateY(-4px) rotateZ(-0.2deg);;
 	  box-shadow: 0 12px 30px rgba(6,182,212,0.6), 0 0 20px rgba(6,182,212,0.25);
 	}
-	.card img { width: 100%; height: 300px; object-fit: cover; display: block; background: #111; transition: 0.3s; }
+	.card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #111; transition: 0.3s; }
 	.card:hover img { filter: brightness(1.1); }
 
 	/* Card content */
@@ -137,27 +141,10 @@
 	  font-size: 14px;
 	  transition: 0.2s;
 	}
-	.fav-btn:hover { background: rgba(6,182,212,0.2); }
+	.fav-btn:hover { background: rgba(255,255,255,0.08); backdrop-filter: blur(4px) }
 
 	/* Rating badges */
-	.rating { background: rgba(0,0,0,0.45); padding: 6px 8px; border-radius: 8px; font-weight: 700; font-size: 13px; }
-
-	/* Modal anime */
-	.modal-backdrop {
-	  position: fixed; inset: 0;
-	  background: linear-gradient(90deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85));
-	  display: flex; align-items: center; justify-content: center;
-	  z-index: 80; padding: 20px;
-	}
-	.modal {
-	  max-width: 900px; width: 100%;
-	  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));
-	  border-radius: 12px; padding: 20px; display: flex; gap: 16px;
-	  color: inherit;
-	  box-shadow: 0 8px 20px rgba(6,182,212,0.25);
-	  animation: fadeUp 0.3s ease forwards;
-	}
-	.modal img { width: 220px; height: 320px; object-fit: cover; border-radius: 10px; }
+	.rating { background: rgba(0,0,0,0.45); padding: 4px 8px; border-radius: 12px; font-weight: 700; font-size: 13px; }
 
 	/* Footer */
 	footer { text-align: center; color: var(--muted); margin-top: 24px; font-size: 13px; }
@@ -198,8 +185,8 @@
 	  left: 10px;
 	  background: #ff4500;
 	  color: white;
-	  font-size: 12px;
-	  padding: 4px 6px;
+	  font-size: 11px;
+	  padding: 2px 6px;
 	  border-radius: 6px;
 	  font-weight: bold;
 	  z-index: 10; /* s'assure qu'il soit au-dessus de l'image */
@@ -211,10 +198,10 @@
 	  display: flex;
 	  gap: 8px;
 	  align-items: center;
-	  background: rgba(255,255,255,0.05);
+	  background: rgba(11,18,32,0.85);
 	  padding: 6px 12px;
 	  border-radius: 12px;
-	  backdrop-filter: blur(4px);
+	  backdrop-filter: blur(6px);
 	  flex-wrap: wrap;
 	  position: relative;
 	  z-index: 999;
@@ -236,19 +223,83 @@
 	}
 	#userBox:hover { background: rgba(255,255,255,0.2); }
 
-	.notif-container { position: relative; cursor: pointer; }
+	.notif-container { 
+	  position: relative; 
+	  cursor: pointer;
+	  font-size: 18px;
+	  border-radius: 50%;
+	  transition: background 0.2s;
+	}
+	.notif-container:hover {
+	  background: rgba(255,255,255,0.12);
+	}
 	.notif-badge {
 	  position: absolute;
-	  top: -5px;
-	  right: -5px;
-	  background-color: red;
+	  top: -4px;
+	  right: -6px;
+
+	  min-width: 16px;
+	  height: 16px;
+	  padding: 0 4px;
+
+	  display: none;
+	  align-items: center;
+	  justify-content: center;
+
+	  background: #ef4444; /* rouge clean */
 	  color: white;
-	  font-size: 12px;
-	  font-weight: bold;
-	  padding: 2px 6px;
-	  border-radius: 50%;
-	  display: none; /* s'affiche seulement si >0 notif */
-	  z-index: 101;
+
+	  font-size: 10px;
+	  font-weight: 800;
+	  line-height: 1;
+
+	  border-radius: 999px;
+	  border: 2px solid #0b1220; /* fond du header */
+
+	  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+	  z-index: 200;
+	}
+	.notif-dropdown {
+	  position: absolute;
+	  top: 50px;
+	  right: 0;
+	  width: 320px;
+	  background: #0b1220;
+	  border-radius: 14px;
+	  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+	  z-index: 300;
+	  overflow: hidden;
+	}
+
+	#notifList li {
+	  padding: 12px 14px;
+	  font-size: 14px;
+	  border-bottom: 1px solid rgba(255,255,255,0.08);
+	  color: #e6eef6;
+	}
+
+	#notifList li:last-child {
+	  border-bottom: none;
+	}
+
+	#notifList li:hover {
+	  background: rgba(255,255,255,0.05);
+	}
+	.notif-badge.show {
+	  display: flex;
+	  animation: pop 0.25s ease;
+	}
+
+	@keyframes pop {
+	  0% { transform: scale(0); }
+	  80% { transform: scale(1.2); }
+	  100% { transform: scale(1); }
+	}
+	@media (max-width:720px) {
+		header { padding: 16px 20px; }
+	}
+	* {
+		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 	}
   </style>
   <!-- Favicon classique -->
@@ -286,10 +337,11 @@
         </select>
       </div>
 	  <div id="authContainer">
-	    <div class="notif-container">
-		  <i class="fa-solid fa-bell" id="notifBell"></i>
+	    <div class="notif-container" id="notifBtn">
+		  <i class="fa-solid fa-bell"></i>
 		  <span class="notif-badge" id="notifBadge">0</span>
 		</div>
+
 		<div class="notif-dropdown" id="notifDropdown" style="display:none;">
 		  <ul id="notifList" style="list-style:none; margin:0; padding:0;"></ul>
 		</div>
@@ -464,7 +516,7 @@
 	  genre:['Dark','Fantasy','Action','Horror'],
 	  rating:0,
 	  year:2022,
-	  img:'https://cdn.myanimelist.net/images/anime/1806/126216.jpg',
+	  img:'https://cdn.myanimelist.net/images/anime/1432/154522.jpg',
 	  summary:'L’histoire suit Denji, un jeune homme pauvre endetté, qui chasse des démons pour rembourser ses dettes. Après avoir été trahi et tué, il fusionne avec son chien-démon Pochita et devient Chainsaw Man, capable de se transformer en humain avec des tronçonneuses sortant de son corps. Il rejoint alors l’Agence des Chasseurs de Démons et combat des créatures terrifiantes tout en découvrant les vérités sombres sur les démons, les humains et ses propres désirs. L’histoire mélange action sanglante, humour noir et drame émotionnel.',
 	  fav:false,
 	  likes: 0 },
@@ -626,7 +678,7 @@
 	  genre:['Action','Comedy','Slice Of Life'],
 	  rating:0,
 	  year:2025,
-	  img:'https://cdn.myanimelist.net/images/anime/1758/148719.jpg',
+	  img:'https://cdn.myanimelist.net/images/anime/1841/154538.jpg',
 	  summary:'Le perso principal, Taro Sakamoto, c’était un tueur à gages légendaire, craint et respecté dans le milieu. Mais un jour il tombe amoureux, décide d’abandonner la vie d’assassin, se marie, a une fille, et ouvre une petite supérette pour mener une vie tranquille. Il est devenu un mari/papa un peu rondouillard — mais toujours costaud dans l’âme. Sauf que son passé le rattrape : d’anciens ennemis, des chasseurs de primes, des assassins reviennent pour lui. Pour protéger sa famille, Sakamoto doit reprendre du service — mais tout en essayant de garder sa promesse (ne plus tuer) et sa nouvelle vie paisible.',
 	  fav:false,
 	  likes: 0},
@@ -863,6 +915,51 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1390/147040.jpg',
 	  summary:'L’histoire suit Rin Okumura, un adolescent qui découvre qu’il est le fils de Satan. Lorsque son père adoptif meurt en le protégeant, Rin décide de devenir exorciste pour combattre les démons et s’opposer à son véritable père. Il intègre une académie d’exorcistes, apprend à maîtriser ses pouvoirs démoniaques et affronte des menaces surnaturelles, tout en luttant contre sa double nature. L’anime mélange action, drame et surnaturel, avec des thèmes sur l’identité et le choix de son propre chemin.',
 	  fav:false,
+      likes: 0},
+	  { id:61,
+	  title:'Cowboy Bebop',
+	  genre:['Science Fiction','Western','Action','Drama','Thriller'],
+	  rating:8.8,
+	  year:1998,
+	  img:'https://cdn.myanimelist.net/images/anime/4/19644.jpg',
+	  summary:'L’histoire suit Spike Spiegel et son équipe de chasseurs de primes à bord du vaisseau Bebop, dans un futur où l’humanité a colonisé l’espace. Chaque épisode les plonge dans des missions variées, des conflits avec le crime organisé et des rencontres avec des personnages hauts en couleur. Derrière l’action et l’humour, l’anime explore les passés douloureux, la solitude et les regrets de chaque personnage, le tout dans une ambiance noir, jazz et space western unique.',
+	  fav:false,
+      likes: 0},
+	  { id:62,
+	  title:'Parasyte: The Maxim',
+	  genre:['Horror','Science Fiction','Action','Thriller','Psychological'],
+	  rating:8.3,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/3/73178.jpg',
+	  summary:'L’histoire suit Shinichi Izumi, un lycéen dont la main droite est infectée par un parasite extraterrestre nommé Migi. Contrairement aux autres parasites qui prennent le contrôle total de leur hôte, Shinichi et Migi doivent coexister pour survivre. Ensemble, ils affrontent d’autres parasites qui menacent les humains, tout en explorant des thèmes profonds sur l’humanité, la morale et la survie. L’anime mélange action, horreur, suspense et drame psychologique.',
+	  fav:false,
+      likes: 0},
+	  { id:63,
+	  title:'Spirited Away',
+	  genre:['Adventure','Drama'],
+	  rating:8.8,
+	  year:2001,
+	  img:'https://cdn.myanimelist.net/images/anime/6/79597.jpg',
+	  summary:'L’histoire suit Chihiro, une fillette de 10 ans qui, en déménageant avec ses parents, se retrouve dans un monde magique peuplé d’esprits et de créatures étranges. Ses parents sont transformés en cochons, et Chihiro doit travailler dans un bain public dirigé par la sorcière Yubaba pour trouver un moyen de les sauver. Au fil de son aventure, elle apprend le courage, la responsabilité et l’amitié, tout en découvrant un univers mystérieux, merveilleux et parfois inquiétant.',
+	  fav:false,
+      likes: 0},
+	  { id:64,
+	  title:'Neon Genesis Evangelion',
+	  genre:['Mecha','Science Fiction','Psychological','Drama'],
+	  rating:8.4,
+	  year:1995,
+	  img:'https://cdn.myanimelist.net/images/anime/1314/108941.jpg',
+	  summary:'L’histoire se déroule dans un monde post-apocalyptique où des créatures mystérieuses appelées Anges attaquent l’humanité. Shinji Ikari, un adolescent distant, est recruté par l’organisation NERV pour piloter un gigantesque robot appelé Evangelion afin de protéger la Terre. Au fil des combats, Shinji et les autres pilotes doivent affronter non seulement les Anges, mais aussi leurs propres traumatismes, peurs et relations complexes. L’anime mélange action, drame psychologique, philosophie et symbolisme, créant une œuvre intense et marquante.',
+	  fav:false,
+      likes: 0},
+	  { id:65,
+	  title:'Violet Evergarden',
+	  genre:['Drama','Romance','Slice Of Life'],
+	  rating:8.7,
+	  year:2018,
+	  img:'https://cdn.myanimelist.net/images/anime/1795/95088.jpg',
+	  summary:'L’histoire suit Violet Evergarden, une jeune femme ancienne soldate qui a grandi dans la guerre et qui a du mal à comprendre ses propres émotions après avoir perdu son mentor et figure paternelle, Major Gilbert. Elle commence à travailler comme “Auto Memory Doll”, une personne qui écrit des lettres pour exprimer les sentiments des autres. Au fil de ses missions, Violet apprend à comprendre l’amour, la perte et l’empathie, tout en cherchant à donner un sens à sa propre vie. L’anime est émotionnel, poétique et visuellement magnifique.',
+	  fav:false,
       likes: 0}
 	];
 	
@@ -877,7 +974,29 @@
 	const urlParams = new URLSearchParams(window.location.search);
 	const favFromUrl = urlParams.get("fav"); // "1" ou null
 	let genreFromUrl = urlParams.get('genre'); // ex: "Action" ou null
+	const loadingMessages = [
+	  "⏳ Kira observe… chargement des animes en cours",
+	  "📓 Le Death Note s’ouvre… préparation de l’univers",
+	  "👁️ Ryuk rigole pendant que les animes arrivent",
+	  "⚖️ La justice prend forme… chargement des données",
+	  "🧱 Les murs tremblent… les animes arrivent",
+	  "⚔️ Le Bataillon d’Exploration prépare la page",
+	  "👁️ Eren regarde l’horizon… chargement en cours",
+	  "🩸 La liberté a un prix… données en cours de déploiement",
+	  "🟠 Chargement en cours… le ki monte",
+	  "🌌 Voyage vers Namek… encore un instant",
+	  "🐉 Shenron est invoqué… préparation des animes",
+	  "🩸 La mort n’est pas la fin… chargement",
+	  "🕯️ Echidna observe… patience",
+	];
 
+	const loadingEl = document.getElementById("loading");
+
+	if (loadingEl) {
+	  const randomMessage =
+		loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+	  loadingEl.textContent = randomMessage;
+	}
 	// Remplir select genres
 	const genres = new Set(['Tout']);
 	SAMPLE_ANIMES.forEach(a => a.genre.forEach(g => genres.add(g)));
@@ -1150,19 +1269,20 @@
 	  const db = getFirestore(app);
 	  const auth = getAuth(app);
 	  const grid = document.getElementById("grid"); // ou le bon id
-	  const notifBell = document.getElementById("notifBell");
 	  const notifBadge = document.getElementById("notifBadge");
 	  const notifDropdown = document.getElementById("notifDropdown");
 	  const notifList = document.getElementById("notifList");
 	  const urlParams = new URLSearchParams(window.location.search);
 	  const genreFilter = urlParams.get("genre"); // null si aucun
+	  const notifBtn = document.getElementById("notifBtn");
+
 
 	  
 	  let notifVisible = false;
 	  
-	  notifBell.addEventListener("click", () => {
-	    notifVisible = !notifVisible;
-	    notifDropdown.style.display = notifVisible ? "block" : "none";
+	  notifBtn.addEventListener("click", () => {
+	    notifDropdown.style.display =
+		  notifDropdown.style.display === "none" ? "block" : "none";
 	  });
 	  userBox.addEventListener("click", () => {
         window.location.href = "profile.html";
@@ -1514,7 +1634,16 @@
 		  }
 		})
 	  };
-		
+	  const updateMessage = `De nouvelles fonctionnalités débarquent sur AnimeHub ! 🎉
+		- Phrase de chargement et animations pour les cartes.
+		- Interface responsive et design modernisé.
+		- Amélioration de la page anime
+
+		Profite de toutes ces nouveautés et continue d’explorer ton univers anime préféré !`;
+
+		// Appel de la fonction avec un numéro de version unique
+		sendSiteUpdateNotification("1.1.0", updateMessage);
+
 	  await sendNotificationToAllUsers
 	  await sendSiteUpdateNotification;
 	  await notifyNewAnimeOnce('60', 'Blue Exorcist')

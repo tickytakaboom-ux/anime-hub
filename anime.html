@@ -389,6 +389,35 @@
 	.header-actions a.glow {
 	  animation: neonPulse 1.5s infinite alternate;
 	}
+	/* 🔄 Loader Anime */
+	.anime-loader {
+	  position: fixed;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  text-align: center;
+	  z-index: 999;
+	}
+
+	.spinner {
+	  width: 60px;
+	  height: 60px;
+	  border: 5px solid rgba(6,182,212,0.2);
+	  border-top: 5px solid #06b6d4;
+	  border-radius: 50%;
+	  animation: spin 1s linear infinite;
+	  margin: 0 auto 16px;
+	}
+
+	@keyframes spin {
+	  to { transform: rotate(360deg); }
+	}
+
+	#animeLoadingText {
+	  font-size: 16px;
+	  color: #9ca3af;
+	  font-style: italic;
+	}
   </style>
 </head>
 <body>
@@ -398,33 +427,49 @@
   <header>
     <h1 id="homeLogo" style="cursor:pointer;">AnimeHub</h1>
     <div class="header-actions">
-	  <button id="goFavs" class="icon-btn">Favoris</button>
-	  <button id="goProfile" class="icon-btn">Profil</button>
-	</div>
+      <button id="goFavs" class="icon-btn">Favoris</button>
+      <button id="goProfile" class="icon-btn">Profil</button>
+    </div>
   </header>
 
-  <div class="container">
-    <div class="anime-details">
-      <img id="animeImg" src="" alt="Anime Image">
-      <div class="anime-info">
-        <h2 id="animeTitle"></h2>
-        <div class="genres" id="animeGenres">
-          <!-- Badges genres cliquables -->
-        </div>
-        <div class="rating" id="animeRating"></div>
-        <button class="btn" id="favBtn">Ajouter aux favoris</button>
-		<select class="rateSelect" id="rateSelect">
-          <option value="">Noter</option>
-        </select>
-      </div>
-    </div>
-    <p class="anime-summary" id="animeSummary"></p>
+  <!-- 🔄 LOADER (visible au chargement) -->
+  <div id="animeLoader" class="anime-loader">
+    <div class="spinner"></div>
+    <p id="animeLoadingText"></p>
   </div>
+
+  <!-- 🎬 CONTENU ANIME (caché au début) -->
+  <div id="animeContent" style="display:none;">
+    <div class="container">
+      <div class="anime-details">
+        <img id="animeImg" src="" alt="Anime Image">
+
+        <div class="anime-info">
+          <h2 id="animeTitle"></h2>
+
+          <div class="genres" id="animeGenres">
+            <!-- Badges genres cliquables -->
+          </div>
+
+          <div class="rating" id="animeRating"></div>
+
+          <button class="btn" id="favBtn">Ajouter aux favoris</button>
+
+          <select class="rateSelect" id="rateSelect">
+            <option value="">Noter</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="anime-summary" id="animeSummary"></p>
+    </div>
+  </div>
+
   <div id="toast"></div>
+
   <footer>
     © 2025 AnimeHub
   </footer>
-
   <script>
     const SAMPLE_ANIMES = [
       { id:1, 
@@ -966,6 +1011,51 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1390/147040.jpg',
 	  summary:'L’histoire suit Rin Okumura, un adolescent qui découvre qu’il est le fils de Satan. Lorsque son père adoptif meurt en le protégeant, Rin décide de devenir exorciste pour combattre les démons et s’opposer à son véritable père. Il intègre une académie d’exorcistes, apprend à maîtriser ses pouvoirs démoniaques et affronte des menaces surnaturelles, tout en luttant contre sa double nature. L’anime mélange action, drame et surnaturel, avec des thèmes sur l’identité et le choix de son propre chemin.',
 	  fav:false,
+      likes: 0},
+	  { id:61,
+	  title:'Cowboy Bebop',
+	  genre:['Science Fiction','Western','Action','Drama','Thriller'],
+	  rating:8.8,
+	  year:1998,
+	  img:'https://cdn.myanimelist.net/images/anime/4/19644.jpg',
+	  summary:'L’histoire suit Spike Spiegel et son équipe de chasseurs de primes à bord du vaisseau Bebop, dans un futur où l’humanité a colonisé l’espace. Chaque épisode les plonge dans des missions variées, des conflits avec le crime organisé et des rencontres avec des personnages hauts en couleur. Derrière l’action et l’humour, l’anime explore les passés douloureux, la solitude et les regrets de chaque personnage, le tout dans une ambiance noir, jazz et space western unique.',
+	  fav:false,
+      likes: 0},
+	  { id:62,
+	  title:'Parasyte: The Maxim',
+	  genre:['Horror','Science Fiction','Action','Thriller','Psychological'],
+	  rating:8.3,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/3/73178.jpg',
+	  summary:'L’histoire suit Shinichi Izumi, un lycéen dont la main droite est infectée par un parasite extraterrestre nommé Migi. Contrairement aux autres parasites qui prennent le contrôle total de leur hôte, Shinichi et Migi doivent coexister pour survivre. Ensemble, ils affrontent d’autres parasites qui menacent les humains, tout en explorant des thèmes profonds sur l’humanité, la morale et la survie. L’anime mélange action, horreur, suspense et drame psychologique.',
+	  fav:false,
+      likes: 0},
+	  { id:63,
+	  title:'Spirited Away',
+	  genre:['Adventure','Drama'],
+	  rating:8.8,
+	  year:2001,
+	  img:'https://cdn.myanimelist.net/images/anime/6/79597.jpg',
+	  summary:'L’histoire suit Chihiro, une fillette de 10 ans qui, en déménageant avec ses parents, se retrouve dans un monde magique peuplé d’esprits et de créatures étranges. Ses parents sont transformés en cochons, et Chihiro doit travailler dans un bain public dirigé par la sorcière Yubaba pour trouver un moyen de les sauver. Au fil de son aventure, elle apprend le courage, la responsabilité et l’amitié, tout en découvrant un univers mystérieux, merveilleux et parfois inquiétant.',
+	  fav:false,
+      likes: 0},
+	  { id:64,
+	  title:'Neon Genesis Evangelion',
+	  genre:['Mecha','Science Fiction','Psychological','Drama'],
+	  rating:8.4,
+	  year:1995,
+	  img:'https://cdn.myanimelist.net/images/anime/1314/108941.jpg',
+	  summary:'L’histoire se déroule dans un monde post-apocalyptique où des créatures mystérieuses appelées Anges attaquent l’humanité. Shinji Ikari, un adolescent distant, est recruté par l’organisation NERV pour piloter un gigantesque robot appelé Evangelion afin de protéger la Terre. Au fil des combats, Shinji et les autres pilotes doivent affronter non seulement les Anges, mais aussi leurs propres traumatismes, peurs et relations complexes. L’anime mélange action, drame psychologique, philosophie et symbolisme, créant une œuvre intense et marquante.',
+	  fav:false,
+      likes: 0},
+	  { id:65,
+	  title:'Violet Evergarden',
+	  genre:['Drama','Romance','Slice Of Life'],
+	  rating:8.7,
+	  year:2018,
+	  img:'https://cdn.myanimelist.net/images/anime/1795/95088.jpg',
+	  summary:'L’histoire suit Violet Evergarden, une jeune femme ancienne soldate qui a grandi dans la guerre et qui a du mal à comprendre ses propres émotions après avoir perdu son mentor et figure paternelle, Major Gilbert. Elle commence à travailler comme “Auto Memory Doll”, une personne qui écrit des lettres pour exprimer les sentiments des autres. Au fil de ses missions, Violet apprend à comprendre l’amour, la perte et l’empathie, tout en cherchant à donner un sens à sa propre vie. L’anime est émotionnel, poétique et visuellement magnifique.',
+	  fav:false,
       likes: 0}
 	];
 
@@ -1065,6 +1155,88 @@
 	const rateSelect = document.getElementById("rateSelect");
 
 	let currentAnime = null;
+	
+	/*****************************************************
+	 * 🔄 LOADER
+	 *****************************************************/
+	const loader = document.getElementById("animeLoader");
+	const content = document.getElementById("animeContent");
+	const loadingText = document.getElementById("animeLoadingText");
+
+	const loadingQuotes = [
+	  "Les pages du carnet s’écrivent… 📓",
+	  "L’énergie monte… un Kamehameha se prépare 💥",
+	  "Revenir en arrière fait parfois plus mal que mourir…",
+	  "Les murs tremblent… la vérité approche ⚔️",
+	  "Un échange équivalent est en cours… 🔥",
+	  "La guerre de l’amour a commencé… qui avouera en premier ? ♟️",
+	  "Le Nen circule… l’épreuve ne fait que commencer 🎯",
+	  "Les fléaux s’agitent… garde les yeux ouverts 🩸",
+	  "La ligne du monde est en train de changer… 📡",
+	  "Un ordre est sur le point d’être donné… 👁️",
+	  "Les péchés capitaux se rassemblent… 🍺",
+	  "Rien ne va se passer comme prévu… et c’est normal 🤡",
+	  "Les émotions atteignent 100%… 💥",
+	  "Bienvenue à Night City… accroche-toi 🦾",
+	  "La volonté du feu ne s’éteint jamais 🔥",
+	  "Une mélodie s’apprête à briser le silence… 🎶",
+	  "Les sentiments prennent forme doucement…",
+	  "Le vent se lève… l’aventure continue 🏴‍☠️",
+	  "Un phénomène étrange est sur le point d’apparaître…",
+	  "Les âmes s’agitent… le combat est proche ⚡",
+	  "Un coup suffira… encore faut-il qu’il arrive 👊",
+	  "Les mots manquent… mais les émotions parlent",
+	  "Le match va reprendre… ne cligne pas des yeux 🏐",
+	  "Derrière les projecteurs, la vérité se cache…",
+	  "Une création est en train de naître ✂️",
+	  "Les petits moments font les plus belles histoires",
+	  "Entre humanité et monstruosité… le choix est flou",
+	  "Le chaos arrive… et ça va faire mal 🪚",
+	  "La douceur s’installe petit à petit…",
+	  "Derrière l’autorité se cache un cœur tendre 💖",
+	  "Les souvenirs refont surface… 🎹",
+	  "Un nouveau niveau est sur le point d’être atteint 🔥",
+	  "Les malédictions se fissurent doucement…",
+	  "Les relations sont rarement simples…",
+	  "La lame se lève… pour protéger les vivants 🩸",
+	  "Deux destins tentent de se reconnecter…",
+	  "Tout va se jouer maintenant… sans règles 🎲",
+	  "Les sentiments explosent sans prévenir",
+	  "Un dieu fauché est prêt à agir ✨",
+	  "Le passé attend d’être corrigé…",
+	  "Le compte à rebours a commencé… ⏳",
+	  "La stratégie se joue dans l’ombre ♟️",
+	  "Plus ultra… le combat continue 💥",
+	  "La taquinerie va encore frapper…",
+	  "L’amour tente un retour inattendu…",
+	  "Entre sport et sentiments, l’équilibre est fragile",
+	  "Même à la retraite, les légendes frappent fort 😎",
+	  "Chaque combat a un prix… souvent mortel",
+	  "Le sang démoniaque se réveille 🔥",
+	  "Le futur est déjà en train de s’écrire… 📓",
+	  "Les sentiments se cachent derrière un sourire",
+	  "La connexion est presque établie… 🎮",
+	  "Le bizarre arrive… et il ne plaisante pas",
+	  "La magie de l’amitié fait encore des étincelles ✨",
+	  "Le plan est en marche… silence total 🤫",
+	  "Le jeu commence vraiment maintenant…",
+	  "Le passé peut encore être changé…",
+	  "Une première fois pleine de surprises…",
+	  "Une menace colossale approche… 🚨",
+	  "La magie suit un chemin inattendu…",
+	];
+
+	function showAnimeLoader() {
+	  loadingText.textContent =
+		loadingQuotes[Math.floor(Math.random() * loadingQuotes.length)];
+	  loader.style.display = "block";
+	  content.style.display = "none";
+	}
+
+	function hideAnimeLoader() {
+	  loader.style.display = "none";
+	  content.style.display = "block";
+	}
 
 	/*****************************************************
 	 * 4️⃣ UI HELPERS
@@ -1284,6 +1456,7 @@
 	/*****************************************************
 	 * 7️⃣ INIT PAGE
 	 *****************************************************/
+	showAnimeLoader();
 	onAuthStateChanged(auth, async (user) => {
 	  if (!user) return;
 
@@ -1335,7 +1508,8 @@
 		  rateSelect.classList.add("rated");
 		}
 	  });
-	});
+	  hideAnimeLoader();
+	  });
   </script>
 </body>
 </html>
