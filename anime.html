@@ -72,8 +72,14 @@
       box-shadow: 0 8px 24px rgba(0,0,0,0.6);
       flex-wrap: wrap;
       transition: transform 0.3s;
+	  border: 1px solid rgba(255,255,255,0.06);
     }
-    .anime-details:hover { transform: scale(1.01); }
+    .anime-details:hover { 
+	  transform: scale(1.01);
+	  box-shadow:
+        0 10px 30px rgba(0,0,0,0.7),
+        0 0 20px rgba(6,182,212,0.25);
+	}
 
     .anime-details img {
       width: 320px;
@@ -82,11 +88,21 @@
       border-radius: var(--radius);
       flex-shrink: 0;
       box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-      transition: transform 0.5s;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
     }
-
+	.anime-details:hover img {
+	  transform: scale(1.04);
+	  box-shadow:
+		0 12px 30px rgba(0,0,0,0.7),
+		0 0 18px rgba(6,182,212,0.35);
+	}
     .anime-info { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-    .anime-info h2 { font-size: 32px; font-weight: 700; color: var(--accent); }
+    .anime-info h2 { 
+	  font-size: 32px; 
+	  font-weight: 700; 
+	  color: var(--accent); 
+	  text-shadow: 0 0 12px rgba(6,182,212,0.35);
+	}
     .anime-info .genres { display: flex; gap: 8px; flex-wrap: wrap; }
     .anime-info .genres a {
       display: inline-block;
@@ -97,10 +113,12 @@
       font-weight: 500;
       color: var(--accent);
       transition: all 0.3s;
+	  border: 1px solid rgba(6,182,212,0.35);
     }
     .anime-info .genres a:hover { 
       transform: scale(1.1);
       background: rgba(6,182,212,0.25);
+	  box-shadow: 0 0 10px rgba(6,182,212,0.4);
     }
     .anime-info .rating {
       font-weight: 700;
@@ -130,7 +148,9 @@
       transform: translateY(-3px);
       box-shadow: 0 12px 30px rgba(6,182,212,0.7);
     }
-
+	.btn:active {
+	  transform: translateY(0) scale(0.97);
+	}
     .anime-summary {
       margin-top: 30px;
       font-size: 16px;
@@ -139,8 +159,16 @@
       padding: 20px;
       border-radius: var(--radius);
       backdrop-filter: blur(4px);
+	  border: 1px solid rgba(255,255,255,0.06);
+	  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
     }
-
+	.anime-summary::before {
+	  content: "📖 Synopsis";
+	  display: block;
+	  font-weight: 700;
+	  margin-bottom: 10px;
+	  color: var(--accent);
+	}
     footer {
       text-align: center;
       margin: 60px 0 20px;
@@ -183,7 +211,7 @@
 	  margin-top: 12px;
 	  width: fit-content;
 	}
-
+	
 	/* 🔽 Flèche custom */
 	#rateSelect {
 	  background-image:
@@ -210,7 +238,10 @@
 		0 0 0 2px rgba(6, 182, 212, 0.4),
 		0 12px 30px rgba(6, 182, 212, 0.6);
 	}
-
+	#rateSelect:focus-visible {
+	  outline: 2px solid #06b6d4;
+	  outline-offset: 2px;
+	}
 	/* 📋 Options */
 	#rateSelect option {
 	  background: #0b1220;
@@ -385,9 +416,11 @@
 	}
 
 	/* Animation continue */
-	.header-actions button.glow,
-	.header-actions a.glow {
-	  animation: neonPulse 1.5s infinite alternate;
+	.header-actions button,
+	.header-actions a {
+	  box-shadow:
+		0 0 6px rgba(6,182,212,0.4),
+		0 4px 10px rgba(6,182,212,0.25);
 	}
 	/* 🔄 Loader Anime */
 	.anime-loader {
@@ -405,10 +438,13 @@
 	  border: 5px solid rgba(6,182,212,0.2);
 	  border-top: 5px solid #06b6d4;
 	  border-radius: 50%;
-	  animation: spin 1s linear infinite;
+	  animation: spin 1s linear infinite, pulseGlow 1.5s ease-in-out infinite;
 	  margin: 0 auto 16px;
 	}
-
+	@keyframes pulseGlow {
+	  0%, 100% { box-shadow: 0 0 10px rgba(6,182,212,0.3); }
+	  50% { box-shadow: 0 0 25px rgba(6,182,212,0.6); }
+	}
 	@keyframes spin {
 	  to { transform: rotate(360deg); }
 	}
@@ -417,6 +453,22 @@
 	  font-size: 16px;
 	  color: #9ca3af;
 	  font-style: italic;
+	}
+	@media (max-width: 600px) {
+	  .anime-info h2 {
+		font-size: 24px;
+		text-align: center;
+	  }
+	  .anime-summary {
+		font-size: 15px;
+	  }
+	  .btn, #rateSelect {
+		margin-left: auto;
+		margin-right: auto;
+	  }
+	  .anime-info .rating {
+	    margin-left: auto;
+		margin-right: auto;
 	}
   </style>
 </head>

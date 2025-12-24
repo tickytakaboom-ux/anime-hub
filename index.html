@@ -301,6 +301,18 @@
 	* {
 		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 	}
+	@media (max-width: 768px) {
+	  .notifications-container {
+		position: fixed;
+		top: 70px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 95vw;
+		max-height: 70vh;
+		overflow-y: auto;
+		z-index: 999;
+	  }
+	}
   </style>
   <!-- Favicon classique -->
   <link rel="icon" type="image/png" href="icon_animehub.png">
@@ -1736,7 +1748,7 @@
 
 	  await sendNotificationToAllUsers
 	  await sendSiteUpdateNotification;
-	  await notifyNewAnimeOnce('65', 'Violet Evergarden')
+	  await notifyNewAnimeOnce('75', 'Soul Eater')
   </script>
 </body>
 </html>
