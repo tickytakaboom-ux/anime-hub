@@ -466,9 +466,153 @@
 		margin-left: auto;
 		margin-right: auto;
 	  }
-	  .anime-info .rating {
+	  .anime-info.rating {
 	    margin-left: auto;
 		margin-right: auto;
+	  }
+	}
+	/* 🎬 Bloc saisons */
+	.anime-seasons {
+	  margin-top: 2px;
+	  padding: 18px;
+	  border-radius: var(--radius);
+	  background: rgba(255,255,255,0.04);
+	  border: 1px solid rgba(255,255,255,0.06);
+	  backdrop-filter: blur(6px);
+	  box-shadow:
+		inset 0 0 0 1px rgba(255,255,255,0.02),
+		0 6px 18px rgba(0,0,0,0.5);
+	}
+
+	/* Titre */
+	.anime-seasons h3 {
+	  font-size: 18px;
+	  font-weight: 700;
+	  margin-bottom: 14px;
+	  color: var(--accent);
+	  display: flex;
+	  align-items: center;
+	  gap: 8px;
+	  text-shadow: 0 0 10px rgba(6,182,212,0.35);
+	}
+
+	.anime-seasons h3::before {
+	  content: "📺";
+	}
+
+	/* Liste */
+	.seasons-list {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 12px;
+	}
+
+	/* Carte saison */
+	.season-item {
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
+	  padding: 14px 16px;
+	  border-radius: 12px;
+	  background: linear-gradient(
+		135deg,
+		rgba(6,182,212,0.08),
+		rgba(15,193,229,0.12)
+	  );
+	  border: 1px solid rgba(6,182,212,0.25);
+	  cursor: pointer;
+	  transition: all 0.3s ease;
+	  position: relative;
+	  overflow: hidden;
+	}
+
+	/* Glow animé au hover */
+	.season-item::after {
+	  content: "";
+	  position: absolute;
+	  inset: 0;
+	  background: radial-gradient(
+		circle at left,
+		rgba(6,182,212,0.35),
+		transparent 60%
+	  );
+	  opacity: 0;
+	  transition: opacity 0.3s ease;
+	}
+
+	.season-item:hover::after {
+	  opacity: 1;
+	}
+
+	.season-item:hover {
+	  transform: translateY(-2px) scale(1.02);
+	  box-shadow:
+		0 10px 25px rgba(0,0,0,0.6),
+		0 0 20px rgba(6,182,212,0.35);
+	}
+
+	/* Texte saison */
+	.season-title {
+	  font-weight: 700;
+	  font-size: 15px;
+	  color: #e6eef6;
+	}
+
+	/* Episodes */
+	.season-episodes {
+	  font-size: 13px;
+	  color: var(--muted);
+	  background: rgba(0,0,0,0.25);
+	  padding: 4px 10px;
+	  border-radius: 999px;
+	  border: 1px solid rgba(255,255,255,0.08);
+	}
+
+	/* Mobile */
+	@media (max-width: 600px) {
+	  .anime-seasons {
+		padding: 14px;
+	  }
+
+	  .season-item {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+	  }
+
+	  .season-episodes {
+		align-self: flex-end;
+	  }
+	}
+	.season-item.empty {
+	  opacity: 0.6;
+	  font-style: italic;
+	  justify-content: center;
+	}
+	.badge-upcoming {
+	  margin-left: 10px;
+	  padding: 3px 8px;
+	  font-size: 11px;
+	  font-weight: 700;
+	  letter-spacing: 0.5px;
+	  color: #111;
+	  background: linear-gradient(135deg, #ffd86b, #ffb347);
+	  border-radius: 12px;
+	  text-transform: uppercase;
+	  box-shadow: 0 0 10px rgba(255, 200, 80, 0.6);
+	  animation: pulseUpcoming 1.8s infinite;
+	}
+
+	@keyframes pulseUpcoming {
+	  0% {
+		box-shadow: 0 0 6px rgba(255, 200, 80, 0.4);
+	  }
+	  50% {
+		box-shadow: 0 0 14px rgba(255, 200, 80, 0.9);
+	  }
+	  100% {
+		box-shadow: 0 0 6px rgba(255, 200, 80, 0.4);
+	  }
 	}
   </style>
 </head>
@@ -502,7 +646,12 @@
           <div class="genres" id="animeGenres">
             <!-- Badges genres cliquables -->
           </div>
-
+		  <div class="anime-seasons" id="animeSeasons">
+		    <h3>Saisons</h3>
+		    <div class="seasons-list" id="seasonsList">
+			  <!-- saisons injectées en JS -->
+		    </div>
+		  </div>
           <div class="rating" id="animeRating"></div>
 
           <button class="btn" id="favBtn">Ajouter aux favoris</button>
@@ -532,7 +681,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', 
 	  summary:'One Piece suit Monkey D. Luffy, un ado qui veut devenir Roi des Pirates après avoir mangé un fruit magique qui rend son corps élastique. Il part sur les mers pour trouver le légendaire trésor, le One Piece, et se crée petit à petit un équipage aux pouvoirs et aux rêves différents, les Mugiwara. Ensemble, ils affrontent des pirates, des marines, des tyrans et des monstres, tout en vivant des aventures incroyables et en se rapprochant de la vérité sur le monde et sur le passé caché.', 
 	  fav:false,
-	  likes: 0},
+	  likes: 0,
+	  seasons:[{number:1, title:"One Piece", episodes:1154}] },
       { id:2, 
 	  title:'Solo Leveling', 
 	  genre:['Action','Fantasy'], 
@@ -541,7 +691,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1448/147351.jpg', 
 	  summary:'Dans un monde où des portails font apparaître des monstres, les humains “chasseurs” risquent leur vie pour les affronter. Sung Jin-Woo, considéré comme le chasseur le plus faible, survit par miracle à un donjon terrifiant. Après ça, il reçoit un pouvoir unique : il peut devenir plus fort sans limite, comme dans un jeu vidéo, en accomplissant des quêtes et en gagnant des niveaux. À partir de là, Jin-Woo grimpe en puissance à une vitesse folle, affronte des ennemis de plus en plus dangereux, et découvre les secrets derrière les portails et sa propre ascension.', 
 	  fav:false,
-	  likes: 0 },
+	  likes: 0,
+	  seasons:[{number:1, title:"Solo Leveling", episodes:12}, {number:2, title:"Solo Leveling Season 2: Arise from the Shadow", episodes:13}] },
       { id:3, 
 	  title:'Death Note', 
 	  genre:['Mystery','Thriller'], 
@@ -550,7 +701,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1079/138100.jpg', 
 	  summary:'Death Note raconte l’histoire de Light Yagami, un étudiant japonais brillant mais désabusé, qui trouve un carnet surnaturel appelé Death Note. Ce carnet permet de tuer toute personne dont on écrit le nom dedans. Convaincu qu’il peut créer un monde parfait en éliminant les criminels, Light se transforme en justicier impitoyable sous le nom de Kira. Face à lui, L, un détective génial et mystérieux, se lance dans une lutte intellectuelle intense pour l’arrêter. Entre manipulations, trahisons et stratégies mentales, le combat entre Light et L devient une véritable partie d’échecs mortelle.', 
 	  fav:false,
-	  likes: 0 },
+	  likes: 0 
+	  seasons:[{number:1, title:"Death Note", episodes:37}]},
       { id:4, 
 	  title:'Jujutsu Kaisen', 
 	  genre:['Action','Supernatural'], 
@@ -1198,6 +1350,15 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1071/149486.jpg',
 	  summary:'',
 	  fav:false,
+      likes: 0},
+	  { id:76,
+	  title:'Sound! Euphonium',
+	  genre:['Slice Of Life','Drama','Musical'],
+	  rating:8.4,
+	  year:2015,
+	  img:'https://cdn.myanimelist.net/images/anime/1216/142086.jpg',
+	  summary:'L’histoire suit Kumiko Oumae, une lycéenne qui rejoint le club de fanfare de son école. Avec ses camarades, elle participe à des compétitions musicales, tout en affrontant les rivalités, la pression et ses propres doutes. L’anime montre la passion pour la musique, les efforts collectifs et les émotions des adolescents, avec une ambiance réaliste et touchante, centrée sur la croissance personnelle et les liens humains.',
+	  fav:false,
       likes: 0}
 	];
 
@@ -1295,6 +1456,7 @@
 	const summary = document.getElementById("animeSummary");
 	const favBtn = document.getElementById("favBtn");
 	const rateSelect = document.getElementById("rateSelect");
+	const seasonsList = document.getElementById("seasonsList");
 
 	let currentAnime = null;
 	
@@ -1453,6 +1615,35 @@
 	  animateFavParticles(button);
 	  setTimeout(() => button.classList.remove("liked"), 600);
 	}
+	function renderSeasons(anime) {
+	  seasonsList.innerHTML = "";
+
+	  if (!anime.seasons || anime.seasons.length === 0) {
+	    seasonsList.innerHTML = `
+		  <div class="season-item empty">
+		    <span class="season-title">Saisons</span>
+		    <span class="season-episodes">Infos non disponibles</span>
+		  </div>
+	    `;
+	    return;
+	  }
+
+	  anime.seasons.forEach(season => {
+		const div = document.createElement("div");
+		div.className = "season-item";
+
+		div.innerHTML = `
+		  <span class="season-title">
+			${season.title}
+			${season.status === "upcoming" ? '<span class="badge-upcoming">UPCOMING</span>' : ''}
+		  </span>
+		  <span class="season-episodes">
+			${season.status === "upcoming" ? "Prochainement" : `${season.episodes} épisodes`}
+		  </span>
+		`;
+		seasonsList.appendChild(div);
+	  });
+	}
 	/*****************************************************
 	 * 5️⃣ FAVORIS
 	 *****************************************************/
@@ -1609,6 +1800,7 @@
 	  img.alt = currentAnime.title;
 	  title.textContent = currentAnime.title;
 	  summary.textContent = currentAnime.summary;
+	  renderSeasons(currentAnime);
 
 	  /* 🎭 GENRES CLIQUABLES */
 	  genresBox.innerHTML = "";
