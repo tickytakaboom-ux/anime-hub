@@ -614,6 +614,62 @@
 		box-shadow: 0 0 6px rgba(255, 200, 80, 0.4);
 	  }
 	}
+	.timeline-toggle {
+	  margin: 10px 0 16px;
+	  padding: 8px 14px;
+	  border-radius: 999px;
+	  border: 1px solid rgba(255,255,255,0.25);
+	  background: rgba(255,255,255,0.08);
+	  color: #e6eef6;
+	  font-size: 13px;
+	  font-weight: 700;
+	  cursor: pointer;
+	  backdrop-filter: blur(10px);
+	  transition: all 0.25s ease;
+	}
+
+	.timeline-toggle:hover {
+	  background: rgba(6,182,212,0.25);
+	  border-color: #06b6d4;
+	  transform: translateY(-1px);
+	}
+
+	.timeline-toggle.active {
+	  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+	  color: #052226;
+	  border: none;
+	}
+	.badge-non-canon {
+	  margin-left: 8px;
+	  padding: 2px 6px;
+	  font-size: 10px;
+	  font-weight: 800;
+	  border-radius: 6px;
+	  background: rgba(239,68,68,0.15);
+	  color: #f87171;
+	  border: 1px solid rgba(239,68,68,0.4);
+	  text-transform: uppercase;
+	}
+	#timelineList {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 10px; /* espace entre chaque case */
+	}
+	.season-item.movie {
+	  border-left: 3px solid #f59e0b;
+	}
+	/* 🧩 SPECIAL */
+	.season-item.special::before {
+	  background: #facc15; /* jaune stylé */
+	}
+
+	.season-item.special .season-episodes {
+	  font-weight: 700;
+	  font-size: 12px;
+	  letter-spacing: 0.6px;
+	  text-transform: uppercase;
+	  color: #facc15;
+	}
   </style>
 </head>
 <body>
@@ -647,10 +703,11 @@
             <!-- Badges genres cliquables -->
           </div>
 		  <div class="anime-seasons" id="animeSeasons">
-		    <h3>Saisons</h3>
-		    <div class="seasons-list" id="seasonsList">
-			  <!-- saisons injectées en JS -->
-		    </div>
+			<h3 class="section-title">Timeline</h3>
+			<button id="toggleCanonBtn" class="timeline-toggle">
+			  Afficher le non-canon
+			</button>
+			<div id="timelineList"></div>
 		  </div>
           <div class="rating" id="animeRating"></div>
 
@@ -682,7 +739,7 @@
 	  summary:'One Piece suit Monkey D. Luffy, un ado qui veut devenir Roi des Pirates après avoir mangé un fruit magique qui rend son corps élastique. Il part sur les mers pour trouver le légendaire trésor, le One Piece, et se crée petit à petit un équipage aux pouvoirs et aux rêves différents, les Mugiwara. Ensemble, ils affrontent des pirates, des marines, des tyrans et des monstres, tout en vivant des aventures incroyables et en se rapprochant de la vérité sur le monde et sur le passé caché.', 
 	  fav:false,
 	  likes: 0,
-	  seasons:[{number:1, title:"One Piece", episodes:1154}] },
+	  timeline:[{type:'season', title:"One Piece", episodes:1155, canon:true, status:'released'},{type:'movie', title:"One Piece: The Movie", canon:false, status:'released'},{type:'movie', title:"One Piece: Clockwork Island Adventure", canon:false, status:'released'},{type:'movie', title:"One Piece: Chopper Kingdom of Strange Animal Island", canon:false, status:'released'},{type:'movie', title:"One Piece: Dead End Adventure", canon:false, status:'released'},{type:'movie', title:"One Piece: The Curse of the Sacred Sword", canon:false, status:'released'},{type:'movie', title:"One Piece: Baron Omatsuri and the Secret Island", canon:false, status:'released'},{type:'movie', title:"One Piece: The Giant Mechanical Soldier of Karakuri Castle", canon:false, status:'released'},{type:'movie', title:"One Piece: Episode of Alabasta - The Desert Princess and the Pirates", canon:false, status:'released'},{type:'movie', title:"One Piece: Episode of Chopper Plus - Bloom in the Winter, Miracle Sakura", canon:false, status:'released'},{type:'movie', title:"One Piece Film: Strong World", canon:false, status:'released'}, {type:'movie', title:"One Piece 3D: Straw Hat Chase", canon:false, status:'released'}, {type:'movie', title:"One Piece Film: Z", canon:false, status:'released'}, {type:'special', title:"One Piece 3D2Y: Overcoming Ace's Death! Luffy's Pledge to His Friends", episodes:1, canon:false, status:'released'}, {type:'movie', title:"ONE PIECE FILM GOLD", canon:false, status:'released'}, {type:'special', title:"One Piece: Episode of Skypiea", episodes:1, canon:false, status:'released'}, {type:'movie', title:"One Piece: Stampede", canon:false, status:'released'}, {type:'movie', title:"One Piece Film: Red", canon:false, status:'released'}, {type:'special', title:"ONE PIECE FAN LETTER", episodes:1, canon:false, status:'released'}, {type:'season', title:"One Piece Log: Fish-Man Island Saga", episodes:21, canon:true, status:'released'}  ]},
       { id:2, 
 	  title:'Solo Leveling', 
 	  genre:['Action','Fantasy'], 
@@ -692,7 +749,7 @@
 	  summary:'Dans un monde où des portails font apparaître des monstres, les humains “chasseurs” risquent leur vie pour les affronter. Sung Jin-Woo, considéré comme le chasseur le plus faible, survit par miracle à un donjon terrifiant. Après ça, il reçoit un pouvoir unique : il peut devenir plus fort sans limite, comme dans un jeu vidéo, en accomplissant des quêtes et en gagnant des niveaux. À partir de là, Jin-Woo grimpe en puissance à une vitesse folle, affronte des ennemis de plus en plus dangereux, et découvre les secrets derrière les portails et sa propre ascension.', 
 	  fav:false,
 	  likes: 0,
-	  seasons:[{number:1, title:"Solo Leveling", episodes:12}, {number:2, title:"Solo Leveling Season 2: Arise from the Shadow", episodes:13}] },
+	  timeline:[{type:'season', title:"Solo Leveling", episodes:12, canon:true, status:'released'}, {type:'special', title:"Solo Leveling: How to Get Stronger", episodes:1, canon:true, status:'released'}, {type:'season', title:"Solo Leveling Season 2: Arise from the Shadow", episodes:13, canon:true, status:'released'}]},
       { id:3, 
 	  title:'Death Note', 
 	  genre:['Mystery','Thriller'], 
@@ -701,7 +758,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1079/138100.jpg', 
 	  summary:'Death Note raconte l’histoire de Light Yagami, un étudiant japonais brillant mais désabusé, qui trouve un carnet surnaturel appelé Death Note. Ce carnet permet de tuer toute personne dont on écrit le nom dedans. Convaincu qu’il peut créer un monde parfait en éliminant les criminels, Light se transforme en justicier impitoyable sous le nom de Kira. Face à lui, L, un détective génial et mystérieux, se lance dans une lutte intellectuelle intense pour l’arrêter. Entre manipulations, trahisons et stratégies mentales, le combat entre Light et L devient une véritable partie d’échecs mortelle.', 
 	  fav:false,
-	  likes: 0 },
+	  likes: 0,
+	  timeline:[{type:'season', title:"Death Note", episodes:37, canon:true, status:'released'}, {type:'special', title:"Death Note: Relight", episodes:2, canon:true, status:'released'}]},
       { id:4, 
 	  title:'Jujutsu Kaisen', 
 	  genre:['Action','Supernatural'], 
@@ -710,7 +768,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1180/153379.jpg', 
 	  summary:'L’histoire suit Yuji Itadori, un lycéen super sportif qui découvre un monde caché rempli de malédictions, des esprits créés par les émotions négatives des humains. Quand il avale un doigt maudit contenant une puissante malédiction, Ryomen Sukuna, il devient son hôte. Yuji rejoint alors l’école de Jujutsu, où il apprend à combattre les malédictions avec ses nouveaux pouvoirs, tout en essayant de protéger les innocents et de découvrir comment vaincre Sukuna définitivement.', 
 	  fav:false,
-	  likes: 0  },
+	  likes: 0,
+	  timeline:[{type:'season', title:"Jujutsu Kaisen", episodes:24, canon:true, status:'released'}, {type:'movie', title:"Jujutsu Kaisen 0", canon:true, status:'released'}, {type:'season', title:"Jujutsu Kaisen Season 2", episodes:23, canon:true, status:'released'}, {type:'season', title:"Jujutsu Kaisen: The Culling Game Part 1", episodes:null, canon:true, status:'upcoming'}] },
       { id:5, 
 	  title:'Oshi No Ko', 
 	  genre:['Drama','Mystery'], 
@@ -719,16 +778,18 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1979/153329.jpg', 
 	  summary:'L’histoire suit Aquamarine “Aqua” et Ruby, des jumeaux nés dans l’industrie du divertissement après une série d’événements tragiques liés à leur mère, une idole populaire. Le manga explore les coulisses sombres du showbiz, les ambitions, les manipulations et les secrets des célébrités, tout en suivant leur quête de justice et de vérité sur le passé de leur famille.', 
 	  fav:false,
-	  likes: 0 },
+	  likes: 0,
+	  timeline:[{type:'season', title:"[Oshi No Ko]", episodes:11, canon:true, status:'released'}, {type:'season', title:"[Oshi No Ko] Season 2", episodes:13, canon:true, status:'released'}, {type:'season', title:"[Oshi No Ko] Season 3", episodes:null, canon:true, status:'upcoming'}]},
 	  { id:6,
 	  title:'Fairy Tail',
 	  genre:['Action','Adventure','Fantasy'],
 	  rating:0,
 	  year:2009,
-	  img:'https://cdn.myanimelist.net/images/anime/5/18179.jpg',
+	  img:'https://cdn.myanimelist.net/images/anime/1087/144083.jpg',
 	  summary:`L'histoire suit Natsu Dragnir, un mage de feu, et ses amis de la guilde Fairy Tail, connus pour leur énergie, leur courage et leur sens de la camaraderie. Ensemble, ils accomplissent des missions, affrontent des ennemis redoutables et découvrent des secrets sur le monde et sur eux-mêmes. Au fil des aventures, l’anime met surtout l’accent sur l’amitié, la persévérance et la magie spectaculaire, avec des combats intenses et des moments émouvants qui renforcent les liens entre les personnages.`,
 	  fav:false,
-	  likes: 0 },
+	  likes: 0,
+	  timeline:[{type:'season', title:"Fairy Tail", episodes:175, canon:true, status:'released'}, {type:'ova', title:"フェアリーテイル OVA", episodes:5, canon:false, status:'released'}, {type:'movie', title:"Fairy Tail the Movie: The Phoenix Priestess", canon:false, status:'released'}, {type:'ova', title:"FAIRYTAIL×RAVE", episodes:1, canon:false, status:'released'}, {type:'season', title:"Fairy Tail Series 2", episodes:102, canon:true, status:'released'}, {type:'ova', title:"Fairy Tail Series 2 OVA", episodes:3, canon:false, status:'released'}, {type:'movie', title:"Fairy Tail the Movie 2: Dragon Cry", canon:true, status:'released'}, {type:'season', title:"Fairy Tail Final Series", episodes:51, canon:true, status:'released'}]},
 	  { id:7,
 	  title:'Shangri-La Frontier',
 	  genre:['Isekai','Fantasy','Game'],
@@ -737,7 +798,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1851/148885.jpg',
 	  summary:`L'histoire suit Sunraku, un gamer hardcore qui adore les jeux vidéo tout buggés. Un jour, il décide de tester Shangri-La Frontier, un VRMMORPG extrêmement populaire et bien fait. Grâce à son expérience dans des jeux “horribles”, Sunraku devient incroyablement fort dans ce monde virtuel. Il se lance alors dans une aventure pleine de boss légendaires, de défis absurdes, de rencontres marquantes et de moments très drôles, tout en essayant de percer les secrets du jeu.`,
 	  fav:false,
-	  likes: 0 },
+	  likes: 0,
+	  timeline:[{type:'season', title:"Shangri-La Frontier", episodes:25, canon:true, status:'released'}, {type:'special', title:"Shangri-La Frontier: Get Yourselves Caught up With This Light-Speed Recap!", episodes:1, canon:true, status:'released'}, {type:'season', title:"Shangri-La Frontier Season 2", episodes:25, canon:true, status:'released'}, {type:'season', title:"Shangri-La Frontier Season 3", episodes:null, canon:true, status:'upcoming'}]},
 	  { id:8,
 	  title:'My Hero Academia',
 	  genre:['Superheroes','Action'],
@@ -746,7 +808,8 @@
 	  img:'https://cdn.myanimelist.net/images/anime/1959/151055.jpg',
 	  summary:'Dans un monde où presque tout le monde possède un pouvoir appelé Alter, Izuku Midoriya naît… sans aucun pouvoir. Son rêve pourtant : devenir un grand héros comme son idole All Might. Sa vie bascule quand All Might lui transmet son Alter, One For All. Izuku intègre alors l’école de héros UA, où il s’entraîne avec d’autres élèves pour devenir pro, affronte des vilains de plus en plus dangereux et découvre les secrets derrière son nouveau pouvoir.',
 	  fav:false,
-	  likes: 0 },
+	  likes: 0,
+	  timeline:[{type:'season', title:"My Hero Academia", episodes:13, canon:true, status:'released'}, {type:'season', title:"My Hero Academia Season 2", episodes:25, canon:true, status:'released'}, {type:'ova', title:"My Hero Academia: Rescue! Rescue Training", episodes:1, canon:false, status:'released'}, {type:'ova', title:"My Hero Academia: Training of the Dead", episodes:1, canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 3", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: Two Heroes", canon:true, status:'released'}, {type:'season', title:"My Hero Academia Season 4", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: Heroes Rising", canon:true, status:'released'}, {type:'ona', title:"My Hero Academia: Make It! Do-or-Die Survival Training", episodes:2, canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 5", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: World Heroes' Mission", canon:true, status:'released'}, {type:'ona', title:"My Hero Academia ONA", episodes:2, canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 6", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: UA Heroes Battle", canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 7", episodes:21, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: You're Next", canon:false, status:'released'}, {type:'season', title:"My Hero Academia Final Season", episodes:11, canon:true, status:'released'}, {type:'special', title:"My Hero Academia: More", episodes:null, canon:true, status:'upcoming'}]},
 	  { id:9,
 	  title:'Attack On Titan',
 	  genre:['Dark','Fantasy','Action','Drama'],
@@ -770,7 +833,7 @@
 	  genre:['Romance','Drama','Psychological','Slice Of Life','Supernatural'],
 	  rating:0,
 	  year:2018,
-	  img:'https://cdn.myanimelist.net/images/anime/1823/149858.jpg',
+	  img:'https://cdn.myanimelist.net/images/anime/1120/154246.jpg',
 	  summary:'L’histoire suit Sakuta Azusagawa, un lycéen qui rencontre Mai Sakurajima, une actrice célèbre devenue invisible aux yeux du monde à cause d’un phénomène lié au “syndrome de la puberté”. En cherchant à l’aider, Sakuta découvre que d’autres élèves vivent aussi des phénomènes surnaturels qui reflètent leurs blessures émotionnelles : harcèlement, pression, jalousie, identité… À chaque fois, il doit comprendre leur problème pour les aider à s’en sortir, tout en développant une relation touchante et sincère avec Mai. C’est un anime qui mélange romance, émotions et un soupçon de surnaturel de manière très chill.',
 	  fav:false,
 	  likes: 0 },
@@ -1422,7 +1485,8 @@
 	import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 	import {
 	  getFirestore, doc, getDoc, setDoc, updateDoc,
-	  arrayUnion, arrayRemove, increment, deleteField
+	  arrayUnion, arrayRemove, increment, deleteField,
+	  collection, addDoc, serverTimestamp
 	} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 	/*****************************************************
@@ -1441,7 +1505,7 @@
 	const app = initializeApp(firebaseConfig);
 	const auth = getAuth(app);
 	const db = getFirestore(app);
-
+	
 	/*****************************************************
 	 * 3️⃣ VARIABLES & DOM
 	 *****************************************************/
@@ -1456,9 +1520,10 @@
 	const favBtn = document.getElementById("favBtn");
 	const rateSelect = document.getElementById("rateSelect");
 	const seasonsList = document.getElementById("seasonsList");
+	const toggleNonCanonBtn = document.getElementById("toggleNonCanonBtn");
 
 	let currentAnime = null;
-	
+	let showNonCanon = false;
 	/*****************************************************
 	 * 🔄 LOADER
 	 *****************************************************/
@@ -1643,6 +1708,74 @@
 		seasonsList.appendChild(div);
 	  });
 	}
+	function renderTimeline(anime) {
+	  const timelineList = document.getElementById("timelineList");
+	  if (!timelineList) return;
+	  timelineList.innerHTML = "";
+
+	  if (!anime.timeline || anime.timeline.length === 0) {
+		timelineList.innerHTML = `
+		  <div class="season-item empty">
+			<span class="season-title">Timeline</span>
+			<span class="season-episodes">Infos non disponibles</span>
+		  </div>
+		`;
+		return;
+	  }
+      
+	  anime.timeline
+	    .filter(item => showNonCanon || item.canon)
+	    .forEach(item => {
+		const div = document.createElement("div");
+		div.className = "season-item";
+		if (item.type === "movie") div.classList.add("movie");
+		const icon =
+		  item.type === "season" ? "📺" :
+		  item.type === "movie"  ? "🎬" :
+		  item.type === "ova"    ? "⭕" :
+		  item.type === "special" ? "💥" :
+		  "❓";
+
+		div.innerHTML = `
+		  <span class="season-title">
+			${icon} ${item.title}
+			${!item.canon ? '<span class="badge-non-canon">NON-CANON</span>' : ''}
+			${item.status === "upcoming"
+			  ? '<span class="badge-upcoming">UPCOMING</span>'
+			  : ""}
+		  </span>
+		
+		  <span class="season-episodes">
+		    ${
+			  item.type === "movie"
+			    ? "MOVIE"
+			    : item.episodes
+				  ? `${item.episodes} épisodes`
+				  : item.status === "upcoming"
+				    ? "Prochainement"
+				    : ""
+		    }
+		  </span>
+		`;
+
+		timelineList.appendChild(div);
+	  });
+	}
+	function updateNonCanonButton(anime) {
+	  if (!toggleNonCanonBtn) return;
+
+	  if (!anime.timeline || anime.timeline.length === 0) {
+		toggleNonCanonBtn.style.display = "none";
+		return;
+	  }
+
+	  const hasCanon = anime.timeline.some(item => item.canon === true);
+	  const hasNonCanon = anime.timeline.some(item => item.canon === false);
+
+	  // afficher le bouton UNIQUEMENT s'il y a les deux
+	  toggleNonCanonBtn.style.display =
+		hasCanon && hasNonCanon ? "inline-flex" : "none";
+	}
 	/*****************************************************
 	 * 5️⃣ FAVORIS
 	 *****************************************************/
@@ -1674,15 +1807,28 @@
 	  const alreadyFav = favorites.includes(animeId);
 
 	  if (alreadyFav) {
-		await updateDoc(userRef, { favorites: arrayRemove(animeId) });
-		await updateDoc(animeRef, { likes: increment(-1) });
-		currentAnime.fav = false;
-		showToast("💔 Retiré des favoris", "remove");
+	    await updateDoc(userRef, { favorites: arrayRemove(animeId) });
+	    await updateDoc(animeRef, { likes: increment(-1) });
+	    currentAnime.fav = false;
+
+	    await sendNotification(
+	  	  user.uid,
+		  "💔 Favori retiré",
+		  currentAnime.title
+	    );
+
+	    showToast("💔 Retiré des favoris", "remove");
 	  } else {
-		await updateDoc(userRef, { favorites: arrayUnion(animeId) });
-		await updateDoc(animeRef, { likes: increment(1) });
-		currentAnime.fav = true;
-		showToast("❤️ Ajouté aux favoris");
+	    await updateDoc(userRef, { favorites: arrayUnion(animeId) });
+	    await updateDoc(animeRef, { likes: increment(1) });
+	    currentAnime.fav = true;
+
+	    await sendNotification(
+		user.uid,
+		  "⭐ Favori ajouté",
+		  currentAnime.title
+	    );
+	    showToast("❤️ Ajouté aux favoris");
 	  }
 
 	  if (currentAnime.fav) {
@@ -1742,6 +1888,11 @@
 	  } else {
 		ratingSum += (newRating - oldRating);
 	  }
+	  await sendNotification(
+	    user.uid,
+	    "📝 Anime noté",
+	    `${currentAnime.title} — ${newRating}/10`
+	  );
 
 	  const avgRating = ratingSum / ratingCount;
 
@@ -1776,6 +1927,12 @@
 
 	  ratingBox.textContent = avgRating ? `⭐ ${avgRating.toFixed(1)}` : "Pas encore noté";
 	  rateSelect.value = "";
+	  
+	  await sendNotification(
+	    user.uid,
+	    "❌ Note supprimée",
+	    currentAnime.title
+	  );
 	}
 	// 🔹 Remplir le select de notes
 	rateSelect.innerHTML = '<option value="">Noter</option>';
@@ -1786,7 +1943,23 @@
 	  rateSelect.appendChild(opt);
 	}
 	/*****************************************************
-	 * 7️⃣ INIT PAGE
+	 * 7️⃣ NOTIFICATIONS
+	 *****************************************************/
+	async function sendNotification(userId, title, message = "") {
+	  try {
+		await addDoc(collection(db, "notifications"), {
+		  userId: userId,
+		  title: title,
+		  message: message,
+		  read: false,
+		  createdAt: serverTimestamp()
+		});
+	  } catch (err) {
+		console.error("Erreur notification:", err);
+	  }
+	}
+	/*****************************************************
+	 * 79⃣ INIT PAGE
 	 *****************************************************/
 	showAnimeLoader();
 	onAuthStateChanged(auth, async (user) => {
@@ -1799,8 +1972,36 @@
 	  img.alt = currentAnime.title;
 	  title.textContent = currentAnime.title;
 	  summary.textContent = currentAnime.summary;
-	  renderSeasons(currentAnime);
+	  renderTimeline(currentAnime);
+	  const toggleCanonBtn = document.getElementById("toggleCanonBtn");
+	  if (toggleCanonBtn) {
+	    toggleCanonBtn.textContent = "Afficher le non-canon";
 
+	    toggleCanonBtn.onclick = () => {
+		  showNonCanon = !showNonCanon;
+		  toggleCanonBtn.classList.toggle("active", showNonCanon);
+		  toggleCanonBtn.textContent = showNonCanon
+		    ? "Masquer le non-canon"
+		    : "Afficher le non-canon";
+
+		  renderTimeline(currentAnime);
+	    };
+	  }
+	  function updateNonCanonButton(anime) {
+	    if (!toggleCanonBtn) return;
+
+	    if (!anime.timeline || anime.timeline.length === 0) {
+	  	  toggleCanonBtn.style.display = "none";
+		  return;
+	    }
+
+	    const hasCanon = anime.timeline.some(item => item.canon === true);
+	    const hasNonCanon = anime.timeline.some(item => item.canon === false);
+
+	    toggleCanonBtn.style.display =
+		  hasCanon && hasNonCanon ? "inline-flex" : "none";
+	  }
+	  updateNonCanonButton(currentAnime);
 	  /* 🎭 GENRES CLIQUABLES */
 	  genresBox.innerHTML = "";
 	  currentAnime.genre.forEach(g => {
@@ -1823,7 +2024,6 @@
 	  } else {
 		ratingBox.textContent = "Pas encore noté";
 	  }
-
 	  img.src = currentAnime.img;
 	  title.textContent = currentAnime.title;
 	  summary.textContent = currentAnime.summary;
@@ -1831,7 +2031,6 @@
 	  await syncUserData(animeId);
 
 	  favBtn.onclick = () => toggleFavorite(animeId);
-
 	  rateSelect.addEventListener("change", e => {
 		if (e.target.value === "") {
 		  removeRating(animeId);
