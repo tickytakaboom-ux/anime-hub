@@ -4,318 +4,300 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Profil – AnimeHub</title>
-
   <style>
-  body {
-    margin: 0;
-    font-family: 'Inter', system-ui, sans-serif;
-    background: linear-gradient(180deg, #0b1220, #061226);
-    color: #e6eef6;
-    min-height: 100vh;
-    transition: background 0.5s ease;
-  }
-
-  .profile-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    padding: 30px 20px;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .card {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border-radius: 18px;
-    padding: 25px 20px;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.55);
-    display: flex;
-    flex-direction: column;
-    min-height: 150px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeUp 0.6s ease-out forwards;
-	border: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 45px rgba(0,0,0,0.75);
-  }
-
-  .avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    color: #052226;
-    font-size: 40px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 18px;
-    background: linear-gradient(135deg, #06b6d4, #3b82f6);
-    position: relative;
-    overflow: hidden;
-	box-shadow: 0 0 0 4px rgba(6,182,212,0.25);
-  }
-
-  .pulsing::before {
-    content: '';
-    position: absolute;
-    width: 140%;
-    height: 140%;
-    border-radius: 50%;
-    background: rgba(6,182,212,0.5);
-    animation: pulseGlow 2s infinite ease-in-out;
-    top: -20%;
-    left: -20%;
-    z-index: 0;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .pulsing::before {
-      animation: none;
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(180deg, #0b1220, #061226);
+      color: #e6eef6;
+      min-height: 100vh;
+      transition: background 0.5s ease;
     }
-  }
 
-  .avatar span {
-    position: relative;
-    z-index: 1;
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% { transform: scale(1); opacity: 0.6; }
-    50% { transform: scale(1.2); opacity: 1; }
-  }
-
-  h2, .email {
-    margin: 0;
-    opacity: 0;
-    transition: opacity 0.8s ease-in-out;
-  }
-
-  .fade-in { 
-    opacity: 1 !important;
-  }
-
-  .email {
-    color: #9ca3af;
-    font-size: 14px;
-    margin: 8px 0 20px;
-  }
-
-  .stats {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 12px;
-  }
-
-  .stat {
-    flex: 1;
-    background: rgba(255,255,255,0.08);
-    border-radius: 14px;
-    padding: 12px;
-    text-align: center;
-    transition: background 0.3s ease;
-	backdrop-filter: blur(6px);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
-  }
-
-  .stat:hover {
-    background: rgba(6,182,212,0.2);
-  }
-
-  .stat-value {
-    font-size: 22px;
-    font-weight: 800;
-	color: #06b6d4;
-  }
-
-  .stat-label {
-    font-size: 13px;
-    color: #9ca3af;
-  }
-
-  h3 { 
-    font-size: 17px;
-    margin-bottom: 12px;
-  }
-
-  .rated-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 250px;
-    overflow-y: auto;
-    padding-right: 5px;
-  }
-
-  /* Scrollbar stylée */
-  .rated-list::-webkit-scrollbar {
-    width: 6px;
-  }
-  .rated-list::-webkit-scrollbar-thumb {
-    background: #06b6d4;
-    border-radius: 3px;
-  }
-
-  .rated-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255,255,255,0.08);
-    padding: 8px 12px;
-    border-radius: 12px;
-    opacity: 0;
-    transform: translateX(-10px);
-    animation: fadeRight 0.4s ease-out forwards;
-    transition: background 0.3s ease;
-	border: 1px solid rgba(255,255,255,0.05);
-	cursor: pointer;
-  }
-
-  .rated-item:hover {
-    background: rgba(6,182,212,0.15);
-	transform: translateX(4px);
-  }
-
-  .rated-title { 
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .rated-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .rated-score { 
-    font-weight: 800;
-    color: #06b6d4;
-  }
-
-  .rated-btn {
-    font-size: 12px;
-    padding: 3px 7px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.2);
-    cursor: pointer;
-    background: transparent;
-    color: #e6eef6;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-
-  .rated-btn:hover {
-    background: #06b6d4;
-    color: #052226;
-  }
-
-  .notes-card { 
-    grid-column: 1 / -1;
-    margin-top: 10px;
-  }
-
-  .actions-card { 
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-direction: column;
-  }
-
-  button {
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    background: #06b6d4;
-    color: #052226;
-    transition: transform 0.2s ease, background 0.3s ease;
-	transform: translateX(4px);
-  }
-
-  button:hover {
-    transform: translateY(-2px);
-    background: #3b82f6;
-  }
-
-  .secondary { 
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.3);
-    color: #e6eef6;
-  }
-  #topBtn {
-    position: fixed;
-    bottom: 22px;
-    right: 22px;
-    padding: 10px 14px;
-    font-size: 16px;
-    border-radius: 10px;
-    background-color: #06b6d4;
-    color: #052226;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    display: none;
-    box-shadow: 0 6px 20px rgba(6,182,212,0.35);
-    transition: opacity 0.2s ease, transform 0.2s ease, background 0.3s ease;
-  }
-
-  #topBtn:hover {
-    background-color: #3b82f6;
-    transform: translateY(-2px);
-  }
-
-  .favorites-card {
-    min-height: 200px;
-    margin-top: 10px;
-  }
-
-  /* Animations */
-  @keyframes fadeUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fadeRight {
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  @media (max-width: 600px) {
     .profile-grid {
-      padding: 20px 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 30px 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    .avatar {
-      width: 80px;
-      height: 80px;
-      font-size: 32px;
-    }
-    .stat-value {
-      font-size: 18px;
-    }
-  }
 
-</style>
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 25px 20px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.55);
+      display: flex;
+      flex-direction: column;
+      min-height: 150px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s ease-out forwards;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.75);
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      color: #052226;
+      font-size: 40px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 0 4px rgba(6,182,212,0.25);
+    }
+
+    .pulsing::before {
+      content: '';
+      position: absolute;
+      width: 140%;
+      height: 140%;
+      border-radius: 50%;
+      background: rgba(6,182,212,0.5);
+      animation: pulseGlow 2s infinite ease-in-out;
+      top: -20%;
+      left: -20%;
+      z-index: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pulsing::before {
+        animation: none;
+      }
+    }
+
+    .avatar span {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    h2, .email, .bio {
+      margin: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .fade-in { opacity: 1 !important; }
+
+    .email {
+      color: #9ca3af;
+      font-size: 14px;
+      margin: 8px 0 10px;
+    }
+
+    .bio {
+      font-size: 13px;
+      color: #c0c8d6;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    h3 { font-size: 17px; margin-bottom: 12px; }
+
+    .stats { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; }
+
+    .stat { flex: 1; background: rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; text-align: center; transition: background 0.3s ease; backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+
+    .stat:hover { background: rgba(6,182,212,0.2); }
+
+    .stat-value { font-size: 22px; font-weight: 800; color: #06b6d4; }
+
+    .stat-label { font-size: 13px; color: #9ca3af; }
+
+    .rated-list { display: flex; justify-content: space-between; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
+
+    .rated-list::-webkit-scrollbar { width: 6px; }
+    .rated-list::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 3px; }
+
+    .rated-item {
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
+	  background: rgba(255,255,255,0.08);
+	  padding: 8px 12px;
+	  border-radius: 12px;
+	  opacity: 0;
+	  transform: translateX(-10px);
+	  animation: fadeRight 0.4s ease-out forwards;
+	  transition: background 0.3s ease, transform 0.3s ease;
+	  border: 1px solid rgba(255,255,255,0.05);
+	  cursor: pointer;
+	}
+
+    .rated-item:hover {
+	  background: rgba(6,182,212,0.15);
+	  transform: translateX(4px);
+	}
+
+    .rated-title {
+	  font-size: 14px;
+	  font-weight: 600;
+	  overflow: hidden;
+	  text-overflow: ellipsis; /* "..." si trop long */
+	}
+
+    .rated-right { display: flex; align-items: center; gap: 20px; }
+	
+	.rated-left {
+	  display: flex;
+	  align-items: center;
+	  gap: 12px; /* ← espace entre nom et note */
+	}
+
+    .rated-score {
+	  font-weight: 800;
+	  color: #06b6d4;
+	  margin-left: 8px;
+	}
+
+    .rated-btn {
+	  font-size: 12px;
+	  padding: 3px 7px;
+	  border-radius: 6px;
+	  border: 1px solid rgba(255,255,255,0.2);
+	  cursor: pointer;
+	  background: transparent;
+	  color: #e6eef6;
+	  transition: background 0.3s ease, color 0.3s ease;
+	}
+
+    .rated-btn:hover {
+	  background: #06b6d4;
+	  color: #052226;
+	}
+    .notes-card { grid-column: 1 / -1; margin-top: 10px; }
+
+    .actions-card { display: flex; gap: 12px; justify-content: center; flex-direction: column; }
+
+    button { padding: 12px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; background: #06b6d4; color: #052226; transition: transform 0.2s ease, background 0.3s ease; transform: translateX(4px); }
+
+    button:hover { transform: translateY(-2px); background: #3b82f6; }
+
+    .secondary { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #e6eef6; }
+
+    #topBtn { position: fixed; bottom: 22px; right: 22px; padding: 10px 14px; font-size: 16px; border-radius: 10px; background-color: #06b6d4; color: #052226; border: none; cursor: pointer; font-weight: 700; display: none; box-shadow: 0 6px 20px rgba(6,182,212,0.35); transition: opacity 0.2s ease, transform 0.2s ease, background 0.3s ease; }
+
+    #topBtn:hover { background-color: #3b82f6; transform: translateY(-2px); }
+
+    .favorites-card, .badges-card, .reco-card { min-height: 200px; margin-top: 10px; }
+
+    .badges-list, .reco-list { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .badge { padding: 6px 10px; border-radius: 10px; background: rgba(6,182,212,0.3); font-size: 12px; font-weight: 600; }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeRight {
+	  to { opacity: 1; transform: translateX(0); }
+	}
+
+    @media (max-width: 600px) {
+      .profile-grid { padding: 20px 14px; }
+      .avatar { width: 80px; height: 80px; font-size: 32px; }
+      .stat-value { font-size: 18px; }
+    }
+	/* ----- BADGES ----- */
+	.badge {
+	  display: inline-block;
+	  padding: 6px 12px;
+	  margin: 4px 4px 0 0;
+	  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+	  color: #fff;
+	  font-size: 12px;
+	  font-weight: 600;
+	  border-radius: 20px;
+	  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+	  transition: transform 0.2s ease, background 0.3s ease;
+	  cursor: default;
+	}
+	.badge:hover {
+	  transform: translateY(-2px) scale(1.05);
+	  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+	}
+	.bio-mini {
+	  display: flex;
+	  align-items: center;
+	  gap: 6px;
+	  font-size: 13px;
+	  color: #e6eef6;
+	}
+
+	.bio-mini button {
+	  background: transparent;
+	  border: none;
+	  color: #06b6d4;
+	  cursor: pointer;
+	  font-size: 14px;
+	}
+
+	#bioInput {
+	  width: 100%;
+	  min-height: 40px;
+	  padding: 6px 8px;
+	  border-radius: 8px;
+	  border: 1px solid rgba(255,255,255,0.2);
+	  background: rgba(255,255,255,0.05);
+	  color: #e6eef6;
+	  font-size: 13px;
+	  resize: vertical;
+	}
+
+	#saveBioBtn, #cancelBioBtn {
+	  padding: 4px 8px;
+	  font-size: 12px;
+	  border-radius: 8px;
+	  font-weight: 700;
+	  cursor: pointer;
+	  margin-right: 4px;
+	  border: none;
+	}
+
+	#saveBioBtn { background: #06b6d4; color: #052226; }
+	#saveBioBtn:hover { background: #3b82f6; }
+
+	#cancelBioBtn { background: transparent; color: #e6eef6; border: 1px solid rgba(255,255,255,0.3); }
+	#cancelBioBtn:hover { background: rgba(255,255,255,0.1); }
+
+  </style>
 </head>
 <body>
+  <!-- Top Grid : Profil + Stats + Actions -->
   <div class="profile-grid top-grid">
-    <!-- Profil -->
     <div class="card profile-card">
       <div class="avatar pulsing" id="avatar">?</div>
       <h2 id="username">Chargement...</h2>
       <div class="email" id="email">Chargement...</div>
-    </div>
+      <div class="bio-mini">
+	    <span id="bioText">Aucune bio pour l’instant.</span>
+	    <button id="editBioBtn">✏️</button>
+	  </div>
 
-    <!-- Stats -->
+	  <div id="bioEditContainer" style="display:none;">
+	    <textarea id="bioInput" placeholder="Écris ta bio ici..."></textarea>
+	    <button id="saveBioBtn">💾</button>
+	    <button id="cancelBioBtn">❌</button>
+	  </div>
+    </div>
+	
     <div class="card stats-card">
       <h3>Mes Statistiques</h3>
       <div class="stats">
@@ -334,26 +316,38 @@
       </div>
     </div>
 
-    <!-- Actions -->
     <div class="card actions-card">
       <button onclick="location.href='index.html'">Retour à l’accueil</button>
       <button class="secondary" id="logoutBtn">Déconnexion</button>
     </div>
   </div>
 
-  <!-- Notes -->
+  <!-- Notes + Favoris + Badges + Recommandations -->
   <div class="profile-grid">
     <div class="card notes-card">
       <h3>Mes notes</h3>
       <div class="rated-list" id="ratedList"></div>
     </div>
-	
+
     <div class="card favorites-card">
-	  <h3>Mes favoris</h3>
-	  <div class="rated-list" id="favoritesList"></div>
+      <h3>Mes favoris</h3>
+      <div class="rated-list" id="favoritesList"></div>
+    </div>
+
+    <div class="card badges-card">
+	  <h3>Mes badges</h3>
+	  <div id="badgesList"></div>
 	</div>
+
+    <div class="card reco-card">
+      <h3>Suggestions pour toi</h3>
+      <div class="reco-list" id="recoList">
+        <!-- Mini-cards recommandées -->
+      </div>
+    </div>
   </div>
-  <button id="topBtn" title="Retour en haut">↑ Top</</button>
+
+  <button id="topBtn" title="Retour en haut">↑ Top</button>
   <script>
 	window.SAMPLE_ANIMES = [
       { id:1, 
@@ -391,7 +385,7 @@
 	  genre:['Action','Supernatural'], 
 	  rating:0, 
 	  year:2020, 
-	  img:'https://cdn.myanimelist.net/images/anime/1180/153379.jpg', 
+	  img:'https://cdn.myanimelist.net/images/anime/1659/154920.jpg', 
 	  summary:'L’histoire suit Yuji Itadori, un lycéen super sportif qui découvre un monde caché rempli de malédictions, des esprits créés par les émotions négatives des humains. Quand il avale un doigt maudit contenant une puissante malédiction, Ryomen Sukuna, il devient son hôte. Yuji rejoint alors l’école de Jujutsu, où il apprend à combattre les malédictions avec ses nouveaux pouvoirs, tout en essayant de protéger les innocents et de découvrir comment vaincre Sukuna définitivement.', 
 	  fav:false,
 	  likes: 0,
@@ -1066,6 +1060,8 @@
 	topBtn.addEventListener("click", () => {
 	  window.scrollTo({ top: 0, behavior: 'smooth' });
 	});
+
+
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -1137,7 +1133,128 @@
         document.getElementById("stat-rated").textContent = ratedCount;
         document.getElementById("stat-favs").textContent = favCount;
         document.getElementById("stat-avg").textContent = avg;
+		
+		// 🔹 BIO
+		const bioText = document.getElementById("bioText");
+		const bioInput = document.getElementById("bioInput");
+		const editBioBtn = document.getElementById("editBioBtn");
+		const saveBioBtn = document.getElementById("saveBioBtn");
+		const cancelBioBtn = document.getElementById("cancelBioBtn");
+		const bioEditContainer = document.getElementById("bioEditContainer");
 
+		// Charger la bio depuis Firestore
+		bioText.textContent = userData.bio || "Aucune bio pour l’instant.";
+		bioInput.value = userData.bio || "";
+
+		// Éditer
+		editBioBtn.addEventListener("click", () => {
+		  bioEditContainer.style.display = "block";
+		  bioInput.focus();
+		});
+
+		// Annuler
+		cancelBioBtn.addEventListener("click", () => {
+		  bioInput.value = userData.bio || "";
+		  bioEditContainer.style.display = "none";
+		});
+
+		// Sauvegarder
+		saveBioBtn.addEventListener("click", async () => {
+		  const bio = bioInput.value.trim();
+		  await setDoc(doc(db, "users", auth.currentUser.uid), { bio }, { merge: true });
+		  userData.bio = bio;
+		  bioText.textContent = bio || "Aucune bio pour l’instant.";
+		  bioEditContainer.style.display = "none";
+		});
+
+		// 🔹 BADGES
+		const badgesListEl = document.getElementById("badgesList");
+		badgesListEl.innerHTML = "";
+
+		// Récupère les badges existants ou initialise
+		let badges = userData.badges || [];
+
+		// Logique d'attribution de badges selon stats
+		if (ratedCount >= 10 && !badges.includes("Anime Addict")) badges.push("Anime Addict");
+		if (avg !== "–" && avg >= 8 && !badges.includes("Shonen Master")) badges.push("Shonen Master");
+		if (ratedCount === 0 && !badges.includes("Débutant")) badges.push("Débutant");
+		if (ratedCount >= 25 && !badges.includes("Otaku confirmé")) badges.push("Otaku confirmé");
+		if (ratedCount >= 50 && !badges.includes("No Life (assumé)")) badges.push("No Life (assumé)");
+		if (avg <= 6) badges.push("Critique exigeant");
+		if (avg >= 9) badges.push("Élite Otaku");
+		if (favCount >= 10) badges.push("Collectionneur");
+		
+		// Affiche les badges
+		if (badges.length === 0) {
+		  badgesListEl.innerHTML = `<div style="opacity:.6; font-size:14px;">Aucun badge pour l’instant</div>`;
+		} else {
+		  badges.forEach(b => {
+			const div = document.createElement("div");
+			div.className = "badge";
+			div.textContent = b;
+			badgesListEl.appendChild(div);
+		  });
+		}
+
+		// Optionnel : mettre à jour Firestore avec les badges calculés
+		await setDoc(doc(db, "users", auth.currentUser.uid), { badges }, { merge: true });
+		
+		// 🔹 RECOMMANDATIONS
+		// Collecte tous les animes notés et favoris
+		const userAnimes = [...Object.keys(ratings), ...favorites].map(id => parseInt(id));
+
+		// Crée un objet pour compter les genres
+		const genreCount = {};
+
+		// Parcours les animes notés/favoris
+		userAnimes.forEach(id => {
+		  const anime = window.SAMPLE_ANIMES.find(a => a.id === id);
+		  if (!anime) return;
+		  anime.genre.forEach(g => {
+			if (!genreCount[g]) genreCount[g] = 0;
+			// On peut pondérer par la note si l'anime est noté
+			const weight = ratings[id] ? ratings[id] : 5; // note par défaut 5 si favori
+			genreCount[g] += weight;
+		  });
+		});
+
+		// On récupère les genres les plus aimés
+		const favoriteGenres = Object.entries(genreCount)
+		  .sort((a,b) => b[1]-a[1])
+		  .map(([g]) => g);
+		const excludedIds = userAnimes;
+		const recoListEl = document.getElementById("recoList");
+		recoListEl.innerHTML = "";
+		// Prend les animes les mieux notés par l'utilisateur ou par défaut
+		const ratedIds = Object.keys(ratings).map(id => parseInt(id));
+		const favoritesIds = favorites;
+		const recoAnimes = window.SAMPLE_ANIMES
+		  .filter(a => !excludedIds.includes(a.id))
+		  .filter(a => !favorites.includes(a.id))  // Exclut les favoris déjà
+		  .map(a => {
+			// On donne un score selon la correspondance avec les genres favoris
+			const matchScore = a.genre.reduce((acc, g) => {
+			  const index = favoriteGenres.indexOf(g);
+			  return index !== -1 ? acc + (favoriteGenres.length - index) : acc;
+			}, 0);
+			return { ...a, matchScore };
+		  })
+		  .sort((a,b) => b.matchScore - a.matchScore) // meilleurs matchs d'abord
+		  .slice(0,6); // les 6 premiers pour l’exemple
+		
+		recoAnimes.forEach(a => {
+		  const div = document.createElement("div");
+		  div.className = "rated-item";
+		  div.innerHTML = `
+			<div class="rated-title">${a.title}</div>
+			<div class="rated-right">
+			  <div class="rated-score">${a.rating || ""}</div>
+			  <button class="rated-btn" onclick="window.location.href='anime.html?id=${a.id}'">Voir</button>
+			</div>
+		  `;
+		  recoListEl.appendChild(div);
+		});
+		
         // 🔹 MES NOTES
         const ratedListEl = document.getElementById("ratedList");
         ratedListEl.innerHTML = "";
