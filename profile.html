@@ -129,34 +129,40 @@
     .rated-list::-webkit-scrollbar { width: 6px; }
     .rated-list::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 3px; }
 
-    .rated-item {
+	.rated-item {
 	  display: flex;
 	  justify-content: space-between;
 	  align-items: center;
 	  background: rgba(255,255,255,0.08);
-	  padding: 8px 12px;
+	  padding: 10px 12px;
 	  border-radius: 12px;
-	  opacity: 0;
-	  transform: translateX(-10px);
-	  animation: fadeRight 0.4s ease-out forwards;
-	  transition: background 0.3s ease, transform 0.3s ease;
 	  border: 1px solid rgba(255,255,255,0.05);
 	  cursor: pointer;
+	  transition: background 0.3s ease, transform 0.2s ease;
+	  opacity: 0;
+	  transform: translateY(10px);
+	  animation: fadeUp 0.4s ease-out forwards;
 	}
 
     .rated-item:hover {
 	  background: rgba(6,182,212,0.15);
-	  transform: translateX(4px);
+	  transform: translateY(-2px);
 	}
 
     .rated-title {
 	  font-size: 14px;
 	  font-weight: 600;
+	  flex: 1; /* prend tout l’espace disponible */
 	  overflow: hidden;
-	  text-overflow: ellipsis; /* "..." si trop long */
+	  text-overflow: ellipsis;
+	  white-space: nowrap;
 	}
 
-    .rated-right { display: flex; align-items: center; gap: 20px; }
+    .rated-right {
+	  display: flex;
+	  align-items: center;
+	  gap: 10px;
+	}
 	
 	.rated-left {
 	  display: flex;
@@ -167,23 +173,25 @@
     .rated-score {
 	  font-weight: 800;
 	  color: #06b6d4;
-	  margin-left: 8px;
+	  min-width: 24px;
+	  text-align: center;
 	}
 
     .rated-btn {
 	  font-size: 12px;
-	  padding: 3px 7px;
+	  padding: 4px 8px;
 	  border-radius: 6px;
 	  border: 1px solid rgba(255,255,255,0.2);
-	  cursor: pointer;
 	  background: transparent;
 	  color: #e6eef6;
-	  transition: background 0.3s ease, color 0.3s ease;
+	  cursor: pointer;
+	  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
 	}
 
     .rated-btn:hover {
 	  background: #06b6d4;
 	  color: #052226;
+	  transform: translateY(-1px);
 	}
     .notes-card { grid-column: 1 / -1; margin-top: 10px; }
 
@@ -276,7 +284,21 @@
 
 	#cancelBioBtn { background: transparent; color: #e6eef6; border: 1px solid rgba(255,255,255,0.3); }
 	#cancelBioBtn:hover { background: rgba(255,255,255,0.1); }
-
+	.tag {
+	  margin-left: 6px;
+	  font-size: 11px;
+	  padding: 2px 6px;
+	  border-radius: 6px;
+	  background: rgba(6,182,212,0.15);
+	  color: #06b6d4;
+	  font-weight: 600;
+	}
+	.reco-list {
+	  display: grid;
+	  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	  gap: 12px;
+	  padding: 10px 0;
+	}
   </style>
 </head>
 <body>
@@ -1066,7 +1088,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -1080,11 +1102,12 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+	const usersSnap = await getDocs(collection(db, "users"));
 
     const usernameEl = document.getElementById("username");
     const emailEl = document.getElementById("email");
     const avatarEl = document.getElementById("avatar");
-
+	
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "auth.html";
@@ -1199,62 +1222,229 @@
 		// Optionnel : mettre à jour Firestore avec les badges calculés
 		await setDoc(doc(db, "users", auth.currentUser.uid), { badges }, { merge: true });
 		
-		// 🔹 RECOMMANDATIONS
-		// Collecte tous les animes notés et favoris
-		const userAnimes = [...Object.keys(ratings), ...favorites].map(id => parseInt(id));
+		// 🔹 PROFIL DE GOÛT UTILISATEUR (Niveau 3)
+		// 🔹 Mettre à jour SAMPLE_ANIMES avec les notes Firestore
+		// 🔹 Mettre à jour les notes moyennes Firestore
+		const animesSnap = await getDocs(collection(db, "animes"));
+		animesSnap.forEach(docSnap => {
+		  const animeId = Number(docSnap.id);
+		  const data = docSnap.data();
+		  const anime = window.SAMPLE_ANIMES.find(a => a.id === animeId);
+		  if (anime && data.avgRating !== undefined) {
+			anime.avgRating = data.avgRating; // on stocke la vraie moyenne Firestore
+		  }
+		});
 
-		// Crée un objet pour compter les genres
-		const genreCount = {};
-
-		// Parcours les animes notés/favoris
-		userAnimes.forEach(id => {
+		const genreStats = {}; // { genre: score }
+		// Analyse des notes
+		Object.entries(ratings).forEach(([id, note]) => {
+		  const anime = window.SAMPLE_ANIMES.find(a => a.id === parseInt(id));
+		  if (!anime) return;
+		  anime.genre.forEach(g => {
+			if (!genreStats[g]) genreStats[g] = 0;
+			if (note >= 8) genreStats[g] += 10;
+			else if (note >= 6) genreStats[g] += 5;
+			else genreStats[g] -= 6; // pénalité
+		  });
+		});
+		// Analyse des favoris
+		favorites.forEach(id => {
 		  const anime = window.SAMPLE_ANIMES.find(a => a.id === id);
 		  if (!anime) return;
 		  anime.genre.forEach(g => {
-			if (!genreCount[g]) genreCount[g] = 0;
-			// On peut pondérer par la note si l'anime est noté
-			const weight = ratings[id] ? ratings[id] : 5; // note par défaut 5 si favori
-			genreCount[g] += weight;
+			if (!genreStats[g]) genreStats[g] = 0;
+			genreStats[g] += 12;
+		  });
+		});
+		// Classement des genres
+		const sortedGenres = Object.entries(genreStats)
+		  .sort((a, b) => b[1] - a[1]);
+		const topGenres = sortedGenres
+		  .filter(([_, score]) => score > 0)
+		  .slice(0, 3)
+		  .map(([g]) => g);
+		const dislikedGenres = sortedGenres
+		  .filter(([_, score]) => score < -5)
+		  .map(([g]) => g);
+		// Optionnel : profil de précision
+		let precision = "normal";
+		if (avg >= 8.5) precision = "exigeant";
+		if (avg <= 6) precision = "large";
+		const userTaste = {
+		  topGenres,
+		  dislikedGenres,
+		  precision
+		};
+		// 🔹 SEUIL DE QUALITÉ MINIMUM
+		let minRating = 6;
+
+		if (userTaste.precision === "exigeant") minRating = 7.5;
+		if (userTaste.precision === "large") minRating = 5.5;
+		
+		const similarUsers = [];
+		usersSnap.forEach(docSnap => {
+		  if (docSnap.id === auth.currentUser.uid) return;
+
+		  const other = docSnap.data();
+		  if (!other.ratings) return;
+
+		  let score = 0;
+		  let common = 0;
+
+		  Object.entries(ratings).forEach(([animeId, myNote]) => {
+			if (other.ratings[animeId]) {
+			  score += 10 - Math.abs(myNote - other.ratings[animeId]);
+			  common++;
+			}
+		  });
+
+		  if (common >= 3 && score >= 20) {
+			similarUsers.push({ uid: docSnap.id, score, data: other });
+		  }
+		});
+		const userLikeYouAnimes = {};
+		similarUsers.forEach(u => {
+		  Object.entries(u.data.ratings || {}).forEach(([id, note]) => {
+			const animeId = parseInt(id);
+			if (ratings[animeId] || favorites.includes(animeId)) return;
+			if (note >= 8) {
+			  userLikeYouAnimes[animeId] = (userLikeYouAnimes[animeId] || 0) + u.score;
+			}
+		  });
+
+		  (u.data.favorites || []).forEach(id => {
+			if (!ratings[id] && !favorites.includes(id)) {
+			  userLikeYouAnimes[id] = (userLikeYouAnimes[id] || 0) + 15;
+			}
 		  });
 		});
 
-		// On récupère les genres les plus aimés
-		const favoriteGenres = Object.entries(genreCount)
-		  .sort((a,b) => b[1]-a[1])
-		  .map(([g]) => g);
-		const excludedIds = userAnimes;
-		const recoListEl = document.getElementById("recoList");
-		recoListEl.innerHTML = "";
-		// Prend les animes les mieux notés par l'utilisateur ou par défaut
-		const ratedIds = Object.keys(ratings).map(id => parseInt(id));
-		const favoritesIds = favorites;
+		// 🔹 RECOMMANDATIONS — Niveau 2 (pondération intelligente)
+		// IDs déjà vus (notés + favoris)
+		const excludedIds = [
+		  ...Object.keys(ratings).map(id => parseInt(id)),
+		  ...favorites
+		];
+		// 🔹 Genre dominant (celui que l'utilisateur consomme le plus)
+		const dominantGenre = userTaste.topGenres[0] || null;
+
+		// 1️⃣ Construire le profil de goût (genres pondérés)
+		const genreWeights = {};
+
+		window.SAMPLE_ANIMES.forEach(anime => {
+		  if (ratings[anime.id]) {
+			// anime noté
+			anime.genre.forEach(g => {
+			  if (!genreWeights[g]) genreWeights[g] = 0;
+			  genreWeights[g] += ratings[anime.id]; // note = poids
+			});
+		  }
+		  if (favorites.includes(anime.id)) {
+			// favori = bonus fort
+			anime.genre.forEach(g => {
+			  if (!genreWeights[g]) genreWeights[g] = 0;
+			  genreWeights[g] += 10;
+			});
+		  }
+		});
+
+		// 2️⃣ Calcul du score de reco
 		const recoAnimes = window.SAMPLE_ANIMES
 		  .filter(a => !excludedIds.includes(a.id))
-		  .filter(a => !favorites.includes(a.id))  // Exclut les favoris déjà
 		  .map(a => {
-			// On donne un score selon la correspondance avec les genres favoris
-			const matchScore = a.genre.reduce((acc, g) => {
-			  const index = favoriteGenres.indexOf(g);
-			  return index !== -1 ? acc + (favoriteGenres.length - index) : acc;
-			}, 0);
-			return { ...a, matchScore };
+			let score = 0;
+
+			// ❌ Qualité minimale
+			if ((a.rating || 0) < minRating) return null;
+
+			// 🎯 Genres aimés / détestés
+			a.genre.forEach(g => {
+			  if (userTaste.topGenres.includes(g)) score += 18;
+			  if (userTaste.dislikedGenres.includes(g)) score -= 30;
+			});
+
+			// ⚠️ Anti-genre dominant
+			if (dominantGenre && a.genre.includes(dominantGenre)) {
+			  score -= 6;
+			}
+			if (userLikeYouAnimes[a.id]) {
+			  score += Math.min(userLikeYouAnimes[a.id] / 5, 25);
+			}
+			if (dominantGenre && a.genre.includes(dominantGenre)) {
+			  score -= 6; // tu l’as déjà fait 👍
+			}
+
+			// ⭐ Qualité globale
+			score += (a.rating || 0) * 0.6;
+
+			return { ...a, score };
 		  })
-		  .sort((a,b) => b.matchScore - a.matchScore) // meilleurs matchs d'abord
-		  .slice(0,6); // les 6 premiers pour l’exemple
+		  .filter(Boolean)
+		  .sort((a, b) => b.score - a.score); // 🔥 TRÈS IMPORTANT
 		
+		const mainReco = [];
+		const diversityReco = [];
+
 		recoAnimes.forEach(a => {
+		  const isTop = a.genre.some(g => userTaste.topGenres.includes(g));
+		  const isDisliked = a.genre.some(g => userTaste.dislikedGenres.includes(g));
+
+		  if (isDisliked) return;
+
+		  if (isTop) {
+			mainReco.push(a);
+		  } else if ((a.rating || 0) >= minRating + 0.3) {
+			diversityReco.push(a);
+		  }
+		});
+		const FINAL_LIMIT = 6;
+		const DIVERSITY_QUOTA = 2;
+
+		const finalReco = [
+		  ...mainReco.slice(0, FINAL_LIMIT - DIVERSITY_QUOTA),
+		  ...diversityReco.slice(0, DIVERSITY_QUOTA)
+		];
+		
+		const uniqueGenreReco = [];
+		const usedGenres = {};
+
+		for (const anime of recoAnimes) {
+		  const mainGenre = anime.genre[0]; // genre principal
+
+		  if (!usedGenres[mainGenre]) {
+			usedGenres[mainGenre] = true;
+			uniqueGenreReco.push(anime);
+		  }
+
+		  if (uniqueGenreReco.length >= 6) break;
+		}
+
+		// 3️⃣ Affichage
+		const recoListEl = document.getElementById("recoList");
+		recoListEl.innerHTML = "";
+
+		finalReco.forEach(a => {
+		  const isDiscovery = !a.genre.some(g => userTaste.topGenres.includes(g));
+
 		  const div = document.createElement("div");
 		  div.className = "rated-item";
+
 		  div.innerHTML = `
-			<div class="rated-title">${a.title}</div>
+			<div class="rated-title">
+			  ${a.title}
+			  ${isDiscovery ? `<span class="tag">Découverte</span>` : ""}
+			</div>
 			<div class="rated-right">
-			  <div class="rated-score">${a.rating || ""}</div>
-			  <button class="rated-btn" onclick="window.location.href='anime.html?id=${a.id}'">Voir</button>
+			  <div class="rated-score">${a.avgRating?.toFixed(1) ?? "–"}</div>
+			  <button class="rated-btn" onclick="window.location.href='anime.html?id=${a.id}'">
+				Voir
+			  </button>
 			</div>
 		  `;
+
 		  recoListEl.appendChild(div);
 		});
-		
+
         // 🔹 MES NOTES
         const ratedListEl = document.getElementById("ratedList");
         ratedListEl.innerHTML = "";
