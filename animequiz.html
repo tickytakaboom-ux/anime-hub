@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnimeQuiz – AnimeHub</title>
+
+<style>
+:root {
+  --blue-dark: #0b1220;
+  --blue-main: #061226;
+  --blue-light: #1e3a5f;
+  --blue-accent: #3b82f6;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --bg-card: #f4f4f4;
+  --text-card: #000000
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--blue-dark), var(--blue-main));
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+main {
+  width: 100%;
+  max-width: 520px;
+  padding: 40px 20px;
+  margin: auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+header h1 {
+  font-size: 32px;
+  margin: 0;
+  font-weight: 800;
+}
+
+header p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.quiz-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.quiz-mode {
+  background: var(--bg-card);
+  color: var(--text-card);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+
+.quiz-mode:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.4);
+}
+
+.quiz-mode[data-mode="shonen"]:hover {
+  border-color: var(--accent);
+}
+.quiz-mode[data-mode="seinen"]:hover {
+  border-color: var(--accent-2);
+}
+.quiz-mode[data-mode="classic"]:hover {
+  border-color: var(--accent-3);
+}
+
+.quiz-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quiz-title {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.quiz-desc {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.quiz-play {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.topbar {
+  position: fixed;
+  top: 15px;
+  left: 20px;
+  z-index: 1000;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+   <header>
+      <div class="topbar">
+        <h1 id="homeLogo" style="cursor:pointer;">AnimeHub</h1>
+        <p class="lead">Ton univers anime à portée de clic</p>
+      </div>
+    <h1>🎌 AnimeQuiz</h1>
+    <p>Teste ta culture anime et découvre ton profil caché</p>
+  </header>
+
+  <section class="quiz-modes">
+
+    <div class="quiz-mode" onclick="location.href='select.html?group=shonen'">
+      <div class="quiz-left">
+        <div class="quiz-title">🔥 Shonen</div>
+        <div class="quiz-desc">Combats, power-ups et rivalités</div>
+      </div>
+      <div class="quiz-play">Jouer →</div>
+    </div>
+
+    <div class="quiz-mode" onclick="location.href='select.html?group=seinen'">
+      <div class="quiz-left">
+        <div class="quiz-title">🧠 Seinen</div>
+        <div class="quiz-desc">Histoires matures et ambiances sombres</div>
+      </div>
+      <div class="quiz-play">Jouer →</div>
+    </div>
+
+    <div class="quiz-mode" onclick="location.href='select.html?group=classiques'">
+      <div class="quiz-left">
+        <div class="quiz-title">📼 Classiques</div>
+        <div class="quiz-desc">Les incontournables de l’histoire</div>
+      </div>
+      <div class="quiz-play">Jouer →</div>
+    </div>
+
+    <div class="quiz-mode" onclick="location.href='select.html?group=personnages'">
+      <div class="quiz-left">
+        <div class="quiz-title">🎭 Personnages</div>
+        <div class="quiz-desc">Reconnais les héros et antagonistes</div>
+      </div>
+      <div class="quiz-play">Jouer →</div>
+    </div>
+
+    <div class="quiz-mode" data-mode="random">
+      <div class="quiz-left">
+        <div class="quiz-title">🎲 Aléatoire</div>
+        <div class="quiz-desc">Un peu de tout, sans prévenir</div>
+      </div>
+      <div class="quiz-play">Jouer →</div>
+    </div>
+
+  </section>
+
+  <footer>
+    Les résultats influencent tes recommandations AnimeHub 👀
+  </footer>
+
+</main>
+<script>
+	document.getElementById("homeLogo").addEventListener("click", () => {
+	  window.location.href = "index.html";
+	});
+</script>
+</body>
+</html>

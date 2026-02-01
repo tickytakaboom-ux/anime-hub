@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choix du quiz – AnimeQuiz</title>
+
+<style>
+:root {
+  --blue-dark: #0b1220;
+  --blue-main: #061226;
+  --blue-light: #1e3a5f;
+  --blue-accent: #3b82f6;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --bg-card: #f4f4f4;
+  --text-card: #000;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--blue-dark), var(--blue-main));
+  font-family: Inter, sans-serif;
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+}
+
+main {
+  width: 100%;
+  max-width: 520px;
+  padding: 40px 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+header p {
+  margin-top: 8px;
+  color: var(--text-muted);
+}
+
+.quiz-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.quiz-item {
+  background: var(--bg-card);
+  color: var(--text-card);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.quiz-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(255,255,255,0.35);
+}
+
+.quiz-title {
+  font-weight: 700;
+}
+
+.quiz-play {
+  color: var(--blue-accent);
+  font-weight: 700;
+}
+
+.back {
+  margin-top: 30px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.back:hover {
+  text-decoration: underline;
+}
+
+</style>
+</head>
+
+<body>
+
+<main>
+
+  <header>
+    <h1 id="title">Choisis ton quiz</h1>
+    <p id="desc"></p>
+  </header>
+
+  <section class="quiz-list" id="quizList"></section>
+
+  <div class="back" onclick="location.href='animequiz.html'">
+    ← Retour aux catégories
+  </div>
+
+</main>
+
+<script>
+const quizGroups = {
+  shonen: {
+    title: "🔥 Shonen",
+    desc: "Combats, dépassement et rivalités mythiques",
+    quizzes: [
+      { id: "onepiece", name: "One Piece" },
+      { id: "aot", name: "Attack on Titan" },
+      { id: "jjk", name: "Jujutsu Kaisen" },
+      { id: "naruto", name: "Naruto" },
+	  { id: "general", name: "General" }
+    ]
+  },
+
+  seinen: {
+    title: "🧠 Seinen",
+    desc: "Histoires matures et psychologiques",
+    quizzes: [
+      { id: "deathnote", name: "Death Note" },
+      { id: "monster", name: "Monster" }
+    ]
+  },
+
+  classiques: {
+    title: "📼 Classiques",
+    desc: "Les piliers de l’histoire de l’animation japonaise",
+    quizzes: [
+      { id: "dbz", name: "Dragon Ball Z" },
+      { id: "pokemon", name: "Pokémon" }
+    ]
+  },
+
+  personnages: {
+    title: "🎭 Personnages",
+    desc: "Reconnais les figures emblématiques",
+    quizzes: [
+      { id: "luffy", name: "Monkey D. Luffy" },
+      { id: "eren", name: "Eren Yeager" }
+    ]
+  }
+};
+
+const params = new URLSearchParams(window.location.search);
+const group = params.get("group");
+
+const container = document.getElementById("quizList");
+const titleEl = document.getElementById("title");
+const descEl = document.getElementById("desc");
+
+if (!quizGroups[group]) {
+  titleEl.textContent = "Catégorie introuvable 😢";
+  descEl.textContent = "";
+} else {
+  const data = quizGroups[group];
+  titleEl.textContent = data.title;
+  descEl.textContent = data.desc;
+
+  data.quizzes.forEach(q => {
+    const div = document.createElement("div");
+    div.className = "quiz-item";
+    div.innerHTML = `
+      <div class="quiz-title">${q.name}</div>
+      <div class="quiz-play">Jouer →</div>
+    `;
+    div.onclick = () => {
+      window.location.href = `play.html?quiz=${q.id}`;
+    };
+    container.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>

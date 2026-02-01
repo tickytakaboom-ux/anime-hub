@@ -1,0 +1,1783 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AnimeHub</title>
+  <style>
+    :root {
+	  --bg: #0f1724;
+	  --card: #0b1220;
+	  --muted: #9ca3af;
+	  --accent: #06b6d4;
+	  --glass: rgba(255,255,255,0.04);
+	}
+
+	/* 🌌 Global */
+	body {
+	  margin: 0;
+	  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+	  background: linear-gradient(180deg,#0b1220 0%, #061226 100%);
+	  color: #e6eef6;
+	  -webkit-font-smoothing: antialiased;
+	  -moz-osx-font-smoothing: grayscale;
+	  transition: background 0.3s ease;
+	}
+
+	/* Container */
+	.container {
+	  max-width: 1100px;
+	  margin: 32px auto;
+	  padding: 20px;
+	}
+
+	/* Header sticky avec blur */
+	header {
+	  display: flex;
+	  align-items: center;
+	  justify-content: space-between;
+	  gap: 16px;
+	  margin-bottom: 18px;
+	  position: sticky;
+	  top: 0;
+	  z-index: 100;
+	  background: linear-gradient(180deg, rgba(11,18,32,0.95) 0%, rgba(6,18,38,0.95) 100%);
+	  backdrop-filter: blur(8px);
+	  padding: 20px 40px;
+	  flex-wrap: wrap;
+	  transition: box-shadow 0.2s ease, background 0.2s ease;
+	}
+	header.sticky { box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
+
+	h1 { font-size: 28px; margin: 0; }
+	p.lead { color: var(--muted); margin: 6px 0 0; font-size: 14px; }
+
+	/* Controls recherche / filtres */
+	.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+	.search-wrap { position: relative; }
+	.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: 0.8; }
+	input.search {
+	  padding: 10px 12px 10px 36px;
+	  border-radius: 10px;
+	  border: 1px solid rgba(255,255,255,0.06);
+	  background: var(--glass);
+	  color: inherit;
+	  min-width: 220px;
+	  transition: 0.3s;
+	  box-shadow: 0 0 4px rgba(255,255,255,0.1);
+	}
+	input.search:focus { border-color: var(--accent); box-shadow: 0 0 12px rgba(6,182,212,0.3); outline: none; }
+	.select, .select-sm {
+	  padding: 10px 12px;
+	  border-radius: 10px;
+	  background: var(--glass);
+	  border: 1px solid rgba(255,255,255,0.06);
+	  color: inherit;
+	  transition: 0.3s;
+	  box-shadow: 0 0 4px rgba(255,255,255,0.1);
+	}
+	.select:hover, .select-sm:hover { border-color: var(--accent); box-shadow: 0 0 10px rgba(6,182,212,0.25); }
+	.select option, .select-sm option { color: #e6eef6; background-color: var(--card); }
+	@media (max-width:720px) {
+		.controls > select, input.search { flex: 1 1 100%; }
+	}
+	/* Grid cartes anime */
+	.grid {
+	  display: grid;
+	  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+	  gap: 16px;
+	  margin-top: 18px;
+	}
+
+	/* Cartes anime avec hover néon */
+	.card {
+	  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));
+	  border-radius: 14px;
+	  overflow: hidden;
+	  box-shadow: 0 6px 18px rgba(6,182,212,0.4);
+	  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	  position: relative;
+	}
+	.card:hover {
+	  transform: translateY(-4px) rotateZ(-0.2deg);;
+	  box-shadow: 0 12px 30px rgba(6,182,212,0.6), 0 0 20px rgba(6,182,212,0.25);
+	}
+	.card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #111; transition: 0.3s; }
+	.card:hover img { filter: brightness(1.1); }
+
+	/* Card content */
+	.card-body { padding: 14px; }
+	.title { font-weight: 700; font-size: 16px; margin: 8px 0 6px; transition: color 0.3s; }
+	.card:hover .title { color: var(--accent); }
+	.genres { font-size: 12px; color: var(--muted); }
+	.meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+
+	/* Boutons */
+	.btn {
+	  background: linear-gradient(135deg, var(--accent), #0fc1e5);
+	  color: #052226;
+	  padding: 8px 14px;
+	  border-radius: 10px;
+	  border: none;
+	  cursor: pointer;
+	  font-weight: 700;
+	  font-size: 13px;
+	  letter-spacing: 0.3px;
+	  box-shadow: 0 4px 14px rgba(6,182,212,0.35);
+	  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+	}
+	.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(6,182,212,0.55); filter: brightness(1.05); }
+	.btn:active { transform: translateY(0); box-shadow: 0 4px 12px rgba(6,182,212,0.35); }
+
+	/* Favoris / rating */
+	.fav-btn {
+	  background: transparent;
+	  border: 1px solid rgba(255,255,255,0.06);
+	  color: var(--accent);
+	  padding: 6px 8px;
+	  border-radius: 8px;
+	  cursor: pointer;
+	  font-weight: 700;
+	  font-size: 14px;
+	  transition: 0.2s;
+	}
+	.fav-btn:hover { background: rgba(255,255,255,0.08); backdrop-filter: blur(4px) }
+
+	/* Rating badges */
+	.rating { background: rgba(0,0,0,0.45); padding: 4px 8px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+
+	/* Footer */
+	footer { text-align: center; color: var(--muted); margin-top: 24px; font-size: 13px; }
+
+	/* Scroll animations */
+	@keyframes fadeUp {
+	  0% { opacity: 0; transform: translateY(20px); }
+	  100% { opacity: 1; transform: translateY(0); }
+	}
+
+	/* Responsive */
+	@media (max-width:720px) {
+	  header { flex-direction: column; align-items: flex-start; }
+	  .controls { width: 100%; margin-top: 10px; flex-wrap: wrap; }
+	  .card img { height: 220px; }
+	  .modal { flex-direction: column; align-items: center; }
+	  .modal img { width: 180px; height: 260px; }
+	}
+
+	/* Bouton Top */
+	#backToTop {
+	  position: fixed; bottom: 22px; right: 22px; padding: 10px 14px;
+	  font-size: 16px; border-radius: 10px; background: var(--accent);
+	  color: #052226; border: none; cursor: pointer; font-weight: 700;
+	  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+	  transition: opacity .2s ease, transform .2s ease;
+	}
+	#backToTop.show { display: block; opacity: 1; transform: translateY(0); }
+	#backToTop.hide { 
+	  opacity: 0; 
+	  transform: 
+	  translateY(10px); 
+	}
+	
+	.badge-trending {
+	  position: absolute;
+	  top: 10px;
+	  left: 10px;
+	  background: #ff4500;
+	  color: white;
+	  font-size: 11px;
+	  padding: 2px 6px;
+	  border-radius: 6px;
+	  font-weight: bold;
+	  z-index: 10; /* s'assure qu'il soit au-dessus de l'image */
+	  pointer-events: none; /* pas cliquable */
+	}
+	.card { position: relative; } /* nécessaire pour que le badge soit bien positionné par rapport à la carte */
+	
+	#authContainer {
+	  display: flex;
+	  gap: 8px;
+	  align-items: center;
+	  background: rgba(11,18,32,0.85);
+	  padding: 6px 12px;
+	  border-radius: 12px;
+	  backdrop-filter: blur(6px);
+	  flex-wrap: wrap;
+	  position: relative;
+	  z-index: 999;
+	}
+
+	#userBox {
+	  display: flex;
+	  align-items: center;
+	  gap: 6px;
+	  background: rgba(255,255,255,0.12);
+	  padding: 6px 14px;
+	  border-radius: 999px;
+	  color: white;
+	  font-weight: 700;
+	  text-decoration: none;
+	  cursor: pointer;
+	  transition: background 0.2s;
+	  z-index: 100;
+	}
+	#userBox:hover { background: rgba(255,255,255,0.2); }
+
+	.notif-container { 
+	  position: relative; 
+	}
+	.notif-container:hover {
+	  background: rgba(255,255,255,0.12);
+	}
+	.notif-badge {
+	  position: absolute;
+	  top: -4px;
+	  right: -6px;
+
+	  min-width: 16px;
+	  height: 16px;
+	  padding: 0 4px;
+
+	  display: none;
+	  align-items: center;
+	  justify-content: center;
+
+	  background: #ef4444; /* rouge clean */
+	  color: white;
+
+	  font-size: 10px;
+	  font-weight: 800;
+	  line-height: 1;
+
+	  border-radius: 999px;
+	  border: 2px solid #0b1220; /* fond du header */
+
+	  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+	  z-index: 200;
+	}
+	/* DESKTOP */
+	.notif-dropdown {
+	  position: absolute;
+	  top: calc(100% + 10px);
+	  right: 0;
+	  width: 320px;
+	  max-height: 60vh;
+	  overflow-y: auto;
+	  background: #0f172a;
+	  border-radius: 14px;
+	  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+	  z-index: 1000;
+	}
+	/* MOBILE = bottom sheet */
+	@media (max-width: 768px) {
+	  .notif-dropdown {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+
+		width: 100vw;
+		height: 60vh;
+
+		border-radius: 18px 18px 0 0;
+		animation: slideUp 0.25s ease;
+	  }
+	}
+	@keyframes slideUp {
+	  from {
+		transform: translateY(100%);
+	  }
+	  to {
+		transform: translateY(0);
+	  }
+	}
+	
+	#notifList li {
+	  padding: 12px 14px;
+	  font-size: 14px;
+	  border-bottom: 1px solid rgba(255,255,255,0.08);
+	  color: #e6eef6;
+	}
+
+	#notifList li:last-child {
+	  border-bottom: none;
+	}
+
+	#notifList li:hover {
+	  background: rgba(255,255,255,0.05);
+	}
+	.notif-badge.show {
+	  display: flex;
+	  animation: pop 0.25s ease;
+	}
+
+	@keyframes pop {
+	  0% { transform: scale(0); }
+	  80% { transform: scale(1.2); }
+	  100% { transform: scale(1); }
+	}
+	@media (max-width:720px) {
+		header { padding: 16px 20px; }
+	}
+	* {
+		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+	}
+  </style>
+  <!-- Favicon classique -->
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <!-- Icône Apple touch (pour iPhone/iPad) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icon_animehub.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icon_animehub.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="icon_animehub.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="icon_animehub.png">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+    <header>
+      <div>
+        <h1 id="homeLogo" style="cursor:pointer;">AnimeHub</h1>
+        <p class="lead">Ton univers anime à portée de clic</p>
+      </div>
+      <div class="controls">
+        <div class="search-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="#9ca3af" stroke-width="2"></circle></svg>
+          <input id="search" class="search" placeholder="Rechercher un anime..."/>
+        </div>
+        <select id="genre" class="select"></select>
+        <select id="sort" class="select-sm">
+          <option value="top">Top rating</option>
+          <option value="new">Les plus récents</option>
+		  <option value="az">Alphabétique (A → Z)</option>
+		  <option value="za">Alphabétique (Z → A)</option>
+		  <option value="popular">🔥 Popularité</option>
+        </select>
+        <select id="favFilter" class="select-sm">
+          <option value="all">Tous</option>
+          <option value="fav">Favoris seulement</option>
+        </select>
+      </div>
+	  <div id="authContainer">
+	    <div class="notif-container" id="notifBtn">
+		  <i class="fa-solid fa-bell"></i>
+		  <span class="notif-badge" id="notifBadge">0</span>
+
+		  <div class="notif-dropdown" id="notifDropdown" style="display:none;">
+			<ul id="notifList" style="list-style:none; margin:0; padding:0;"></ul>
+		  </div>
+		</div>
+		<a href="profile.html" id="userBox">
+          <span id="username"></span>
+        </a>
+	  </div>
+	  <div id="authModal" class="modal-auth" style="display:none;">
+	    <div class="modal-auth-content">
+		  <h2 id="authTitle">Connexion</h2>
+
+		  <input type="email" id="authEmail" placeholder="Email">
+		  <input type="password" id="authPassword" placeholder="Mot de passe">
+
+		  <button id="authSubmit">Valider</button>
+		  <button id="authClose" class="close-auth">Fermer</button>
+	    </div>
+	  </div>
+    </header>
+	<div class="container">
+    <main>
+      <div id="grid" class="grid" style="display:none"></div>
+	  <div id="loading" style="color:var(--muted); text-align:center; padding:40px 0;">Les pages du Death Note s’écrivent… Patience</div>
+      <div id="empty" style="display:none; color:var(--muted); text-align:center; padding:40px 0;">Aucun résultat...</div>
+    </main>
+
+    <footer>Il manque ton anime ? N'hésite pas à demander pour que je le rajoute.</footer>
+  </div>
+
+  <!-- Modal template -->
+  <div id="modalRoot" style="display:none"></div>
+  <button id="backToTop">↑ Top</button>
+  <script>
+    const SAMPLE_ANIMES = [
+      { id:1, 
+	  title:'One Piece', 
+	  genre:['Adventure','Action'], 
+	  rating:0, 
+	  year:1999, 
+	  img:'https://cdn.myanimelist.net/images/anime/1244/138851.jpg', 
+	  summary:'One Piece suit Monkey D. Luffy, un ado qui veut devenir Roi des Pirates après avoir mangé un fruit magique qui rend son corps élastique. Il part sur les mers pour trouver le légendaire trésor, le One Piece, et se crée petit à petit un équipage aux pouvoirs et aux rêves différents, les Mugiwara. Ensemble, ils affrontent des pirates, des marines, des tyrans et des monstres, tout en vivant des aventures incroyables et en se rapprochant de la vérité sur le monde et sur le passé caché.', 
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"One Piece", episodes:1155, canon:true, status:'released'},{type:'movie', title:"One Piece: The Movie", canon:false, status:'released'},{type:'movie', title:"One Piece: Clockwork Island Adventure", canon:false, status:'released'},{type:'movie', title:"One Piece: Chopper Kingdom of Strange Animal Island", canon:false, status:'released'},{type:'movie', title:"One Piece: Dead End Adventure", canon:false, status:'released'},{type:'movie', title:"One Piece: The Curse of the Sacred Sword", canon:false, status:'released'},{type:'movie', title:"One Piece: Baron Omatsuri and the Secret Island", canon:false, status:'released'},{type:'movie', title:"One Piece: The Giant Mechanical Soldier of Karakuri Castle", canon:false, status:'released'},{type:'movie', title:"One Piece: Episode of Alabasta - The Desert Princess and the Pirates", canon:false, status:'released'},{type:'movie', title:"One Piece: Episode of Chopper Plus - Bloom in the Winter, Miracle Sakura", canon:false, status:'released'},{type:'movie', title:"One Piece Film: Strong World", canon:false, status:'released'}, {type:'movie', title:"One Piece 3D: Straw Hat Chase", canon:false, status:'released'}, {type:'movie', title:"One Piece Film: Z", canon:false, status:'released'}, {type:'special', title:"One Piece 3D2Y: Overcoming Ace's Death! Luffy's Pledge to His Friends", episodes:1, canon:false, status:'released'}, {type:'movie', title:"ONE PIECE FILM GOLD", canon:false, status:'released'}, {type:'special', title:"One Piece: Episode of Skypiea", episodes:1, canon:false, status:'released'}, {type:'movie', title:"One Piece: Stampede", canon:false, status:'released'}, {type:'movie', title:"One Piece Film: Red", canon:false, status:'released'}, {type:'special', title:"ONE PIECE FAN LETTER", episodes:1, canon:false, status:'released'}, {type:'season', title:"One Piece Log: Fish-Man Island Saga", episodes:21, canon:true, status:'released'}  ]},
+      { id:2, 
+	  title:'Solo Leveling', 
+	  genre:['Action','Fantasy'], 
+	  rating:0, 
+	  year:2024, 
+	  img:'https://cdn.myanimelist.net/images/anime/1448/147351.jpg', 
+	  summary:'Dans un monde où des portails font apparaître des monstres, les humains “chasseurs” risquent leur vie pour les affronter. Sung Jin-Woo, considéré comme le chasseur le plus faible, survit par miracle à un donjon terrifiant. Après ça, il reçoit un pouvoir unique : il peut devenir plus fort sans limite, comme dans un jeu vidéo, en accomplissant des quêtes et en gagnant des niveaux. À partir de là, Jin-Woo grimpe en puissance à une vitesse folle, affronte des ennemis de plus en plus dangereux, et découvre les secrets derrière les portails et sa propre ascension.', 
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"Solo Leveling", episodes:12, canon:true, status:'released'}, {type:'special', title:"Solo Leveling: How to Get Stronger", episodes:1, canon:true, status:'released'}, {type:'season', title:"Solo Leveling Season 2: Arise from the Shadow", episodes:13, canon:true, status:'released'}]},
+      { id:3, 
+	  title:'Death Note', 
+	  genre:['Mystery','Thriller'], 
+	  rating:0, 
+	  year:2006, 
+	  img:'https://cdn.myanimelist.net/images/anime/1079/138100.jpg', 
+	  summary:'Death Note raconte l’histoire de Light Yagami, un étudiant japonais brillant mais désabusé, qui trouve un carnet surnaturel appelé Death Note. Ce carnet permet de tuer toute personne dont on écrit le nom dedans. Convaincu qu’il peut créer un monde parfait en éliminant les criminels, Light se transforme en justicier impitoyable sous le nom de Kira. Face à lui, L, un détective génial et mystérieux, se lance dans une lutte intellectuelle intense pour l’arrêter. Entre manipulations, trahisons et stratégies mentales, le combat entre Light et L devient une véritable partie d’échecs mortelle.', 
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"Death Note", episodes:37, canon:true, status:'released'}, {type:'special', title:"Death Note: Relight", episodes:2, canon:true, status:'released'}]},
+      { id:4, 
+	  title:'Jujutsu Kaisen', 
+	  genre:['Action','Supernatural'], 
+	  rating:0, 
+	  year:2020, 
+	  img:'https://cdn.myanimelist.net/images/anime/1659/154920.jpg', 
+	  summary:'L’histoire suit Yuji Itadori, un lycéen super sportif qui découvre un monde caché rempli de malédictions, des esprits créés par les émotions négatives des humains. Quand il avale un doigt maudit contenant une puissante malédiction, Ryomen Sukuna, il devient son hôte. Yuji rejoint alors l’école de Jujutsu, où il apprend à combattre les malédictions avec ses nouveaux pouvoirs, tout en essayant de protéger les innocents et de découvrir comment vaincre Sukuna définitivement.', 
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"Jujutsu Kaisen", episodes:24, canon:true, status:'released'}, {type:'movie', title:"Jujutsu Kaisen 0", canon:true, status:'released'}, {type:'season', title:"Jujutsu Kaisen Season 2", episodes:23, canon:true, status:'released'}, {type:'season', title:"Jujutsu Kaisen: The Culling Game Part 1", episodes:null, canon:true, status:'upcoming'}] },
+      { id:5, 
+	  title:'Oshi No Ko', 
+	  genre:['Drama','Mystery'], 
+	  rating:0, 
+	  year:2023, 
+	  img:'https://cdn.myanimelist.net/images/anime/1979/153329.jpg', 
+	  summary:'L’histoire suit Aquamarine “Aqua” et Ruby, des jumeaux nés dans l’industrie du divertissement après une série d’événements tragiques liés à leur mère, une idole populaire. Le manga explore les coulisses sombres du showbiz, les ambitions, les manipulations et les secrets des célébrités, tout en suivant leur quête de justice et de vérité sur le passé de leur famille.', 
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"[Oshi No Ko]", episodes:11, canon:true, status:'released'}, {type:'season', title:"[Oshi No Ko] Season 2", episodes:13, canon:true, status:'released'}, {type:'season', title:"[Oshi No Ko] Season 3", episodes:null, canon:true, status:'upcoming'}]},
+	  { id:6,
+	  title:'Fairy Tail',
+	  genre:['Action','Adventure','Fantasy'],
+	  rating:0,
+	  year:2009,
+	  img:'https://cdn.myanimelist.net/images/anime/1087/144083.jpg',
+	  summary:`L'histoire suit Natsu Dragnir, un mage de feu, et ses amis de la guilde Fairy Tail, connus pour leur énergie, leur courage et leur sens de la camaraderie. Ensemble, ils accomplissent des missions, affrontent des ennemis redoutables et découvrent des secrets sur le monde et sur eux-mêmes. Au fil des aventures, l’anime met surtout l’accent sur l’amitié, la persévérance et la magie spectaculaire, avec des combats intenses et des moments émouvants qui renforcent les liens entre les personnages.`,
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"Fairy Tail", episodes:175, canon:true, status:'released'}, {type:'ova', title:"フェアリーテイル OVA", episodes:5, canon:false, status:'released'}, {type:'movie', title:"Fairy Tail the Movie: The Phoenix Priestess", canon:false, status:'released'}, {type:'ova', title:"FAIRYTAIL×RAVE", episodes:1, canon:false, status:'released'}, {type:'season', title:"Fairy Tail Series 2", episodes:102, canon:true, status:'released'}, {type:'ova', title:"Fairy Tail Series 2 OVA", episodes:3, canon:false, status:'released'}, {type:'movie', title:"Fairy Tail the Movie 2: Dragon Cry", canon:true, status:'released'}, {type:'season', title:"Fairy Tail Final Series", episodes:51, canon:true, status:'released'}]},
+	  { id:7,
+	  title:'Shangri-La Frontier',
+	  genre:['Isekai','Fantasy','Game'],
+	  rating:0,
+	  year:2023,
+	  img:'https://cdn.myanimelist.net/images/anime/1851/148885.jpg',
+	  summary:`L'histoire suit Sunraku, un gamer hardcore qui adore les jeux vidéo tout buggés. Un jour, il décide de tester Shangri-La Frontier, un VRMMORPG extrêmement populaire et bien fait. Grâce à son expérience dans des jeux “horribles”, Sunraku devient incroyablement fort dans ce monde virtuel. Il se lance alors dans une aventure pleine de boss légendaires, de défis absurdes, de rencontres marquantes et de moments très drôles, tout en essayant de percer les secrets du jeu.`,
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"Shangri-La Frontier", episodes:25, canon:true, status:'released'}, {type:'special', title:"Shangri-La Frontier: Get Yourselves Caught up With This Light-Speed Recap!", episodes:1, canon:true, status:'released'}, {type:'season', title:"Shangri-La Frontier Season 2", episodes:25, canon:true, status:'released'}, {type:'season', title:"Shangri-La Frontier Season 3", episodes:null, canon:true, status:'upcoming'}]},
+	  { id:8,
+	  title:'My Hero Academia',
+	  genre:['Superheroes','Action'],
+	  rating:0,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/1959/151055.jpg',
+	  summary:'Dans un monde où presque tout le monde possède un pouvoir appelé Alter, Izuku Midoriya naît… sans aucun pouvoir. Son rêve pourtant : devenir un grand héros comme son idole All Might. Sa vie bascule quand All Might lui transmet son Alter, One For All. Izuku intègre alors l’école de héros UA, où il s’entraîne avec d’autres élèves pour devenir pro, affronte des vilains de plus en plus dangereux et découvre les secrets derrière son nouveau pouvoir.',
+	  fav:false,
+	  likes: 0,
+	  timeline:[{type:'season', title:"My Hero Academia", episodes:13, canon:true, status:'released'}, {type:'season', title:"My Hero Academia Season 2", episodes:25, canon:true, status:'released'}, {type:'ova', title:"My Hero Academia: Rescue! Rescue Training", episodes:1, canon:false, status:'released'}, {type:'ova', title:"My Hero Academia: Training of the Dead", episodes:1, canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 3", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: Two Heroes", canon:true, status:'released'}, {type:'season', title:"My Hero Academia Season 4", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: Heroes Rising", canon:true, status:'released'}, {type:'ona', title:"My Hero Academia: Make It! Do-or-Die Survival Training", episodes:2, canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 5", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: World Heroes' Mission", canon:true, status:'released'}, {type:'ona', title:"My Hero Academia ONA", episodes:2, canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 6", episodes:25, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: UA Heroes Battle", canon:false, status:'released'}, {type:'season', title:"My Hero Academia Season 7", episodes:21, canon:true, status:'released'}, {type:'movie', title:"My Hero Academia: You're Next", canon:false, status:'released'}, {type:'season', title:"My Hero Academia Final Season", episodes:11, canon:true, status:'released'}, {type:'special', title:"My Hero Academia: More", episodes:null, canon:true, status:'upcoming'}]},
+	  { id:9,
+	  title:'Attack On Titan',
+	  genre:['Dark','Fantasy','Action','Drama'],
+	  rating:0,
+	  year:2013,
+	  img:'https://cdn.myanimelist.net/images/anime/1948/120625.jpg',
+	  summary:'L’histoire suit Eren Yeager, qui vit dans une cité entourée de gigantesques murs pour protéger l’humanité des Titans, des créatures qui dévorent les humains. Après que sa ville est détruite et que sa mère meurt, Eren jure d’exterminer tous les Titans. Il rejoint alors l’armée avec Mikasa et Armin, et découvre peu à peu la vérité : les Titans, les murs, le monde extérieur… rien n’est vraiment comme on le leur a raconté. L’histoire devient une montée en tension entre guerre, secrets et survie, où chaque révélation change totalement la vision du monde.',
+	  fav:false,
+	  likes: 0 },
+	  { id:10,
+	  title:'Classroom Of The Elite',
+	  genre:['Psychological','School Life','Drama','Thriller'],
+	  rating:0,
+	  year:2017,
+	  img:'https://cdn.myanimelist.net/images/anime/1176/153626.jpg',
+	  summary:'L’histoire suit Kiyotaka Ayanokōji, un élève apparemment banal placé dans la classe D, la classe la plus faible d’un lycée d’élite où tout fonctionne selon un système de points, de compétition et de manipulation. Très vite, on comprend qu’Ayanokōji cache un niveau d’intelligence et de stratégie monstrueux, qu’il utilise discrètement pour faire progresser sa classe, manipuler les autres groupes et naviguer dans un système scolaire impitoyable où chaque élève cherche à grimper socialement. L’anime repose sur des jeux psychologiques, des alliances, des trahisons, et les secrets autour du passé d’Ayanokōji.',
+	  fav:false,
+	  likes: 0 },
+	  { id:11,
+	  title:'Rascal Does Not Dream Of ...',
+	  genre:['Romance','Drama','Psychological','Slice Of Life','Supernatural'],
+	  rating:0,
+	  year:2018,
+	  img:'https://cdn.myanimelist.net/images/anime/1120/154246.jpg',
+	  summary:'L’histoire suit Sakuta Azusagawa, un lycéen qui rencontre Mai Sakurajima, une actrice célèbre devenue invisible aux yeux du monde à cause d’un phénomène lié au “syndrome de la puberté”. En cherchant à l’aider, Sakuta découvre que d’autres élèves vivent aussi des phénomènes surnaturels qui reflètent leurs blessures émotionnelles : harcèlement, pression, jalousie, identité… À chaque fois, il doit comprendre leur problème pour les aider à s’en sortir, tout en développant une relation touchante et sincère avec Mai. C’est un anime qui mélange romance, émotions et un soupçon de surnaturel de manière très chill.',
+	  fav:false,
+	  likes: 0 },
+	  { id:12,
+	  title:'Your Lie In April',
+	  genre:['Drama','Romance','Musical'],
+	  rating:0,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/1405/143284.jpg',
+	  summary:'L’histoire suit Kōsei Arima, un ancien prodige du piano qui a complètement arrêté de jouer après la mort de sa mère. Il vit dans un monde “sans couleurs”, incapable d’entendre la musique correctement. Sa vie change le jour où il rencontre Kaori Miyazono, une violoniste pleine d’énergie qui joue avec passion et liberté. Grâce à elle, Kōsei se remet petit à petit au piano, retrouve goût à la musique et commence à guérir de ses traumatismes… mais Kaori cache un secret qui rend leur histoire encore plus bouleversante.',
+	  fav:false,
+	  likes: 0 },
+	  { id:13,
+	  title:'Kaguya-Sama : Love Is War',
+	  genre:['Romance','Comedy','Psychological','School Life'],
+	  rating:0,
+	  year:2019,
+	  img:'https://cdn.myanimelist.net/images/anime/1160/122627.jpg',
+	  summary:'L’histoire suit Kaguya Shinomiya et Miyuki Shirogane, les deux cadors du conseil des élèves, intelligents, respectés… et secrètement amoureux l’un de l’autre. Sauf qu’ils sont trop fiers pour avouer. Du coup, ils transforment chaque interaction en bataille mentale pour pousser l’autre à craquer en premier : manipulations, pièges psychologiques, stratégies ridicules… tout y passe. Entre leurs plans qui tournent souvent au fiasco, l’énergie chaotique de Chika, et les problèmes des autres membres du conseil, la “guerre” devient une romcom hilarante où avouer ses sentiments est l’objectif final.',
+	  fav:false,
+	  likes: 0 },
+	  { id:14,
+	  title:'Hunter X Hunter',
+	  genre:['Adventure','Action','Fantasy','Psychological'],
+	  rating:0,
+	  year:2011,
+	  img:'https://cdn.myanimelist.net/images/anime/1337/99013.jpg',
+	  summary:'L’histoire suit Gon Freecss, un garçon qui découvre que son père, qu’il croyait mort, est en réalité un Hunter légendaire. Gon décide de devenir lui aussi Hunter pour le retrouver. En chemin, il se lie d’amitié avec Killua, Leorio et Kurapika. Ensemble, ils passent des examens dangereux, affrontent des ennemis redoutables et explorent un monde rempli de créatures, secrets et pouvoirs surnaturels. Les combats reposent souvent sur stratégie et intelligence, pas juste sur la force brute.',
+	  fav:false,
+	  likes: 0 },
+	  { id:15,
+	  title:'Fruits Basket',
+	  genre:['Romance','Drama','Slice Of Life'],
+	  rating:0,
+	  year:2019,
+	  img:'https://cdn.myanimelist.net/images/anime/1085/114792.jpg',
+	  summary:'L’histoire suit Tohru Honda, une lycéenne orpheline qui finit par vivre avec la famille Soma, maudite par le zodiaque chinois : chaque membre se transforme en animal lorsqu’il est stressé ou en contact avec quelqu’un du sexe opposé. Au fil du temps, Tohru découvre les secrets et blessures de chaque membre, les aide à s’accepter et guérir, et crée des liens forts d’amitié et de famille. L’anime mélange humour, émotions et moments touchants tout au long de l’histoire.',
+	  fav:false,
+	  likes: 0 },
+	  { id:16,
+	  title:'Chainsaw Man',
+	  genre:['Dark','Fantasy','Action','Horror'],
+	  rating:0,
+	  year:2022,
+	  img:'https://cdn.myanimelist.net/images/anime/1806/126216.jpg',
+	  summary:'L’histoire suit Denji, un jeune homme pauvre endetté, qui chasse des démons pour rembourser ses dettes. Après avoir été trahi et tué, il fusionne avec son chien-démon Pochita et devient Chainsaw Man, capable de se transformer en humain avec des tronçonneuses sortant de son corps. Il rejoint alors l’Agence des Chasseurs de Démons et combat des créatures terrifiantes tout en découvrant les vérités sombres sur les démons, les humains et ses propres désirs. L’histoire mélange action sanglante, humour noir et drame émotionnel.',
+	  fav:false,
+	  likes: 0 },
+	  { id:17,
+	  title:'Tokyo Revengers',
+	  genre:['Action','Drama','Time Travel'],
+	  rating:0,
+	  year:2021,
+	  img:'https://cdn.myanimelist.net/images/anime/1340/148694.jpg',
+	  summary:'L’histoire suit Takemichi Hanagaki, un jeune homme raté qui apprend que son ex-petite amie de lycée, Hinata, a été tuée par un gang. Un jour, il revient mystérieusement 12 ans dans le passé et décide de changer le destin de Hinata en infiltrant et en remontant les rangs du gang Tokyo Manji. Au fil du temps, Takemichi se retrouve mêlé à des bagarres, trahisons et alliances, tout en essayant de changer l’avenir et de protéger ses amis. L’anime mélange action, drame et voyages dans le temps, avec un fort côté émotionnel.',
+	  fav:false,
+	  likes: 0 },
+	  { id:18,
+	  title:'Horimiya',
+	  genre:['Romance','Slice Of Life','Comedy','School Life'],
+	  rating:0,
+	  year:2021,
+	  img:'https://cdn.myanimelist.net/images/anime/1695/111486.jpg',
+	  summary:'L’histoire suit Hori, une lycéenne populaire et studieuse, et Miyamura, un camarade discret avec un côté rebelle caché. Malgré leurs apparences publiques opposées, ils découvrent leur vrai visage l’un pour l’autre et deviennent amis puis amoureux. L’anime explore leur vie quotidienne au lycée, les relations avec leurs amis, et la façon dont chacun apprend à s’accepter et à se confier. C’est une romance douce, drôle et touchante.',
+	  fav:false,
+	  likes: 0 },
+	  { id:19,
+	  title:'Blue Box',
+	  genre:['Romance','Sports','Slice Of Life'],
+	  rating:0,
+	  year:2024,
+	  img:'https://cdn.myanimelist.net/images/anime/1496/147108.jpg',
+	  summary:'L’histoire suit Taiki Inomata, un lycéen passionné de badminton, et Chinatsu Kano, une star du basketball dans le même lycée. Ils se rapprochent peu à peu malgré leur timidité et les rivalités sportives, découvrant des sentiments naissants l’un pour l’autre. L’anime mélange romance douce, compétitions sportives et moments du quotidien, montrant comment leur passion pour le sport et leurs émotions s’entremêlent.',
+	  fav:false,
+	  likes: 0 },
+	  { id:20,
+	  title:'The Angel Next Door Spoils Me Rotten',
+	  genre:['Romance','Slice Of Life','School Life'],
+	  rating:0,
+	  year:2023,
+	  img:'https://cdn.myanimelist.net/images/anime/1746/152415.jpg',
+	  summary:'L’histoire suit Amane Fujimiya, un lycéen ordinaire, et Mahiru Shiina, sa voisine parfaite et attentionnée, surnommée “l’ange”. Mahiru commence à prendre soin de Amane, que ce soit pour les repas, les vêtements ou les petites attentions quotidiennes. Au fil du temps, leur proximité et leurs gestes tendres font naître des sentiments, et ils apprennent à s’ouvrir l’un à l’autre tout en partageant des moments simples et touchants du quotidien.',
+	  fav:false,
+	  likes: 0 },
+	  { id:21,
+	  title:'Alya Sometimes Hides Her Feelings In Russian',
+	  genre:['Comedy','Romance','Slice Of Life','School Life'],
+	  rating:0,
+	  year:2024,
+	  img:'https://cdn.myanimelist.net/images/anime/1277/153378.jpg',
+	  summary:'Dans une académie japonaise, il y a Alisa Mikhailovna Kujou (surnommée “Alya”), une demi‑Russe demi‑Japonaise : belle, brillante et froide — le genre “princesse inaccessible”. Elle s’assoit à côté d’un élève un peu flemmard, Masachika Kuze, et malgré son attitude distante, Alya murmure parfois — en russe — des confidences et compliments adressés à lui (pensant qu’il ne comprend pas). Masachika comprend parfaitement le russe, mais il fait semblant de ne rien piger. Résultat ? Une série de quiproquos, de regards gênés, de malentendus et de sentiments qui grandissent… tout en douceur.',
+	  fav:false,
+	  likes: 0 },
+	  { id:22,
+	  title:'My Teen Romantic Comedy SNAFU',
+	  genre:['Romance','Comedy','School Life','Slice Of Life','Psychological'],
+	  rating:0,
+	  year:2013,
+	  img:'https://cdn.myanimelist.net/images/anime/1958/107912.jpg',
+	  summary:'L’histoire suit Hachiman Hikigaya, un lycéen cynique et solitaire, qui croit que les relations humaines sont superficielles. Pour “apprendre la vie”, il est forcé de rejoindre le Service Club, dirigé par Yukino Yukinoshita, une fille brillante mais froide. Le club a pour mission d’aider les élèves avec leurs problèmes personnels. À travers des situations sociales, des quiproquos et des débats philosophiques, Hachiman et Yukino (avec l’aide de Yui Yuigahama) explorent les complexités de l’amitié, de l’amour et des attentes sociales, souvent de manière réaliste et pleine de sarcasme.',
+	  fav:false,
+	  likes: 0 },
+	  { id:23,
+	  title:'My First Girlfriend is a Gal',
+	  genre:['Ecchi','Romance','Comedy','School Life'],
+	  rating:0,
+	  year:2017,
+	  img:'https://cdn.myanimelist.net/images/anime/9/86826.jpg',
+	  summary:'L’histoire suit Junichi Hashiba, un lycéen timide qui n’a jamais eu de petite amie. Après avoir demandé conseil à ses amis, il finit par sortir avec Yukana Yame, une fille populaire et sexy, ce qui le plonge dans des situations gênantes, embarrassantes et drôles. Au fil du temps, Junichi découvre que Yukana n’est pas juste une “gal superficielle” : elle a ses propres sentiments et failles. L’anime mélange romance, humour et moments un peu coquins, tout en montrant la croissance du couple.',
+	  fav:false,
+	  likes: 0 },
+	  { id:24,
+	  title:'Maid Sama!',
+	  genre:['Romance','Comedy','School Life'],
+	  rating:0,
+	  year:2010,
+	  img:'https://cdn.myanimelist.net/images/anime/6/25254.jpg',
+	  summary:'L’histoire suit Misaki Ayuzawa, présidente du conseil des élèves d’un lycée auparavant réservé aux garçons, connue pour sa rigueur et son sérieux. En secret, elle travaille dans un maid café pour aider sa famille. Quand Takumi Usui, le garçon le plus populaire du lycée, découvre son secret, il commence à la taquiner tout en la soutenant. Au fil du temps, leur relation évolue entre humour, romance et moments touchants, montrant comment Misaki apprend à faire confiance et à s’ouvrir aux autres.',
+	  fav:false,
+	  likes: 0 },
+	  { id:25,
+	  title:'Don`t Toys With Me, Miss Nagatoro',
+	  genre:['Comedy','Romance','School Life','Slice Of Life'],
+	  rating:0,
+	  year:2021,
+	  img:'https://cdn.myanimelist.net/images/anime/1902/129579.jpg',
+	  summary:'L’histoire suit un lycéen timide, souvent appelé Senpai, qui se fait taquiner et provoquer sans arrêt par Nagatoro, une élève plus jeune et très espiègle. Au fil des épisodes, leurs interactions passent du simple harcèlement léger à une relation plus profonde et complice, où Nagatoro montre qu’elle tient vraiment à lui, et où Senpai gagne en confiance. L’anime mélange humour, romance et moments mignons du quotidien scolaire.',
+	  fav:false,
+	  likes: 0 },
+	  { id:26,
+	  title:'The Fragrant Flower Blooms with Dignity',
+	  genre:['Romance','Drama','School Life','Slice Of Life'],
+	  rating:0,
+	  year:2025,
+	  img:'https://cdn.myanimelist.net/images/anime/1744/150433.jpg',
+	  summary:'L’histoire suit Rintarō Tsumugi, un lycéen qui a l’air intimidant et rebelle — mais en réalité, c’est un mec gentil et doux. Il travaille dans la boulangerie familiale. Un jour, il croise Kaoruko Waguri, une élève d’un lycée privé prestigieux pour filles, très différent de son école. Elle ne le juge pas sur son apparence, et pour la première fois, Rintarō sent qu’il pourrait exister quelqu’un qui le voit pour ce qu’il est vraiment. Malgré la rivalité entre leurs deux lycées, ils apprennent à se connaître, à se rapprocher, à dépasser les préjugés… et à construire peu à peu une relation sincère, faite de douceur, de petits gestes et de soutien mutuel. L’anime met l’accent sur les émotions vraies, la timidité, les doutes, les différences sociales et la beauté d’une romance “normale” mais touchante.',
+	  fav:false,
+	  likes: 0 },
+	  { id:27,
+	  title:'Cyberpunk : Edgerunners',
+	  genre:['Action','Science Fiction','Cyberpunk','Drama'],
+	  rating:0,
+	  year:2022,
+	  img:'https://cdn.myanimelist.net/images/anime/1818/126435.jpg',
+	  summary:'L’histoire suit David Martinez, un adolescent des rues dans la ville dystopique de Night City, obsédé par la technologie et les implants cybernétiques. Après un tragique incident, il décide de rejoindre un groupe de mercenaires appelés les Edgerunners pour survivre et s’élever dans ce monde cruel. Au fil de l’histoire, David et son équipe affrontent des gangs, corporations et ennemis puissants, tout en explorant des thèmes de loyauté, survie, ambition et humanité dans un univers violent et futuriste. L’anime combine action explosive, émotion et tragédie.',
+	  fav:false,
+	  likes: 0 },
+	  { id:28,
+	  title:'Romantic Killer',
+	  genre:['Comedy','Romance','Slice Of Life','School Life','Supernatural'],
+	  rating:0,
+	  year:2022,
+	  img:'https://cdn.myanimelist.net/images/anime/1764/142001.jpg',
+	  summary:'L’héroïne, Anzu Hoshino, est une lycéenne qui adore les jeux vidéo, le chocolat et son chat — mais n’a absolument aucun intérêt pour l’amour ou les garçons. Un jour, un sorcier bizarre nommé Riri débarque de nulle part et décide qu’Anzu doit vivre une “simulation de drague” en plein lycée, entourée de plusieurs beaux garçons. Pour la forcer à tomber amoureuse, il lui enlève ses trois passions : jeux vidéo, chocolat et son chat. Anzu, qui ne veut surtout pas tomber dans un cliché romantique, décide alors de résister de toutes ses forces. Mais plus l’histoire avance, plus ses “quasi‑rencontres” la poussent à reconsidérer ce qu’elle veut vraiment… et la romance forcée risque bien de devenir quelque chose de plus vrai que prévu.',
+	  fav:false,
+	  likes: 0 },
+	  { id:29,
+	  title:'DanDaDan',
+	  genre:['Action','Adventure','Supernatural','Horror','Comedy','Romance'],
+	  rating:0,
+	  year:2024,
+	  img:'https://cdn.myanimelist.net/images/anime/1721/149001.jpg',
+	  summary:'L’histoire commence avec deux lycéens : Momo Ayase, convaincue que les fantômes existent, et Ken Takakura (surnommé “Okarun”), qui croit lui aux extraterrestres. Pour savoir lequel a raison, ils décident de vérifier — Momo explore un lieu supposé hanté, Ken un spot d’ovni. Résultat : ils ont tous les deux raison… Fantômes et extraterrestres sont réels, et ce qu’ils découvrent dépasse l’horreur et le WTF. À partir de là ils se retrouvent embarqués dans des aventures folles : exorcismes, batailles surnaturelles, créatures bizarres, complots occultes, alliés improbables — le tout dans un bordel cohérent, entre frissons, action et humour. En plus, entre deux monstres ou combats, y a des moments plus humains — doutes, amitié, rapprochements — ce qui donne un côté épique + sensible à l’histoire.',
+	  fav:false,
+	  likes: 0 },
+	  { id:30,
+	  title:'Wistoria : Wand And Sword',
+	  genre:['Fantasy','Adventure','Action'],
+	  rating:0,
+	  year:2024,
+	  img:'https://cdn.myanimelist.net/images/anime/1428/154046.jpg',
+	  summary:'On suit Will Serfort, un étudiant dans une académie magique appelée Rigarden Magical Academy. Son rêve : devenir un des plus puissants magiciens, les “Magia Vander”, pour tenir une promesse faite à son amie d’enfance. Le souci : Will n’a aucun talent pour la magie — il ne peut lancer aucun sort. Du coup, il compense avec ses talents d’épéiste : il entre dans l’académie et affronte des monstres dans des donjons avec son épée, espérant prouver sa valeur malgré son absence de magie. Au fil des épisodes/chapitres, on découvre que le monde dans lequel il vit est riche : magie, factions, monstres, école magique, et enjeux lourds. Will se fait des alliés mais aussi des rivaux, et montre que même sans magie, on peut se battre pour ses rêves — avec courage et détermination.',
+	  fav:false,
+	  likes: 0 },
+	  { id:31,
+	  title:'Demon Slayer',
+	  genre:['Action','Dark','Fantasy','Adventure'],
+	  rating:0,
+	  year:2019,
+	  img:'https://cdn.myanimelist.net/images/anime/1565/142711.jpg',
+	  summary:'L’histoire suit Tanjiro Kamado, un jeune garçon dont la famille a été massacrée par des démons. Sa sœur Nezuko est la seule survivante, mais elle a été transformée en démon. Tanjiro décide de devenir un Demon Slayer pour venger sa famille et trouver un moyen de rendre sa sœur humaine. Accompagné de compagnons comme Zenitsu et Inosuke, il affronte des démons puissants, découvre les secrets de leur monde, et apprend ce que signifient courage, loyauté et compassion.',
+	  fav:false,
+	  likes: 0 },
+	  { id:32,
+	  title:'My Dress-Up Darling',
+	  genre:['Romance','Comedy','Slice Of Life','School Life'],
+	  rating:0,
+	  year:2022,
+	  img:'https://cdn.myanimelist.net/images/anime/1024/150787.jpg',
+	  summary:'L’histoire suit Wakana Gojo, un lycéen passionné par la confection de poupées traditionnelles mais très timide, et Marin Kitagawa, une camarade de classe extravertie et fan de cosplay. Marin découvre le talent de Wakana pour créer des costumes et lui demande de l’aider à réaliser ses cosplays de rêve. Au fil du temps, leur collaboration les rapproche, et ils découvrent une relation douce, drôle et complice, entre rires, moments gênants et passions partagées.',
+	  fav:false,
+	  likes: 0 },
+	  { id:33,
+	  title:'Bleach',
+	  genre:['Action','Adventure','Supernatural'],
+	  rating:0,
+	  year:2004,
+	  img:'https://cdn.myanimelist.net/images/anime/1488/150890.jpg',
+	  summary:'L’histoire suit Ichigo Kurosaki, un lycéen capable de voir les fantômes. Sa vie change lorsqu’il rencontre Rukia Kuchiki, une shinigami (Dieu de la mort), qui lui transfère ses pouvoirs pour qu’il protège sa famille et les vivants des Hollows, des esprits maléfiques. Ichigo devient alors un shinigami temporaire, combattant des ennemis puissants et découvrant un monde spirituel complexe, tout en protégeant ses amis et en affrontant des dilemmes moraux. L’anime mélange action, aventures, drame et liens d’amitié.',
+	  fav:false,
+	  likes: 0},
+	  { id:34,
+	  title:'Sakamoto Days',
+	  genre:['Action','Comedy','Slice Of Life'],
+	  rating:0,
+	  year:2025,
+	  img:'https://cdn.myanimelist.net/images/anime/1758/148719.jpg',
+	  summary:'Le perso principal, Taro Sakamoto, c’était un tueur à gages légendaire, craint et respecté dans le milieu. Mais un jour il tombe amoureux, décide d’abandonner la vie d’assassin, se marie, a une fille, et ouvre une petite supérette pour mener une vie tranquille. Il est devenu un mari/papa un peu rondouillard — mais toujours costaud dans l’âme. Sauf que son passé le rattrape : d’anciens ennemis, des chasseurs de primes, des assassins reviennent pour lui. Pour protéger sa famille, Sakamoto doit reprendre du service — mais tout en essayant de garder sa promesse (ne plus tuer) et sa nouvelle vie paisible.',
+	  fav:false,
+	  likes: 0},
+	  { id:35,
+	  title:'Dragon Ball',
+	  genre:['Action','Adventure','Fantasy'],
+	  rating:0,
+	  year:1986,
+	  img:'https://cdn.myanimelist.net/images/anime/1723/145231.jpg',
+	  summary:'L’histoire suit Goku, un jeune garçon doté d’une force surhumaine et d’une queue de singe. Il part à l’aventure pour retrouver les Dragon Balls, sept boules magiques qui, une fois réunies, permettent de faire apparaître le dragon Shenron et d’exaucer un vœu. Au fil de ses voyages, Goku rencontre des amis comme Bulma, Krillin et Yamcha, affronte des ennemis redoutables, participe à des tournois d’arts martiaux, et découvre peu à peu ses origines extraterrestres et ses incroyables pouvoirs. L’anime mélange action, humour, aventures et leçons sur l’amitié et le courage.',
+	  fav:false,
+	  likes: 0},
+	  { id:36,
+	  title:'Kaiju N°8',
+	  genre:['Action','Science Fiction'],
+	  rating:0,
+	  year:2024,
+	  img:'https://cdn.myanimelist.net/images/anime/1177/150344.jpg',
+	  summary:'L’histoire suit Kafka Hibino, un homme de 32 ans qui rêvait enfant de combattre les kaijū, des monstres géants qui ravagent les villes. Mais après plusieurs échecs, il travaille comme agent de nettoyage, chargé d’éliminer les restes des monstres après les combats. Tout change quand il se retrouve capable de se transformer en kaijū lui-même, devenant le mystérieux Kaiju N°8. Coincé entre son rêve de rejoindre les Forces de Défense et le danger d’être considéré comme un ennemi, Kafka doit cacher sa véritable nature tout en protégeant l’humanité. C’est un mélange d’action, de tension, de dépassement de soi et de moments plus humains.',
+	  fav:false,
+	  likes: 0},	  
+	  { id:37,
+	  title:'Fullmetal Alchemist Brotherhood',
+	  genre:['Action','Fantasy','Adventure','Drama'],
+	  rating:9.10,
+	  year:2009,
+	  img:'https://cdn.myanimelist.net/images/anime/1208/94745.jpg',
+	  summary:'L’histoire suit Edward et Alphonse Elric, deux frères qui utilisent l’alchimie. Après avoir tenté de ramener leur mère à la vie par une transmutation interdite, ils en paient un prix terrible : Edward perd un bras et une jambe, et Alphonse perd tout son corps, son âme étant liée à une armure. Pour retrouver leurs corps, ils partent à la recherche de la Pierre Philosophale, en découvrant peu à peu les secrets sombres de leur pays, des complots, des guerres passées et des ennemis appelés Homunculus. L’anime mêle action, drame, émotions fortes et une vraie réflexion sur le prix des choix humains.',
+	  fav:false,
+      likes: 0},
+	  { id:38,
+	  title:'One Punch Man',
+	  genre:['Action','Superheroes','Comedy'],
+	  rating:6.8,
+	  year:2015,
+	  img:'https://cdn.myanimelist.net/images/anime/1168/148347.jpg',
+	  summary:'L’histoire suit Saitama, un héros tellement puissant qu’il bat tous ses ennemis… en un seul coup. Après s’être entraîné de manière absurde, il cherche surtout à retrouver un peu d’adrénaline, car plus aucun combat ne lui procure de défi. Il rejoint l’Association des Héros, rencontre des alliés comme Genos, et affronte des monstres de plus en plus dangereux, tout en restant étonnamment inconnu et sous-estimé. L’anime mélange action spectaculaire, humour absurde et parodie des shōnen classiques.',
+	  fav:false,
+      likes: 0},
+	  { id:39,
+	  title:'Sword Art Online',
+	  genre:['Isekai','Action','Science Fiction','Adventure','Romance'],
+	  rating:7.3,
+	  year:2012,
+	  img:'https://cdn.myanimelist.net/images/anime/1335/145505.jpg',
+	  summary:'L’histoire suit Kirito, un joueur piégé avec des milliers d’autres personnes dans un jeu de réalité virtuelle appelé Sword Art Online. Le problème : mourir dans le jeu signifie mourir dans la vraie vie. Pour s’échapper, les joueurs doivent terminer les 100 niveaux du jeu. Kirito progresse en solo, affronte des boss puissants, rencontre Asuna, et tisse des liens forts tout en survivant dans ce monde dangereux. La série mélange action, aventure, drame et romance, en explorant les limites entre le virtuel et le réel.',
+	  fav:false,
+      likes: 0},
+	  { id:40,
+	  title:'Naruto',
+	  genre:['Action','Adventure','Fantasy'],
+	  rating:8.2,
+	  year:2002,
+	  img:'https://cdn.myanimelist.net/images/anime/1378/137310.jpg',
+	  summary:'',
+	  fav:false,
+      likes: 0},
+	  { id:41,
+	  title:'Tokyo Ghoul',
+	  genre:['Dark','Fantasy','Horror','Action','Drama'],
+	  rating:6.9,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/1545/121995.jpg',
+	  summary:'L’histoire suit Ken Kaneki, un étudiant timide qui devient à moitié goule après une greffe d’organe suite à un accident. Il doit apprendre à vivre dans un monde où humains et goules coexistent, tout en cachant sa véritable identité. Kaneki rejoint les goules du café “Anteiku”, apprend à se défendre, à survivre, et découvre la violence, la trahison et les dilemmes moraux qui existent entre les deux espèces. L’anime mélange action, horreur, drame et questionnements sur l’identité et l’humanité.',
+	  fav:false,
+      likes: 0},
+	  { id:42,
+	  title:'Your Name.',
+	  genre:['Romance','Fantasy','Drama','Slice Of Life'],
+	  rating:8.8,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/5/87048.jpg',
+	  summary:'L’histoire suit Mitsuha, une lycéenne vivant dans une petite ville de campagne, et Taki, un lycéen à Tokyo. Un jour, ils découvrent qu’ils échangent mystérieusement de corps pendant leur sommeil. Au fil du temps, ils apprennent à mieux se connaître à travers cette expérience, créent des liens profonds et tentent de se retrouver malgré la distance et le temps, tout en faisant face à un événement tragique qui menace leur rencontre. L’anime mélange romance, émotion, fantastique et suspense.',
+	  fav:false,
+      likes: 0},
+	  { id:43,
+	  title:'Steins;Gate',
+	  genre:['Science Fiction','Thriller','Drama','Romance'],
+	  rating:8.8,
+	  year:2011,
+	  img:'https://cdn.myanimelist.net/images/anime/1375/93521.jpg',
+	  summary:'L’histoire suit Rintarou Okabe, un scientifique excentrique qui découvre avec ses amis comment envoyer des messages dans le passé grâce à un micro-ondes modifié. Rapidement, ils réalisent que leurs expériences déclenchent des changements dangereux dans le temps, attirant l’attention d’une organisation puissante. Okabe doit alors naviguer entre univers parallèles, paradoxes temporels et pertes personnelles, tout en essayant de protéger ses amis et de réparer les conséquences de leurs manipulations. L’anime mêle science-fiction, suspense, drame et romance subtile.',
+	  fav:false,
+      likes: 0},
+	  { id:44,
+	  title:'A Silent Voice',
+	  genre:['Drama','Romance','Slice Of Life'],
+	  rating:8.9,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/1122/96435.jpg',
+	  summary:'L’histoire suit Shoya Ishida, un garçon qui a harcelé Shoko Nishimiya, une élève sourde, lorsqu’ils étaient enfants. En grandissant, Shoya ressent un profond remords et cherche à se racheter. Il tente de reconnecter avec Shoko, de réparer ses erreurs et de trouver la paix avec lui-même. L’anime explore le pardon, la culpabilité, l’amitié, l’acceptation de soi et des autres, avec beaucoup d’émotion et de sensibilité.',
+	  fav:false,
+      likes: 0},
+	  { id:45,
+	  title:'No Game, No Life',
+	  genre:['Fantasy','Isekai','Adventure','Comedy'],
+	  rating:8,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/1074/111944.jpg',
+	  summary:'L’histoire suit Sora et Shiro, un frère et une sœur prodiges des jeux vidéo, invincibles en stratégie et en logique. Un jour, ils sont transportés dans un monde fantastique appelé Disboard, où tous les conflits, du plus petit au plus grand, se règlent par des jeux à enjeux élevés. Pour devenir les maîtres de ce monde et défier le mystérieux dieu Tet, ils doivent vaincre toutes sortes d’adversaires à travers des jeux de toutes sortes, en combinant intelligence, ruse et audace. L’anime mélange action, humour, stratégie et moments délirants.',
+	  fav:false,
+      likes: 0},
+	  { id:46,
+	  title:'Code Geass: Lelouch of the Rebellion',
+	  genre:['Mecha','Science Fiction','Thriller','Drama'],
+	  rating:8.8,
+	  year:2006,
+	  img:'https://cdn.myanimelist.net/images/anime/1088/135089.jpg',
+	  summary:'L’histoire suit Lelouch Lamperouge, un lycéen brillant vivant dans un monde dominé par l’Empire de Britannia. Après avoir obtenu un pouvoir mystérieux appelé le Geass, qui lui permet de donner un ordre absolu à n’importe qui, il décide de renverser l’Empire pour créer un monde meilleur pour sa sœur. Sous le masque de Zero, Lelouch mène une rébellion mêlant stratégie, manipulation et combats de mechas, tout en faisant face à des choix moraux difficiles et à des sacrifices lourds. L’anime est connu pour son intensité, ses retournements de situation et sa fin légendaire.',
+	  fav:false,
+      likes: 0},
+	  { id:47,
+	  title:'Re:Zero -Starting Life in Another World-',
+	  genre:['Isekai','Dark','Fantasy','Drama','Thriller','Psychological'],
+	  rating:8.4,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/1040/153636.jpg',
+	  summary:'L’histoire suit Subaru Natsuki, un lycéen ordinaire soudainement transporté dans un monde fantastique. Il découvre rapidement qu’il possède un pouvoir spécial : revenir dans le temps à chaque fois qu’il meurt, en repartant d’un point précis. Mais ce pouvoir a un prix énorme : Subaru ressent toutes les douleurs physiques et mentales de ses morts, sans pouvoir en parler à qui que ce soit. Coincé dans une boucle de souffrance, d’échecs et de sacrifices, il tente de protéger ceux qu’il aime, notamment Emilia, dans un univers impitoyable.',
+	  fav:false,
+      likes: 0},
+	  { id:48,
+	  title:'Toradora!',
+	  genre:['Romance','Comedy','Slice Of Life','School Life'],
+	  rating:8,
+	  year:2008,
+	  img:'https://cdn.myanimelist.net/images/anime/13/22128.jpg',
+	  summary:'L’histoire suit Ryuuji Takasu, un lycéen au visage intimidant mais au cœur gentil, et Taiga Aisaka, une fille petite et explosive surnommée le Tigre de poche. Chacun est amoureux du meilleur ami de l’autre, alors ils décident de s’entraider pour conquérir leur crush. Mais à force de passer du temps ensemble, leurs sentiments évoluent, entre disputes, moments drôles et émotions fortes. L’anime mélange comédie romantique, drame et passages très touchants sur l’amour et l’amitié.',
+	  fav:false,
+      likes: 0},
+	  { id:49,
+	  title:'Noragami',
+	  genre:['Action','Fantasy','Supernatural','Comdedy','Adventure'],
+	  rating:8,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/1689/94850.jpg',
+	  summary:'L’histoire suit Yato, un dieu mineur fauché qui rêve de devenir célèbre. Pour 5 yens, il accepte n’importe quel job, du plus banal au plus dangereux. Un jour, il rencontre Hiyori, une lycéenne qui se retrouve coincée entre le monde des vivants et celui des esprits après un accident. Avec Yukine, son arme divine, Yato affronte des esprits maléfiques tout en essayant de se faire un nom parmi les dieux. L’anime mélange action, humour et émotions, avec un univers surnaturel très stylé.',
+	  fav:false,
+      likes: 0},
+	  { id:50,
+	  title:'Mob Psycho 100',
+	  genre:['Action','Comedy','Supernatural','Slice Of Life','Drama'],
+	  rating:8.7,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/1228/125011.jpg',
+	  summary:'L’histoire suit Shigeo “Mob” Kageyama, un adolescent extrêmement puissant psychiquement mais très timide et introverti. Il essaie de mener une vie normale, tout en travaillant pour Reigen, un faux exorciste qui le prend comme assistant. Mob doit apprendre à contrôler ses pouvoirs, faire face à des esprits dangereux et affronter ses propres émotions refoulées. L’anime mélange action intense, humour décalé et développement personnel, avec des moments très touchants et parfois dramatiques.',
+	  fav:false,
+      likes: 0},
+	  { id:51,
+	  title:'ERASED',
+	  genre:['Thriller','Drama'],
+	  rating:8.3,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/10/77957.jpg',
+	  summary:'L’histoire suit Satoru Fujinuma, un jeune homme qui possède un pouvoir étrange : lorsqu’un drame est sur le point de se produire, il est renvoyé quelques minutes dans le passé pour l’empêcher. Après un événement tragique, Satoru est projeté 18 ans en arrière, lorsqu’il était enfant. Il doit alors sauver plusieurs camarades de classe menacés par un tueur en série, tout en découvrant la vérité derrière ces crimes. L’anime mêle suspense, émotion et voyage dans le temps.',
+	  fav:false,
+      likes: 0},
+	  { id:52,
+	  title:'Red Eyes Sword - Akame ga Kill!',
+	  genre:['Dark','Fantasy','Action','Drama','Adventure'],
+	  rating:7.5,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/1429/95946.jpg',
+	  summary:'L’histoire suit Tatsumi, un jeune garçon venu dans la capitale pour gagner de l’argent, mais qui découvre rapidement la corruption extrême de l’Empire. Il rejoint alors Night Raid, un groupe d’assassins révolutionnaires qui lutte pour renverser le pouvoir en place. Aux côtés d’Akame et des autres membres, Tatsumi affronte des ennemis puissants à l’aide d’armes spéciales appelées Teigu. L’anime est connu pour sa violence, ses morts choquantes et son ton très sombre, où personne n’est réellement à l’abri.',
+	  fav:false,
+      likes: 0},
+	  { id:53,
+	  title:'The Seven Deadly Sins',
+	  genre:['Fantasy','Action','Adventure'],
+	  rating:6.9,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/1109/145389.jpg',
+	  summary:'L’histoire se déroule dans le royaume de Britannia, où les Seven Deadly Sins, un groupe de chevaliers légendaires accusés de trahison, ont été dispersés. La princesse Elizabeth part à leur recherche pour sauver son royaume menacé par les Holy Knights corrompus. Elle rencontre Meliodas, le chef des Seven Deadly Sins, et ensemble ils rassemblent les autres membres pour combattre le mal, découvrir la vérité sur le passé et protéger Britannia. L’anime mélange action, magie, aventure et humour, avec des combats de plus en plus épiques.',
+	  fav:false,
+      likes: 0},
+	  { id:54,
+	  title:'Angel Beats!',
+	  genre:['Drama','Supernatural','Action','Comedy'],
+	  rating:8.1,
+	  year:2010,
+	  img:'https://cdn.myanimelist.net/images/anime/1244/111115.jpg',
+	  summary:'L’histoire suit Yuzuru Otonashi, un adolescent qui se réveille dans un monde entre la vie et la mort, sans aucun souvenir de son passé. Il rejoint un groupe d’élèves qui se rebellent contre une mystérieuse fille appelée Angel, afin de comprendre pourquoi ils sont coincés là. Peu à peu, Otonashi découvre que chacun porte des regrets liés à sa vie passée, et que ce monde existe pour les aider à trouver la paix. L’anime mélange action, humour et émotions très fortes, avec une fin particulièrement touchante.',
+	  fav:false,
+      likes: 0},
+	  { id:55,
+	  title:'Assassination Classroom',
+	  genre:['Action','Comedy','School Life','Science Fiction','Drama'],
+	  rating:8.3,
+	  year:2015,
+	  img:'https://cdn.myanimelist.net/images/anime/8/77966.jpg',
+	  summary:'L’histoire suit la classe 3-E, composée d’élèves considérés comme des ratés, à qui l’on confie une mission incroyable : assassiner leur professeur, Koro-sensei, une créature surpuissante qui menace de détruire la Terre. Mais contre toute attente, Koro-sensei devient un excellent professeur, aidant ses élèves à reprendre confiance en eux tout en les entraînant à le tuer. L’anime mélange humour, action et émotions, avec un message fort sur l’éducation, l’échec et la réussite.',
+	  fav:false,
+      likes: 0},
+	  { id:56,
+	  title:'Haikyu!!',
+	  genre:['Sports','Slice Of Life','Drama'],
+	  rating:8.6,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/1453/106768.jpg',
+	  summary:'L’histoire suit Shoyo Hinata, un lycéen passionné de volley-ball malgré sa petite taille. Il rejoint le club du lycée Karasuno, où il retrouve Tobio Kageyama, un passeur génial mais difficile, devenu son coéquipier. Ensemble, avec leur équipe, ils affrontent des rivaux de plus en plus forts, s’entraînent sans relâche et apprennent la coopération, la persévérance et l’esprit d’équipe. L’anime est connu pour ses matchs ultra intenses et sa montée en hype constante. 🔥',
+	  fav:false,
+      likes: 0},
+	  { id:57,
+	  title:'The Promised Neverland',
+	  genre:['Thriller','Dark','Fantasy','Horror','Psychological'],
+	  rating:6.9,
+	  year:2019,
+	  img:'https://cdn.myanimelist.net/images/anime/1815/110626.jpg',
+	  summary:'L’histoire suit Emma, Norman et Ray, des enfants vivant heureux dans un orphelinat isolé. Mais un jour, ils découvrent une terrible vérité : l’orphelinat cache un secret mortel et les enfants ne sont pas destinés à être adoptés. Dès lors, ils doivent utiliser leur intelligence et leur sang-froid pour survivre et organiser une évasion, tout en faisant face à une gardienne redoutable. L’anime mélange suspense, stratégie et tension psychologique intense.',
+	  fav:false,
+      likes: 0},
+	  { id:58,
+	  title:'KonoSuba: God’s Blessing on This Wonderful World!',
+	  genre:['Isekai','Comdedy','Fantasy','Adventure'],
+	  rating:8.2,
+	  year:2016,
+	  img:'https://cdn.myanimelist.net/images/anime/1758/141268.jpg',
+	  summary:'L’histoire suit Kazuma Satou, un ado qui meurt de manière ridicule et se réincarne dans un monde fantastique. Il part à l’aventure accompagné d’une équipe complètement dysfonctionnelle : Aqua, une déesse inutile, Megumin, une mage obsédée par une seule attaque ultra puissante, et Darkness, une chevalière maso. Au lieu d’une épopée héroïque classique, Kazuma enchaîne les galères, les quêtes ratées et les situations absurdes. L’anime est une parodie hilarante des isekai, remplie de chaos et d’humour.',
+	  fav:false,
+      likes: 0},
+	  { id:59,
+	  title:'The Future Diary',
+	  genre:['Thriller','Horror','Psychological','Action'],
+	  rating:7.4,
+	  year:2011,
+	  img:'https://cdn.myanimelist.net/images/anime/13/33465.jpg',
+	  summary:'L’histoire suit Yukiteru Amano, un adolescent solitaire qui se retrouve plongé dans un jeu de survie organisé par un dieu. Chaque participant possède un journal capable de prédire l’avenir, et le dernier survivant devient le nouveau dieu du temps et de l’espace. Yukiteru s’allie avec Yuno Gasai, une fille obsédée par lui et prête à tout pour le protéger. L’anime mélange violence, suspense, folie et retournements de situation, avec une ambiance très sombre et malsaine.',
+	  fav:false,
+      likes: 0},
+	  { id:60,
+	  title:'Blue Exorcist',
+	  genre:['Action','Fantasy','Supernatural'],
+	  rating:7.5,
+	  year:2011,
+	  img:'https://cdn.myanimelist.net/images/anime/1390/147040.jpg',
+	  summary:'L’histoire suit Rin Okumura, un adolescent qui découvre qu’il est le fils de Satan. Lorsque son père adoptif meurt en le protégeant, Rin décide de devenir exorciste pour combattre les démons et s’opposer à son véritable père. Il intègre une académie d’exorcistes, apprend à maîtriser ses pouvoirs démoniaques et affronte des menaces surnaturelles, tout en luttant contre sa double nature. L’anime mélange action, drame et surnaturel, avec des thèmes sur l’identité et le choix de son propre chemin.',
+	  fav:false,
+      likes: 0},
+	  { id:61,
+	  title:'Cowboy Bebop',
+	  genre:['Science Fiction','Western','Action','Drama','Thriller'],
+	  rating:8.8,
+	  year:1998,
+	  img:'https://cdn.myanimelist.net/images/anime/4/19644.jpg',
+	  summary:'L’histoire suit Spike Spiegel et son équipe de chasseurs de primes à bord du vaisseau Bebop, dans un futur où l’humanité a colonisé l’espace. Chaque épisode les plonge dans des missions variées, des conflits avec le crime organisé et des rencontres avec des personnages hauts en couleur. Derrière l’action et l’humour, l’anime explore les passés douloureux, la solitude et les regrets de chaque personnage, le tout dans une ambiance noir, jazz et space western unique.',
+	  fav:false,
+      likes: 0},
+	  { id:62,
+	  title:'Parasyte: The Maxim',
+	  genre:['Horror','Science Fiction','Action','Thriller','Psychological'],
+	  rating:8.3,
+	  year:2014,
+	  img:'https://cdn.myanimelist.net/images/anime/3/73178.jpg',
+	  summary:'L’histoire suit Shinichi Izumi, un lycéen dont la main droite est infectée par un parasite extraterrestre nommé Migi. Contrairement aux autres parasites qui prennent le contrôle total de leur hôte, Shinichi et Migi doivent coexister pour survivre. Ensemble, ils affrontent d’autres parasites qui menacent les humains, tout en explorant des thèmes profonds sur l’humanité, la morale et la survie. L’anime mélange action, horreur, suspense et drame psychologique.',
+	  fav:false,
+      likes: 0},
+	  { id:63,
+	  title:'Spirited Away',
+	  genre:['Adventure','Drama'],
+	  rating:8.8,
+	  year:2001,
+	  img:'https://cdn.myanimelist.net/images/anime/6/79597.jpg',
+	  summary:'L’histoire suit Chihiro, une fillette de 10 ans qui, en déménageant avec ses parents, se retrouve dans un monde magique peuplé d’esprits et de créatures étranges. Ses parents sont transformés en cochons, et Chihiro doit travailler dans un bain public dirigé par la sorcière Yubaba pour trouver un moyen de les sauver. Au fil de son aventure, elle apprend le courage, la responsabilité et l’amitié, tout en découvrant un univers mystérieux, merveilleux et parfois inquiétant.',
+	  fav:false,
+      likes: 0},
+	  { id:64,
+	  title:'Neon Genesis Evangelion',
+	  genre:['Mecha','Science Fiction','Psychological','Drama'],
+	  rating:8.4,
+	  year:1995,
+	  img:'https://cdn.myanimelist.net/images/anime/1314/108941.jpg',
+	  summary:'L’histoire se déroule dans un monde post-apocalyptique où des créatures mystérieuses appelées Anges attaquent l’humanité. Shinji Ikari, un adolescent distant, est recruté par l’organisation NERV pour piloter un gigantesque robot appelé Evangelion afin de protéger la Terre. Au fil des combats, Shinji et les autres pilotes doivent affronter non seulement les Anges, mais aussi leurs propres traumatismes, peurs et relations complexes. L’anime mélange action, drame psychologique, philosophie et symbolisme, créant une œuvre intense et marquante.',
+	  fav:false,
+      likes: 0},
+	  { id:65,
+	  title:'Violet Evergarden',
+	  genre:['Drama','Romance','Slice Of Life'],
+	  rating:8.7,
+	  year:2018,
+	  img:'https://cdn.myanimelist.net/images/anime/1795/95088.jpg',
+	  summary:'L’histoire suit Violet Evergarden, une jeune femme ancienne soldate qui a grandi dans la guerre et qui a du mal à comprendre ses propres émotions après avoir perdu son mentor et figure paternelle, Major Gilbert. Elle commence à travailler comme “Auto Memory Doll”, une personne qui écrit des lettres pour exprimer les sentiments des autres. Au fil de ses missions, Violet apprend à comprendre l’amour, la perte et l’empathie, tout en cherchant à donner un sens à sa propre vie. L’anime est émotionnel, poétique et visuellement magnifique.',
+	  fav:false,
+      likes: 0},
+	  { id:66,
+	  title:'Dr. Stone',
+	  genre:['Science Fiction,','Adventure','Comedy'],
+	  rating:8.3,
+	  year:2019,
+	  img:'https://cdn.myanimelist.net/images/anime/1860/154514.jpg',
+	  summary:'Un jour, toute l’humanité est pétrifiée par un phénomène mystérieux. Des milliers d’années plus tard, Senku Ishigami, un génie passionné de science, se réveille dans un monde redevenu sauvage. Avec ses amis, il décide de reconstruire la civilisation à partir de zéro en utilisant uniquement la science : électricité, médecine, technologie… tout y passe. L’anime mélange aventure, humour et explications scientifiques, avec un message fort sur le progrès et l’intelligence humaine.',
+	  fav:false,
+      likes: 0},
+	  { id:67,
+	  title:'Death Parade',
+	  genre:['Psychological','Drama','Thriller'],
+	  rating:8.1,
+	  year:2015,
+	  img:'https://cdn.myanimelist.net/images/anime/5/71553.jpg',
+	  summary:'L’histoire se déroule dans un bar mystérieux appelé Quindecim, où arrivent des personnes juste après leur mort. Elles doivent participer à des jeux cruels (fléchettes, bowling, cartes…) qui révèlent leur véritable nature sous la pression. Le barman Decim agit comme arbitre et décide si les âmes seront réincarnées ou envoyées dans le néant. Au fil des épisodes, l’anime explore la morale, la culpabilité, les regrets et la complexité de l’âme humaine, avec une ambiance sombre et poignante.',
+	  fav:false,
+      likes: 0},
+	  { id:68,
+	  title:'Black Clover',
+	  genre:['Fantasy','Action','Adventure'],
+	  rating:8.1,
+	  year:2017,
+	  img:'https://cdn.myanimelist.net/images/anime/1717/154518.jpg',
+	  summary:'L’histoire se déroule dans un monde où la magie est essentielle. Asta, un garçon né sans aucun pouvoir magique, rêve pourtant de devenir Roi Sorcier, le mage le plus puissant du royaume. Grâce à son anti-magie et à un grimoire rare, Asta rejoint les Chevaliers-Mages aux côtés de son rival Yuno. Ensemble, ils affrontent des ennemis toujours plus forts, des démons et des complots, dans un anime rempli de combats intenses, d’amitié et de dépassement de soi.',
+	  fav:false,
+      likes: 0},
+	  { id:69,
+	  title:'Spy x Family',
+	  genre:['Comedy','Action','Slice Of Life'],
+	  rating:8.2,
+	  year:2022,
+	  img:'https://cdn.myanimelist.net/images/anime/1697/151793.jpg',
+	  summary:'L’histoire suit Twilight, le meilleur espion du monde, chargé d’une mission cruciale : former une famille pour infiltrer une école d’élite. Il adopte Anya, une petite fille télépathe, et épouse Yor, une femme qui cache en réalité être une assassine professionnelle. Aucun d’eux ne connaît le secret des autres (sauf Anya 😈). Ensemble, ils forment une fausse famille ultra dysfonctionnelle, mais peu à peu, de vrais liens se créent. L’anime mélange humour, action et moments super touchants. ❤️',
+	  fav:false,
+      likes: 0},
+	  { id:70,
+	  title:'Kill la Kill',
+	  genre:['Action','Comedy','Science Fiction','Ecchi'],
+	  rating:8,
+	  year:2013,
+	  img:'https://cdn.myanimelist.net/images/anime/1464/111943.jpg',
+	  summary:'L’histoire suit Ryuko Matoi, une lycéenne rebelle qui cherche à venger la mort de son père. Elle arrive à l’académie Honnōji, dirigée d’une main de fer par Satsuki Kiryuin, où les élèves portent des uniformes vivants leur donnant des pouvoirs. Ryuko s’allie avec Senketsu, un uniforme parlant, et affronte des adversaires toujours plus puissants. Derrière le délire visuel et l’action survoltée, l’anime parle d’identité, de liberté et de contrôle, le tout avec un style complètement déjanté 🔥',
+	  fav:false,
+      likes: 0},
+	  { id:71,
+	  title:'JoJo’s Bizarre Adventure',
+	  genre:['Action','Adventure','Supernatural','Fantasy'],
+	  rating:8.3,
+	  year:2012,
+	  img:'https://cdn.myanimelist.net/images/anime/1882/94989.jpg',
+	  summary:'L’anime suit la lignée de la famille Joestar, chaque partie mettant en scène un nouveau héros surnommé “JoJo”, à différentes époques. Tous affrontent des ennemis redoutables, souvent liés à la famille et à des pouvoirs surnaturels. De Jonathan Joestar à Jotaro Kujo (et bien d’autres), chaque arc a son ambiance, son système de pouvoirs et ses antagonistes cultes. JoJo est connu pour ses combats intelligents, son charisme et son style complètement unique.',
+	  fav:false,
+      likes: 0},
+	  { id:72,
+	  title:'DARLING in the FRANXX',
+	  genre:['Mecha','Science Fiction','Romance','Drama'],
+	  rating:7.2,
+	  year:2018,
+	  img:'https://cdn.myanimelist.net/images/anime/1614/90408.jpg',
+	  summary:'Dans un futur lointain, l’humanité vit dans des cités protégées et combat des monstres appelés Klaxosaurs à l’aide de robots géants, les FRANXX, pilotés en duo. Hiro, ancien prodige devenu inutile, rencontre Zero Two, une pilote mystérieuse mi-humaine mi-monstre. Ensemble, ils forment un duo exceptionnel et développent une relation intense, tout en découvrant la vérité sur leur monde, leur société et leur propre identité. L’anime mélange action, romance forte et drame, avec une ambiance émotionnelle très marquée. 💔🔥',
+	  fav:false,
+      likes: 0},
+	  { id:73,
+	  title:'Another',
+	  genre:['Horror','Thriller','Mystery','School Life', 'Drama'],
+	  rating:7.5,
+	  year:2012,
+	  img:'https://cdn.myanimelist.net/images/anime/4/75509.jpg',
+	  summary:'L’histoire suit Kōichi Sakakibara, un élève transféré dans la classe 3-3 du collège Yomiyama. Il découvre que cette classe est maudite : depuis 26 ans, des élèves et leurs proches meurent dans d’étranges accidents. Avec l’aide de Mei Misaki, une mystérieuse camarade, Kōichi tente de percer le secret de la malédiction et d’empêcher d’autres morts. L’anime mélange suspense, horreur et drame, avec une ambiance lourde et angoissante.',
+	  fav:false,
+      likes: 0},
+	  { id:74,
+	  title:'Vinland Saga',
+	  genre:['Action','Drama','Adventure'],
+	  rating:8.8,
+	  year:2019,
+	  img:'https://cdn.myanimelist.net/images/anime/1170/124312.jpg',
+	  summary:'L’histoire suit Thorfinn, un jeune Viking qui cherche à venger la mort de son père en poursuivant Askeladd, le chef du groupe responsable. Au fil des combats et des voyages, Thorfinn découvre les horreurs de la guerre, la complexité des hommes et le vrai sens de la vie. L’anime est connu pour ses scènes de bataille réalistes, ses personnages profonds et son intrigue intense.',
+	  fav:false,
+      likes: 0},
+	  { id:75,
+	  title:'Soul Eater',
+	  genre:['Action','Comedy','Supernatural'],
+	  rating:7.9,
+	  year:2008,
+	  img:'https://cdn.myanimelist.net/images/anime/1071/149486.jpg',
+	  summary:'',
+	  fav:false,
+      likes: 0},
+	  { id:76,
+	  title:'Sound! Euphonium',
+	  genre:['Slice Of Life','Drama','Musical'],
+	  rating:8.4,
+	  year:2015,
+	  img:'https://cdn.myanimelist.net/images/anime/1216/142086.jpg',
+	  summary:'L’histoire suit Kumiko Oumae, une lycéenne qui rejoint le club de fanfare de son école. Avec ses camarades, elle participe à des compétitions musicales, tout en affrontant les rivalités, la pression et ses propres doutes. L’anime montre la passion pour la musique, les efforts collectifs et les émotions des adolescents, avec une ambiance réaliste et touchante, centrée sur la croissance personnelle et les liens humains.',
+	  fav:false,
+      likes: 0}
+	];
+	
+
+	const genreEl = document.getElementById('genre');
+	const sortEl = document.getElementById('sort');
+	const favFilterEl = document.getElementById('favFilter');
+	const grid = document.getElementById('grid');
+	const searchInput = document.getElementById('search');
+	const empty = document.getElementById('empty');
+	const modalRoot = document.getElementById('modalRoot');
+	const urlParams = new URLSearchParams(window.location.search);
+	const favFromUrl = urlParams.get("fav"); // "1" ou null
+	let genreFromUrl = urlParams.get('genre'); // ex: "Action" ou null
+	const loadingMessages = [
+	  "⏳ Kira observe… chargement des animes en cours",
+	  "📓 Le Death Note s’ouvre… préparation de l’univers",
+	  "👁️ Ryuk rigole pendant que les animes arrivent",
+	  "⚖️ La justice prend forme… chargement des données",
+	  "🧱 Les murs tremblent… les animes arrivent",
+	  "⚔️ Le Bataillon d’Exploration prépare la page",
+	  "👁️ Eren regarde l’horizon… chargement en cours",
+	  "🩸 La liberté a un prix… données en cours de déploiement",
+	  "🟠 Chargement en cours… le ki monte",
+	  "🌌 Voyage vers Namek… encore un instant",
+	  "🐉 Shenron est invoqué… préparation des animes",
+	  "🩸 La mort n’est pas la fin… chargement",
+	  "🕯️ Echidna observe… patience",
+	];
+
+	const loadingEl = document.getElementById("loading");
+
+	if (loadingEl) {
+	  const randomMessage =
+		loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+	  loadingEl.textContent = randomMessage;
+	}
+	// Remplir select genres
+	const genres = new Set(['Tout']);
+	SAMPLE_ANIMES.forEach(a => a.genre.forEach(g => genres.add(g)));
+	genres.forEach(g => { const o = document.createElement('option'); o.textContent=o.value=g; genreEl.appendChild(o); });
+	
+	// 🔗 Synchroniser le select genre avec l'URL (ÉTAPE 2)
+	if (genreFromUrl) {
+	  const exists = [...genreEl.options].some(
+		opt => opt.value === genreFromUrl
+	  );
+
+	  if (exists) {
+		genreEl.value = genreFromUrl;
+	  }
+	}
+	const ITEMS_PER_LOAD = 6; // combien de cartes à charger à chaque fois
+	let currentIndex = 0; // index de départ pour le rendu
+	let filteredList = []; // liste filtrée après recherche/tri
+
+	function openAnime(id) {
+	  window.location.href = `anime.html?id=${id}`;
+	}
+	function renderList(list){
+	  grid.innerHTML = '';
+	  if(!list.length){ empty.style.display='block'; return; }
+	  empty.style.display='none';
+
+	  list.forEach((a, index) => {
+		  const card = document.createElement('div'); 
+		  card.className = 'card';
+		  card.style.animationDelay = `${index * 0.08}s`; // 0.08s entre chaque carte
+		  card.innerHTML = `
+			<img src="${a.img}" alt="${a.title}">
+			<div class="card-body">
+			  <div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
+			  <div class="title">${a.title}</div>
+			  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+				<div style="color:var(--muted); font-size:13px">${a.year}</div>
+				<div style="display:flex; gap:6px;">
+				  <button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
+				  <button onclick="openAnime(${a.id})">Voir</button>
+				</div>
+			  </div>
+			</div>`;
+		  grid.appendChild(card);
+		});
+	  // Modale et favoris
+	  grid.querySelectorAll('.fav-btn').forEach(b => b.addEventListener('click', e=>{
+		e.stopPropagation(); toggleFavorite(Number(b.dataset.id));
+	  }));
+	}
+	function renderNextBatch() {
+	  const grid = document.getElementById('grid');
+	  if (currentIndex >= filteredList.length) return;
+
+	  const nextBatch = filteredList.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
+	  nextBatch.forEach((a, index) => {
+		const card = document.createElement('div');
+		card.className = 'card';
+		card.style.animationDelay = `${(currentIndex + index) * 0.08}s`;
+
+		card.innerHTML = `
+		  <img src="${a.img}" alt="${a.title}">
+		  <div class="card-body">
+			<div class="meta">
+			  <div class="genres">${a.genre.join(' • ')}</div>
+			  <div class="rating">${a.rating.toFixed(1)}</div>
+			</div>
+			<div id="activeGenre" class="active-genre hidden"></div>
+			<div class="title">
+			  ${a.title}
+			  ${a.likes >= 3 ? `<span class="badge-trending">🔥 Tendance</span>` : ''}
+			</div>
+
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+			  <div style="color:var(--muted); font-size:13px">${a.year}</div>
+
+			  <div style="display:flex; gap:6px; align-items:center;">
+				<button class="fav-btn" data-id="${a.id}">${a.fav ? '★' : '☆'}</button>
+				<button class="btn" onclick="openAnime(${a.id})">Voir</button>
+			  </div>
+			</div>
+		  </div>
+		`;
+
+		grid.appendChild(card);
+	  });
+
+	  currentIndex += ITEMS_PER_LOAD;
+	  
+	  // Afficher message si plus de résultats
+	  empty.style.display = currentIndex >= filteredList.length && filteredList.length === 0 ? 'block' : 'none';
+	}
+	function openModal(a){
+	  modalRoot.innerHTML = `
+		<div class="modal-backdrop" id="backdrop">
+		  <div class="modal">
+			<img src="${a.img}" alt="${a.title}">
+			<div class="info">
+			  <h2 style="margin:0 0 6px">${a.title}</h2>
+			  <div style="color:var(--muted); margin-bottom:10px">
+				${a.genre.join(' • ')} • ${a.year}
+			  </div>
+			  <p style="margin:0 0 12px; line-height:1.5; color:#dbeafe;">
+				${a.summary}
+			  </p>
+			  <div style="display:flex; gap:8px; align-items:center">
+				<div class="rating">${a.rating.toFixed(1)}</div>
+				<button class="close" id="closeModal">Fermer</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  `;
+
+	  modalRoot.style.display = 'block';
+
+	  document.getElementById('closeModal').onclick = closeModal;
+	  document.getElementById('backdrop').onclick = (e) => {
+		if (e.target.id === 'backdrop') closeModal();
+	  };
+	}
+
+	function closeModal(){
+	  modalRoot.style.display = 'none';
+	  modalRoot.innerHTML = '';
+	}
+	// 🔹 ouverture modale via URL (?anime=ID)
+	const params = new URLSearchParams(window.location.search);
+	const animeId = params.get("anime");
+
+	if (animeId) {
+	  const anime = SAMPLE_ANIMES.find(a => a.id == animeId);
+	  if (anime && typeof openModal === "function") {
+		openModal(anime);
+
+		// optionnel : nettoyer l'URL
+		window.history.replaceState({}, "", "index.html");
+	  }
+	}
+	function applyFilters() {
+	  const q = searchInput.value.toLowerCase();
+	  const g = genreEl.value;
+	  const s = sortEl.value;
+	  const f = favFilterEl.value;
+
+	  filteredList = SAMPLE_ANIMES.filter(a =>
+		a.title.toLowerCase().includes(q)
+	  );
+
+	  // 🔹 FILTRE GENRE (select)
+	  if (g !== 'Tout') {
+		filteredList = filteredList.filter(a => a.genre.includes(g));
+	  }
+
+	  // 🔥 FILTRE GENRE (URL) — AJOUT ICI
+	  if (genreFromUrl) {
+		filteredList = filteredList.filter(a =>
+		  a.genre.includes(genreFromUrl)
+		);
+	  }
+
+	  // 🔹 FAVORIS
+	  if (f === 'fav') {
+		filteredList = filteredList.filter(a => a.fav);
+	  }
+	  if (favFromUrl === "1") {
+	    favFilterEl.value = "fav";
+	  }
+
+	  // 🔹 TRI
+	  if (s === 'top') filteredList.sort((a, b) => b.rating - a.rating);
+	  if (s === 'new') filteredList.sort((a, b) => b.year - a.year);
+	  if (s === 'az') filteredList.sort((a, b) => a.title.localeCompare(b.title));
+	  if (s === 'za') filteredList.sort((a, b) => b.title.localeCompare(a.title));
+	  if (s === 'popular') {
+		filteredList.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+	  }
+
+	  // 🔹 RESET AFFICHAGE
+	  currentIndex = 0;
+	  grid.innerHTML = '';
+	  renderNextBatch();
+	}
+	searchInput.addEventListener('input', applyFilters);
+	genreEl.addEventListener('change', () => {
+	  const selected = genreEl.value;
+
+	  if (selected === 'Tout') {
+		genreFromUrl = null;
+		urlParams.delete('genre');
+	  } else {
+		genreFromUrl = selected;
+		urlParams.set('genre', selected);
+	  }
+
+	  const newUrl =
+		window.location.pathname +
+		(urlParams.toString() ? '?' + urlParams.toString() : '');
+
+	  window.history.replaceState({}, '', newUrl);
+
+	  applyFilters();
+	});
+	sortEl.addEventListener('change', applyFilters);
+	favFilterEl.addEventListener('change', applyFilters);
+	
+	const backToTop = document.getElementById('backToTop');
+	window.addEventListener('scroll', () => {
+	  if (window.scrollY > 50) {
+		backToTop.classList.add('show');
+		backToTop.classList.remove('hide');
+	  } else {
+		backToTop.classList.add('hide');
+		setTimeout(() => backToTop.classList.remove('show'), 200);
+	  }
+	});
+	backToTop.addEventListener('click', () => {
+	  window.scrollTo({ top: 0, behavior: 'smooth' });
+	});
+	window.AnimeHub = { SAMPLE_ANIMES, renderList, applyFilters };
+	window.addEventListener('scroll', () => {
+	  if(window.scrollY > 20){
+		document.querySelector('header').classList.add('sticky');
+	  } else {
+		document.querySelector('header').classList.remove('sticky');
+	  }
+
+	  // Infinite scroll
+	  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+		renderNextBatch();
+	  }
+	});
+	const authModal = document.getElementById("authModal");
+	const authTitle = document.getElementById("authTitle");
+	const authSubmit = document.getElementById("authSubmit");
+	const authEmail = document.getElementById("authEmail");
+	const authPassword = document.getElementById("authPassword");
+
+	document.getElementById("authClose").onclick = () => {
+	  authModal.style.display = "none";
+	};
+	applyFilters();
+	document.getElementById("homeLogo").addEventListener("click", () => {
+	  window.location.href = "index.html";
+	});
+  </script>
+  <script type="module">
+      import { 
+          initializeApp 
+      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+      import { 
+          getAuth, onAuthStateChanged, signOut 
+      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, collection, getDocs, deleteField, query, where, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+	  
+      const firebaseConfig = {
+          apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+          authDomain: "animehub-7.firebaseapp.com",
+          projectId: "animehub-7",
+          storageBucket: "animehub-7.firebasestorage.app",
+          messagingSenderId: "159114039206",
+          appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+          measurementId: "G-6K4MB0XQEV"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const userBox = document.getElementById("userBox");
+      const username = document.getElementById("username");
+
+      const openLogin = document.getElementById("openLogin");
+      const openSignup = document.getElementById("openSignup");
+	  const db = getFirestore(app);
+	  const auth = getAuth(app);
+	  const grid = document.getElementById("grid"); // ou le bon id
+	  const notifBadge = document.getElementById("notifBadge");
+	  const notifDropdown = document.getElementById("notifDropdown");
+	  const notifList = document.getElementById("notifList");
+	  const urlParams = new URLSearchParams(window.location.search);
+	  const genreFilter = urlParams.get("genre"); // null si aucun
+	  const notifBtn = document.getElementById("notifBtn");
+
+
+	  
+	  let notifVisible = false;
+	  
+	  notifBtn.addEventListener("click", () => {
+	    notifDropdown.style.display =
+		  notifDropdown.style.display === "none" ? "block" : "none";
+	  });
+	  userBox.addEventListener("click", () => {
+        window.location.href = "profile.html";
+      });
+
+	  onAuthStateChanged(auth, async (user) => {
+	    if (user) {
+		  if (openLogin) openLogin.style.display = "none";
+		  if (openSignup) openSignup.style.display = "none";
+		  userBox.style.display = "flex";
+		  await loadFavorites();
+		  await loadPopularity();
+		  await loadRatings();
+		  await loadNotifications(user.uid);
+		  await loadAnimes();
+		  applyFilters();
+		  try {
+		    const userDocRef = doc(db, "users", user.uid);
+		    const userSnap = await getDoc(userDocRef);
+
+		    if (userSnap.exists()) {
+		      const data = userSnap.data();
+			  username.textContent = data.username || user.email.split("@")[0];
+		    } else {
+			  // Crée le doc Firestore si inexistant (utile pour comptes créés avant Firestore)
+			  const userData = {
+			    username: user.email.split("@")[0],
+			    email: user.email,
+			    favorites: [],
+			    ratings: {}
+			  };
+			  await setDoc(userDocRef, userData);
+			  username.textContent = userData.username;
+		    }
+
+		  } catch (err) {
+		    console.error("Erreur récupération Firestore:", err);
+		    username.textContent = user.email.split("@")[0]; // fallback
+		  }
+
+	    } else {
+		  if (openLogin) openLogin.style.display = "inline-block";
+		  if (openSignup) openSignup.style.display = "inline-block";
+		  userBox.style.display = "none";
+		  window.location.href = "auth.html";
+	    }
+	  });
+	  async function sendNotification(userId, title, message = "") {
+	    try {
+		  await addDoc(collection(db, "notifications"), {
+		    userId: userId,
+		    title: title,
+		    message: message,
+		    read: false,
+		    createdAt: serverTimestamp()
+		  });
+		  await loadNotifications(userId);
+	    } catch (err) {
+		  console.error("Erreur notification:", err);
+	    }
+	  }
+
+	  async function toggleFavorite(animeId) {
+	    const user = auth.currentUser;
+	    if (!user) {
+		  alert("Connecte-toi pour ajouter un favori !");
+		  return;
+	   }
+
+	    const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
+	    if (!anime) return;
+
+	    const userRef = doc(db, "users", user.uid);
+	    const animeRef = doc(db, "animes", String(animeId));
+
+	    const wasFav = anime.fav;
+	    anime.fav = !wasFav;
+
+	    try {
+		  // 🔹 S'assurer que le doc anime existe
+		  const snap = await getDoc(animeRef);
+		  if (!snap.exists()) {
+		    await setDoc(animeRef, { likes: 0 }, { merge: true });
+		  }
+
+		  // 🔹 Mettre à jour les favoris de l'utilisateur
+		  if (!wasFav) {
+		    await updateDoc(userRef, { favorites: arrayUnion(animeId) });
+		    await updateDoc(animeRef, { likes: increment(1) });
+			await sendNotification(user.uid, `Tu as ajouté ${anime.title} à tes favoris !`);
+		  } else {
+		    await updateDoc(userRef, { favorites: arrayRemove(animeId) });
+		    await updateDoc(animeRef, { likes: increment(-1) });
+		  }
+	    } catch (err) {
+		  console.error("Erreur toggleFavorite:", err);
+	    }
+		if (anime.likes === 3) {
+		  sendNotificationToAllUsers(
+			"🔥 Anime tendance",
+			anime.title
+		  );
+		}
+
+	    // 🔹 Mettre à jour l'UI
+	    const btn = document.querySelector(`.fav-btn[data-id="${animeId}"]`);
+	    if (btn) btn.textContent = anime.fav ? "★" : "☆";
+		
+		applyFilters();
+	  }
+	  window.toggleFavorite = toggleFavorite;
+
+	  // Modale
+	  grid.addEventListener('click', e => {
+	    if (e.target.classList.contains('btn')) {
+		  const id = Number(e.target.dataset.id);
+		  const anime = filteredList.find(a => a.id === id);
+		  if (anime) openModal(anime);
+	    }
+	  });
+
+	  // Favoris
+	  grid.addEventListener('click', e => {
+	   if (e.target.classList.contains('fav-btn')) {
+		  e.stopPropagation();
+		  const id = Number(e.target.dataset.id);
+		  toggleFavorite(id);
+	    }
+	  });
+	  async function loadFavorites() {
+	    const user = auth.currentUser;
+	    if (!user) return;
+
+	    const userRef = doc(db, "users", user.uid);
+	    const snap = await getDoc(userRef);
+
+	    if (!snap.exists()) return;
+
+	    const data = snap.data();
+	    if (!Array.isArray(data.favorites)) return;
+
+	    // 🔥 Synchronisation Firestore → UI
+	    SAMPLE_ANIMES.forEach(anime => {
+		  anime.fav = data.favorites.includes(anime.id);
+	    });
+	  }
+	  
+	  async function loadPopularity() {
+	    const snap = await getDocs(collection(db, "animes"));
+
+	    snap.forEach(docSnap => {
+		  const animeId = Number(docSnap.id);
+		  const data = docSnap.data();
+
+		  const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
+		  if (anime) {
+		    anime.likes = data.likes ?? 0;
+		  }
+	    });
+	  }
+	  
+	  async function loadRatings() {
+	    const snap = await getDocs(collection(db, "animes"));
+
+	    snap.forEach(docSnap => {
+		  const animeId = Number(docSnap.id);
+		  const data = docSnap.data();
+
+		  const anime = SAMPLE_ANIMES.find(a => a.id === animeId);
+		  if (anime && data.avgRating !== undefined) {
+		    anime.rating = data.avgRating;
+		  }
+	    });
+	  }
+	  
+	  async function loadUserRatings() {
+	    const user = auth.currentUser;
+	    if (!user) return;
+
+	    const userRef = doc(db, "users", user.uid);
+	    const snap = await getDoc(userRef);
+	    if (!snap.exists()) return;
+
+	    const ratings = snap.data().ratings || {};
+
+	    SAMPLE_ANIMES.forEach(anime => {
+	   	  anime.userRating = ratings[anime.id] ?? null;
+	    });
+	  }
+	  
+	  async function loadNotifications(userId) {
+	    const notifCol = collection(db, "notifications");
+	    const q = query(notifCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
+	    const snapshot = await getDocs(q);
+	    notifList.innerHTML = "";
+	  
+	    let unreadCount = 0;
+	  
+	    snapshot.docs.forEach(docSnap => {
+		  const notif = docSnap.data();
+		  const li = document.createElement("li");
+		  li.innerHTML = `
+		    <strong>${notif.title}</strong><br>
+		    <span style="font-size: 0.85em; opacity: 0.8;">
+			  ${notif.message}
+		    </span>
+		  `;
+
+		  // Si non lu, on peut mettre un style
+		  if(!notif.read) {
+		    li.style.fontWeight = "700";
+		    unreadCount++;
+		  }
+		
+		  li.addEventListener("click", async () => {
+		    // Marquer comme lu
+		    await updateDoc(doc(db, "notifications", docSnap.id), { read: true });
+		    li.style.fontWeight = "400";
+		    loadNotifications(userId); // reload pour mettre à jour le badge
+		  });
+		
+		  notifList.appendChild(li);
+	    });
+	  
+	    notifBadge.textContent = unreadCount;
+	    if(unreadCount > 0) notifBadge.classList.add("show");
+	    else notifBadge.classList.remove("show");
+	  }
+	  async function sendNotificationToAllUsers(title, message = "") {
+	    if (!title) {
+		  console.warn("❌ Notification annulée : title manquant");
+		  return;
+	    }
+
+	    const usersSnap = await getDocs(collection(db, "users"));
+	    const promises = [];
+
+	    usersSnap.forEach(userDoc => {
+		  promises.push(
+		    addDoc(collection(db, "notifications"), {
+			  userId: userDoc.id,
+			  title: title,
+			  message: message,
+			  read: false,
+			  createdAt: serverTimestamp()
+		    })
+		  );
+	    });
+
+	    await Promise.all(promises);
+	    console.log("✅ Notification envoyée à tous les utilisateurs");
+	  }
+
+	  async function sendSiteUpdateNotification(version, message) {
+	    const metaRef = doc(db, "meta", "lastSiteUpdate");
+	    const snap = await getDoc(metaRef);
+ 
+	    // Empêche d'envoyer 2 fois la même mise à jour
+	    if (snap.exists() && snap.data().version === version) return;
+
+	    const usersSnap = await getDocs(collection(db, "users"));
+
+	    const promises = [];
+	    usersSnap.forEach(userDoc => {
+	  	  promises.push(
+		    addDoc(collection(db, "notifications"), {
+			  userId: userDoc.id,
+			  title: `🚀 Mise à jour du site (${version})`,
+			  message: message,
+			  read: false,
+			  createdAt: serverTimestamp()
+		    })
+		  );
+	    });
+
+	    await Promise.all(promises);
+
+	    await setDoc(metaRef, {
+		  version,
+		  createdAt: serverTimestamp()
+	    });
+
+	    console.log("✅ Notification de mise à jour envoyée");
+	  }
+	  async function notifyNewAnimeOnce(animeId, animeTitle) {
+	    const metaRef = doc(db, "meta", `anime_${animeId}`);
+	    const snap = await getDoc(metaRef);
+
+	    // ⛔ Déjà notifié → on stop
+	    if (snap.exists()) return;
+
+	    const usersSnap = await getDocs(collection(db, "users"));
+
+	    const promises = [];
+	    usersSnap.forEach(userDoc => {
+		  promises.push(
+		    addDoc(collection(db, "notifications"), {
+			  userId: userDoc.id,
+			  title: "🆕 Nouvel anime ajouté",
+			  message: animeTitle,
+			  read: false,
+			  createdAt: serverTimestamp()
+		    })
+	  	  );
+	    });
+
+	    await Promise.all(promises);
+
+	    // 🔒 Marque cet anime comme "déjà notifié"
+	    await setDoc(metaRef, {
+		  animeId,
+		  animeTitle,
+		  createdAt: serverTimestamp()
+	    });
+
+	    console.log(`✅ Notification envoyée pour l'anime : ${animeTitle}`);
+	  }
+	  async function loadAnimes() {
+	    const animesCol = collection(db, "animes");
+	    const snapshot = await getDocs(animesCol);
+
+	    const animes = snapshot.docs.map(docSnap => {
+		  const data = docSnap.data();
+		  return {
+		    id: Number(docSnap.id),
+		    title: data.title,
+		    genre: data.genre || [],
+		    img: data.img,
+		    rating: data.avgRating || 0,
+		    likes: data.likes || 0
+		  };
+	    });
+
+	    const grid = document.getElementById('grid');
+	    const loading = document.getElementById('loading');
+
+	    loading.style.display = "none";
+	    grid.style.display = "grid";
+	  }
+
+	  function updateFavoriteButtons() {
+	    grid.querySelectorAll('.fav-btn').forEach(b => {
+		  const id = Number(b.dataset.id);
+		  const anime = filteredList.find(a => a.id === id);
+		  if (anime && anime.isFavorite) {
+		    b.classList.add('favorited'); // ou ton style CSS
+		  } else {
+		    b.classList.remove('favorited');
+		  }
+		})
+	  };
+	  const updateMessage = `De nouvelles fonctionnalités débarquent sur AnimeHub ! 🎉
+		- Phrase de chargement et animations pour les cartes.
+		- Interface responsive et design modernisé.
+		- Amélioration de la page anime
+
+		Profite de toutes ces nouveautés et continue d’explorer ton univers anime préféré !`;
+
+		// Appel de la fonction avec un numéro de version unique
+		sendSiteUpdateNotification("1.1.0", updateMessage);
+
+	  await sendNotificationToAllUsers
+	  await sendSiteUpdateNotification;
+	  await notifyNewAnimeOnce('75', 'Soul Eater')
+  </script>
+</body>
+</html>

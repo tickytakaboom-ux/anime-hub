@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnimeQuiz – AnimeHub</title>
+
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #111827;
+  --primary: #2563eb;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --text: #e5e7eb;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg,#0b1220 0%, #061226 100%);
+  font-family: Inter, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text);
+}
+
+.quiz-container {
+  background: var(--card);
+  width: 90%;
+  max-width: 520px;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.question {
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+}
+
+.answers {
+  display: grid;
+  gap: 14px;
+}
+
+.answer {
+  background: #020617;
+  border: 2px solid transparent;
+  padding: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.answer:hover {
+  border-color: var(--primary);
+}
+
+.answer.good {
+  background: rgba(34,197,94,0.2);
+  border-color: var(--good);
+}
+
+.answer.bad {
+  background: rgba(239,68,68,0.2);
+  border-color: var(--bad);
+}
+
+.answer.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.next-btn {
+  margin-top: 24px;
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  display: none;
+}
+
+.next-btn:hover {
+  filter: brightness(1.1);
+}
+#homeBtn {
+  background: #020617;
+  border: 2px solid var(--primary);
+  display: none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="quiz-container">
+  <div class="quiz-header">
+    <div id="progress">Question 1</div>
+    <div id="score">Score : 0</div>
+  </div>
+
+  <div class="question" id="question"></div>
+
+  <div class="answers" id="answers"></div>
+
+  <button class="next-btn" id="nextBtn">Question suivante</button>
+  <button class="next-btn" id="homeBtn">Retour à l’accueil</button>
+</div>
+
+<script>
+
+const quizzes = {
+  onepiece: [
+	{
+      question: "Quelle est la profession de Zoro dans l'équipage de Luffy ?",
+      answers: ["Navigateur", "Médecin", "Cuisinier", "Epéiste"],
+      correct: 3
+    },
+	{
+      question: "Quel est le nom du second bateau de l'équipage de Luffy ?",
+      answers: ["Red Sunny", "Vogue Merry", "Thousand Sunny", "Red Merry"],
+      correct: 2
+    },
+	{
+      question: "Comment s'appelle le premier Grand Corsaire que Luffy a affronté ?",
+      answers: ["Crocodile", "Doflamingo", "Moria", "Mihawk"],
+      correct: 0
+    },
+	{
+      question: "Quel est le nom de l'île natale de Luffy ?",
+      answers: ["Kuraigana", "Jaya", "Dawn", "Little East Blue"],
+      correct: 2
+    },
+	{
+      question: "Combien d'Amiraux sont présents simultanément ?",
+      answers: ["8", "7", "3", "4"],
+      correct: 2
+    },
+	{
+      question: "Quel est le nom du continent situé au centre de Grand Line ?",
+      answers: ["Red Line", "Mary Geoise", "East Blue", "Center Island"],
+      correct: 0
+    },
+	{
+      question: "Que fait Zoro lors de sa rencontre avec Tashigi ?",
+      answers: ["Lui fait un croche pied", "Rigole d'elle", "Vole ses sabres", "Casse ses lunettes"],
+      correct: 3
+    },
+	{
+      question: "Quel plat Sanji a-t-il préparé pour Gin lors de leur première rencontre ?",
+      answers: ["Risotto au fruit de mer", "Nouilles au poulet", "Soupe de poulet", "Calamar frit"],
+      correct: 0
+    },
+	{
+      question: "Quel personnage a réussi à s'échapper de Impel Down en se tranchant les jambes ?",
+      answers: ["Shiki le tigre", "Shiki le géant", "Shiki le lion d'or", "Shiki le singe"],
+      correct: 2
+    },
+	{
+      question: "Quelle est la position de Charlotte Galette parmi les enfants de Big Mom",
+      answers: ["11", "15", "18", "21"],
+      correct: 2
+    }
+  ],
+
+  aot: [
+    {
+      question: "Qui est le personnage principal de l'Attaque Des Titans ?",
+      answers: ["Livai Ackerman", "Eren Jäger", "Armin Arlert"],
+      correct: 1
+    },
+	{
+      question: "Quel branche militaire est spécialisé dans les combats de Titans ?",
+      answers: ["Bataillon d'exploration", "Police militaire", "Régiment de garnison"],
+      correct: 0
+    },
+	{
+      question: "Quel personnage est connu comme le Titan Bestial ?",
+      answers: ["Livai Ackerman", "Sieg Jäger", "Kenny Ackerman"],
+      correct: 1
+    },
+	{
+      question: "Qui se transforme en Titan Femelle ?",
+      answers: ["Annie Leonhart", "Mikasa Ackerman", "Sasha Braus"],
+      correct: 0
+    },
+	{
+      question: "Qui est le possesseur originel du Titan Assaillant avant Eren",
+      answers: ["Erwin Smith", "Kenny Ackerman", "Grisha Jäger"],
+      correct: 2
+    },
+	{
+      question: "Quelle est la caractéristique qui définit Armin ?",
+      answers: ["Force", "Intelligence", "Courage"],
+      correct: 1
+    },
+  ],
+
+  jjk: [
+    {
+      question: "Qui est le plus puissant exorciste ?",
+      answers: ["Nanami", "Gojo", "Sukuna", "Geto"],
+      correct: 1
+    }
+  ],
+
+  naruto: [
+    {
+      question: "Qui est le 7e Hokage ?",
+      answers: ["Minato", "Kakashi", "Naruto", "Sasuke"],
+      correct: 2
+    }
+  ],
+
+  general: [
+    {
+      question: "Quel anime est le plus long ?",
+      answers: ["Naruto", "One Piece", "Bleach", "Dragon Ball"],
+      correct: 1
+    }
+  ]
+};
+
+const params = new URLSearchParams(window.location.search);
+const quizId = params.get("quiz") || "general";
+
+const questions = quizzes[quizId];
+
+if (!questions) {
+  document.querySelector(".quiz-container").innerHTML =
+    "<p>Quiz introuvable 😢</p>";
+  throw new Error("Quiz introuvable");
+}
+
+let current = 0;
+let score = 0;
+
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const scoreEl = document.getElementById("score");
+const progressEl = document.getElementById("progress");
+const nextBtn = document.getElementById("nextBtn");
+const container = document.getElementById("quizList");
+const questions1 = quizzes[quizId];
+
+function loadQuestion() {
+  const q = questions[current];
+  questionEl.textContent = q.question;
+  answersEl.innerHTML = "";
+  nextBtn.style.display = "none";
+  progressEl.textContent = `Question ${current + 1}`;
+
+  q.answers.forEach((text, index) => {
+    const div = document.createElement("div");
+    div.className = "answer";
+    div.textContent = text;
+    div.onclick = () => selectAnswer(div, index);
+    answersEl.appendChild(div);
+  });
+}
+
+function selectAnswer(element, index) {
+  const correctIndex = questions[current].correct;
+  const answers = document.querySelectorAll(".answer");
+
+  answers.forEach(a => a.classList.add("disabled"));
+
+  if (index === correctIndex) {
+    element.classList.add("good");
+    score++;
+    scoreEl.textContent = `Score : ${score}`;
+  } else {
+    element.classList.add("bad");
+    answers[correctIndex].classList.add("good");
+  }
+
+  nextBtn.style.display = "block";
+}
+
+nextBtn.onclick = () => {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+  questionEl.textContent = "Quiz terminé 🎉";
+  answersEl.innerHTML = "";
+  nextBtn.style.display = "none";
+  progressEl.textContent = "Fin";
+
+  const homeBtn = document.getElementById("homeBtn");
+  homeBtn.style.display = "block";
+  homeBtn.onclick = () => {
+    window.location.href = "animequiz.html";
+  };
+}
+}
+loadQuestion();
+</script>
+
+</body>
+</html>

@@ -299,6 +299,29 @@
 	  gap: 12px;
 	  padding: 10px 0;
 	}
+	.reco-reasons {
+	  margin-top: 4px;
+	  display: flex;
+	  flex-wrap: wrap;
+	  gap: 6px;
+	}
+
+	.reco-reason {
+	  font-size: 11px;
+	  padding: 3px 7px;
+	  border-radius: 999px;
+	  background: rgba(255,255,255,0.08);
+	  color: #cbd5f5;
+	  opacity: 0.85;
+	}
+	.reco-card.wide {
+	  grid-column: span 2;
+	}
+	@media (max-width: 900px) {
+	  .reco-card.wide {
+		grid-column: 1 / -1;
+	  }
+	}
   </style>
 </head>
 <body>
@@ -361,8 +384,14 @@
 	  <div id="badgesList"></div>
 	</div>
 
-    <div class="card reco-card">
-      <h3>Suggestions pour toi</h3>
+    <div class="card reco-card wide">
+	  <h3>Suggestions pour toi</h3>
+	  <div class="reco-modes">
+	    <button data-mode="smart" class="active">🎯 Intelligent</button>
+	    <button data-mode="safe">🛡️ Sûr</button>
+	    <button data-mode="explore">🌍 Explorer</button>
+	    <button data-mode="community">👥 Communauté</button>
+	  </div>
       <div class="reco-list" id="recoList">
         <!-- Mini-cards recommandées -->
       </div>
@@ -1108,6 +1137,16 @@
     const emailEl = document.getElementById("email");
     const avatarEl = document.getElementById("avatar");
 	
+	let userTaste = {
+	  topGenres: [],
+	  dislikedGenres: [],
+	  precision: "normal"
+	};
+
+	let minRating = 6;
+	let userLikeYouAnimes = {};
+	let recoMode = "smart";
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "auth.html";
@@ -1156,7 +1195,7 @@
         document.getElementById("stat-rated").textContent = ratedCount;
         document.getElementById("stat-favs").textContent = favCount;
         document.getElementById("stat-avg").textContent = avg;
-		
+
 		// 🔹 BIO
 		const bioText = document.getElementById("bioText");
 		const bioInput = document.getElementById("bioInput");
@@ -1223,6 +1262,7 @@
 		await setDoc(doc(db, "users", auth.currentUser.uid), { badges }, { merge: true });
 		
 		// 🔹 PROFIL DE GOÛT UTILISATEUR (Niveau 3)
+
 		// 🔹 Mettre à jour SAMPLE_ANIMES avec les notes Firestore
 		// 🔹 Mettre à jour les notes moyennes Firestore
 		const animesSnap = await getDocs(collection(db, "animes"));
@@ -1270,16 +1310,15 @@
 		let precision = "normal";
 		if (avg >= 8.5) precision = "exigeant";
 		if (avg <= 6) precision = "large";
-		const userTaste = {
-		  topGenres,
-		  dislikedGenres,
-		  precision
-		};
-		// 🔹 SEUIL DE QUALITÉ MINIMUM
-		let minRating = 6;
+		userTaste.topGenres = topGenres;
+		userTaste.dislikedGenres = dislikedGenres;
+		userTaste.precision = precision;
 
-		if (userTaste.precision === "exigeant") minRating = 7.5;
-		if (userTaste.precision === "large") minRating = 5.5;
+		// 🔹 SEUIL DE QUALITÉ MINIMUM
+
+		minRating = 6;
+		if (precision === "exigeant") minRating = 7.5;
+		if (precision === "large") minRating = 5.5;
 		
 		const similarUsers = [];
 		usersSnap.forEach(docSnap => {
@@ -1302,149 +1341,252 @@
 			similarUsers.push({ uid: docSnap.id, score, data: other });
 		  }
 		});
-		const userLikeYouAnimes = {};
+		userLikeYouAnimes = {};
 		similarUsers.forEach(u => {
 		  Object.entries(u.data.ratings || {}).forEach(([id, note]) => {
 			const animeId = parseInt(id);
 			if (ratings[animeId] || favorites.includes(animeId)) return;
 			if (note >= 8) {
-			  userLikeYouAnimes[animeId] = (userLikeYouAnimes[animeId] || 0) + u.score;
+			  userLikeYouAnimes[animeId] =
+				(userLikeYouAnimes[animeId] || 0) + u.score;
 			}
 		  });
 
 		  (u.data.favorites || []).forEach(id => {
 			if (!ratings[id] && !favorites.includes(id)) {
-			  userLikeYouAnimes[id] = (userLikeYouAnimes[id] || 0) + 15;
+			  userLikeYouAnimes[id] =
+				(userLikeYouAnimes[id] || 0) + 15;
 			}
 		  });
 		});
 
-		// 🔹 RECOMMANDATIONS — Niveau 2 (pondération intelligente)
-		// IDs déjà vus (notés + favoris)
-		const excludedIds = [
-		  ...Object.keys(ratings).map(id => parseInt(id)),
-		  ...favorites
-		];
-		// 🔹 Genre dominant (celui que l'utilisateur consomme le plus)
-		const dominantGenre = userTaste.topGenres[0] || null;
+		function renderRecommendations() {
+		  const baseAnimes = window.SAMPLE_ANIMES.map(a => ({
+		    ...a,
+		    surpriseScore: 0
+		  }));
+		  const excludedIds = [
+		    ...Object.keys(ratings).map(id => parseInt(id)),
+		    ...favorites
+		  ];
+		  // 🔹 Genre dominant (celui que l'utilisateur consomme le plus)
+		  const dominantGenre = userTaste.topGenres[0] || null;
 
-		// 1️⃣ Construire le profil de goût (genres pondérés)
-		const genreWeights = {};
+		  // 1️⃣ Construire le profil de goût (genres pondérés)
+		  const genreWeights = {};
 
-		window.SAMPLE_ANIMES.forEach(anime => {
-		  if (ratings[anime.id]) {
-			// anime noté
-			anime.genre.forEach(g => {
-			  if (!genreWeights[g]) genreWeights[g] = 0;
-			  genreWeights[g] += ratings[anime.id]; // note = poids
-			});
-		  }
-		  if (favorites.includes(anime.id)) {
-			// favori = bonus fort
-			anime.genre.forEach(g => {
-			  if (!genreWeights[g]) genreWeights[g] = 0;
-			  genreWeights[g] += 10;
-			});
-		  }
-		});
-
-		// 2️⃣ Calcul du score de reco
-		const recoAnimes = window.SAMPLE_ANIMES
+		  baseAnimes.forEach(anime => {
+		    if (ratings[anime.id]) {
+			  // anime noté
+			  anime.genre.forEach(g => {
+			    if (!genreWeights[g]) genreWeights[g] = 0;
+			    genreWeights[g] += ratings[anime.id]; // note = poids
+			  });
+		    }
+		    if (favorites.includes(anime.id)) {
+			  // favori = bonus fort
+			  anime.genre.forEach(g => {
+			    if (!genreWeights[g]) genreWeights[g] = 0;
+			    genreWeights[g] += 10;
+			  });
+		    }
+		  });
+		  // 2️⃣ Calcul du score de reco
+		  const recoAnimes = baseAnimes
 		  .filter(a => !excludedIds.includes(a.id))
 		  .map(a => {
 			let score = 0;
+			const reasons = [];
 
-			// ❌ Qualité minimale
 			if ((a.rating || 0) < minRating) return null;
 
-			// 🎯 Genres aimés / détestés
 			a.genre.forEach(g => {
-			  if (userTaste.topGenres.includes(g)) score += 18;
+			  if (userTaste.topGenres.includes(g)) {
+				score += 18;
+				reasons.push(`Tu aimes le genre ${g}`);
+			  }
 			  if (userTaste.dislikedGenres.includes(g)) score -= 30;
 			});
 
-			// ⚠️ Anti-genre dominant
-			if (dominantGenre && a.genre.includes(dominantGenre)) {
-			  score -= 6;
-			}
 			if (userLikeYouAnimes[a.id]) {
 			  score += Math.min(userLikeYouAnimes[a.id] / 5, 25);
-			}
-			if (dominantGenre && a.genre.includes(dominantGenre)) {
-			  score -= 6; // tu l’as déjà fait 👍
+			  reasons.push("Apprécié par des utilisateurs similaires à toi");
 			}
 
-			// ⭐ Qualité globale
+			if ((a.avgRating ?? 0) >= 8) {
+			  reasons.push(`Très bien noté (${a.avgRating.toFixed(1)})`);
+			}
+
 			score += (a.rating || 0) * 0.6;
 
-			return { ...a, score };
+			return { ...a, score, reasons };
 		  })
 		  .filter(Boolean)
-		  .sort((a, b) => b.score - a.score); // 🔥 TRÈS IMPORTANT
-		
-		const mainReco = [];
-		const diversityReco = [];
+		  .sort((a, b) => b.score - a.score);
 
-		recoAnimes.forEach(a => {
-		  const isTop = a.genre.some(g => userTaste.topGenres.includes(g));
-		  const isDisliked = a.genre.some(g => userTaste.dislikedGenres.includes(g));
+		  function renderExplorer(recoAnimes) {
+		    const shuffled = [...recoAnimes].sort((a, b) => {
+			  const da = !a.genre.some(g => userTaste.topGenres.includes(g));
+			  const db = !b.genre.some(g => userTaste.topGenres.includes(g));
 
-		  if (isDisliked) return;
+			  return (
+			    (b.surpriseScore || 0) +
+			    (db ? 30 : 0) -
+			    (a.surpriseScore || 0) -
+			    (da ? 30 : 0)
+			  );
+		    });
 
-		  if (isTop) {
-			mainReco.push(a);
-		  } else if ((a.rating || 0) >= minRating + 0.3) {
-			diversityReco.push(a);
-		  }
-		});
-		const FINAL_LIMIT = 6;
-		const DIVERSITY_QUOTA = 2;
-
-		const finalReco = [
-		  ...mainReco.slice(0, FINAL_LIMIT - DIVERSITY_QUOTA),
-		  ...diversityReco.slice(0, DIVERSITY_QUOTA)
-		];
-		
-		const uniqueGenreReco = [];
-		const usedGenres = {};
-
-		for (const anime of recoAnimes) {
-		  const mainGenre = anime.genre[0]; // genre principal
-
-		  if (!usedGenres[mainGenre]) {
-			usedGenres[mainGenre] = true;
-			uniqueGenreReco.push(anime);
+		    return shuffled.slice(0, 6);
 		  }
 
-		  if (uniqueGenreReco.length >= 6) break;
+		  const mainReco = [];
+		  const diversityReco = [];
+
+		  recoAnimes.forEach(a => {
+		    const isTop = a.genre.some(g => userTaste.topGenres.includes(g));
+		    const isDisliked = a.genre.some(g => userTaste.dislikedGenres.includes(g));
+
+		    if (isDisliked) return;
+
+		    if (isTop) {
+			  mainReco.push(a);
+		    } else if ((a.rating || 0) >= minRating + 0.3) {
+			  diversityReco.push(a);
+		    }
+		  });
+		  const FINAL_LIMIT = 6;
+		  let DIVERSITY_QUOTA = 2;
+		  if (recoMode === "explore") DIVERSITY_QUOTA = 4;
+		  if (recoMode === "safe") DIVERSITY_QUOTA = 1;
+		  
+		  const finalReco = [
+		    ...mainReco.slice(0, FINAL_LIMIT - DIVERSITY_QUOTA),
+		    ...diversityReco.slice(0, DIVERSITY_QUOTA)
+		  ];
+		
+		  const uniqueGenreReco = [];
+		  const usedGenres = {};
+
+		  for (const anime of recoAnimes) {
+		    const mainGenre = anime.genre[0]; // genre principal
+
+		    if (!usedGenres[mainGenre]) {
+		  	  usedGenres[mainGenre] = true;
+			  uniqueGenreReco.push(anime);
+		    }
+
+		    if (uniqueGenreReco.length >= 6) break;
+		  }
+		  const finalRecoIds = new Set(finalReco.map(a => a.id));
+		  const surpriseCandidates = baseAnimes
+		    .filter(a => {
+			  if (excludedIds.includes(a.id)) return false;
+			  if (finalRecoIds.has(a.id)) return false; // 🔥 FIX IMPORTANT
+			  if ((a.rating ?? 0) < minRating) return false;
+			  return userLikeYouAnimes[a.id] >= 15;
+		    });
+
+		  surpriseCandidates.forEach(a => {
+		    let surpriseScore = 0;
+		  
+		    // + score si genre proche de ses préférences
+		    a.genre.forEach(g => {
+			  if (userTaste.topGenres.includes(g)) surpriseScore += 5;
+			  if (userTaste.dislikedGenres.includes(g)) surpriseScore -= 10;
+		    });
+
+		    // + score basé sur popularité chez autres utilisateurs
+		    if (userLikeYouAnimes[a.id]) surpriseScore += Math.min(userLikeYouAnimes[a.id] / 3, 20);
+
+		    // bonus pour nouveauté
+		    if (a.createdAt && ((Date.now() - a.createdAt.toMillis()) < 1000*60*60*24*30)) {
+			  surpriseScore += 10; // ajouté si anime < 30 jours
+		    }
+		    a.surpriseScore = surpriseScore;
+		  });
+		  const seenGenres = new Set();
+
+		  const filteredReco = recoAnimes.filter(a => {
+		    const g = a.genre[0];
+		    if (seenGenres.has(g)) return false;
+		    seenGenres.add(g);
+		    return true;
+		  });
+
+		  const surprises = surpriseCandidates
+		    .sort((a,b) => b.surpriseScore - a.surpriseScore)
+		    .slice(0, 2); // max 2 surprises
+
+		  const finalRecoWithSurprise = [
+		    ...finalReco.filter(a => !surprises.some(s => s.id === a.id))
+		  ];
+		  for (const s of surprises) {
+		    if (finalRecoWithSurprise.length < FINAL_LIMIT) {
+			  finalRecoWithSurprise.push(s);
+		    }
+		  }
+		  // sécurité ultime
+		  finalRecoWithSurprise.length = FINAL_LIMIT;
+
+		  // 3️⃣ Affichage
+		  const recoListEl = document.getElementById("recoList");
+		  recoListEl.innerHTML = "";
+
+		  finalRecoWithSurprise.forEach(a => {
+		    const isDiscovery = !a.genre.some(g => userTaste.topGenres.includes(g));
+		    const surpriseIds = new Set(surprises.map(s => s.id));
+		    const isSurprise = surpriseIds.has(a.id);
+		    const reasonsHtml = (a.reasons || [])
+		      .slice(0, 2) // max 2 raisons (lisible)
+		      .map(r => `<span class="reco-reason">${r}</span>`)
+		      .join("");
+
+		    const div = document.createElement("div");
+		    div.className = "rated-item";
+
+		    div.innerHTML = `
+			  <div class="rated-title">
+			    ${a.title}
+			    ${isDiscovery ? `<span class="tag">Découverte</span>` : ""}
+			    ${isSurprise ? `<span class="tag" style="background:#f97316;">Surprise</span>` : ""}
+			    <div class="reco-reasons">
+				  ${reasonsHtml}
+			    </div>
+			  </div>
+			  <div class="rated-right">
+			    <div class="rated-score">${a.avgRating?.toFixed(1) ?? "–"}</div>
+			    <button class="rated-btn" onclick="window.location.href='anime.html?id=${a.id}'">
+				  Voir
+			    </button>
+			  </div>
+		    `;
+		    recoListEl.appendChild(div);
+		  });
 		}
 
-		// 3️⃣ Affichage
-		const recoListEl = document.getElementById("recoList");
-		recoListEl.innerHTML = "";
+		// 🔹 RECOMMANDATIONS — Niveau 2 (pondération intelligente)
+		// IDs déjà vus (notés + favoris)
+		// 🔹 MODES DE RECOMMANDATION (Niveau 9)
+		const modeButtons = document.querySelectorAll(".reco-modes button");
 
-		finalReco.forEach(a => {
-		  const isDiscovery = !a.genre.some(g => userTaste.topGenres.includes(g));
+		modeButtons.forEach(btn => {
+		  btn.addEventListener("click", () => {
 
-		  const div = document.createElement("div");
-		  div.className = "rated-item";
+			// retirer active partout
+			modeButtons.forEach(b => b.classList.remove("active"));
 
-		  div.innerHTML = `
-			<div class="rated-title">
-			  ${a.title}
-			  ${isDiscovery ? `<span class="tag">Découverte</span>` : ""}
-			</div>
-			<div class="rated-right">
-			  <div class="rated-score">${a.avgRating?.toFixed(1) ?? "–"}</div>
-			  <button class="rated-btn" onclick="window.location.href='anime.html?id=${a.id}'">
-				Voir
-			  </button>
-			</div>
-		  `;
+			// activer celui cliqué
+			btn.classList.add("active");
 
-		  recoListEl.appendChild(div);
+			// changer le mode
+			recoMode = btn.dataset.mode; // safe | smart | explore | community
+
+			// recalculer les recos
+			renderRecommendations();
+		  });
 		});
-
+    
         // 🔹 MES NOTES
         const ratedListEl = document.getElementById("ratedList");
         ratedListEl.innerHTML = "";
@@ -1509,7 +1651,7 @@
 		  });
 		}
         }
-
+		renderRecommendations();
       } catch (err) {
         console.error("Erreur profil :", err);
       }
