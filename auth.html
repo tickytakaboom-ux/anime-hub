@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Connexion – AnimeHub</title>
+  <title>AnimeHub - Auth</title>
 
   <style>
     :root {
@@ -138,7 +138,8 @@
   import { 
 	getFirestore, 
 	doc, 
-	setDoc 
+	setDoc,
+	serverTimestamp
   } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -193,7 +194,7 @@
 			email: email,
 			favorites: [],
 			ratings: {},
-			createdAt: new Date()
+			createdAt: serverTimestamp
 		  });
 
 		  console.log("Utilisateur ajouté à Firestore !");
@@ -212,12 +213,17 @@
 	  alert("Erreur : " + err.message);
 	}
   });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitBtn.click();
+  });
+
+  let checkedAuth = false;
 
   onAuthStateChanged(auth, (user) => {
-	if (user) {
-	  console.log("Utilisateur déjà connecté :", user.email);
-	  window.location.href = "index.html";
-	}
+    if (user && !checkedAuth) {
+      checkedAuth = true;
+      window.location.href = "index.html";
+    }
   });
   </script>
 </body>

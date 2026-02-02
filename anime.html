@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Détails Anime</title>
+  <title>AnimeList - Anime</title>
 
   <style>
     :root {
@@ -1476,7 +1476,7 @@
 	  window.location.href = "profile.html";
 	});
 	document.getElementById("homeLogo").addEventListener("click", () => {
-	  window.location.href = "animehub.html";
+	  window.location.href = "animelist.html";
 	});
   </script>
   <script type="module">
@@ -1521,7 +1521,6 @@
 	const summary = document.getElementById("animeSummary");
 	const favBtn = document.getElementById("favBtn");
 	const rateSelect = document.getElementById("rateSelect");
-	const seasonsList = document.getElementById("seasonsList");
 	const toggleNonCanonBtn = document.getElementById("toggleNonCanonBtn");
 
 	let currentAnime = null;
@@ -1680,35 +1679,6 @@
 	  button.classList.add("liked");
 	  animateFavParticles(button);
 	  setTimeout(() => button.classList.remove("liked"), 600);
-	}
-	function renderSeasons(anime) {
-	  seasonsList.innerHTML = "";
-
-	  if (!anime.seasons || anime.seasons.length === 0) {
-	    seasonsList.innerHTML = `
-		  <div class="season-item empty">
-		    <span class="season-title">Saisons</span>
-		    <span class="season-episodes">Infos non disponibles</span>
-		  </div>
-	    `;
-	    return;
-	  }
-
-	  anime.seasons.forEach(season => {
-		const div = document.createElement("div");
-		div.className = "season-item";
-
-		div.innerHTML = `
-		  <span class="season-title">
-			${season.title}
-			${season.status === "upcoming" ? '<span class="badge-upcoming">UPCOMING</span>' : ''}
-		  </span>
-		  <span class="season-episodes">
-			${season.status === "upcoming" ? "Prochainement" : `${season.episodes} épisodes`}
-		  </span>
-		`;
-		seasonsList.appendChild(div);
-	  });
 	}
 	function renderTimeline(anime) {
 	  const timelineList = document.getElementById("timelineList");

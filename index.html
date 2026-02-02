@@ -26,9 +26,30 @@
   }
 
   h1 {
-    font-size: 3rem;
+    font-size: 3.2rem;
+    font-weight: 900;
+    letter-spacing: 1px;
     margin-bottom: 1rem;
     text-align: center;
+
+    background: linear-gradient(
+      90deg,
+      #22d3ee,
+      #3b82f6,
+      #22d3ee
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: gradientMove 6s linear infinite;
+    text-shadow: 0 0 25px rgba(34,211,238,0.25);
+  }
+
+  @keyframes gradientMove {
+    to {
+      background-position: 200% center;
+    }
   }
 
   .buttons {
@@ -78,20 +99,100 @@
       min-width: 120px;
     }
   }
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  button {
+    font-family: inherit;
+  }
+  body > * {
+    animation: fadeUp 0.8s ease-out forwards;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  canvas {
+    opacity: 0.35;
+  }
+  .logo-container {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    min-height: 1em;
+  }
+
+  .welcome-text {
+    font-size: 3.2rem;
+    font-weight: 900;
+  }
+
+  .animehub-text {
+    font-family: 'Mochiy Pop One', system-ui, sans-serif;
+    font-size: 3.2rem;
+    font-weight: 900;
+    background: linear-gradient(
+      90deg,
+      #fff59d,
+      #ffeb3b,
+      #ff9800,
+      #ff5722
+    );
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+    text-shadow: 
+      0 0 8px rgba(255, 183, 77, 0.35),
+      0 0 16px rgba(255, 152, 0, 0.25);
+    letter-spacing: 1px;
+  }
+  @font-face {
+    font-family: 'Mochiy Pop One';
+    src: url('MochiyPopOne-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+  body {
+    opacity: 1;
+    transition: opacity 0.6s ease;
+  }
+
+  body.fonts-not-loaded {
+    opacity: 0;
+  }
 </style>
 </head>
-<body>
+<body class="fonts-not-loaded">
+<main>
+  <!-- LOGO -->
+  <div class="logo-container">
+    <h1 class="welcome-text">Bienvenue à</h1>
+    <span class="animehub-text">AnimeHub</span>
+  </div>
 
-<h1>Bienvenue sur AnimeHub</h1>
-
-<div class="buttons">
-  <div id="mainBtn" class="btn">Connexion</div>
-  <div class="btn" onclick="location.href='animehub.html'">AnimeList</div>
-  <div class="btn" onclick="location.href='animequiz.html'">AnimeQuiz</div>
-</div>
-
+  <div class="buttons">
+    <button id="mainBtn" class="btn">Connexion</button>
+    <button class="btn" onclick="location.href='animelist.html'">AnimeList</button>
+    <button class="btn" onclick="location.href='animequiz.html'">AnimeQuiz</button>
+  </div>
+</main>
 <canvas id="stars"></canvas>
-
+<script>
+  document.fonts.ready.then(() => {
+    document.body.classList.remove("fonts-not-loaded");
+  });
+</script>
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -162,6 +263,5 @@ window.addEventListener('resize',()=>{
   h = canvas.height = window.innerHeight;
 });
 </script>
-
 </body>
 </html>
