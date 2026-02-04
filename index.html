@@ -23,6 +23,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
   }
 
   h1 {
@@ -103,6 +104,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: min(900px, 92vw);
   }
   button {
     font-family: inherit;
@@ -131,17 +133,21 @@
     margin-bottom: 30px;
     flex-wrap: wrap;
     min-height: 1em;
+    justify-content: center;
+    text-align: center;
   }
 
   .welcome-text {
     font-size: 3.2rem;
     font-weight: 900;
+    margin: 0;
   }
 
   .animehub-text {
     font-family: 'Mochiy Pop One', system-ui, sans-serif;
     font-size: 3.2rem;
     font-weight: 900;
+    display: inline-block;
     background: linear-gradient(
       90deg,
       #fff59d,
@@ -155,6 +161,69 @@
       0 0 8px rgba(255, 183, 77, 0.35),
       0 0 16px rgba(255, 152, 0, 0.25);
     letter-spacing: 1px;
+  }
+  .tagline {
+    font-size: 1.15rem;
+    max-width: 650px;
+    line-height: 1.6;
+    margin: 0 auto 1.5rem;
+    color: rgba(230, 238, 246, 0.85);
+  }
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  .feature-card {
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(34, 211, 238, 0.2);
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    min-height: 140px;
+  }
+  .feature-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+  }
+  .feature-card p {
+    margin: 0;
+    color: rgba(230, 238, 246, 0.75);
+    line-height: 1.5;
+  }
+  .feature-icon {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(6, 182, 212, 0.2);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+  }
+  .btn span {
+    margin-right: 8px;
+  }
+  @media(max-width: 900px) {
+    .features {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media(max-width: 600px){
+    .logo-container {
+      flex-direction: column;
+      gap: 4px;
+    }
+    .features {
+      grid-template-columns: 1fr;
+    }
+    .tagline {
+      font-size: 1rem;
+    }
   }
   @font-face {
     font-family: 'Mochiy Pop One';
@@ -180,11 +249,30 @@
     <h1 class="welcome-text">Bienvenue à</h1>
     <span class="animehub-text">AnimeHub</span>
   </div>
+  <p class="tagline">Découvre, classe et teste tes connaissances sur tes animes préférés dans un espace moderne et fun.</p>
+
+  <section class="features">
+    <article class="feature-card">
+      <div class="feature-icon">✨</div>
+      <h3>Profil</h3>
+      <p>Retrouve ton profil, ta progression et tes activités.</p>
+    </article>
+    <article class="feature-card">
+      <div class="feature-icon">📺</div>
+      <h3>AnimeList</h3>
+      <p>Crée ta liste d’animes et garde une trace de tes coups de cœur.</p>
+    </article>
+    <article class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>AnimeQuiz</h3>
+      <p>Teste tes connaissances et défie tes amis avec des quiz rapides.</p>
+    </article>
+  </section>
 
   <div class="buttons">
-    <button id="mainBtn" class="btn">Connexion</button>
-    <button class="btn" onclick="location.href='animelist.html'">AnimeList</button>
-    <button class="btn" onclick="location.href='animequiz.html'">AnimeQuiz</button>
+    <button id="mainBtn" class="btn"><span>🔐</span>Connexion</button>
+    <button class="btn" onclick="location.href='animelist.html'"><span>📺</span>AnimeList</button>
+    <button class="btn" onclick="location.href='animequiz.html'"><span>🧠</span>AnimeQuiz</button>
   </div>
 </main>
 <canvas id="stars"></canvas>
@@ -215,10 +303,10 @@ const mainBtn = document.getElementById("mainBtn");
 // Vérifie si l'utilisateur est connecté
 onAuthStateChanged(auth, (user) => {
   if(user){
-    mainBtn.textContent = "Profil";
+    mainBtn.innerHTML = "<span>👤</span>Profil";
     mainBtn.onclick = () => location.href = "profile.html";
   } else {
-    mainBtn.textContent = "Connexion";
+    mainBtn.innerHTML = "<span>🔐</span>Connexion";
     mainBtn.onclick = () => location.href = "auth.html";
   }
 });

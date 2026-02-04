@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>AnimeQuiz – Challenge du mois</title>
+
+<style>
+:root {
+  --text-muted: #9ca3af;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0b1220, #061226);
+  font-family: Inter, sans-serif;
+  color: #e6eef6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.box {
+  background: rgba(255,255,255,0.05);
+  padding: 32px;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+h1 {
+  margin-bottom: 8px;
+}
+
+.question {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 24px 0;
+}
+
+input {
+  width: 93%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+button {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  background: #06b6d4;
+  color: #052226;
+}
+
+.feedback {
+  margin-top: 12px;
+  font-size: 14px;
+}
+.error { color: #f87171; }
+.success { color: #4ade80; }
+
+.back {
+  margin-top: 30px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.back:hover {
+  text-decoration: underline;
+}
+#progress {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-top: 6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h1>🔥 Challenge du mois</h1>
+  <p>Trouve l’anime à partir du personnage principal</p>
+  
+  <div id="progress"></div>
+
+  <div class="question" id="question"></div>
+
+  <input id="answerInput" placeholder="Nom de l'anime">
+  <button id="submitBtn">Valider</button>
+
+  <div class="feedback" id="feedback"></div>
+  <div class="back" onclick="location.href='animequiz.html'">
+  ← Retour aux catégories
+</div>
+<script>
+const challengeQuestions = [
+  { question: "Monkey D. Luffy", answer: "one piece" },
+  { question: "Eren Yeager", answer: "attack on titan" },
+  { question: "Light Yagami", answer: "death note" },
+  { question: "Twilight", answer: "spy x family" },
+  { question: "Izuku Midoriya", answer: "my hero academia" },
+  { question: "Sung Jinwoo", answer: "solo leveling" },
+  { question: "Edward Elric", answer: "fullmetal alchemist" },
+  { question: "Tanjiro Kamado", answer: "demon slayer" },
+  { question: "Shinra Kusakabe", answer: "fire force" },
+  { question: "Denji", answer: "chainsaw man" },
+  { question: "Frieren", answer: "frieren" },
+  { question: "Gintoki Sakata", answer: "gintama" },
+  { question: "Aquamarine Hoshino", answer: "oshi no ko" },
+  { question: "Gon Freecs", answer: "hunter x hunter" },
+  { question: "Kaguya Shinomiya", answer: "love is war" },
+  { question: "Lelouch Lamperouge", answer: "code geass" },
+  { question: "Kafka Hibino", answer: "kaiju n°8" },
+  { question: "Yuji Itadori", answer: "jujutsu kaisen" },
+  { question: "Thorfinn", answer: "vinland saga" },
+  { question: "Shigeo Kageyama", answer: "mob psycho 100" },
+  { question: "Jotaro Kujo", answer: "jojo's bizarre adventure" },
+  { question: "Naruto Uzumaki", answer: "naruto" },
+  { question: "Hinata Shoyo", answer: "haikyu" },
+  { question: "Ichigo Kurosaki", answer: "bleach" },
+  { question: "Kazuma Satou", answer: "konosuba" },
+  { question: "Rudeus Greyrat", answer: "mushoku tensei" },
+  { question: "Mash Burnedead", answer: "mashle" },
+  { question: "Senku Ishigami", answer: "dr stone" },
+  { question: "Yato", answer: "noragami" },
+  { question: "Atsushi Nakajima", answer: "bungo stray dogs" },
+];
+
+let currentIndex = 0;
+
+const questionEl = document.getElementById("question");
+const inputEl = document.getElementById("answerInput");
+const feedbackEl = document.getElementById("feedback");
+const btn = document.getElementById("submitBtn");
+
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+inputEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    btn.click();
+  }
+});
+function loadQuestion() {
+  questionEl.textContent = challengeQuestions[currentIndex].question;
+  inputEl.value = "";
+  feedbackEl.textContent = "";
+  document.getElementById("progress").textContent =
+  `Question ${currentIndex + 1} / ${challengeQuestions.length}`;
+}
+
+btn.addEventListener("click", () => {
+  const userAnswer = normalize(inputEl.value);
+  const correctAnswer = normalize(challengeQuestions[currentIndex].answer);
+
+  if (!userAnswer) return;
+
+  if (userAnswer === correctAnswer) {
+    feedbackEl.textContent = "Bonne réponse ✔️";
+    feedbackEl.className = "feedback success";
+    currentIndex++;
+
+    if (currentIndex < challengeQuestions.length) {
+      setTimeout(loadQuestion, 800);
+    } else {
+      questionEl.innerHTML = "🎉 Challenge terminé !<br><small>Respect.</small>";
+	  feedbackEl.textContent = "";
+	  document.querySelector(".back").style.display = "block";
+	  inputEl.style.display = "none";
+      btn.style.display = "none";
+    }
+  } else {
+    feedbackEl.textContent = "Mauvaise réponse ❌";
+    feedbackEl.className = "feedback error";
+    inputEl.value = "";
+  }
+});
+
+loadQuestion();
+</script>
+
+</body>
+</html>
