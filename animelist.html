@@ -30,7 +30,44 @@
 	  margin: 32px auto;
 	  padding: 20px;
 	}
-
+    
+	/* Loader */
+	.loader-overlay {
+	  position: fixed;
+	  inset: 0;
+	  background: linear-gradient(180deg, rgba(11,18,32,0.98) 0%, rgba(6,18,38,0.98) 100%);
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  z-index: 2000;
+	}
+	.loader-card {
+	  background: rgba(11,18,32,0.9);
+	  border: 1px solid rgba(255,255,255,0.08);
+	  border-radius: 18px;
+	  padding: 24px 28px;
+	  text-align: center;
+	  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+	  width: min(420px, 80vw);
+	}
+	.loader-spinner {
+	  width: 44px;
+	  height: 44px;
+	  border-radius: 999px;
+	  border: 3px solid rgba(255,255,255,0.12);
+	  border-top-color: var(--accent);
+	  animation: spin 0.9s linear infinite;
+	  margin: 0 auto 14px;
+	}
+	.loader-text {
+	  color: var(--muted);
+	  font-size: 14px;
+	  margin: 0;
+	}
+	@keyframes spin {
+	  to { transform: rotate(360deg); }
+	}
+	
 	/* Header sticky avec blur */
 	header {
 	  display: flex;
@@ -48,7 +85,13 @@
 	  transition: box-shadow 0.2s ease, background 0.2s ease;
 	}
 	header.sticky { box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
-
+	
+	.logo-container {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 2px;
+	}
+	
 	h1 { font-size: 28px; margin: 0; }
 	p.lead { color: var(--muted); margin: 6px 0 0; font-size: 14px; }
 
@@ -157,8 +200,9 @@
 
 	/* Responsive */
 	@media (max-width:720px) {
-	  header { flex-direction: column; align-items: flex-start; }
-	  .controls { width: 100%; margin-top: 10px; flex-wrap: wrap; }
+	  header { flex-direction: column; align-items: center; text-align: center; }
+	  .logo-container { width: 100%; align-items: center; }
+	  .controls { width: 100%; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
 	  .card img { height: 220px; }
 	  .modal { flex-direction: column; align-items: center; }
 	  .modal img { width: 180px; height: 260px; }
@@ -171,8 +215,9 @@
 	  color: #052226; border: none; cursor: pointer; font-weight: 700;
 	  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 	  transition: opacity .2s ease, transform .2s ease;
+	  display: none;
 	}
-	#backToTop.show { display: block; opacity: 1; transform: translateY(0); }
+	#backToTop.show { display: inline-flex; align-items: center; justify-content: center; opacity: 1; transform: translateY(0); }
 	#backToTop.hide { 
 	  opacity: 0; 
 	  transform: 
@@ -364,6 +409,12 @@
     body.fonts-not-loaded {
       opacity: 0;
     }
+	.btn:focus-visible,
+	.fav-btn:focus-visible,
+	#backToTop:focus-visible {
+	  outline: 2px solid rgba(6,182,212,0.8);
+	  outline-offset: 2px;
+	}
   </style>
   <!-- Favicon classique -->
   <link rel="icon" type="image/png" href="icon_animehub.png">
@@ -376,6 +427,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body class="fonts-not-loaded">
+	<div class="loader-overlay" id="pageLoader" aria-live="polite" aria-busy="true">
+	  <div class="loader-card">
+		<div class="loader-spinner" aria-hidden="true"></div>
+		<p class="loader-text" id="loadingMessage">Chargement...</p>
+	  </div>
+	</div>
     <header>
       <div class="logo-container" id="homeLogo" style="cursor:pointer;">
 	    <h1 class="logo">AnimeHub</h1>
@@ -394,6 +451,12 @@
 		  <option value="az">Alphabétique (A → Z)</option>
 		  <option value="za">Alphabétique (Z → A)</option>
 		  <option value="popular">🔥 Popularité</option>
+        </select>
+		<select id="statusFilter" class="select-sm">
+          <option value="all">Tous statuts</option>
+          <option value="completed">✅ Déjà vu</option>
+          <option value="watching">▶️ En cours</option>
+          <option value="planned">🕒 À voir</option>
         </select>
         <select id="favFilter" class="select-sm">
           <option value="all">Tous</option>
@@ -428,7 +491,7 @@
 	<div class="container">
     <main>
       <div id="grid" class="grid" style="display:none"></div>
-	  <div id="loading" style="color:var(--muted); text-align:center; padding:40px 0;">Les pages du Death Note s’écrivent… Patience</div>
+	   <div id="loading" style="display:none;"></div>
       <div id="empty" style="display:none; color:var(--muted); text-align:center; padding:40px 0;">Aucun résultat...</div>
     </main>
 
@@ -1138,6 +1201,7 @@
 	const genreEl = document.getElementById('genre');
 	const sortEl = document.getElementById('sort');
 	const favFilterEl = document.getElementById('favFilter');
+	const statusFilterEl = document.getElementById('statusFilter');
 	const grid = document.getElementById('grid');
 	const searchInput = document.getElementById('search');
 	const empty = document.getElementById('empty');
@@ -1162,11 +1226,16 @@
 	];
 
 	const loadingEl = document.getElementById("loading");
+	const pageLoader = document.getElementById("pageLoader");
+	const loadingMessage = document.getElementById("loadingMessage");
 
 	if (loadingEl) {
 	  const randomMessage =
 		loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
 	  loadingEl.textContent = randomMessage;
+	  if (loadingMessage) {
+		loadingMessage.textContent = randomMessage;
+	  }
 	}
 	// Remplir select genres
 	const genres = new Set(['Tout']);
@@ -1208,7 +1277,7 @@
 				<div style="color:var(--muted); font-size:13px">${a.year}</div>
 				<div style="display:flex; gap:6px;">
 				  <button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
-				  <button onclick="openAnime(${a.id})">Voir</button>
+				  <button class="btn" onclick="openAnime(${a.id})">Voir</button>
 				</div>
 			  </div>
 			</div>`;
@@ -1337,6 +1406,13 @@
 	  if (favFromUrl === "1") {
 	    favFilterEl.value = "fav";
 	  }
+	  
+	  // 🔹 STATUT DE VISIONNAGE
+	  if (statusFilterEl.value !== 'all') {
+		filteredList = filteredList.filter(
+		  a => a.status === statusFilterEl.value
+		);
+	  }
 
 	  // 🔹 TRI
 	  if (s === 'top') filteredList.sort((a, b) => b.rating - a.rating);
@@ -1374,8 +1450,10 @@
 	});
 	sortEl.addEventListener('change', applyFilters);
 	favFilterEl.addEventListener('change', applyFilters);
+	statusFilterEl.addEventListener('change', applyFilters);
 	
 	const backToTop = document.getElementById('backToTop');
+	backToTop.classList.add('hide');
 	window.addEventListener('scroll', () => {
 	  if (window.scrollY > 50) {
 		backToTop.classList.add('show');
@@ -1461,6 +1539,16 @@
 	    notifDropdown.style.display =
 		  notifDropdown.style.display === "none" ? "block" : "none";
 	  });
+	  document.addEventListener("click", (event) => {
+		if (!notifBtn.contains(event.target)) {
+		  notifDropdown.style.display = "none";
+		}
+	  });
+	  document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") {
+		  notifDropdown.style.display = "none";
+		}
+	  });
 	  userBox.addEventListener("click", () => {
         window.location.href = "profile.html";
       });
@@ -1471,6 +1559,7 @@
 		  if (openSignup) openSignup.style.display = "none";
 		  userBox.style.display = "flex";
 		  await loadFavorites();
+		  await loadStatuses();
 		  await loadPopularity();
 		  await loadRatings();
 		  await loadNotifications(user.uid);
@@ -1572,15 +1661,6 @@
 	  }
 	  window.toggleFavorite = toggleFavorite;
 
-	  // Modale
-	  grid.addEventListener('click', e => {
-	    if (e.target.classList.contains('btn')) {
-		  const id = Number(e.target.dataset.id);
-		  const anime = filteredList.find(a => a.id === id);
-		  if (anime) openModal(anime);
-	    }
-	  });
-
 	  // Favoris
 	  grid.addEventListener('click', e => {
 	   if (e.target.classList.contains('fav-btn')) {
@@ -1604,6 +1684,21 @@
 	    // 🔥 Synchronisation Firestore → UI
 	    SAMPLE_ANIMES.forEach(anime => {
 		  anime.fav = data.favorites.includes(anime.id);
+	    });
+	  }
+	  
+	  async function loadStatuses() {
+	    const user = auth.currentUser;
+	    if (!user) return;
+
+	    const userRef = doc(db, "users", user.uid);
+	    const snap = await getDoc(userRef);
+	    if (!snap.exists()) return;
+
+	    const data = snap.data();
+	    const statuses = data.statuses || {};
+	    SAMPLE_ANIMES.forEach(anime => {
+		  anime.status = statuses[anime.id] || null;
 	    });
 	  }
 	  
@@ -1783,6 +1878,10 @@
 
 	    loading.style.display = "none";
 	    grid.style.display = "grid";
+		if (pageLoader) {
+		  pageLoader.style.display = "none";
+		  pageLoader.setAttribute("aria-busy", "false");
+		}
 	  }
 
 	  const updateMessage = `De nouvelles fonctionnalités débarquent sur AnimeHub ! 🎉

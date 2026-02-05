@@ -51,6 +51,30 @@
 	  color: #e6eef6;
 	}
 
+	.subtitle {
+	  margin: -6px 0 6px;
+	  color: var(--muted);
+	  font-size: 13px;
+	}
+
+	form {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 14px;
+	}
+
+	.field {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 8px;
+	  text-align: left;
+	}
+
+	label {
+	  font-size: 13px;
+	  color: var(--muted);
+	}
+
 	input {
 	  padding: 12px;
 	  border-radius: 12px;
@@ -66,6 +90,23 @@
 	  box-shadow: 0 0 12px var(--accent);
 	}
 
+	.input-row {
+	  display: flex;
+	  align-items: center;
+	  gap: 8px;
+	}
+
+	.toggle-password {
+	  background: transparent;
+	  border: 1px solid rgba(255,255,255,0.2);
+	  color: #e6eef6;
+	  padding: 10px;
+	  border-radius: 10px;
+	  font-size: 12px;
+	  cursor: pointer;
+	  box-shadow: none;
+	}
+
 	button {
 	  padding: 12px;
 	  border-radius: 12px;
@@ -77,10 +118,18 @@
 	  box-shadow: 0 4px 14px rgba(6,182,212,0.35);
 	}
 
+	button:disabled {
+	  cursor: not-allowed;
+	  opacity: 0.7;
+	  transform: none;
+	  box-shadow: none;
+	}
+
 	#authSubmit {
 	  background: var(--accent);
 	  color: #052226;
 	}
+	
 	#authSubmit:hover {
 	  background: var(--accent-hover);
 	  box-shadow: 0 8px 22px rgba(6,182,212,0.55);
@@ -97,13 +146,32 @@
 	  transform: translateY(-2px);
 	}
 
+	.helper {
+	  font-size: 12px;
+	  color: var(--muted);
+	}
+
+	.error {
+	  font-size: 13px;
+	  color: #f87171;
+	  min-height: 18px;
+	}
+
+	.success {
+	  color: #34d399;
+	}
+
+	:focus-visible {
+	  outline: 2px solid rgba(6,182,212,0.8);
+	  outline-offset: 2px;
+	}
+
 	@media (max-width: 400px) {
 	  #authBox {
 		width: 90%;
 		padding: 30px 20px;
 	  }
 	}
-
   </style>
   <!-- Favicon classique -->
   <link rel="icon" type="image/png" href="icon_animehub.png">
@@ -118,13 +186,28 @@
 
   <div id="authBox">
     <h2 id="authTitle">Connexion</h2>
+	<p class="subtitle" id="authSubtitle">Ravi de te revoir sur AnimeHub</p>
 
-    <input id="authEmail" type="email" placeholder="Email">
-    <input id="authPassword" type="password" placeholder="Mot de passe">
+	<form id="authForm">
+	  <div class="field">
+	    <label for="authEmail">Email</label>
+	    <input id="authEmail" type="email" placeholder="ex: naruto@animehub.com" autocomplete="email" required>
+	  </div>
+	  <div class="field">
+	    <label for="authPassword">Mot de passe</label>
+	    <div class="input-row">
+	      <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" required>
+	      <button class="toggle-password" id="togglePassword" type="button">Afficher</button>
+	    </div>
+	    <span class="helper" id="passwordHelper">8 caractères minimum recommandés</span>
+	  </div>
 
-    <button id="authSubmit">Valider</button>
+	  <button id="authSubmit" type="submit">Valider</button>
+	</form>
 
-    <button id="switchMode">Pas de compte ? Inscription</button>
+	<p class="error" id="authError" aria-live="polite"></p>
+
+    <button id="switchMode" type="button">Pas de compte ? Inscription</button>
   </div>
 
   <script type="module">
@@ -156,8 +239,15 @@
   const db = getFirestore(app);
 
   const authTitle = document.getElementById("authTitle");
+  const authSubtitle = document.getElementById("authSubtitle");
   const switchBtn = document.getElementById("switchMode");
   const submitBtn = document.getElementById("authSubmit");
+  const authForm = document.getElementById("authForm");
+  const authError = document.getElementById("authError");
+  const togglePassword = document.getElementById("togglePassword");
+  const passwordInput = document.getElementById("authPassword");
+  const passwordHelper = document.getElementById("passwordHelper");
+  const emailInput = document.getElementById("authEmail");
 
   let mode = "login";
 
@@ -165,17 +255,37 @@
 	if (mode === "login") {
 	  mode = "signup";
 	  authTitle.textContent = "Inscription";
+	  authSubtitle.textContent = "Crée ton compte pour sauvegarder tes favoris.";
 	  switchBtn.textContent = "Déjà un compte ? Connexion";
+	  passwordInput.autocomplete = "new-password";
+	  passwordHelper.textContent = "Choisis un mot de passe sécurisé.";
 	} else {
 	  mode = "login";
 	  authTitle.textContent = "Connexion";
+	  authSubtitle.textContent = "Ravi de te revoir sur AnimeHub.";
 	  switchBtn.textContent = "Pas de compte ? Inscription";
+	  passwordInput.autocomplete = "current-password";
+	  passwordHelper.textContent = "8 caractères minimum recommandés.";
 	}
+	authError.textContent = "";
+	authError.classList.remove("success");
   });
 
-  submitBtn.addEventListener("click", async () => {
-	const email = document.getElementById("authEmail").value;
-	const password = document.getElementById("authPassword").value;
+  togglePassword.addEventListener("click", () => {
+	const isHidden = passwordInput.type === "password";
+	passwordInput.type = isHidden ? "text" : "password";
+	togglePassword.textContent = isHidden ? "Masquer" : "Afficher";
+  });
+
+  authForm.addEventListener("submit", async (event) => {
+	event.preventDefault();
+	authError.textContent = "";
+	authError.classList.remove("success");
+	submitBtn.disabled = true;
+	submitBtn.textContent = "Chargement...";
+
+	const email = emailInput.value.trim();
+	const password = passwordInput.value;
 
 	try {
 	  if (mode === "login") {
@@ -194,15 +304,16 @@
 			email: email,
 			favorites: [],
 			ratings: {},
-			createdAt: serverTimestamp
+			createdAt: serverTimestamp()
 		  });
 
 		  console.log("Utilisateur ajouté à Firestore !");
-		  alert("Compte créé et enregistré dans Firestore !");
+		  authError.textContent = "Compte créé et enregistré dans Firestore !";
+		  authError.classList.add("success");
 
 		} catch(firestoreErr) {
 		  console.error("Erreur Firestore :", firestoreErr);
-		  alert("Le compte a été créé, mais impossible d'enregistrer les données supplémentaires.");
+		  authError.textContent = "Le compte a été créé, mais impossible d'enregistrer les données supplémentaires.";
 		}
 	  }
 
@@ -210,11 +321,12 @@
 
 	} catch (err) {
 	  console.error("Erreur Auth :", err);
-	  alert("Erreur : " + err.message);
+	  authError.textContent = "Erreur : " + err.message;
+	  authError.classList.remove("success");
+	} finally {
+	  submitBtn.disabled = false;
+	  submitBtn.textContent = "Valider";
 	}
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") submitBtn.click();
   });
 
   let checkedAuth = false;

@@ -46,6 +46,11 @@
     }
     header nav a:hover { color: var(--accent); }
 
+	:focus-visible {
+	  outline: 2px solid rgba(6,182,212,0.8);
+	  outline-offset: 2px;
+	}
+
     #particles {
       position: fixed;
       top: 0;
@@ -129,6 +134,44 @@
       color: var(--accent);
     }
 
+	.status-group {
+	  display: flex;
+	  flex-wrap: wrap;
+	  gap: 10px;
+	  margin-top: 6px;
+	}
+
+	.status-label {
+	  font-size: 13px;
+	  color: var(--muted);
+	  margin-top: 6px;
+	}
+
+	.status-btn {
+	  padding: 8px 14px;
+	  border-radius: 999px;
+	  border: 1px solid rgba(255,255,255,0.15);
+	  background: rgba(255,255,255,0.06);
+	  color: #e6eef6;
+	  font-size: 13px;
+	  font-weight: 700;
+	  cursor: pointer;
+	  transition: all 0.2s ease;
+	}
+
+	.status-btn:hover {
+	  transform: translateY(-1px);
+	  border-color: rgba(6,182,212,0.5);
+	  box-shadow: 0 8px 18px rgba(6,182,212,0.2);
+	}
+
+	.status-btn.is-active {
+	  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+	  color: #052226;
+	  border-color: transparent;
+	  box-shadow: 0 10px 24px rgba(6,182,212,0.4);
+	}
+
     .btn {
       padding: 10px 20px;
       border: none;
@@ -177,6 +220,11 @@
     }
 
     @media (max-width: 720px){
+	  header {
+		flex-direction: column;
+		gap: 12px;
+		padding: 16px 20px;
+	  }
       .anime-details {
         flex-direction: column;
         align-items: center;
@@ -470,6 +518,11 @@
 	    margin-left: auto;
 		margin-right: auto;
 	  }
+	  .header-actions {
+		width: 100%;
+		justify-content: center;
+		flex-wrap: wrap;
+	  }
 	}
 	/* 🎬 Bloc saisons */
 	.anime-seasons {
@@ -710,6 +763,12 @@
 			<div id="timelineList"></div>
 		  </div>
           <div class="rating" id="animeRating"></div>
+		  <div class="status-label">Statut de visionnage</div>
+		  <div class="status-group" id="watchStatus">
+			<button class="status-btn" data-status="watching">En cours</button>
+			<button class="status-btn" data-status="completed">Terminé</button>
+			<button class="status-btn" data-status="planned">À voir</button>
+		  </div>
 
           <button class="btn" id="favBtn">Ajouter aux favoris</button>
 
@@ -1521,7 +1580,8 @@
 	const summary = document.getElementById("animeSummary");
 	const favBtn = document.getElementById("favBtn");
 	const rateSelect = document.getElementById("rateSelect");
-	const toggleNonCanonBtn = document.getElementById("toggleNonCanonBtn");
+	const toggleCanonBtn = document.getElementById("toggleCanonBtn");
+	const watchStatus = document.getElementById("watchStatus");
 
 	let currentAnime = null;
 	let showNonCanon = false;
@@ -1734,10 +1794,10 @@
 	  });
 	}
 	function updateNonCanonButton(anime) {
-	  if (!toggleNonCanonBtn) return;
+	  if (!toggleCanonBtn) return;
 
 	  if (!anime.timeline || anime.timeline.length === 0) {
-		toggleNonCanonBtn.style.display = "none";
+		toggleCanonBtn.style.display = "none";
 		return;
 	  }
 
@@ -1745,7 +1805,7 @@
 	  const hasNonCanon = anime.timeline.some(item => item.canon === false);
 
 	  // afficher le bouton UNIQUEMENT s'il y a les deux
-	  toggleNonCanonBtn.style.display =
+	  toggleCanonBtn.style.display =
 		hasCanon && hasNonCanon ? "inline-flex" : "none";
 	}
 	/*****************************************************
@@ -1836,6 +1896,27 @@
 		rateSelect.value = "";
 		rateSelect.classList.remove("rated");
 	  }
+
+	  /* STATUT */
+	  const status = data.statuses?.[animeId] ?? null;
+	  updateStatusUI(status);
+	}
+
+	function updateStatusUI(status) {
+	  if (!watchStatus) return;
+	  const buttons = watchStatus.querySelectorAll(".status-btn");
+	  buttons.forEach(button => {
+		button.classList.toggle("is-active", button.dataset.status === status);
+	  });
+	}
+
+	async function setWatchStatus(animeId, status) {
+	  const user = auth.currentUser;
+	  if (!user) return;
+	  const userRef = doc(db, "users", user.uid);
+	  await updateDoc(userRef, { [`statuses.${animeId}`]: status });
+	  updateStatusUI(status);
+	  showToast(`Statut: ${status === "completed" ? "Terminé" : status === "watching" ? "En cours" : "À voir"}`);
 	}
 	/*****************************************************
 	 * 6️⃣ NOTES
@@ -1945,7 +2026,6 @@
 	  title.textContent = currentAnime.title;
 	  summary.textContent = currentAnime.summary;
 	  renderTimeline(currentAnime);
-	  const toggleCanonBtn = document.getElementById("toggleCanonBtn");
 	  if (toggleCanonBtn) {
 	    toggleCanonBtn.textContent = "Afficher le non-canon";
 
@@ -1958,20 +2038,6 @@
 
 		  renderTimeline(currentAnime);
 	    };
-	  }
-	  function updateNonCanonButton(anime) {
-	    if (!toggleCanonBtn) return;
-
-	    if (!anime.timeline || anime.timeline.length === 0) {
-	  	  toggleCanonBtn.style.display = "none";
-		  return;
-	    }
-
-	    const hasCanon = anime.timeline.some(item => item.canon === true);
-	    const hasNonCanon = anime.timeline.some(item => item.canon === false);
-
-	    toggleCanonBtn.style.display =
-		  hasCanon && hasNonCanon ? "inline-flex" : "none";
 	  }
 	  updateNonCanonButton(currentAnime);
 	  /* 🎭 GENRES CLIQUABLES */
@@ -2003,6 +2069,11 @@
 	  await syncUserData(animeId);
 
 	  favBtn.onclick = () => toggleFavorite(animeId);
+	  watchStatus?.addEventListener("click", (event) => {
+		const button = event.target.closest(".status-btn");
+		if (!button) return;
+		setWatchStatus(animeId, button.dataset.status);
+	  });
 	  rateSelect.addEventListener("change", e => {
 		if (e.target.value === "") {
 		  removeRating(animeId);
