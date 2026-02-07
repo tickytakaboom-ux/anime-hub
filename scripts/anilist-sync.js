@@ -50,7 +50,7 @@ function sanitizeDescription(text) {
 }
 
 async function anilistRequest(query, variables) {
-  const maxRetries = 4;
+  const maxRetries = 6;
   let attempt = 0;
 
   while (attempt <= maxRetries) {
@@ -64,7 +64,7 @@ async function anilistRequest(query, variables) {
     });
 
     if (response.status === 429 && attempt < maxRetries) {
-      const delayMs = 1000 * (2 ** attempt);
+      const delayMs = 1200 * (2 ** attempt);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
       attempt += 1;
       continue;
@@ -77,6 +77,15 @@ async function anilistRequest(query, variables) {
 
     const result = await response.json();
     if (result.errors) {
+      const isRateLimit = result.errors.some(
+        (error) => error?.status === 429
+      );
+      if (isRateLimit && attempt < maxRetries) {
+        const delayMs = 1200 * (2 ** attempt);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        attempt += 1;
+        continue;
+      }
       throw new Error(`AniList errors: ${JSON.stringify(result.errors)}`);
     }
     return result.data;
@@ -420,7 +429,7 @@ async function importSample(db) {
     if (!title) continue;
     const id = await searchAniListId(title);
     if (id) ids.add(id);
-    await new Promise((resolve) => setTimeout(resolve, 350));
+    await new Promise((resolve) => setTimeout(resolve, 700));
   }
 
   const idList = [...ids];
