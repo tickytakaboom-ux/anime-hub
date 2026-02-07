@@ -1384,18 +1384,18 @@
 	  const f = favFilterEl.value;
 
 	  filteredList = SAMPLE_ANIMES.filter(a =>
-		a.title.toLowerCase().includes(q)
+		(a.title || "").toLowerCase().includes(q)
 	  );
 
 	  // 🔹 FILTRE GENRE (select)
 	  if (g !== 'Tout') {
-		filteredList = filteredList.filter(a => a.genre.includes(g));
+		filteredList = filteredList.filter(a => (a.genre || []).includes(g));
 	  }
 
 	  // 🔥 FILTRE GENRE (URL) — AJOUT ICI
 	  if (genreFromUrl) {
 		filteredList = filteredList.filter(a =>
-		  a.genre.includes(genreFromUrl)
+		  (a.genre || []).includes(genreFromUrl)
 		);
 	  }
 
