@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "sync:backfill": "node scripts/anilist-sync.js backfill",
-    "sync:update": "node scripts/anilist-sync.js update"
+    "sync:update": "node scripts/anilist-sync.js update",
+    "sync:import-sample": "node scripts/anilist-sync.js import-sample"
   },
   "dependencies": {
     "firebase-admin": "^12.5.0"
