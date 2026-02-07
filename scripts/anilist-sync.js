@@ -7,6 +7,7 @@ const BACKFILL_LIMIT = Number(process.env.BACKFILL_LIMIT || 500);
 const UPDATE_LIMIT = Number(process.env.UPDATE_LIMIT || 200);
 const PER_PAGE = 50;
 const FORCE_UPDATE = process.env.FORCE_UPDATE === "true";
+const KIDS_GENRES = new Set(["Kids"]);
 
 function getServiceAccount() {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
@@ -74,6 +75,11 @@ function mapMediaToDoc(media) {
   };
 }
 
+function isKidsMedia(media) {
+  if (!media?.genres?.length) return false;
+  return media.genres.some((genre) => KIDS_GENRES.has(genre));
+}
+
 async function initFirebase() {
   const serviceAccount = getServiceAccount();
   if (!admin.apps.length) {
@@ -93,13 +99,12 @@ async function backfill(db) {
   const query = `
     query ($page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, sort: POPULARITY_DESC, isAdult: false, isKids: false) {
+        media(type: ANIME, sort: POPULARITY_DESC, isAdult: false) {
           id
           title { romaji english native }
           description(asHtml: false)
           genres
           isAdult
-          isKids
           status
           season
           seasonYear
@@ -119,7 +124,7 @@ async function backfill(db) {
       if (processed >= BACKFILL_LIMIT) break;
       processed += 1;
 
-      if (media.isAdult || media.isKids) {
+      if (media.isAdult || isKidsMedia(media)) {
         skipped += 1;
         continue;
       }
@@ -150,13 +155,12 @@ async function update(db) {
   const query = `
     query ($page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, sort: UPDATED_AT_DESC, isAdult: false, isKids: false) {
+        media(type: ANIME, sort: UPDATED_AT_DESC, isAdult: false) {
           id
           title { romaji english native }
           description(asHtml: false)
           genres
           isAdult
-          isKids
           status
           season
           seasonYear
@@ -176,7 +180,7 @@ async function update(db) {
       if (processed >= UPDATE_LIMIT) break;
       processed += 1;
 
-      if (media.isAdult || media.isKids) {
+      if (media.isAdult || isKidsMedia(media)) {
         continue;
       }
 
