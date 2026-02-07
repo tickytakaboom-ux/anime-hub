@@ -207,7 +207,12 @@
 	  .modal { flex-direction: column; align-items: center; }
 	  .modal img { width: 180px; height: 260px; }
 	}
-
+	
+	.fallback-img {
+	  object-fit: contain;
+	  background: #0b1220;
+	}
+	
 	/* Bouton Top */
 	#backToTop {
 	  position: fixed; bottom: 22px; right: 22px; padding: 10px 14px;
@@ -1265,11 +1270,12 @@
 	  empty.style.display='none';
 
 	  list.forEach((a, index) => {
+		  const poster = a.img || "icon_animehub.png";
 		  const card = document.createElement('div'); 
 		  card.className = 'card';
 		  card.style.animationDelay = `${index * 0.08}s`; // 0.08s entre chaque carte
 		  card.innerHTML = `
-			<img src="${a.img}" alt="${a.title}">
+			const poster = a.img || "icon_animehub.png";
 			<div class="card-body">
 			  <div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
 			  <div class="title">${a.title}</div>
@@ -1294,12 +1300,13 @@
 
 	  const nextBatch = filteredList.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
 	  nextBatch.forEach((a, index) => {
+		const poster = a.img || "icon_animehub.png";
 		const card = document.createElement('div');
 		card.className = 'card';
 		card.style.animationDelay = `${(currentIndex + index) * 0.08}s`;
 
 		card.innerHTML = `
-		  <img src="${a.img}" alt="${a.title}">
+		  <img src="${poster}" alt="${a.title || "Anime"}" class="${a.img ? "" : "fallback-img"}">
 		  <div class="card-body">
 			<div class="meta">
 			  <div class="genres">${a.genre.join(' • ')}</div>
@@ -1867,7 +1874,7 @@
 		    id: Number(docSnap.id),
 		    title: data.title,
 		    genre: data.genre || [],
-		    img: data.img,
+		    img: data.img || "icon_animehub.png",
 		    rating: data.avgRating || 0,
 		    likes: data.likes || 0,
 		    year: data.seasonYear || data.year || null,
