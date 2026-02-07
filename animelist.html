@@ -1200,12 +1200,14 @@
 		}
 	  }
 
-	  const updateMessage = `De nouvelles fonctionnalités débarquent sur AnimeHub ! 🎉
-		- Phrase de chargement et animations pour les cartes.
-		- Interface responsive et design modernisé.
-		- Amélioration de la page anime
-
-		Profite de toutes ces nouveautés et continue d’explorer ton univers anime préféré !`;
+	 const updateMessage = [
+		"De nouvelles fonctionnalités débarquent sur AnimeHub ! 🎉",
+		"- Phrase de chargement et animations pour les cartes.",
+		"- Interface responsive et design modernisé.",
+		"- Amélioration de la page anime",
+		"",
+		"Profite de toutes ces nouveautés et continue d’explorer ton univers anime préféré !"
+	  ].join("\\n");
 
 		// Appel de la fonction avec un numéro de version unique
 		sendSiteUpdateNotification("1.1.0", updateMessage);
