@@ -1274,7 +1274,7 @@
 			  <div class="meta"><div class="genres">${a.genre.join(' • ')}</div><div class="rating">${a.rating.toFixed(1)}</div></div>
 			  <div class="title">${a.title}</div>
 			  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-				<div style="color:var(--muted); font-size:13px">${a.year}</div>
+				<div style="color:var(--muted); font-size:13px">${a.year ?? "—"}</div>
 				<div style="display:flex; gap:6px;">
 				  <button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
 				  <button class="btn" onclick="openAnime(${a.id})">Voir</button>
@@ -1312,7 +1312,7 @@
 			</div>
 
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-			  <div style="color:var(--muted); font-size:13px">${a.year}</div>
+			  <div style="color:var(--muted); font-size:13px">${a.year ?? "—"}</div>
 
 			  <div style="display:flex; gap:6px; align-items:center;">
 				<button class="fav-btn" data-id="${a.id}">${a.fav ? '★' : '☆'}</button>
@@ -1869,10 +1869,19 @@
 		    genre: data.genre || [],
 		    img: data.img,
 		    rating: data.avgRating || 0,
-		    likes: data.likes || 0
+		    likes: data.likes || 0,
+		    year: data.seasonYear || data.year || null,
+		    summary: data.summary || "",
+		    timeline: data.timeline || [],
+		    fav: false
 		  };
 	    });
-
+		
+		if (animes.length && typeof SAMPLE_ANIMES !== "undefined") {
+		  SAMPLE_ANIMES.splice(0, SAMPLE_ANIMES.length, ...animes);
+		  window.AnimeHub = { SAMPLE_ANIMES, renderList, applyFilters };
+		}
+		
 	    const grid = document.getElementById('grid');
 	    const loading = document.getElementById('loading');
 

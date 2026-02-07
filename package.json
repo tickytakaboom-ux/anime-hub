@@ -1,0 +1,12 @@
+{
+  "name": "anime-hub-sync",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync:backfill": "node scripts/anilist-sync.js backfill",
+    "sync:update": "node scripts/anilist-sync.js update"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.5.0"
+  }
+}

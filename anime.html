@@ -1996,7 +1996,7 @@
 	  rateSelect.appendChild(opt);
 	}
 	/*****************************************************
-	 * 7️⃣ NOTIFICATIONS
+	 * 7️⃣ NOTIFICATIONS␊
 	 *****************************************************/
 	async function sendNotification(userId, title, message = "") {
 	  try {
@@ -2011,6 +2011,24 @@
 		console.error("Erreur notification:", err);
 	  }
 	}
+	async function fetchAnimeFromFirestore(animeId) {
+	  const animeSnap = await getDoc(doc(db, "animes", String(animeId)));
+	  if (!animeSnap.exists()) return null;
+
+	  const data = animeSnap.data();
+	  return {
+		id: Number(animeId),
+		title: data.title || "Anime",
+		genre: data.genre || [],
+		rating: data.avgRating || 0,
+		year: data.seasonYear || data.year || null,
+		img: data.img || "",
+		summary: data.summary || "Synopsis indisponible.",
+		fav: false,
+		likes: data.likes || 0,
+		timeline: data.timeline || []
+	  };
+	}
 	/*****************************************************
 	 * 79⃣ INIT PAGE
 	 *****************************************************/
@@ -2019,6 +2037,9 @@
 	  if (!user) return;
 
 	  currentAnime = SAMPLE_ANIMES.find(a => a.id === animeId);
+	  if (!currentAnime) {
+		currentAnime = await fetchAnimeFromFirestore(animeId);
+	  }
 	  if (!currentAnime) return;
 	  /* 🎨 INFOS ANIME (UNE SEULE FOIS) */
 	  img.src = currentAnime.img;
