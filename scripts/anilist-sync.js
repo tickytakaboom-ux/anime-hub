@@ -174,6 +174,11 @@ function selectPrimaryMedia(items) {
   };
 
   return [...items].sort((a, b) => {
+
+    const dateA = Date.parse(formatDate(a.startDate) || "9999-12-31");
+    const dateB = Date.parse(formatDate(b.startDate) || "9999-12-31");
+    if (dateA !== dateB) return dateA - dateB;
+    
     const formatA = formatPriority[a.format] ?? 99;
     const formatB = formatPriority[b.format] ?? 99;
     if (formatA !== formatB) return formatA - formatB;
@@ -181,10 +186,6 @@ function selectPrimaryMedia(items) {
     const descA = (a.description || "").length;
     const descB = (b.description || "").length;
     if (descA !== descB) return descB - descA;
-
-    const dateA = Date.parse(formatDate(a.startDate) || "1970-01-01");
-    const dateB = Date.parse(formatDate(b.startDate) || "1970-01-01");
-    if (dateA !== dateB) return dateA - dateB;
 
     return (b.averageScore || 0) - (a.averageScore || 0);
   })[0];
