@@ -50,25 +50,38 @@ function sanitizeDescription(text) {
 }
 
 async function anilistRequest(query, variables) {
-  const response = await fetch(ANILIST_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    },
-    body: JSON.stringify({ query, variables })
-  });
+  const maxRetries = 4;
+  let attempt = 0;
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`AniList request failed: ${response.status} ${text}`);
-  }
+  while (attempt <= maxRetries) {
+    const response = await fetch(ANILIST_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({ query, variables })
+    });
 
-  const result = await response.json();
-  if (result.errors) {
-    throw new Error(`AniList errors: ${JSON.stringify(result.errors)}`);
+    if (response.status === 429 && attempt < maxRetries) {
+      const delayMs = 1000 * (2 ** attempt);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      attempt += 1;
+      continue;
+    }
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`AniList request failed: ${response.status} ${text}`);
+    }
+
+    const result = await response.json();
+    if (result.errors) {
+      throw new Error(`AniList errors: ${JSON.stringify(result.errors)}`);
+    }
+    return result.data;
   }
-  return result.data;
+  throw new Error("AniList request failed after retries.");
 }
 
 function isKidsMedia(media) {
@@ -407,6 +420,7 @@ async function importSample(db) {
     if (!title) continue;
     const id = await searchAniListId(title);
     if (id) ids.add(id);
+    await new Promise((resolve) => setTimeout(resolve, 350));
   }
 
   const idList = [...ids];
