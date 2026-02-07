@@ -13,6 +13,7 @@ on:
         options:
           - update
           - backfill
+          - import-sample
       backfill_limit:
         description: "Nombre d'animes à récupérer en backfill"
         required: false
@@ -39,6 +40,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "backfill" ]; then
             BACKFILL_LIMIT="${{ inputs.backfill_limit }}" node scripts/anilist-sync.js backfill
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "import-sample" ]; then
+            node scripts/anilist-sync.js import-sample
           else
             node scripts/anilist-sync.js update
           fi
