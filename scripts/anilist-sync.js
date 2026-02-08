@@ -140,11 +140,12 @@ function mediaToTimelineItem(media) {
     status: media.status ? media.status.toLowerCase() : "released",
     releaseDate: formatDate(media.startDate),
     seasonYear: media.seasonYear || null,
-    anilistId: media.id
+    anilistId: media.id,
+    averageScore: Number.isFinite(media.averageScore) ? media.averageScore : null
   };
 }
 
-function mapMediaToDoc(media, timeline) {
+function mapMediaToDoc(media, timeline, avgRating) {
   return {
     anilistId: media.id,
     title: titleFor(media),
@@ -157,6 +158,7 @@ function mapMediaToDoc(media, timeline) {
     episodes: media.episodes || null,
     nextAiringEpisode: media.nextAiringEpisode || null,
     anilistScore: media.averageScore ?? null,
+    avgRating: Number.isFinite(avgRating) ? avgRating : null,
     timeline,
     source: "anilist",
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -372,12 +374,26 @@ async function writeGroups(db, groups, mode) {
 
     const docRef = db.collection("animes").doc(String(primary.id));
     const docSnap = await docRef.get();
+    const existing = docSnap.exists ? docSnap.data() : null;
 
     if (docSnap.exists && mode === "backfill" && !FORCE_UPDATE) {
       skipped += 1;
       continue;
     }
-    const payload = mapMediaToDoc(primary, timeline);
+    let avgRating = existing?.avgRating ?? null;
+    if (!Number.isFinite(avgRating)) {
+      let weightedSum = 0;
+      let weightTotal = 0;
+      timeline.forEach((item) => {
+        if (!Number.isFinite(item.averageScore)) return;
+        const weight = Number.isFinite(item.episodes) ? item.episodes : 1;
+        weightedSum += item.averageScore * weight;
+        weightTotal += weight;
+      });
+      avgRating = weightTotal > 0 ? weightedSum / weightTotal / 10 : null;
+    }
+
+    const payload = mapMediaToDoc(primary, timeline, avgRating);
     await docRef.set(payload, { merge: true });
     written += 1;
   }
