@@ -8,6 +8,10 @@ const UPDATE_LIMIT = Number(process.env.UPDATE_LIMIT || 200);
 const PER_PAGE = 50;
 const FORCE_UPDATE = process.env.FORCE_UPDATE === "true";
 const SAMPLE_FILE = process.env.SAMPLE_FILE || "data/sample-animes.json";
+const RELATION_EXPANSION_LIMIT = Number(
+  process.env.RELATION_EXPANSION_LIMIT || 800
+);
+
 const KIDS_GENRES = new Set(["Kids"]);
 const RELATION_TYPES = new Set([
   "PREQUEL",
@@ -20,6 +24,7 @@ const RELATION_TYPES = new Set([
   "PARENT",
   "CHILD",
   "COMPILATION",
+  "CONTAINS",
   "OTHER"
 ]);
 
@@ -117,23 +122,18 @@ function formatToTimelineType(format) {
   switch (format) {
     case "MOVIE":
       return "movie";
-    case "OVA":
-      return "ova";
-    case "ONA":
-      return "ona";
-    case "SPECIAL":
-      return "special";
     case "TV_SHORT":
     case "TV":
       return "season";
     default:
-      return "season";
+      return "other";
   }
 }
 
 function mediaToTimelineItem(media) {
+  const type = formatToTimelineType(media.format);
   return {
-    type: formatToTimelineType(media.format),
+    type,
     title: titleFor(media),
     episodes: media.episodes || null,
     canon: true,
@@ -141,7 +141,8 @@ function mediaToTimelineItem(media) {
     releaseDate: formatDate(media.startDate),
     seasonYear: media.seasonYear || null,
     anilistId: media.id,
-    averageScore: Number.isFinite(media.averageScore) ? media.averageScore : null
+    averageScore: Number.isFinite(media.averageScore) ? media.averageScore : null,
+    isIncluded: type === "season" || type === "movie"
   };
 }
 
@@ -176,7 +177,10 @@ function selectPrimaryMedia(items) {
   };
 
   return [...items].sort((a, b) => {
-
+    const isSeasonA = formatToTimelineType(a.format) === "season";
+    const isSeasonB = formatToTimelineType(b.format) === "season";
+    if (isSeasonA !== isSeasonB) return isSeasonA ? -1 : 1;
+    
     const dateA = Date.parse(formatDate(a.startDate) || "9999-12-31");
     const dateB = Date.parse(formatDate(b.startDate) || "9999-12-31");
     if (dateA !== dateB) return dateA - dateB;
@@ -355,6 +359,51 @@ async function fetchMediaPages(sort, limit, filterClause = "") {
       return results;
 }
 
+async function expandMediaList(seedMedia) {
+  const mediaById = new Map();
+  const seen = new Set();
+  const queue = [];
+
+  seedMedia.forEach((media) => {
+    if (media.isAdult || isKidsMedia(media)) return;
+    mediaById.set(media.id, media);
+    if (!seen.has(media.id)) {
+      seen.add(media.id);
+      queue.push(media.id);
+    }
+  });
+
+  while (queue.length && mediaById.size < RELATION_EXPANSION_LIMIT) {
+    const batch = queue.splice(0, PER_PAGE);
+    const fetched = await fetchMediaByIds(batch);
+    fetched.forEach((media) => {
+      if (media.isAdult || isKidsMedia(media)) return;
+      mediaById.set(media.id, media);
+    });
+
+    fetched.forEach((media) => {
+      const edges = media.relations?.edges || [];
+      const nodes = media.relations?.nodes || [];
+      edges.forEach((edge, index) => {
+        const related = nodes[index];
+        if (!related || related.type !== "ANIME") return;
+        if (!RELATION_TYPES.has(edge.relationType)) return;
+        if (related.isAdult || isKidsMedia(related)) return;
+        if (seen.has(related.id)) return;
+        if (seen.size >= RELATION_EXPANSION_LIMIT) return;
+        seen.add(related.id);
+        queue.push(related.id);
+      });
+    });
+
+    if (queue.length) {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+  }
+
+  return [...mediaById.values()];
+}
+
 async function writeGroups(db, groups, mode) {
   let written = 0;
   let skipped = 0;
@@ -365,6 +414,7 @@ async function writeGroups(db, groups, mode) {
     const primary = selectPrimaryMedia(group);
     const timeline = group
       .map(mediaToTimelineItem)
+      .filter((item) => item.isIncluded)
       .sort((a, b) => {
         const dateA = a.releaseDate ? Date.parse(a.releaseDate) : 0;
         const dateB = b.releaseDate ? Date.parse(b.releaseDate) : 0;
@@ -402,7 +452,8 @@ async function writeGroups(db, groups, mode) {
 
 async function backfill(db) {
   const mediaList = await fetchMediaPages("POPULARITY_DESC", BACKFILL_LIMIT);
-  const { groups } = buildGroups(mediaList);
+  const expanded = await expandMediaList(mediaList);
+  const { groups } = buildGroups(expanded);
   const { written, skipped } = await writeGroups(db, groups, "backfill");
   
   console.log(
@@ -412,7 +463,8 @@ async function backfill(db) {
 
 async function update(db) {
   const mediaList = await fetchMediaPages("UPDATED_AT_DESC", UPDATE_LIMIT);
-  const { groups } = buildGroups(mediaList);
+  const expanded = await expandMediaList(mediaList);
+  const { groups } = buildGroups(expanded);
   const { written } = await writeGroups(db, groups, "update");
 
   console.log(`Update terminé. Total groupes: ${groups.size}, Mises à jour: ${written}.`);
@@ -456,7 +508,8 @@ async function importSample(db) {
   }
 
   const mediaList = await fetchMediaByIds(idList);
-  const { groups } = buildGroups(mediaList);
+  const expanded = await expandMediaList(mediaList);
+  const { groups } = buildGroups(expanded);
   const { written, skipped } = await writeGroups(db, groups, "import");
 
   console.log(
