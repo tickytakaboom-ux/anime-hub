@@ -18,6 +18,10 @@ on:
         description: "Nombre d'animes à récupérer en backfill"
         required: false
         default: "500"
+      backfill_offset:
+        description: "Décalage (offset) pour éviter de reprendre les mêmes animes"
+        required: false
+        default: "0"
 
 jobs:
   sync:
@@ -39,7 +43,7 @@ jobs:
       - name: Run AniList sync
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "backfill" ]; then
-            BACKFILL_LIMIT="${{ inputs.backfill_limit }}" node scripts/anilist-sync.js backfill
+            BACKFILL_LIMIT="${{ inputs.backfill_limit }}" BACKFILL_OFFSET="${{ inputs.backfill_offset }}" node scripts/anilist-sync.js backfill
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" = "import-sample" ]; then
             node scripts/anilist-sync.js import-sample
           else
