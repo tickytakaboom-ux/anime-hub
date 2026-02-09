@@ -4,6 +4,7 @@ import fs from "fs";
 const ANILIST_ENDPOINT = "https://graphql.anilist.co";
 const MODE = process.argv[2] || "update";
 const BACKFILL_LIMIT = Number(process.env.BACKFILL_LIMIT || 500);
+const BACKFILL_OFFSET = Number(process.env.BACKFILL_OFFSET || 0);
 const UPDATE_LIMIT = Number(process.env.UPDATE_LIMIT || 200);
 const PER_PAGE = 50;
 const FORCE_UPDATE = process.env.FORCE_UPDATE === "true";
@@ -306,8 +307,8 @@ function mediaQuery(extraFilter = "") {
   `;
 }
 
-async function fetchMediaPages(sort, limit, filterClause = "") {
-  const totalPages = Math.ceil(limit / PER_PAGE);
+async function fetchMediaPages(sort, limit, filterClause = "", offset = 0) {
+  const totalPages = Math.ceil((limit + offset) / PER_PAGE);
   const mediaList = [];
 
   const query = `
@@ -324,10 +325,10 @@ async function fetchMediaPages(sort, limit, filterClause = "") {
     const data = await anilistRequest(query, { page, perPage: PER_PAGE });
     const media = data?.Page?.media || [];
     mediaList.push(...media);
-    if (mediaList.length >= limit) break;
+    if (mediaList.length >= limit + offset) break;
   }
 
-  return mediaList.slice(0, limit);
+  return mediaList.slice(offset, offset + limit);
 }
 
    async function fetchMediaByIds(ids) {
@@ -451,7 +452,12 @@ async function writeGroups(db, groups, mode) {
 }
 
 async function backfill(db) {
-  const mediaList = await fetchMediaPages("POPULARITY_DESC", BACKFILL_LIMIT);
+  const mediaList = await fetchMediaPages(
+    "POPULARITY_DESC",
+    BACKFILL_LIMIT,
+    "",
+    BACKFILL_OFFSET
+  );
   const expanded = await expandMediaList(mediaList);
   const { groups } = buildGroups(expanded);
   const { written, skipped } = await writeGroups(db, groups, "backfill");
