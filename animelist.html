@@ -142,7 +142,7 @@
 	  position: relative;
 	}
 	.card:hover {
-	  transform: translateY(-4px) rotateZ(-0.2deg);;
+	  transform: translateY(-4px) rotateZ(-0.2deg);
 	  box-shadow: 0 12px 30px rgba(6,182,212,0.6), 0 0 20px rgba(6,182,212,0.25);
 	}
 	.card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #111; transition: 0.3s; }
@@ -369,7 +369,7 @@
 	@media (max-width:720px) {
 		header { padding: 16px 20px; }
 	}
-	* {
+	*, *::before, *::after {
 		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 	}
 	.logo {
@@ -785,6 +785,10 @@
 	
 	const backToTop = document.getElementById('backToTop');
 	backToTop.classList.add('hide');
+	backToTop.addEventListener('click', () => {
+	  window.scrollTo({ top: 0, behavior: 'smooth' });
+	});
+	window.AnimeHub = { ANIMES, renderList, applyFilters };
 	window.addEventListener('scroll', () => {
 	  if (window.scrollY > 50) {
 		backToTop.classList.add('show');
@@ -793,12 +797,7 @@
 		backToTop.classList.add('hide');
 		setTimeout(() => backToTop.classList.remove('show'), 200);
 	  }
-	});
-	backToTop.addEventListener('click', () => {
-	  window.scrollTo({ top: 0, behavior: 'smooth' });
-	});
-	window.AnimeHub = { ANIMES, renderList, applyFilters };
-	window.addEventListener('scroll', () => {
+	
 	  if(window.scrollY > 20){
 		document.querySelector('header').classList.add('sticky');
 	  } else {
@@ -822,7 +821,7 @@
 	document.fonts.ready.then(() => {
       document.body.classList.remove("fonts-not-loaded");
     });
-	applyFilters();
+	// Les filtres sont appliqués après chargement Firestore dans onAuthStateChanged.
 	document.getElementById("homeLogo").addEventListener("click", () => {
 	  window.location.href = "index.html";
 	});
@@ -831,10 +830,10 @@
       import { 
           initializeApp 
       } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-      import { 
-          getAuth, onAuthStateChanged, signOut 
-      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, collection, getDocs, deleteField, query, where, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+      import {
+	      getAuth, onAuthStateChanged
+	  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, collection, getDocs, query, where, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 	  
       const firebaseConfig = {
           apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -859,12 +858,7 @@
 	  const notifDropdown = document.getElementById("notifDropdown");
 	  const notifList = document.getElementById("notifList");
 	  const urlParams = new URLSearchParams(window.location.search);
-	  const genreFilter = urlParams.get("genre"); // null si aucun
 	  const notifBtn = document.getElementById("notifBtn");
-
-
-	  
-	  let notifVisible = false;
 	  
 	  notifBtn.addEventListener("click", () => {
 	    notifDropdown.style.display =
@@ -922,7 +916,10 @@
 		  if (openLogin) openLogin.style.display = "inline-block";
 		  if (openSignup) openSignup.style.display = "inline-block";
 		  userBox.style.display = "none";
-		  window.location.href = "auth.html";
+		  if (pageLoader) {
+			pageLoader.style.display = "none";
+			pageLoader.setAttribute("aria-busy", "false");
+		  }
 	    }
 	  });
 	  async function sendNotification(userId, title, message = "") {
@@ -1069,7 +1066,11 @@
 	    if(unreadCount > 0) notifBadge.classList.add("show");
 	    else notifBadge.classList.remove("show");
 	  }
-	  async function sendNotificationToAllUsers(title, message = "") {
+	async function sendNotificationToAllUsers(title, message = "") {
+	  console.warn("sendNotificationToAllUsers est désactivé côté client. À déplacer côté backend (Cloud Function).", { title, message });
+	  return;
+
+	  /*
 	    if (!title) {
 		  console.warn("❌ Notification annulée : title manquant");
 		  return;
@@ -1092,9 +1093,14 @@
 
 	    await Promise.all(promises);
 	    console.log("✅ Notification envoyée à tous les utilisateurs");
+	  */
 	  }
 
 	  async function sendSiteUpdateNotification(version, message) {
+	    console.warn("sendSiteUpdateNotification est désactivé côté client. À déplacer côté backend (Cloud Function).", { version, message });
+	    return;
+
+	    /*
 	    const metaRef = doc(db, "meta", "lastSiteUpdate");
 	    const snap = await getDoc(metaRef);
  
@@ -1124,8 +1130,13 @@
 	    });
 
 	    console.log("✅ Notification de mise à jour envoyée");
+	    */
 	  }
 	  async function notifyNewAnimeOnce(animeId, animeTitle) {
+	    console.warn("notifyNewAnimeOnce est désactivé côté client. À déplacer côté backend (Cloud Function).", { animeId, animeTitle });
+	    return;
+
+	    /*
 	    const metaRef = doc(db, "meta", `anime_${animeId}`);
 	    const snap = await getDoc(metaRef);
 
@@ -1157,6 +1168,7 @@
 	    });
 
 	    console.log(`✅ Notification envoyée pour l'anime : ${animeTitle}`);
+        */
 	  }
 	  async function loadAnimes() {
 	    const animesCol = collection(db, "animes");
@@ -1200,19 +1212,6 @@
 		  pageLoader.setAttribute("aria-busy", "false");
 		}
 	  }
-
-	 const updateMessage = [
-		"De nouvelles fonctionnalités débarquent sur AnimeHub ! 🎉",
-		"- Phrase de chargement et animations pour les cartes.",
-		"- Interface responsive et design modernisé.",
-		"- Amélioration de la page anime",
-		"",
-		"Profite de toutes ces nouveautés et continue d’explorer ton univers anime préféré !"
-	  ].join("\\n");
-
-		// Appel de la fonction avec un numéro de version unique
-		sendSiteUpdateNotification("1.1.0", updateMessage);
-
 	  // notifications ponctuelles gérées côté backend si besoin
   </script>
 </body>
