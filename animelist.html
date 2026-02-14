@@ -308,15 +308,15 @@
 	  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
 	  z-index: 200;
 	}
-	/* DESKTOP / TABLET: panneau centré dans le viewport (évite tout débordement lié au wrapping du header) */
+	/* DESKTOP / TABLET: panneau positionné dynamiquement en JS pour rester dans le viewport */
 	.notif-dropdown {
 	  position: fixed;
-	  top: clamp(76px, 11vh, 110px);
-	  left: 50%;
+	  top: 88px;
+	  left: 50vw;
 	  right: auto;
 	  transform: translateX(-50%);
 	  width: min(420px, calc(100vw - 20px));
-	  max-height: calc(100vh - 120px);
+	  max-height: calc(100vh - 104px);
 	  overflow: hidden;
 	  background: #0f172a;
 	  border-radius: 14px;
@@ -373,14 +373,14 @@
 		transform: translateX(-50%);
 
 		width: min(640px, 100vw);
-		height: 70vh;
-		max-height: 70vh;
+		height: 62vh;
+		max-height: 62vh;
 
 		border-radius: 18px 18px 0 0;
 		animation: slideUp 0.25s ease;
 	  }
 	  #notifList {
-		max-height: calc(70vh - 54px);
+		max-height: calc(62vh - 54px);
 		padding-bottom: max(8px, env(safe-area-inset-bottom));
 	  }
 	}
@@ -935,10 +935,56 @@
 	  const urlParams = new URLSearchParams(window.location.search);
 	  const notifBtn = document.getElementById("notifBtn");
 	  let notifItems = [];
+	  
+	  function isMobileViewport() {
+		return window.matchMedia("(max-width: 768px)").matches;
+	  }
+
+	  function positionNotifDropdown() {
+		if (isMobileViewport()) {
+		  notifDropdown.style.top = "auto";
+		  notifDropdown.style.right = "auto";
+		  notifDropdown.style.bottom = "0";
+		  notifDropdown.style.left = "50%";
+		  notifDropdown.style.transform = "translateX(-50%)";
+		  notifDropdown.style.width = "min(640px, 100vw)";
+		  notifDropdown.style.maxHeight = "62vh";
+		  return;
+		}
+
+		const margin = 10;
+		const rect = notifBtn.getBoundingClientRect();
+		const panelWidth = Math.min(420, window.innerWidth - margin * 2);
+		let centerX = rect.left + rect.width / 2;
+		const half = panelWidth / 2;
+		centerX = Math.max(margin + half, Math.min(window.innerWidth - margin - half, centerX));
+
+		let top = rect.bottom + 10;
+		const minPanelHeight = 280;
+		const availableHeight = window.innerHeight - top - margin;
+		if (availableHeight < minPanelHeight) {
+		  top = Math.max(10, window.innerHeight - minPanelHeight - margin);
+		}
+
+		notifDropdown.style.bottom = "auto";
+		notifDropdown.style.right = "auto";
+		notifDropdown.style.left = `${centerX}px`;
+		notifDropdown.style.top = `${top}px`;
+		notifDropdown.style.transform = "translateX(-50%)";
+		notifDropdown.style.width = `${panelWidth}px`;
+		notifDropdown.style.maxHeight = `${Math.max(minPanelHeight, window.innerHeight - top - margin)}px`;
+	  }
 
 	  function setNotifDropdownOpen(isOpen) {
+	    if (isOpen) positionNotifDropdown();
 		notifDropdown.style.display = isOpen ? "block" : "none";
 	  }
+	  
+	  window.addEventListener("resize", () => {
+		if (notifDropdown.style.display === "block") {
+		  positionNotifDropdown();
+		}
+	  });
 	  
 	  notifBtn.addEventListener("click", (event) => {
 		event.stopPropagation();
