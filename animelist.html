@@ -316,8 +316,10 @@
 	  right: auto;
 	  transform: translateX(-50%);
 	  width: min(420px, calc(100vw - 20px));
+	  max-width: calc(100vw - 20px);
 	  max-height: calc(100vh - 104px);
 	  overflow: hidden;
+	  box-sizing: border-box;
 	  background: #0f172a;
 	  border-radius: 14px;
 	  border: 1px solid rgba(255,255,255,0.08);
@@ -373,14 +375,14 @@
 		transform: translateX(-50%);
 
 		width: min(640px, 100vw);
-		height: 62vh;
-		max-height: 62vh;
+		height: 50vh;
+		max-height: 50vh;
 
 		border-radius: 18px 18px 0 0;
 		animation: slideUp 0.25s ease;
 	  }
 	  #notifList {
-		max-height: calc(62vh - 54px);
+		max-height: calc(50vh - 54px);
 		padding-bottom: max(8px, env(safe-area-inset-bottom));
 	  }
 	}
@@ -948,18 +950,19 @@
 		  notifDropdown.style.left = "50%";
 		  notifDropdown.style.transform = "translateX(-50%)";
 		  notifDropdown.style.width = "min(640px, 100vw)";
-		  notifDropdown.style.maxHeight = "62vh";
+		  notifDropdown.style.maxHeight = "50vh";
 		  return;
 		}
 
 		const margin = 10;
+		const viewportWidth = document.documentElement.clientWidth;
 		const rect = notifBtn.getBoundingClientRect();
-		const panelWidth = Math.min(420, window.innerWidth - margin * 2);
+		const panelWidth = Math.min(420, viewportWidth - margin * 2);
 		let centerX = rect.left + rect.width / 2;
 		const half = panelWidth / 2;
-		centerX = Math.max(margin + half, Math.min(window.innerWidth - margin - half, centerX));
+		centerX = Math.max(margin + half, Math.min(viewportWidth - margin - half, centerX));
 
-		let top = rect.bottom + 10;
+		let top = Math.min(rect.bottom + 10, 96);
 		const minPanelHeight = 280;
 		const availableHeight = window.innerHeight - top - margin;
 		if (availableHeight < minPanelHeight) {
