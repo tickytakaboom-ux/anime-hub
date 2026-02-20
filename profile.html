@@ -447,7 +447,7 @@
 
   <button id="topBtn" title="Retour en haut">↑ Top</button>
   <script>
-	window.SAMPLE_ANIMES = [
+	window.ANIMES = [
       { id:1, 
 	  title:'One Piece', 
 	  genre:['Adventure','Action'], 
@@ -1142,6 +1142,9 @@
       likes: 0}
 	];
 	
+	const FALLBACK_ANIMES = Array.isArray(window.ANIMES) ? [...window.ANIMES] : [];
+	window.ANIMES = FALLBACK_ANIMES;
+
 	// Récupère le bouton
 	const topBtn = document.getElementById("topBtn");
 	topBtn.classList.add("hide");
@@ -1182,7 +1185,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-	const usersSnap = await getDocs(collection(db, "users"));
 
     const usernameEl = document.getElementById("username");
     const emailEl = document.getElementById("email");
@@ -1198,11 +1200,46 @@
 	let userLikeYouAnimes = {};
 	let recoMode = "smart";
 
+	async function loadAnimesFromFirestore() {
+	  try {
+		const animesSnap = await getDocs(collection(db, "animes"));
+		const firestoreAnimes = animesSnap.docs.map((docSnap) => {
+		  const data = docSnap.data();
+		  return {
+			id: Number(docSnap.id),
+			title: data.title || "Anime sans titre",
+			genre: Array.isArray(data.genre) ? data.genre : [],
+			rating: Number.isFinite(data.avgRating)
+			  ? data.avgRating
+			  : (Number.isFinite(data.anilistScore) ? data.anilistScore / 10 : 0),
+			avgRating: Number.isFinite(data.avgRating)
+			  ? data.avgRating
+			  : (Number.isFinite(data.anilistScore) ? data.anilistScore / 10 : null),
+			year: data.seasonYear || data.year || null,
+			img: data.img || "icon_animehub.png",
+			summary: data.summary || "",
+			fav: false,
+			likes: data.likes || 0,
+			createdAt: data.createdAt || null
+		  };
+		});
+
+		if (firestoreAnimes.length) {
+		  window.ANIMES = firestoreAnimes;
+		}
+	  } catch (err) {
+		console.warn("Impossible de charger les animes Firestore, fallback local utilisé.", err);
+	  }
+	}
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "auth.html";
         return;
       }
+
+	  await loadAnimesFromFirestore();
+	  const usersSnap = await getDocs(collection(db, "users"));
 
       const userRef = doc(db, "users", user.uid);
       let userData = {};
@@ -1295,7 +1332,7 @@
 		if (ratedCount >= 50 && !badges.includes("No Life (assumé)")) badges.push("No Life (assumé)");
 		if (avg <= 6 && !badges.includes("Critique exigeant")) badges.push("Critique exigeant");
 	    if (avg >= 9 && !badges.includes("Élite Otaku")) badges.push("Élite Otaku");
-		if (favCount >= 10) badges.push("Collectionneur");
+		if (favCount >= 10 && !badges.includes("Collectionneur")) badges.push("Collectionneur");
 		
 		// Affiche les badges
 		if (badges.length === 0) {
@@ -1314,22 +1351,10 @@
 		
 		// 🔹 PROFIL DE GOÛT UTILISATEUR (Niveau 3)
 
-		// 🔹 Mettre à jour SAMPLE_ANIMES avec les notes Firestore
-		// 🔹 Mettre à jour les notes moyennes Firestore
-		const animesSnap = await getDocs(collection(db, "animes"));
-		animesSnap.forEach(docSnap => {
-		  const animeId = Number(docSnap.id);
-		  const data = docSnap.data();
-		  const anime = window.SAMPLE_ANIMES.find(a => a.id === animeId);
-		  if (anime && data.avgRating !== undefined) {
-			anime.avgRating = data.avgRating; // on stocke la vraie moyenne Firestore
-		  }
-		});
-
 		const genreStats = {}; // { genre: score }
 		// Analyse des notes
 		Object.entries(ratings).forEach(([id, note]) => {
-		  const anime = window.SAMPLE_ANIMES.find(a => a.id === parseInt(id));
+		  const anime = window.ANIMES.find(a => a.id === parseInt(id));
 		  if (!anime) return;
 		  anime.genre.forEach(g => {
 			if (!genreStats[g]) genreStats[g] = 0;
@@ -1340,7 +1365,7 @@
 		});
 		// Analyse des favoris
 		favorites.forEach(id => {
-		  const anime = window.SAMPLE_ANIMES.find(a => a.id === id);
+		  const anime = window.ANIMES.find(a => a.id === id);
 		  if (!anime) return;
 		  anime.genre.forEach(g => {
 			if (!genreStats[g]) genreStats[g] = 0;
@@ -1412,7 +1437,7 @@
 		});
 
 		function renderRecommendations() {
-		  const baseAnimes = window.SAMPLE_ANIMES.map(a => ({
+		  const baseAnimes = window.ANIMES.map(a => ({
 		    ...a,
 		    surpriseScore: 0
 		  }));
@@ -1645,7 +1670,7 @@
           ratedListEl.innerHTML = `<div style="opacity:.6; font-size:14px;">Aucune note pour l’instant</div>`;
         } else {
           Object.entries(ratings).forEach(([animeId, userRating]) => {
-            const anime = window.SAMPLE_ANIMES?.find(a => a.id == animeId);
+            const anime = window.ANIMES?.find(a => a.id == animeId);
             if (!anime) return;
 
             const item = document.createElement("div");
@@ -1665,12 +1690,12 @@
             ratedListEl.appendChild(item);
 			item.style.animationDelay = `${ratedListEl.children.length * 0.05}s`;
           });
-		  
+        }
+
 		// 🔹 FAVORIS
 		const favoritesListEl = document.getElementById("favoritesList");
 		favoritesListEl.innerHTML = "";
 
-		// aucun favori
 		if (favorites.length === 0) {
 		  favoritesListEl.innerHTML = `
 			<div style="opacity:.6; font-size:14px;">
@@ -1679,12 +1704,11 @@
 		  `;
 		} else {
 		  favorites.forEach(animeId => {
-			const anime = window.SAMPLE_ANIMES?.find(a => a.id == animeId);
+			const anime = window.ANIMES?.find(a => a.id == animeId);
 			if (!anime) return;
 
 			const item = document.createElement("div");
 			item.className = "rated-item";
-
 			item.innerHTML = `
 			  <div class="rated-title">${anime.title}</div>
 			  <div class="rated-right">
@@ -1701,8 +1725,7 @@
 			item.style.animationDelay = `${favoritesListEl.children.length * 0.05}s`;
 		  });
 		}
-        }
-		if (window.SAMPLE_ANIMES && Object.keys(ratings).length >= 0) {
+		if (window.ANIMES && Object.keys(ratings).length >= 0) {
 		  renderRecommendations();
 		}
 
