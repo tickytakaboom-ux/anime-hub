@@ -580,12 +580,20 @@
       }
 
 	  await loadAnimesFromFirestore();
-	  const usersSnap = await getDocs(collection(db, "users"));
+	  let usersDocs = [];
 
       const userRef = doc(db, "users", user.uid);
       let userData = {};
 
       try {
+	    try {
+          const usersSnap = await getDocs(collection(db, "users"));
+          usersDocs = usersSnap.docs;
+        } catch (usersErr) {
+          console.warn("Accès collection users refusé ou indisponible. Les recos communauté seront limitées.", usersErr);
+          usersDocs = [];
+        }
+		
         const snap = await getDoc(userRef);
 
         if (!snap.exists()) {
@@ -738,7 +746,7 @@
 		if (precision === "large") minRating = 5.5;
 		
 		const similarUsers = [];
-		usersSnap.forEach(docSnap => {
+		usersDocs.forEach(docSnap => {
 		  if (docSnap.id === auth.currentUser.uid) return;
 
 		  const other = docSnap.data();
