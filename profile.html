@@ -1096,7 +1096,7 @@
 			</div>
 		  `;
 		} else {
-		  <div class="empty-text">
+		  sortFavoriteIds(favorites).forEach(animeId => {
 			const anime = window.ANIMES?.find(a => a.id == animeId);
 			if (!anime) return;
 
