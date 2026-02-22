@@ -308,16 +308,16 @@
 	  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
 	  z-index: 200;
 	}
-	/* DESKTOP / TABLET: panneau positionné dynamiquement en JS pour rester dans le viewport */
+	/* DESKTOP / TABLET */
 	.notif-dropdown {
-	  position: fixed;
-	  top: 88px;
-	  left: 50vw;
-	  right: auto;
-	  transform: translateX(-50%);
-	  width: min(420px, calc(100vw - 20px));
-	  max-width: calc(100vw - 20px);
-	  max-height: calc(100vh - 104px);
+	  position: absolute;
+	  top: calc(100% + 10px);
+	  right: 0;
+	  left: auto;
+	  transform: none;
+	  width: min(360px, calc(100vw - 24px));
+	  max-width: calc(100vw - 24px);
+	  max-height: min(70vh, 520px);
 	  overflow: hidden;
 	  box-sizing: border-box;
 	  background: #0f172a;
@@ -369,12 +369,12 @@
 	  .notif-dropdown {
 		position: fixed;
 		top: auto;
-		right: auto;
+		right: 0;
 		bottom: 0;
-		left: 50%;
-		transform: translateX(-50%);
+		left: 0;
+		transform: none;
 
-		width: min(640px, 100vw);
+		width: 100vw;
 		height: 50vh;
 		max-height: 50vh;
 
@@ -382,7 +382,7 @@
 		animation: slideUp 0.25s ease;
 	  }
 	  #notifList {
-		max-height: calc(50vh - 54px);
+		max-height: calc(50vh - 56px);
 		padding-bottom: max(8px, env(safe-area-inset-bottom));
 	  }
 	}
@@ -937,57 +937,10 @@
 	  const urlParams = new URLSearchParams(window.location.search);
 	  const notifBtn = document.getElementById("notifBtn");
 	  let notifItems = [];
-	  
-	  function isMobileViewport() {
-		return window.matchMedia("(max-width: 768px)").matches;
-	  }
-
-	  function positionNotifDropdown() {
-		if (isMobileViewport()) {
-		  notifDropdown.style.top = "auto";
-		  notifDropdown.style.right = "auto";
-		  notifDropdown.style.bottom = "0";
-		  notifDropdown.style.left = "50%";
-		  notifDropdown.style.transform = "translateX(-50%)";
-		  notifDropdown.style.width = "min(640px, 100vw)";
-		  notifDropdown.style.maxHeight = "50vh";
-		  return;
-		}
-
-		const margin = 10;
-		const viewportWidth = document.documentElement.clientWidth;
-		const rect = notifBtn.getBoundingClientRect();
-		const panelWidth = Math.min(420, viewportWidth - margin * 2);
-		let centerX = rect.left + rect.width / 2;
-		const half = panelWidth / 2;
-		centerX = Math.max(margin + half, Math.min(viewportWidth - margin - half, centerX));
-
-		let top = Math.min(rect.bottom + 10, 96);
-		const minPanelHeight = 280;
-		const availableHeight = window.innerHeight - top - margin;
-		if (availableHeight < minPanelHeight) {
-		  top = Math.max(10, window.innerHeight - minPanelHeight - margin);
-		}
-
-		notifDropdown.style.bottom = "auto";
-		notifDropdown.style.right = "auto";
-		notifDropdown.style.left = `${centerX}px`;
-		notifDropdown.style.top = `${top}px`;
-		notifDropdown.style.transform = "translateX(-50%)";
-		notifDropdown.style.width = `${panelWidth}px`;
-		notifDropdown.style.maxHeight = `${Math.max(minPanelHeight, window.innerHeight - top - margin)}px`;
-	  }
 
 	  function setNotifDropdownOpen(isOpen) {
-	    if (isOpen) positionNotifDropdown();
 		notifDropdown.style.display = isOpen ? "block" : "none";
 	  }
-	  
-	  window.addEventListener("resize", () => {
-		if (notifDropdown.style.display === "block") {
-		  positionNotifDropdown();
-		}
-	  });
 	  
 	  notifBtn.addEventListener("click", (event) => {
 		event.stopPropagation();
