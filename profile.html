@@ -113,7 +113,29 @@
     }
 
     h3 { font-size: 17px; margin-bottom: 12px; }
+	
+	.card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
 
+    .mini-select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #e6eef6;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+
+    .empty-text {
+      opacity: .7;
+      font-size: 14px;
+    }
+	
     .stats { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; }
 
     .stat { flex: 1; background: rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; text-align: center; transition: background 0.3s ease; backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
@@ -417,12 +439,25 @@
   <!-- Notes + Favoris + Badges + Recommandations -->
   <div class="profile-grid">
     <div class="card notes-card">
-      <h3>Mes notes</h3>
+      <div class="card-head">
+        <h3>Mes notes</h3>
+        <select id="notesSort" class="mini-select" aria-label="Trier les notes">
+          <option value="score-desc">Note ↓</option>
+          <option value="score-asc">Note ↑</option>
+          <option value="title-asc">Titre A→Z</option>
+        </select>
+      </div>
       <div class="rated-list" id="ratedList"></div>
     </div>
 
     <div class="card favorites-card">
-      <h3>Mes favoris</h3>
+      <div class="card-head">
+        <h3>Mes favoris</h3>
+        <select id="favoritesSort" class="mini-select" aria-label="Trier les favoris">
+          <option value="title-asc">Titre A→Z</option>
+          <option value="title-desc">Titre Z→A</option>
+        </select>
+      </div>
       <div class="rated-list" id="favoritesList"></div>
     </div>
 
@@ -503,6 +538,8 @@
 	let minRating = 6;
 	let userLikeYouAnimes = {};
 	let recoMode = "smart";
+	let notesSortMode = "score-desc";
+	let favoritesSortMode = "title-asc";
 
 	async function loadAnimesFromFirestore() {
 	  try {
@@ -741,10 +778,16 @@
 		});
 
 		function renderRecommendations() {
+		  const recoListEl = document.getElementById("recoList");
 		  const baseAnimes = window.ANIMES.map(a => ({
 		    ...a,
 		    surpriseScore: 0
 		  }));
+		  
+		  if (!baseAnimes.length) {
+			recoListEl.innerHTML = `<div class="empty-text">Aucune donnée anime disponible pour générer des suggestions.</div>`;
+			return;
+		  }
 		  const excludedIds = [
 		    ...Object.keys(ratings).map(id => parseInt(id)),
 		    ...favorites
@@ -910,8 +953,11 @@
 		  finalRecoWithSurprise.length = FINAL_LIMIT;
 
 		  // 3️⃣ Affichage
-		  const recoListEl = document.getElementById("recoList");
 		  recoListEl.innerHTML = "";
+		  if (!finalRecoWithSurprise.length) {
+			recoListEl.innerHTML = `<div class="empty-text">Pas encore assez de données pour proposer des suggestions pertinentes.</div>`;
+			return;
+		  }
 
 		  finalRecoWithSurprise.forEach(a => {
 		    const isDiscovery = !a.genre.some(g => userTaste.topGenres.includes(g));
@@ -949,6 +995,8 @@
 		// IDs déjà vus (notés + favoris)
 		// 🔹 MODES DE RECOMMANDATION (Niveau 9)
 		const modeButtons = document.querySelectorAll(".reco-modes button");
+		const notesSortEl = document.getElementById("notesSort");
+		const favoritesSortEl = document.getElementById("favoritesSort");
 
 		modeButtons.forEach(btn => {
 		  btn.addEventListener("click", () => {
@@ -966,14 +1014,47 @@
 			renderRecommendations();
 		  });
 		});
-    
+		
+		function sortRatedEntries(entries) {
+		  if (notesSortMode === "score-asc") return [...entries].sort((a,b) => a[1] - b[1]);
+		  if (notesSortMode === "title-asc") {
+			return [...entries].sort((a,b) => {
+			  const aa = window.ANIMES?.find(x => x.id == a[0])?.title || "";
+			  const bb = window.ANIMES?.find(x => x.id == b[0])?.title || "";
+			  return aa.localeCompare(bb);
+			});
+		  }
+		  return [...entries].sort((a,b) => b[1] - a[1]);
+		}
+
+		function sortFavoriteIds(ids) {
+		  const arr = [...ids];
+		  arr.sort((a,b) => {
+			const aa = window.ANIMES?.find(x => x.id == a)?.title || "";
+			const bb = window.ANIMES?.find(x => x.id == b)?.title || "";
+			return favoritesSortMode === "title-desc" ? bb.localeCompare(aa) : aa.localeCompare(bb);
+		  });
+		  return arr;
+		}
+
+		notesSortEl.addEventListener("change", () => {
+		  notesSortMode = notesSortEl.value;
+		  renderProfileLists();
+		});
+		favoritesSortEl.addEventListener("change", () => {
+		  favoritesSortMode = favoritesSortEl.value;
+		  renderProfileLists();
+		});
+
+		function renderProfileLists() {
+		
         // 🔹 MES NOTES
         const ratedListEl = document.getElementById("ratedList");
         ratedListEl.innerHTML = "";
         if (ratedCount === 0) {
-          ratedListEl.innerHTML = `<div style="opacity:.6; font-size:14px;">Aucune note pour l’instant</div>`;
+          ratedListEl.innerHTML = `<div class="empty-text">Aucune note pour l’instant</div>`;
         } else {
-          Object.entries(ratings).forEach(([animeId, userRating]) => {
+          sortRatedEntries(Object.entries(ratings)).forEach(([animeId, userRating]) => {
             const anime = window.ANIMES?.find(a => a.id == animeId);
             if (!anime) return;
 
@@ -1002,12 +1083,12 @@
 
 		if (favorites.length === 0) {
 		  favoritesListEl.innerHTML = `
-			<div style="opacity:.6; font-size:14px;">
+			<div class="empty-text">
 			  Aucun favori pour l’instant
 			</div>
 		  `;
 		} else {
-		  favorites.forEach(animeId => {
+		  <div class="empty-text">
 			const anime = window.ANIMES?.find(a => a.id == animeId);
 			if (!anime) return;
 
@@ -1029,6 +1110,9 @@
 			item.style.animationDelay = `${favoritesListEl.children.length * 0.05}s`;
 		  });
 		}
+		}
+
+		renderProfileLists();
 		if (window.ANIMES && Object.keys(ratings).length >= 0) {
 		  renderRecommendations();
 		}
