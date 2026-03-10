@@ -3,340 +3,511 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AnimeHub - Auth</title>
-
-  <style>
-    :root {
-	  --bg: #0f1724;
-	  --glass: rgba(255,255,255,0.05);
-	  --accent: #06b6d4;
-	  --accent-hover: #0ea5e9;
-	  --muted: #9ca3af;
-	}
-
-	body {
-	  margin: 0;
-	  height: 100vh;
-	  display: flex;
-	  justify-content: center;
-	  align-items: center;
-	  background: linear-gradient(180deg, #0b1220 0%, #061226 100%);
-	  font-family: Inter, sans-serif;
-	  color: #e6eef6;
-	  overflow: hidden;
-	}
-
-	#authBox {
-	  background: var(--glass);
-	  padding: 40px 30px;
-	  border-radius: 18px;
-	  width: 320px;
-	  text-align: center;
-	  display: flex;
-	  flex-direction: column;
-	  gap: 16px;
-	  box-shadow: 0 10px 30px rgba(6,182,212,0.3);
-	  backdrop-filter: blur(10px);
-	  transition: transform 0.3s ease, box-shadow 0.3s ease;
-	}
-	#authBox:hover {
-	  transform: translateY(-4px);
-	  box-shadow: 0 15px 40px rgba(6,182,212,0.5);
-	}
-
-	h2 {
-	  margin: 0;
-	  font-size: 24px;
-	  font-weight: 700;
-	  color: #e6eef6;
-	}
-
-	.subtitle {
-	  margin: -6px 0 6px;
-	  color: var(--muted);
-	  font-size: 13px;
-	}
-
-	form {
-	  display: flex;
-	  flex-direction: column;
-	  gap: 14px;
-	}
-
-	.field {
-	  display: flex;
-	  flex-direction: column;
-	  gap: 8px;
-	  text-align: left;
-	}
-
-	label {
-	  font-size: 13px;
-	  color: var(--muted);
-	}
-
-	input {
-	  padding: 12px;
-	  border-radius: 12px;
-	  border: 1px solid rgba(255,255,255,0.15);
-	  background: rgba(255,255,255,0.08);
-	  color: #e6eef6;
-	  font-size: 14px;
-	  outline: none;
-	  transition: 0.3s all ease;
-	}
-	input:focus {
-	  border-color: var(--accent);
-	  box-shadow: 0 0 12px var(--accent);
-	}
-
-	.input-row {
-	  display: flex;
-	  align-items: center;
-	  gap: 8px;
-	}
-
-	.toggle-password {
-	  background: transparent;
-	  border: 1px solid rgba(255,255,255,0.2);
-	  color: #e6eef6;
-	  padding: 10px;
-	  border-radius: 10px;
-	  font-size: 12px;
-	  cursor: pointer;
-	  box-shadow: none;
-	}
-
-	button {
-	  padding: 12px;
-	  border-radius: 12px;
-	  font-weight: 700;
-	  font-size: 14px;
-	  border: none;
-	  cursor: pointer;
-	  transition: all 0.25s ease;
-	  box-shadow: 0 4px 14px rgba(6,182,212,0.35);
-	}
-
-	button:disabled {
-	  cursor: not-allowed;
-	  opacity: 0.7;
-	  transform: none;
-	  box-shadow: none;
-	}
-
-	#authSubmit {
-	  background: var(--accent);
-	  color: #052226;
-	}
-	
-	#authSubmit:hover {
-	  background: var(--accent-hover);
-	  box-shadow: 0 8px 22px rgba(6,182,212,0.55);
-	  transform: translateY(-2px);
-	}
-
-	#switchMode {
-	  background: transparent;
-	  color: var(--accent);
-	  border: 1px solid rgba(6,182,212,0.5);
-	}
-	#switchMode:hover {
-	  background: rgba(6,182,212,0.1);
-	  transform: translateY(-2px);
-	}
-
-	.helper {
-	  font-size: 12px;
-	  color: var(--muted);
-	}
-
-	.error {
-	  font-size: 13px;
-	  color: #f87171;
-	  min-height: 18px;
-	}
-
-	.success {
-	  color: #34d399;
-	}
-
-	:focus-visible {
-	  outline: 2px solid rgba(6,182,212,0.8);
-	  outline-offset: 2px;
-	}
-
-	@media (max-width: 400px) {
-	  #authBox {
-		width: 90%;
-		padding: 30px 20px;
-	  }
-	}
-  </style>
-  <!-- Favicon classique -->
+  <title>AnimeHub – Connexion</title>
   <link rel="icon" type="image/png" href="icon_animehub.png">
-  <!-- Icône Apple touch (pour iPhone/iPad) -->
   <link rel="apple-touch-icon" sizes="180x180" href="icon_animehub.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="icon_animehub.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="icon_animehub.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="icon_animehub.png">
-</head>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
 
+    :root {
+      --bg: #0b1220;
+      --bg2: #061226;
+      --glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --accent: #06b6d4;
+      --accent2: #0ea5e9;
+      --muted: #7e8fa8;
+      --text: #e6eef6;
+      --error: #f87171;
+      --success: #4ade80;
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      font-family: 'DM Sans', ui-sans-serif, system-ui;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ── CANVAS PARTICULES ── */
+    canvas {
+      position: fixed; top: 0; left: 0;
+      z-index: 0; opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* ── LOGO EN HAUT ── */
+    .logo-link {
+      position: fixed; top: 24px; left: 32px;
+      text-decoration: none; z-index: 10;
+      display: flex; align-items: center; gap: 10px;
+      opacity: 0.85; transition: opacity 0.2s;
+    }
+    .logo-link:hover { opacity: 1; }
+    .logo-text {
+      font-family: 'Mochiy Pop One', 'Syne', sans-serif;
+      font-size: 1.4rem;
+      background: linear-gradient(90deg, #fff59d, #ffeb3b, #ff9800, #ff5722);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── CARD ── */
+    .auth-card {
+      position: relative; z-index: 1;
+      width: min(380px, 92vw);
+      background: rgba(13, 22, 40, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 40px 36px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(6,182,212,0.06);
+      backdrop-filter: blur(16px);
+      animation: cardIn 0.5s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── HEADER CARD ── */
+    .card-header { text-align: center; margin-bottom: 28px; }
+    .card-icon {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      background: rgba(6,182,212,0.12);
+      border: 1px solid rgba(6,182,212,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin: 0 auto 14px;
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem; font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .card-subtitle { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── FORM ── */
+    form { display: flex; flex-direction: column; gap: 14px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .input-wrap { position: relative; }
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-family: inherit; font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(6,182,212,0.15);
+    }
+    input.has-toggle { padding-right: 80px; }
+
+    .toggle-password {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted); font-family: inherit;
+      padding: 4px 9px; border-radius: 8px;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .toggle-password:hover { color: var(--text); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+
+    .field-helper { font-size: 11px; color: var(--muted); }
+
+    /* ── FORGOT PASSWORD ── */
+    .forgot-link {
+      font-size: 12px; color: var(--accent);
+      text-align: right; cursor: pointer;
+      background: none; border: none; font-family: inherit;
+      padding: 0; transition: opacity 0.2s;
+    }
+    .forgot-link:hover { opacity: 0.75; text-decoration: underline; }
+
+    /* ── MESSAGES ── */
+    .msg {
+      font-size: 13px; min-height: 18px; line-height: 1.4;
+      text-align: center; border-radius: 10px;
+      padding: 0; transition: all 0.2s;
+    }
+    .msg.error   { color: var(--error); }
+    .msg.success { color: var(--success); }
+    .msg.info    { color: var(--accent); }
+    .msg.visible { padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
+
+    /* ── BOUTON PRINCIPAL ── */
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: none; cursor: pointer;
+      font-family: inherit; font-weight: 700; font-size: 15px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #052226;
+      box-shadow: 0 4px 16px rgba(6,182,212,0.35);
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s, opacity 0.15s;
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(6,182,212,0.5);
+      filter: brightness(1.05);
+    }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── BOUTON SECONDAIRE ── */
+    .btn-ghost {
+      width: 100%;
+      padding: 11px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(6,182,212,0.3);
+      background: transparent;
+      color: var(--accent);
+      font-family: inherit; font-weight: 700; font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .btn-ghost:hover { background: rgba(6,182,212,0.08); border-color: var(--accent); transform: translateY(-1px); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--muted); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    /* ── VUE RESET ── */
+    #resetView { display: none; }
+
+    /* ── FOCUS VISIBLE ── */
+    :focus-visible { outline: 2px solid rgba(6,182,212,0.7); outline-offset: 2px; }
+
+    @media (max-width: 400px) {
+      .auth-card { padding: 32px 22px; }
+      .logo-link { top: 16px; left: 16px; }
+    }
+
+    @font-face {
+      font-family: 'Mochiy Pop One';
+      src: url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display: swap;
+    }
+  </style>
+</head>
 <body>
 
-  <div id="authBox">
-    <h2 id="authTitle">Connexion</h2>
-	<p class="subtitle" id="authSubtitle">Ravi de te revoir sur AnimeHub</p>
+  <!-- Logo -->
+  <a class="logo-link" href="index.html">
+    <span class="logo-text">AnimeHub</span>
+  </a>
 
-	<form id="authForm">
-	  <div class="field">
-	    <label for="authEmail">Email</label>
-	    <input id="authEmail" type="email" placeholder="ex: naruto@animehub.com" autocomplete="email" required>
-	  </div>
-	  <div class="field">
-	    <label for="authPassword">Mot de passe</label>
-	    <div class="input-row">
-	      <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" required>
-	      <button class="toggle-password" id="togglePassword" type="button">Afficher</button>
-	    </div>
-	    <span class="helper" id="passwordHelper">8 caractères minimum recommandés</span>
-	  </div>
+  <!-- Particules -->
+  <canvas id="stars"></canvas>
 
-	  <button id="authSubmit" type="submit">Valider</button>
-	</form>
+  <!-- CARD -->
+  <div class="auth-card">
 
-	<p class="error" id="authError" aria-live="polite"></p>
+    <!-- ══ VUE LOGIN / SIGNUP ══ -->
+    <div id="mainView">
+      <div class="card-header">
+        <div class="card-icon" id="cardIcon">🔐</div>
+        <h1 class="card-title" id="cardTitle">Connexion</h1>
+        <p class="card-subtitle" id="cardSubtitle">Ravi de te revoir sur AnimeHub</p>
+      </div>
 
-    <button id="switchMode" type="button">Pas de compte ? Inscription</button>
-  </div>
+      <form id="authForm">
+        <div class="field">
+          <label for="authEmail">Email</label>
+          <input id="authEmail" type="email" placeholder="naruto@animehub.com" autocomplete="email" required />
+        </div>
+
+        <div class="field">
+          <label for="authPassword">Mot de passe</label>
+          <div class="input-wrap">
+            <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" required class="has-toggle" />
+            <button class="toggle-password" id="togglePassword" type="button">Afficher</button>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="field-helper" id="passwordHelper">8 caractères minimum recommandés</span>
+            <button class="forgot-link" id="showReset" type="button">Mot de passe oublié ?</button>
+          </div>
+        </div>
+
+        <p class="msg" id="authMsg" aria-live="polite"></p>
+
+        <button class="btn-primary" id="authSubmit" type="submit">Se connecter</button>
+      </form>
+
+      <div class="divider" style="margin-top:18px;">ou</div>
+
+      <button class="btn-ghost" id="switchMode" type="button" style="margin-top:14px;">
+        Pas de compte ? Inscription
+      </button>
+    </div>
+
+    <!-- ══ VUE RESET MOT DE PASSE ══ -->
+    <div id="resetView">
+      <div class="card-header">
+        <div class="card-icon">📧</div>
+        <h1 class="card-title">Mot de passe oublié</h1>
+        <p class="card-subtitle">On t'envoie un lien de réinitialisation par email</p>
+      </div>
+
+      <form id="resetForm">
+        <div class="field">
+          <label for="resetEmail">Ton email</label>
+          <input id="resetEmail" type="email" placeholder="naruto@animehub.com" autocomplete="email" required />
+        </div>
+
+        <p class="msg" id="resetMsg" aria-live="polite"></p>
+
+        <button class="btn-primary" id="resetSubmit" type="submit">Envoyer le lien</button>
+      </form>
+
+      <button class="btn-ghost" id="backToLogin" type="button" style="margin-top:14px;">
+        ← Retour à la connexion
+      </button>
+    </div>
+
+  </div><!-- /.auth-card -->
+
+  <!-- ══════════════ SCRIPTS ══════════════ -->
+  <script>
+    /* ── Particules connectées ── */
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles;
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    function createParticles() {
+      particles = Array.from({ length: 70 }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        r: Math.random() * 1.4 + 0.3,
+        dx: (Math.random() - 0.5) * 0.3,
+        dy: (Math.random() - 0.5) * 0.3,
+      }));
+    }
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of particles) {
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < 0 || p.x > w) p.dx *= -1;
+        if (p.y < 0 || p.y > h) p.dy *= -1;
+      }
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i], b = particles[j];
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `rgba(34,211,238,${(1 - dist / 120) * 0.25})`;
+            ctx.lineWidth = 0.7; ctx.stroke();
+          }
+        }
+      }
+      for (const p of particles) {
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(200,240,255,0.8)'; ctx.fill();
+      }
+      requestAnimationFrame(animate);
+    }
+    resize(); createParticles(); animate();
+    window.addEventListener('resize', () => { resize(); createParticles(); });
+
+    /* ── Toggle password ── */
+    const toggleBtn = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('authPassword');
+    toggleBtn.addEventListener('click', () => {
+      const hidden = passwordInput.type === 'password';
+      passwordInput.type = hidden ? 'text' : 'password';
+      toggleBtn.textContent = hidden ? 'Masquer' : 'Afficher';
+    });
+
+    /* ── Switch login / signup ── */
+    let mode = 'login';
+    const cardIcon     = document.getElementById('cardIcon');
+    const cardTitle    = document.getElementById('cardTitle');
+    const cardSubtitle = document.getElementById('cardSubtitle');
+    const switchBtn    = document.getElementById('switchMode');
+    const submitBtn    = document.getElementById('authSubmit');
+    const pwHelper     = document.getElementById('passwordHelper');
+    const authMsg      = document.getElementById('authMsg');
+
+    switchBtn.addEventListener('click', () => {
+      mode = mode === 'login' ? 'signup' : 'login';
+      const isLogin = mode === 'login';
+      cardIcon.textContent     = isLogin ? '🔐' : '✨';
+      cardTitle.textContent    = isLogin ? 'Connexion' : 'Inscription';
+      cardSubtitle.textContent = isLogin ? 'Ravi de te revoir sur AnimeHub' : 'Crée ton compte pour sauvegarder tes favoris';
+      switchBtn.textContent    = isLogin ? 'Pas de compte ? Inscription' : 'Déjà un compte ? Connexion';
+      submitBtn.textContent    = isLogin ? 'Se connecter' : "S'inscrire";
+      passwordInput.autocomplete = isLogin ? 'current-password' : 'new-password';
+      pwHelper.textContent     = isLogin ? '8 caractères minimum recommandés' : 'Choisis un mot de passe sécurisé.';
+      setMsg(authMsg, '', '');
+    });
+
+    /* ── Navigation reset ── */
+    document.getElementById('showReset').addEventListener('click', () => {
+      document.getElementById('mainView').style.display = 'none';
+      document.getElementById('resetView').style.display = 'block';
+      document.getElementById('resetEmail').value = document.getElementById('authEmail').value;
+    });
+    document.getElementById('backToLogin').addEventListener('click', () => {
+      document.getElementById('resetView').style.display = 'none';
+      document.getElementById('mainView').style.display = 'block';
+      setMsg(document.getElementById('resetMsg'), '', '');
+    });
+
+    /* ── Helper message ── */
+    function setMsg(el, text, type) {
+      el.textContent = text;
+      el.className = 'msg';
+      if (text) { el.classList.add(type, 'visible'); }
+    }
+  </script>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { 
-	getAuth, 
-	onAuthStateChanged, 
-	signInWithEmailAndPassword, 
-	createUserWithEmailAndPassword 
-  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-  import { 
-	getFirestore, 
-	doc, 
-	setDoc,
-	serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-	apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
-	authDomain: "animehub-7.firebaseapp.com",
-	projectId: "animehub-7",
-	storageBucket: "animehub-7.firebasestorage.app",
-	messagingSenderId: "159114039206",
-	appId: "1:159114039206:web:0461d676e7ffff25c4c967",
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain: "animehub-7.firebaseapp.com",
+      projectId: "animehub-7",
+      storageBucket: "animehub-7.firebasestorage.app",
+      messagingSenderId: "159114039206",
+      appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-  const authTitle = document.getElementById("authTitle");
-  const authSubtitle = document.getElementById("authSubtitle");
-  const switchBtn = document.getElementById("switchMode");
-  const submitBtn = document.getElementById("authSubmit");
-  const authForm = document.getElementById("authForm");
-  const authError = document.getElementById("authError");
-  const togglePassword = document.getElementById("togglePassword");
-  const passwordInput = document.getElementById("authPassword");
-  const passwordHelper = document.getElementById("passwordHelper");
-  const emailInput = document.getElementById("authEmail");
+    const authForm  = document.getElementById('authForm');
+    const authMsg   = document.getElementById('authMsg');
+    const submitBtn = document.getElementById('authSubmit');
+    const emailInput= document.getElementById('authEmail');
+    const pwInput   = document.getElementById('authPassword');
 
-  let mode = "login";
-
-  switchBtn.addEventListener("click", () => {
-	if (mode === "login") {
-	  mode = "signup";
-	  authTitle.textContent = "Inscription";
-	  authSubtitle.textContent = "Crée ton compte pour sauvegarder tes favoris.";
-	  switchBtn.textContent = "Déjà un compte ? Connexion";
-	  passwordInput.autocomplete = "new-password";
-	  passwordHelper.textContent = "Choisis un mot de passe sécurisé.";
-	} else {
-	  mode = "login";
-	  authTitle.textContent = "Connexion";
-	  authSubtitle.textContent = "Ravi de te revoir sur AnimeHub.";
-	  switchBtn.textContent = "Pas de compte ? Inscription";
-	  passwordInput.autocomplete = "current-password";
-	  passwordHelper.textContent = "8 caractères minimum recommandés.";
-	}
-	authError.textContent = "";
-	authError.classList.remove("success");
-  });
-
-  togglePassword.addEventListener("click", () => {
-	const isHidden = passwordInput.type === "password";
-	passwordInput.type = isHidden ? "text" : "password";
-	togglePassword.textContent = isHidden ? "Masquer" : "Afficher";
-  });
-
-  authForm.addEventListener("submit", async (event) => {
-	event.preventDefault();
-	authError.textContent = "";
-	authError.classList.remove("success");
-	submitBtn.disabled = true;
-	submitBtn.textContent = "Chargement...";
-
-	const email = emailInput.value.trim();
-	const password = passwordInput.value;
-
-	try {
-	  if (mode === "login") {
-		await signInWithEmailAndPassword(auth, email, password);
-		console.log("Utilisateur connecté :", email);
-
-	  } else {
-		const cred = await createUserWithEmailAndPassword(auth, email, password);
-		console.log("Compte créé avec succès :", cred.user.uid);
-
-		try {
-		  const userDoc = doc(db, "users", cred.user.uid);
-
-		  await setDoc(userDoc, {
-			username: email.split("@")[0],
-			email: email,
-			favorites: [],
-			ratings: {},
-			createdAt: serverTimestamp()
-		  });
-
-		  console.log("Utilisateur ajouté à Firestore !");
-		  authError.textContent = "Compte créé et enregistré dans Firestore !";
-		  authError.classList.add("success");
-
-		} catch(firestoreErr) {
-		  console.error("Erreur Firestore :", firestoreErr);
-		  authError.textContent = "Le compte a été créé, mais impossible d'enregistrer les données supplémentaires.";
-		}
-	  }
-
-	  window.location.href = "index.html";
-
-	} catch (err) {
-	  console.error("Erreur Auth :", err);
-	  authError.textContent = "Erreur : " + err.message;
-	  authError.classList.remove("success");
-	} finally {
-	  submitBtn.disabled = false;
-	  submitBtn.textContent = "Valider";
-	}
-  });
-
-  let checkedAuth = false;
-
-  onAuthStateChanged(auth, (user) => {
-    if (user && !checkedAuth) {
-      checkedAuth = true;
-      window.location.href = "index.html";
+    /* ── Traduction erreurs Firebase ── */
+    function friendlyError(code) {
+      const map = {
+        'auth/invalid-email':            'Adresse email invalide.',
+        'auth/user-not-found':           'Aucun compte trouvé pour cet email.',
+        'auth/wrong-password':           'Mot de passe incorrect.',
+        'auth/email-already-in-use':     'Cet email est déjà utilisé.',
+        'auth/weak-password':            'Mot de passe trop faible (6 caractères min).',
+        'auth/too-many-requests':        'Trop de tentatives. Réessaie dans quelques minutes.',
+        'auth/network-request-failed':   'Problème réseau. Vérifie ta connexion.',
+        'auth/invalid-credential':       'Email ou mot de passe incorrect.',
+      };
+      return map[code] || 'Une erreur est survenue. Réessaie.';
     }
-  });
+
+    /* ── Login / Signup ── */
+    authForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      setMsg(authMsg, '', '');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Chargement…';
+
+      const email    = emailInput.value.trim();
+      const password = pwInput.value;
+      const mode     = window._authMode || 'login'; // mis à jour par le switch
+
+      try {
+        if (mode === 'login') {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          try {
+            await setDoc(doc(db, 'users', cred.user.uid), {
+              username: email.split('@')[0],
+              email, favorites: [], ratings: {},
+              createdAt: serverTimestamp(),
+            });
+          } catch(fe) { console.error('Firestore:', fe); }
+        }
+        window.location.href = 'index.html';
+      } catch(err) {
+        setMsg(authMsg, friendlyError(err.code), 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = mode === 'login' ? 'Se connecter' : "S'inscrire";
+      }
+    });
+
+    // Exposer le mode au script non-module
+    document.getElementById('switchMode').addEventListener('click', () => {
+      window._authMode = window._authMode === 'signup' ? 'login' : 'signup';
+    });
+    window._authMode = 'login';
+
+    /* ── Reset mot de passe ── */
+    const resetForm   = document.getElementById('resetForm');
+    const resetMsg    = document.getElementById('resetMsg');
+    const resetSubmit = document.getElementById('resetSubmit');
+    const resetEmail  = document.getElementById('resetEmail');
+
+    resetForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      setMsg(resetMsg, '', '');
+      resetSubmit.disabled = true;
+      resetSubmit.textContent = 'Envoi…';
+
+      try {
+        await sendPasswordResetEmail(auth, resetEmail.value.trim());
+        setMsg(resetMsg, '✅ Email envoyé ! Vérifie ta boîte mail.', 'success');
+        resetSubmit.textContent = 'Email envoyé !';
+      } catch(err) {
+        setMsg(resetMsg, friendlyError(err.code), 'error');
+        resetSubmit.disabled = false;
+        resetSubmit.textContent = 'Envoyer le lien';
+      }
+    });
+
+    /* ── Redirect si déjà connecté ── */
+    let checkedAuth = false;
+    onAuthStateChanged(auth, user => {
+      if (user && !checkedAuth) {
+        checkedAuth = true;
+        window.location.href = 'index.html';
+      }
+    });
   </script>
 </body>
 </html>
