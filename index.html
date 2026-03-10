@@ -271,7 +271,7 @@
   <!-- COMPTEURS ANIMÉS -->
   <div class="stats">
     <div class="stat-item">
-      <span class="stat-number" data-target="1200" data-suffix="+">0</span>
+      <span class="stat-number" id="statAnimes" data-suffix="">—</span>
       <span class="stat-label">Animes</span>
     </div>
     <div class="stat-divider"></div>
@@ -281,7 +281,7 @@
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item">
-      <span class="stat-number" data-target="8" data-suffix="+">0</span>
+      <span class="stat-number" id="statMembers" data-suffix="">—</span>
       <span class="stat-label">Membres</span>
     </div>
   </div>
@@ -323,6 +323,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, collection, getCountFromServer } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -335,7 +336,53 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const mainBtn = document.getElementById("mainBtn");
+
+// ── Compteurs dynamiques Firestore ──
+async function loadDynamicStats() {
+  try {
+    const [animesSnap, usersSnap] = await Promise.all([
+      getCountFromServer(collection(db, "animes")),
+      getCountFromServer(collection(db, "users")),
+    ]);
+
+    const animesCount = animesSnap.data().count;
+    const usersCount  = usersSnap.data().count;
+
+    const elAnimes  = document.getElementById("statAnimes");
+    const elMembers = document.getElementById("statMembers");
+
+    // Lance l'animation de comptage
+    animateCounterTo(elAnimes,  animesCount, "");
+    animateCounterTo(elMembers, usersCount,  "");
+  } catch (err) {
+    console.error("Erreur chargement stats:", err);
+    // Fallback silencieux : on laisse "—"
+  }
+}
+
+function animateCounterTo(el, target, suffix) {
+  if (!el) return;
+  const duration = 1800;
+  const startTime = performance.now();
+
+  function easeOutExpo(t) {
+    return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  }
+
+  function step(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const value = Math.floor(easeOutExpo(progress) * target);
+    el.textContent = value.toLocaleString('fr-FR') + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
+// Lancer au chargement
+loadDynamicStats();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -448,8 +495,8 @@ function animateCounter(el) {
   requestAnimationFrame(step);
 }
 
-// Lancement au scroll (IntersectionObserver)
-const counters = document.querySelectorAll('.stat-number');
+// Lancement au scroll — uniquement pour les compteurs hardcodés (data-target)
+const counters = document.querySelectorAll('.stat-number[data-target]');
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
