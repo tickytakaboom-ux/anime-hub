@@ -323,7 +323,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getFirestore, collection, getCountFromServer } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -339,50 +339,23 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const mainBtn = document.getElementById("mainBtn");
 
-// ── Compteurs dynamiques Firestore ──
-async function loadDynamicStats() {
-  try {
-    const [animesSnap, usersSnap] = await Promise.all([
-      getCountFromServer(collection(db, "animes")),
-      getCountFromServer(collection(db, "users")),
-    ]);
-
-    const animesCount = animesSnap.data().count;
-    const usersCount  = usersSnap.data().count;
-
-    const elAnimes  = document.getElementById("statAnimes");
-    const elMembers = document.getElementById("statMembers");
-
-    // Lance l'animation de comptage
-    animateCounterTo(elAnimes,  animesCount, "");
-    animateCounterTo(elMembers, usersCount,  "");
-  } catch (err) {
-    console.error("Erreur chargement stats:", err);
-    // Fallback silencieux : on laisse "—"
-  }
-}
-
+// ── Compteurs hardcodés ──
 function animateCounterTo(el, target, suffix) {
   if (!el) return;
   const duration = 1800;
   const startTime = performance.now();
-
-  function easeOutExpo(t) {
-    return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-  }
-
+  function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
   function step(now) {
     const progress = Math.min((now - startTime) / duration, 1);
     const value = Math.floor(easeOutExpo(progress) * target);
     el.textContent = value.toLocaleString('fr-FR') + suffix;
     if (progress < 1) requestAnimationFrame(step);
   }
-
   requestAnimationFrame(step);
 }
 
-// Lancer au chargement
-loadDynamicStats();
+animateCounterTo(document.getElementById("statAnimes"),  2617, "");
+animateCounterTo(document.getElementById("statMembers"), 9,    "");
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
