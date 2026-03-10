@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profil – AnimeHub</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon_animehub.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
+    :root {
+      --bg:#0b1220;--bg2:#061226;--card:rgba(13,22,40,0.85);--card-border:rgba(255,255,255,0.07);
+      --accent:#06b6d4;--accent2:#3b82f6;--muted:#7e8fa8;--text:#e6eef6;--radius:18px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',ui-sans-serif,system-ui;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
+    canvas{position:fixed;top:0;left:0;z-index:0;opacity:.3;pointer-events:none;}
+    header{position:relative;z-index:10;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-border);background:rgba(11,18,32,.8);backdrop-filter:blur(12px);}
+    .logo-link{text-decoration:none;}
+    .logo-text{font-family:'Mochiy Pop One','Syne',sans-serif;font-size:1.4rem;background:linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .btn-sm{padding:8px 16px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#052226;box-shadow:0 3px 12px rgba(6,182,212,.3);transition:transform .15s,filter .15s;text-decoration:none;display:inline-block;}
+    .btn-sm:hover{transform:translateY(-2px);filter:brightness(1.05);}
+    .page{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:40px 20px 60px;width:100%;animation:fadeUp .5s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:28px;backdrop-filter:blur(10px);box-shadow:0 12px 32px rgba(0,0,0,.35);margin-bottom:16px;}
+    .profile-header{text-align:center;}
+    .avatar{width:88px;height:88px;border-radius:50%;font-size:2rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:linear-gradient(135deg,#06b6d4,#3b82f6);border:3px solid rgba(6,182,212,.3);box-shadow:0 0 0 6px rgba(6,182,212,.08);}
+    .profile-name{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:900;margin-bottom:4px;}
+    .profile-bio{font-size:13px;color:#c0c8d6;line-height:1.6;margin-top:8px;max-width:400px;margin-left:auto;margin-right:auto;}
+    .public-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.25);color:var(--accent);margin-top:10px;}
+    .card-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+    .stat-box{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:12px;padding:14px 10px;text-align:center;transition:background .2s;}
+    .stat-box:hover{background:rgba(6,182,212,.08);}
+    .stat-value{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:900;color:var(--accent);}
+    .stat-label{font-size:11px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+    .badges-wrap{display:flex;flex-wrap:wrap;gap:8px;}
+    .badge{padding:6px 12px;border-radius:20px;background:linear-gradient(135deg,rgba(6,182,212,.18),rgba(59,130,246,.18));border:1px solid rgba(6,182,212,.22);font-size:12px;font-weight:700;color:var(--text);transition:transform .2s;}
+    .badge:hover{transform:translateY(-2px) scale(1.05);}
+    .skeleton{background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 100%);background-size:200% 100%;animation:shimmer 1.6s ease infinite;border-radius:10px;}
+    @keyframes shimmer{to{background-position:-200% 0}}
+    .error-state{text-align:center;padding:60px 20px;}
+    .error-icon{font-size:3rem;margin-bottom:16px;opacity:.5;}
+    .error-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:900;margin-bottom:8px;}
+    .error-sub{font-size:14px;color:var(--muted);}
+    @media(max-width:500px){header{padding:12px 16px;}.page{padding:24px 14px 48px;}}
+    @font-face{font-family:'Mochiy Pop One';src:url('MochiyPopOne-Regular.woff2') format('woff2');font-display:swap;}
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <header>
+    <a class="logo-link" href="index.html"><span class="logo-text">AnimeHub</span></a>
+    <a class="btn-sm" href="auth.html">Rejoindre AnimeHub</a>
+  </header>
+
+  <div class="page" id="page">
+    <!-- Skeletons -->
+    <div class="card" id="skeletonCard">
+      <div style="text-align:center;">
+        <div class="skeleton" style="width:88px;height:88px;border-radius:50%;margin:0 auto 16px;"></div>
+        <div class="skeleton" style="height:22px;width:140px;margin:0 auto 8px;"></div>
+        <div class="skeleton" style="height:13px;width:200px;margin:0 auto;"></div>
+      </div>
+    </div>
+    <div class="card" id="skeletonStats">
+      <div class="stats-grid">
+        <div class="skeleton" style="height:70px;border-radius:12px;"></div>
+        <div class="skeleton" style="height:70px;border-radius:12px;"></div>
+        <div class="skeleton" style="height:70px;border-radius:12px;"></div>
+      </div>
+    </div>
+
+    <!-- Contenu -->
+    <div id="content" style="display:none;">
+      <div class="card profile-header">
+        <div class="avatar" id="avatar"><span id="avatarContent">?</span></div>
+        <div class="profile-name" id="profileName">–</div>
+        <div class="public-tag">🌐 Profil public</div>
+        <div class="profile-bio" id="profileBio"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Statistiques</div>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-value" id="statRated">–</div><div class="stat-label">Notés</div></div>
+          <div class="stat-box"><div class="stat-value" id="statFavs">–</div><div class="stat-label">Favoris</div></div>
+          <div class="stat-box"><div class="stat-value" id="statAvg">–</div><div class="stat-label">Moyenne</div></div>
+        </div>
+      </div>
+      <div class="card" id="badgesCard">
+        <div class="card-title">Badges</div>
+        <div class="badges-wrap" id="badgesList"></div>
+      </div>
+    </div>
+
+    <!-- Erreur -->
+    <div id="errorState" style="display:none;" class="error-state">
+      <div class="error-icon">🔍</div>
+      <div class="error-title">Profil introuvable</div>
+      <div class="error-sub">Ce lien est invalide ou le profil n'existe plus.</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+    let w,h,pts;
+    function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+    function init(){pts=Array.from({length:60},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.3+.3,dx:(Math.random()-.5)*.28,dy:(Math.random()-.5)*.28}));}
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
+      for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<110){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/110)*.22})`;ctx.lineWidth=.6;ctx.stroke();}}
+      for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
+      requestAnimationFrame(draw);
+    }
+    resize();init();draw();
+    window.addEventListener('resize',()=>{resize();init();});
+    const COLORS=[['#06b6d4','#3b82f6'],['#f97316','#ef4444'],['#8b5cf6','#ec4899'],['#10b981','#06b6d4'],['#fbbf24','#f97316'],['#6366f1','#8b5cf6'],['#e11d48','#f43f5e'],['#0ea5e9','#22d3ee']];
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey:"AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain:"animehub-7.firebaseapp.com",
+      projectId:"animehub-7",
+      storageBucket:"animehub-7.firebasestorage.app",
+      messagingSenderId:"159114039206",
+      appId:"1:159114039206:web:0461d676e7ffff25c4c967",
+    });
+    const db = getFirestore(app);
+
+    const uid = new URLSearchParams(window.location.search).get('uid');
+
+    function showError() {
+      document.getElementById('skeletonCard').style.display  = 'none';
+      document.getElementById('skeletonStats').style.display = 'none';
+      document.getElementById('errorState').style.display    = 'block';
+    }
+
+    if (!uid) { showError(); }
+    else {
+      try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        if (!snap.exists()) { showError(); }
+        else {
+          const data = snap.data();
+
+          // Avatar
+          const avatarEl = document.getElementById('avatar');
+          const avatarContent = document.getElementById('avatarContent');
+          const av = data.avatar;
+          if (av) {
+            const pair = COLORS[av.colorIdx ?? 0] || COLORS[0];
+            avatarEl.style.background = `linear-gradient(135deg,${pair[0]},${pair[1]})`;
+            avatarContent.textContent = av.emoji || (data.username||'?').charAt(0).toUpperCase();
+          } else {
+            avatarContent.textContent = (data.username || '?').charAt(0).toUpperCase();
+          }
+
+          // Nom & bio
+          document.getElementById('profileName').textContent = data.username || 'Utilisateur AnimeHub';
+          document.title = `${data.username || 'Profil'} – AnimeHub`;
+          if (data.bio) document.getElementById('profileBio').textContent = data.bio;
+
+          // Stats
+          const ratings   = data.ratings   || {};
+          const favorites = data.favorites  || [];
+          const ratedCount = Object.keys(ratings).length;
+          let avg = '–';
+          if (ratedCount > 0)
+            avg = (Object.values(ratings).reduce((a,b) => a+b, 0) / ratedCount).toFixed(1);
+          document.getElementById('statRated').textContent = ratedCount;
+          document.getElementById('statFavs').textContent  = favorites.length;
+          document.getElementById('statAvg').textContent   = avg;
+
+          // Badges
+          const badges = data.badges || [];
+          if (!badges.length) {
+            document.getElementById('badgesCard').style.display = 'none';
+          } else {
+            const wrap = document.getElementById('badgesList');
+            badges.forEach(b => {
+              const el = document.createElement('div');
+              el.className = 'badge'; el.textContent = b;
+              wrap.appendChild(el);
+            });
+          }
+
+          // Afficher
+          document.getElementById('skeletonCard').style.display  = 'none';
+          document.getElementById('skeletonStats').style.display = 'none';
+          document.getElementById('content').style.display       = 'block';
+        }
+      } catch(e) {
+        console.error(e); showError();
+      }
+    }
+  </script>
+</body>
+</html>
