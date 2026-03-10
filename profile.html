@@ -546,7 +546,10 @@
   <!-- ══════════════ SCRIPTS ══════════════ -->
   <script>
     /* ── AVATAR PICKER ── */
-    const EMOJIS  = ['😸','🦊','🐉','⚡','🌸','👾','🔥','🌙','⚔️','🎌','🌊','🦋','🎭','💀','🎯'];
+    const OWNER_UID    = 'FlDsDO7AsFM5WDC3xpUpXMaHnzv2';
+    const OWNER_EMOJIS = ['🍰']; // emojis exclusifs créateur
+    const EMOJIS       = ['😸','🦊','🐉','⚡','🌸','👾','🔥','🌙','⚔️','🎌','🌊','🦋','🎭','💀','🎯'];
+    let   isOwner      = false; // mis à jour après auth
     const COLORS  = [
       ['#06b6d4','#3b82f6'], ['#f97316','#ef4444'], ['#8b5cf6','#ec4899'],
       ['#10b981','#06b6d4'], ['#fbbf24','#f97316'], ['#6366f1','#8b5cf6'],
@@ -564,19 +567,37 @@
     const pickerEmojis = document.getElementById('pickerEmojis');
     const pickerColors = document.getElementById('pickerColors');
 
-    // Build emoji grid
-    EMOJIS.forEach((em, i) => {
-      const btn = document.createElement('div');
-      btn.className = 'picker-emoji'; btn.textContent = em;
-      btn.addEventListener('click', () => {
-        selectedEmoji = em;
-        avatarContent.textContent = em;
-        document.querySelectorAll('.picker-emoji').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        window._saveAvatarPref();
+    // Build emoji grid (appelé après auth pour connaître isOwner)
+    function buildEmojiPicker() {
+      pickerEmojis.innerHTML = '';
+      const allEmojis = [...EMOJIS, ...OWNER_EMOJIS];
+      allEmojis.forEach((em) => {
+        const isExclusive = OWNER_EMOJIS.includes(em);
+        const locked = isExclusive && !isOwner;
+
+        const btn = document.createElement('div');
+        btn.className = 'picker-emoji';
+        btn.textContent = em;
+        btn.title = locked ? '🔒 Emoji exclusif créateur' : em;
+
+        if (locked) {
+          btn.style.opacity = '0.25';
+          btn.style.filter  = 'grayscale(1)';
+          btn.style.cursor  = 'not-allowed';
+          btn.style.position = 'relative';
+        } else {
+          btn.addEventListener('click', () => {
+            selectedEmoji = em;
+            avatarContent.textContent = em;
+            document.querySelectorAll('.picker-emoji').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            window._saveAvatarPref();
+          });
+        }
+        pickerEmojis.appendChild(btn);
       });
-      pickerEmojis.appendChild(btn);
-    });
+    }
+    buildEmojiPicker(); // build initial (isOwner = false)
 
     // Build color grid
     COLORS.forEach((pair, i) => {
@@ -721,6 +742,10 @@
       document.getElementById('bioText').textContent = userData.bio || 'Aucune bio pour l\'instant.';
       document.getElementById('bioInput').value = userData.bio || '';
       loadAvatarPref(userData.avatar || null, name.charAt(0).toUpperCase());
+
+      // Mettre à jour isOwner et reconstruire le picker
+      isOwner = (user.uid === OWNER_UID);
+      buildEmojiPicker();
 
       // Brancher saveAvatarPref sur Firestore maintenant qu'on a userRef
       window._saveAvatarPref = async function() {
