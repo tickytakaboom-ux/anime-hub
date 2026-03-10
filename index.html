@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AnimeHub</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500&display=swap');
+
   :root {
     --bg: #0f1724;
     --glass: rgba(255,255,255,0.05);
@@ -13,10 +15,12 @@
     --text-light: #e6eef6;
   }
 
+  * { box-sizing: border-box; }
+
   body {
     margin: 0;
     min-height: 100vh;
-    font-family: Inter, sans-serif;
+    font-family: 'DM Sans', sans-serif;
     background: linear-gradient(180deg, #0b1220 0%, #061226 100%);
     color: var(--text-light);
     display: flex;
@@ -24,207 +28,224 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    opacity: 1;
+    transition: opacity 0.6s ease;
   }
 
-  h1 {
-    font-size: 3.2rem;
-    font-weight: 900;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
-    text-align: center;
-
-    background: linear-gradient(
-      90deg,
-      #22d3ee,
-      #3b82f6,
-      #22d3ee
-    );
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-    animation: gradientMove 6s linear infinite;
-    text-shadow: 0 0 25px rgba(34,211,238,0.25);
-  }
-
-  @keyframes gradientMove {
-    to {
-      background-position: 200% center;
-    }
-  }
-
-  .buttons {
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 2rem;
-  }
-
-  .btn {
-    background: var(--glass);
-    backdrop-filter: blur(10px);
-    padding: 20px 30px;
-    border-radius: 16px;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--text-light);
-    border: 2px solid rgba(6,182,212,0.3);
-    cursor: pointer;
-    transition: 0.3s all ease;
-    text-align: center;
-    min-width: 150px;
-  }
-
-  .btn:hover {
-    background: rgba(6,182,212,0.15);
-    border-color: var(--accent);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(6,182,212,0.4);
-  }
+  body.fonts-not-loaded { opacity: 0; }
 
   canvas {
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     z-index: -1;
+    opacity: 0.45;
   }
 
-  @media(max-width: 600px){
-    h1 {
-      font-size: 2rem;
-    }
-    .btn {
-      padding: 15px 20px;
-      font-size: 1rem;
-      min-width: 120px;
-    }
-  }
   main {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: min(900px, 92vw);
-  }
-  button {
-    font-family: inherit;
-  }
-  body > * {
     animation: fadeUp 0.8s ease-out forwards;
   }
 
   @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  canvas {
-    opacity: 0.35;
-  }
+
+  /* ── LOGO ── */
   .logo-container {
     display: flex;
     align-items: baseline;
     gap: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
-    min-height: 1em;
     justify-content: center;
-    text-align: center;
   }
 
   .welcome-text {
+    font-family: 'Syne', sans-serif;
     font-size: 3.2rem;
     font-weight: 900;
     margin: 0;
+    background: linear-gradient(90deg, #22d3ee, #3b82f6, #22d3ee);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMove 6s linear infinite;
   }
 
   .animehub-text {
-    font-family: 'Mochiy Pop One', system-ui, sans-serif;
+    font-family: 'Mochiy Pop One', 'Syne', system-ui, sans-serif;
     font-size: 3.2rem;
     font-weight: 900;
     display: inline-block;
-    background: linear-gradient(
-      90deg,
-      #fff59d,
-      #ffeb3b,
-      #ff9800,
-      #ff5722
-    );
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-    text-shadow: 
-      0 0 8px rgba(255, 183, 77, 0.35),
-      0 0 16px rgba(255, 152, 0, 0.25);
+    background: linear-gradient(90deg, #fff59d, #ffeb3b, #ff9800, #ff5722);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     letter-spacing: 1px;
   }
-  .tagline {
-    font-size: 1.15rem;
-    max-width: 650px;
-    line-height: 1.6;
-    margin: 0 auto 1.5rem;
-    color: rgba(230, 238, 246, 0.85);
+
+  @keyframes gradientMove {
+    to { background-position: 200% center; }
   }
+
+  .tagline {
+    font-size: 1.1rem;
+    max-width: 600px;
+    line-height: 1.7;
+    margin: 0 auto 1.5rem;
+    color: rgba(230, 238, 246, 0.75);
+  }
+
+  /* ── COMPTEURS ── */
+  .stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .stat-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #22d3ee, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(230, 238, 246, 0.5);
+    font-weight: 500;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(34, 211, 238, 0.2);
+    align-self: center;
+  }
+
+  /* ── FEATURE CARDS ── */
   .features {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.5rem;
+    gap: 1.2rem;
     width: 100%;
-    margin-top: 1rem;
+    margin-bottom: 2rem;
   }
+
   .feature-card {
-    padding: 18px;
+    padding: 20px;
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(34, 211, 238, 0.2);
+    border: 1px solid rgba(34, 211, 238, 0.15);
     text-align: left;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     min-height: 140px;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    cursor: default;
   }
+
+  .feature-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(34, 211, 238, 0.5);
+    background: rgba(34, 211, 238, 0.06);
+    box-shadow: 0 20px 40px rgba(6, 182, 212, 0.15);
+  }
+
   .feature-card h3 {
     margin: 0 0 8px;
-    font-size: 1.1rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
   }
+
   .feature-card p {
     margin: 0;
-    color: rgba(230, 238, 246, 0.75);
+    color: rgba(230, 238, 246, 0.65);
     line-height: 1.5;
+    font-size: 0.9rem;
   }
+
   .feature-icon {
     display: inline-flex;
-    width: 36px;
-    height: 36px;
+    width: 36px; height: 36px;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    background: rgba(6, 182, 212, 0.2);
+    background: rgba(6, 182, 212, 0.15);
     margin-bottom: 10px;
     font-size: 1.1rem;
+    transition: background 0.3s ease, transform 0.3s ease;
   }
-  .btn span {
-    margin-right: 8px;
+
+  .feature-card:hover .feature-icon {
+    background: rgba(6, 182, 212, 0.3);
+    transform: scale(1.15);
   }
+
+  /* ── BUTTONS ── */
+  .buttons {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    padding: 16px 28px;
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-light);
+    border: 1.5px solid rgba(6, 182, 212, 0.3);
+    cursor: pointer;
+    transition: 0.3s all ease;
+    text-align: center;
+    min-width: 140px;
+  }
+
+  .btn:hover {
+    background: rgba(6, 182, 212, 0.12);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.35);
+  }
+
+  .btn span { margin-right: 6px; }
+
+  /* ── RESPONSIVE ── */
   @media(max-width: 900px) {
-    .features {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
-  @media(max-width: 600px){
-    .logo-container {
-      flex-direction: column;
-      gap: 4px;
-    }
-    .features {
-      grid-template-columns: 1fr;
-    }
-    .tagline {
-      font-size: 1rem;
-    }
+  @media(max-width: 600px) {
+    .welcome-text, .animehub-text { font-size: 2rem; }
+    .logo-container { flex-direction: column; gap: 4px; }
+    .features { grid-template-columns: 1fr; }
+    .tagline { font-size: 0.95rem; }
+    .btn { padding: 14px 20px; font-size: 0.95rem; min-width: 120px; }
+    .stats { gap: 1.2rem; }
+    .stat-divider { display: none; }
+    .stat-number { font-size: 1.6rem; }
   }
+
   @font-face {
     font-family: 'Mochiy Pop One';
     src: url('MochiyPopOne-Regular.woff2') format('woff2');
@@ -232,25 +253,40 @@
     font-style: normal;
     font-display: swap;
   }
-  body {
-    opacity: 1;
-    transition: opacity 0.6s ease;
-  }
-
-  body.fonts-not-loaded {
-    opacity: 0;
-  }
 </style>
 </head>
 <body class="fonts-not-loaded">
+
+<canvas id="stars"></canvas>
+
 <main>
   <!-- LOGO -->
   <div class="logo-container">
     <h1 class="welcome-text">Bienvenue à</h1>
     <span class="animehub-text">AnimeHub</span>
   </div>
+
   <p class="tagline">Découvre, classe et teste tes connaissances sur tes animes préférés dans un espace moderne et fun.</p>
 
+  <!-- COMPTEURS ANIMÉS -->
+  <div class="stats">
+    <div class="stat-item">
+      <span class="stat-number" data-target="1200" data-suffix="+">0</span>
+      <span class="stat-label">Animes</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number" data-target="5" data-suffix="+">0</span>
+      <span class="stat-label">Quiz disponibles</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number" data-target="8" data-suffix="+">0</span>
+      <span class="stat-label">Membres</span>
+    </div>
+  </div>
+
+  <!-- FEATURE CARDS -->
   <section class="features">
     <article class="feature-card">
       <div class="feature-icon">✨</div>
@@ -260,7 +296,7 @@
     <article class="feature-card">
       <div class="feature-icon">📺</div>
       <h3>AnimeList</h3>
-      <p>Crée ta liste d’animes et garde une trace de tes coups de cœur.</p>
+      <p>Crée ta liste d'animes et garde une trace de tes coups de cœur.</p>
     </article>
     <article class="feature-card">
       <div class="feature-icon">🧠</div>
@@ -269,18 +305,20 @@
     </article>
   </section>
 
+  <!-- BOUTONS -->
   <div class="buttons">
     <button id="mainBtn" class="btn"><span>🔐</span>Connexion</button>
     <button class="btn" onclick="location.href='animelist.html'"><span>📺</span>AnimeList</button>
     <button class="btn" onclick="location.href='animequiz.html'"><span>🧠</span>AnimeQuiz</button>
   </div>
 </main>
-<canvas id="stars"></canvas>
+
 <script>
   document.fonts.ready.then(() => {
     document.body.classList.remove("fonts-not-loaded");
   });
 </script>
+
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -297,12 +335,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
 const mainBtn = document.getElementById("mainBtn");
 
-// Vérifie si l'utilisateur est connecté
 onAuthStateChanged(auth, (user) => {
-  if(user){
+  if (user) {
     mainBtn.innerHTML = "<span>👤</span>Profil";
     mainBtn.onclick = () => location.href = "profile.html";
   } else {
@@ -313,43 +349,117 @@ onAuthStateChanged(auth, (user) => {
 </script>
 
 <script>
-// Animation étoiles discrète
+/* ─────────────────────────────────────────────
+   PARTICULES CONNECTÉES
+───────────────────────────────────────────── */
 const canvas = document.getElementById('stars');
 const ctx = canvas.getContext('2d');
-let w = canvas.width = window.innerWidth;
-let h = canvas.height = window.innerHeight;
-let stars = [];
 
-for(let i=0;i<100;i++){
-  stars.push({
-    x: Math.random()*w,
-    y: Math.random()*h,
-    r: Math.random()*1.5,
-    dx: (Math.random()-0.5)*0.1,
-    dy: (Math.random()-0.5)*0.1
-  });
-}
+let w, h, particles;
+const PARTICLE_COUNT = 90;
+const MAX_DIST = 130;
+const SPEED = 0.35;
 
-function animate(){
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='white';
-  stars.forEach(s=>{
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fill();
-    s.x += s.dx;
-    s.y += s.dy;
-    if(s.x<0||s.x>w)s.dx*=-1;
-    if(s.y<0||s.y>h)s.dy*=-1;
-  });
-  requestAnimationFrame(animate);
-}
-animate();
-
-window.addEventListener('resize',()=>{
+function resize() {
   w = canvas.width = window.innerWidth;
   h = canvas.height = window.innerHeight;
-});
+}
+
+function createParticles() {
+  particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 1.6 + 0.4,
+      dx: (Math.random() - 0.5) * SPEED,
+      dy: (Math.random() - 0.5) * SPEED,
+    });
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, w, h);
+
+  // Mise à jour positions
+  for (const p of particles) {
+    p.x += p.dx;
+    p.y += p.dy;
+    if (p.x < 0 || p.x > w) p.dx *= -1;
+    if (p.y < 0 || p.y > h) p.dy *= -1;
+  }
+
+  // Lignes connectées
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const a = particles[i], b = particles[j];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (dist < MAX_DIST) {
+        const alpha = (1 - dist / MAX_DIST) * 0.35;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = `rgba(34, 211, 238, ${alpha})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Points
+  for (const p of particles) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(200, 240, 255, 0.85)';
+    ctx.fill();
+  }
+
+  requestAnimationFrame(animate);
+}
+
+resize();
+createParticles();
+animate();
+window.addEventListener('resize', () => { resize(); createParticles(); });
+
+
+/* ─────────────────────────────────────────────
+   COMPTEURS ANIMÉS
+───────────────────────────────────────────── */
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target, 10);
+  const suffix = el.dataset.suffix || '';
+  const duration = 1800;
+  const startTime = performance.now();
+
+  function easeOutExpo(t) {
+    return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  }
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOutExpo(progress);
+    const value = Math.floor(eased * target);
+    el.textContent = value.toLocaleString('fr-FR') + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
+// Lancement au scroll (IntersectionObserver)
+const counters = document.querySelectorAll('.stat-number');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounter(entry.target);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+counters.forEach(c => observer.observe(c));
 </script>
 </body>
 </html>
