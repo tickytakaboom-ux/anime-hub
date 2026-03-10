@@ -3,1415 +3,973 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AnimeList - Anime</title>
-
+  <title>AnimeHub – Anime</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon_animehub.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
+
     :root {
-      --bg: #0f1724;
-      --card: #0b1220;
+      --bg: #0b1220;
+      --bg2: #061226;
+      --card: rgba(13,22,40,0.9);
+      --card-border: rgba(255,255,255,0.07);
       --accent: #06b6d4;
-      --accent2: #f97316;
-      --muted: #9ca3af;
-      --glass: rgba(255,255,255,0.05);
-      --radius: 12px;
+      --accent2: #3b82f6;
+      --muted: #7e8fa8;
+      --text: #e6eef6;
+      --radius: 16px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Inter', sans-serif;
-      background: #0f1724;
-      color: #e6eef6;
-      line-height: 1.6;
+      font-family: 'DM Sans', ui-sans-serif, system-ui;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
+
     a { text-decoration: none; color: inherit; }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(11,18,32,0.95);
-      backdrop-filter: blur(6px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
-    }
-    header h1 { font-size: 28px; font-weight: 700; letter-spacing: 1px; }
-    header nav a {
-      margin-left: 20px;
-      font-weight: 500;
-      color: var(--muted);
-      transition: color 0.2s;
-    }
-    header nav a:hover { color: var(--accent); }
-
-	:focus-visible {
-	  outline: 2px solid rgba(6,182,212,0.8);
-	  outline-offset: 2px;
-	}
-
+    /* ── PARTICLES ── */
     #particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; z-index: 0;
+      pointer-events: none; opacity: 0.35;
     }
 
-    .container { 
-      max-width: 1000px; 
-      margin: 60px auto; 
-      padding: 0 20px; 
-      position: relative;
-      z-index: 1;
+    /* ── HEADER ── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,18,32,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    header.sticky { border-color: var(--card-border); box-shadow: 0 4px 24px rgba(0,0,0,0.5); }
+
+    .logo-text {
+      font-family: 'Mochiy Pop One', 'Syne', sans-serif;
+      font-size: 1.5rem; cursor: pointer;
+      background: linear-gradient(90deg, #fff59d, #ffeb3b, #ff9800, #ff5722);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
 
-    .anime-details {
-      display: flex;
-      gap: 40px;
-      background: var(--card);
-      padding: 30px;
-      border-radius: var(--radius);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-      flex-wrap: wrap;
-      transition: transform 0.3s;
-	  border: 1px solid rgba(255,255,255,0.06);
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .hbtn {
+      padding: 8px 14px; border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text); font-family: inherit;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      display: flex; align-items: center; gap: 6px;
     }
-    .anime-details:hover { 
-	  transform: scale(1.01);
-	  box-shadow:
-        0 10px 30px rgba(0,0,0,0.7),
-        0 0 20px rgba(6,182,212,0.25);
-	}
+    .hbtn:hover { background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.4); transform: translateY(-1px); }
 
-    .anime-details img {
-      width: 320px;
-      height: 450px;
-      object-fit: cover;
-      border-radius: var(--radius);
-      flex-shrink: 0;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease infinite;
+      border-radius: 10px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 1060px; margin: 0 auto;
+      padding: 40px 20px 80px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── HERO SKELETON ── */
+    #skeletonHero {
+      display: flex; gap: 36px; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 28px; margin-bottom: 20px;
+    }
+
+    /* ── ANIME DETAILS ── */
+    #animeContent { display: none; }
+
+    .anime-hero {
+      display: flex; gap: 36px; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 28px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      animation: fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+    /* Poster */
+    .anime-poster-wrap { position: relative; flex-shrink: 0; }
+    .anime-poster {
+      width: 260px; height: 370px;
+      object-fit: cover; border-radius: 12px;
+      display: block;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
       transition: transform 0.4s ease, box-shadow 0.4s ease;
     }
-	.anime-details:hover img {
-	  transform: scale(1.04);
-	  box-shadow:
-		0 12px 30px rgba(0,0,0,0.7),
-		0 0 18px rgba(6,182,212,0.35);
-	}
-    .anime-info { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-    .anime-info h2 { 
-	  font-size: 32px; 
-	  font-weight: 700; 
-	  color: var(--accent); 
-	  text-shadow: 0 0 12px rgba(6,182,212,0.35);
-	}
-    .anime-info .genres { display: flex; gap: 8px; flex-wrap: wrap; }
-    .anime-info .genres a {
-      display: inline-block;
-      background: rgba(6,182,212,0.15);
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
+    .anime-poster:hover {
+      transform: scale(1.03) translateY(-4px);
+      box-shadow: 0 20px 50px rgba(6,182,212,0.25);
+    }
+    .poster-badge {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(11,18,32,0.85); backdrop-filter: blur(6px);
+      border: 1px solid rgba(6,182,212,0.3);
+      border-radius: 8px; padding: 5px 10px;
+      font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
       color: var(--accent);
-      transition: all 0.3s;
-	  border: 1px solid rgba(6,182,212,0.35);
     }
-    .anime-info .genres a:hover { 
-      transform: scale(1.1);
-      background: rgba(6,182,212,0.25);
-	  box-shadow: 0 0 10px rgba(6,182,212,0.4);
+
+    /* Info */
+    .anime-info { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 14px; }
+
+    .anime-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 900; line-height: 1.2;
+      background: linear-gradient(90deg, var(--text) 0%, rgba(230,238,246,0.7) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .anime-info .rating {
-      font-weight: 700;
-      background: rgba(6,182,212,0.15);
-      padding: 6px 10px;
-      border-radius: 8px;
+
+    /* Score hero */
+    .score-hero {
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(6,182,212,0.07);
+      border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 14px; padding: 14px 18px;
       width: fit-content;
-      color: var(--accent);
     }
+    .score-big {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.8rem; font-weight: 900;
+      color: var(--accent); line-height: 1;
+    }
+    .score-meta { display: flex; flex-direction: column; gap: 2px; }
+    .score-stars { color: #fbbf24; font-size: 1rem; letter-spacing: 2px; }
+    .score-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 
-	.status-group {
-	  display: flex;
-	  flex-wrap: wrap;
-	  gap: 10px;
-	  margin-top: 6px;
-	}
-
-	.status-label {
-	  font-size: 13px;
-	  color: var(--muted);
-	  margin-top: 6px;
-	}
-
-	.status-btn {
-	  padding: 8px 14px;
-	  border-radius: 999px;
-	  border: 1px solid rgba(255,255,255,0.15);
-	  background: rgba(255,255,255,0.06);
-	  color: #e6eef6;
-	  font-size: 13px;
-	  font-weight: 700;
-	  cursor: pointer;
-	  transition: all 0.2s ease;
-	}
-
-	.status-btn:hover {
-	  transform: translateY(-1px);
-	  border-color: rgba(6,182,212,0.5);
-	  box-shadow: 0 8px 18px rgba(6,182,212,0.2);
-	}
-
-	.status-btn.is-active {
-	  background: linear-gradient(135deg, #06b6d4, #3b82f6);
-	  color: #052226;
-	  border-color: transparent;
-	  box-shadow: 0 10px 24px rgba(6,182,212,0.4);
-	}
-
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: var(--radius);
-      background: linear-gradient(135deg, var(--accent), #0fc1e5);
-      color: #052226;
-      font-weight: 700;
+    /* Genres */
+    .genres { display: flex; gap: 6px; flex-wrap: wrap; }
+    .genre-tag {
+      padding: 4px 12px; border-radius: 20px;
+      background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.25);
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      transition: background 0.2s, transform 0.15s;
       cursor: pointer;
-      transition: all 0.25s ease;
-      margin-top: 10px;
-      width: fit-content;
-      box-shadow: 0 4px 15px rgba(6,182,212,0.4);
-	  position: relative;
-	  overflow: hidden;
     }
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 30px rgba(6,182,212,0.7);
+    .genre-tag:hover { background: rgba(6,182,212,0.22); transform: translateY(-2px); }
+
+    /* Status */
+    .status-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .status-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .status-btn {
+      padding: 7px 16px; border-radius: 999px;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text); font-family: inherit;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s ease;
     }
-	.btn:active {
-	  transform: translateY(0) scale(0.97);
-	}
-    .anime-summary {
-      margin-top: 30px;
-      font-size: 16px;
-      line-height: 1.8;
-      background: var(--glass);
-      padding: 20px;
-      border-radius: var(--radius);
-      backdrop-filter: blur(4px);
-	  border: 1px solid rgba(255,255,255,0.06);
-	  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
-    }
-	.anime-summary::before {
-	  content: "📖 Synopsis";
-	  display: block;
-	  font-weight: 700;
-	  margin-bottom: 10px;
-	  color: var(--accent);
-	}
-    footer {
-      text-align: center;
-      margin: 60px 0 20px;
-      color: #9ca3af;
-      font-size: 14px;
+    .status-btn:hover { border-color: rgba(6,182,212,0.5); background: rgba(6,182,212,0.08); transform: translateY(-1px); }
+    .status-btn.is-active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #052226; border-color: transparent;
+      box-shadow: 0 6px 18px rgba(6,182,212,0.35);
     }
 
-    @media (max-width: 720px){
-	  header {
-		flex-direction: column;
-		gap: 12px;
-		padding: 16px 20px;
-	  }
-      .anime-details {
-        flex-direction: column;
-        align-items: center;
-      }
-      .anime-details img { width: 80%; height: auto; }
-      .anime-info h2, .anime-info .btn { text-align: center; }
-      .anime-info .btn { margin: 0 auto; display: block; }
-      .anime-info .genres { justify-content: center; }
+    /* Actions */
+    .anime-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn-fav {
+      padding: 10px 20px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #0fc1e5);
+      color: #052226; font-family: inherit; font-weight: 700; font-size: 14px;
+      cursor: pointer; position: relative; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(6,182,212,0.35);
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
     }
-	/* ⭐ Select Noter */
-	#rateSelect {
-	  appearance: none;
-	  -webkit-appearance: none;
-	  -moz-appearance: none;
+    .btn-fav:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(6,182,212,0.55); filter: brightness(1.05); }
+    .btn-fav:active { transform: translateY(0); }
+    .btn-fav.favorited { background: linear-gradient(135deg, #facc15, #f97316); color: #3a2000; box-shadow: 0 8px 24px rgba(250,204,21,0.4); }
+    .btn-fav.pop { animation: favPop 0.35s ease; }
+    @keyframes favPop { 0%{transform:scale(0.9)} 60%{transform:scale(1.15)} 100%{transform:scale(1)} }
 
-	  background: linear-gradient(
-		135deg,
-		rgba(6, 182, 212, 0.18),
-		rgba(15, 193, 229, 0.25)
-	  );
-	  border: 1px solid rgba(6, 182, 212, 0.4);
-	  color: #e6eef6;
+    .rate-select {
+      appearance: none; -webkit-appearance: none;
+      padding: 10px 40px 10px 14px; border-radius: 12px;
+      border: 1px solid rgba(6,182,212,0.3);
+      background: rgba(6,182,212,0.08) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2306b6d4' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+      color: var(--text); font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(6,182,212,0.2);
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .rate-select:hover { border-color: var(--accent); box-shadow: 0 8px 22px rgba(6,182,212,0.35); transform: translateY(-1px); }
+    .rate-select:focus { outline: none; box-shadow: 0 0 0 3px rgba(6,182,212,0.2); }
+    .rate-select option { background: #0d1628; color: var(--text); }
 
-	  padding: 10px 42px 10px 14px;
-	  border-radius: 12px;
-	  font-size: 15px;
-	  font-weight: 600;
-	  cursor: pointer;
+    /* ── SYNOPSIS ── */
+    .section-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 24px;
+      margin-bottom: 20px; animation: fadeUp 0.5s ease both;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+      color: var(--accent); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .synopsis-text { font-size: 15px; line-height: 1.8; color: rgba(230,238,246,0.85); }
 
-	  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.25);
-	  transition: all 0.25s ease;
-	  margin-top: 12px;
-	  width: fit-content;
-	}
-	
-	/* 🔽 Flèche custom */
-	#rateSelect {
-	  background-image:
-		linear-gradient(45deg, transparent 50%, #06b6d4 50%),
-		linear-gradient(135deg, #06b6d4 50%, transparent 50%);
-	  background-position:
-		calc(100% - 20px) 50%,
-		calc(100% - 14px) 50%;
-	  background-size: 6px 6px;
-	  background-repeat: no-repeat;
-	}
+    /* ── TIMELINE ── */
+    .timeline-controls { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+    .timeline-toggle {
+      padding: 6px 14px; border-radius: 999px;
+      border: 1px solid var(--card-border); background: rgba(255,255,255,0.05);
+      color: var(--text); font-family: inherit; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .timeline-toggle:hover { background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.4); }
+    .timeline-toggle.active { background: rgba(6,182,212,0.15); border-color: var(--accent); color: var(--accent); }
 
-	/* 🖱 Hover */
-	#rateSelect:hover {
-	  transform: translateY(-2px);
-	  box-shadow: 0 10px 28px rgba(6, 182, 212, 0.45);
-	  border-color: #06b6d4;
-	}
+    .timeline-list { display: flex; flex-direction: column; gap: 8px; }
 
-	/* 🎯 Focus */
-	#rateSelect:focus {
-	  outline: none;
-	  box-shadow:
-		0 0 0 2px rgba(6, 182, 212, 0.4),
-		0 12px 30px rgba(6, 182, 212, 0.6);
-	}
-	#rateSelect:focus-visible {
-	  outline: 2px solid #06b6d4;
-	  outline-offset: 2px;
-	}
-	/* 📋 Options */
-	#rateSelect option {
-	  background: #0b1220;
-	  color: #e6eef6;
-	  font-weight: 500;
-	}
-	#favBtn.favorited {
-	  background: linear-gradient(135deg, #facc15, #f97316);
-	  color: #3a2000;
-	  box-shadow: 0 12px 30px rgba(250,204,21,0.6);
-	}
-	/* Petit bounce */
-	#favBtn.pop {
-	  animation: favPop 0.35s ease;
-	}
+    .season-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px; border-radius: 12px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--card-border);
+      cursor: pointer; gap: 10px;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .season-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; border-radius: 3px 0 0 3px;
+      background: var(--accent); opacity: 0; transition: opacity 0.2s;
+    }
+    .season-item:hover { background: rgba(6,182,212,0.07); border-color: rgba(6,182,212,0.25); transform: translateX(3px); }
+    .season-item:hover::before { opacity: 1; }
+    .season-item.movie { border-left: 2px solid #f59e0b; }
+    .season-item.movie::before { background: #f59e0b; }
+    .season-item.special::before { background: #facc15; }
+    .season-item.empty { opacity: 0.5; justify-content: center; cursor: default; }
+    .season-item.empty:hover { transform: none; background: rgba(255,255,255,0.04); border-color: var(--card-border); }
 
-	@keyframes favPop {
-	  0%   { transform: scale(0.9); }
-	  60%  { transform: scale(1.15); }
-	  100% { transform: scale(1); }
-	}
+    .season-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .season-episodes {
+      font-size: 12px; color: var(--muted);
+      background: rgba(0,0,0,0.25); padding: 3px 10px;
+      border-radius: 999px; border: 1px solid rgba(255,255,255,0.06);
+      white-space: nowrap; flex-shrink: 0;
+    }
 
-	#favBtn.favorited::after {
-	  opacity: 1;
-	  transform: translateY(-50%) scale(1);
-	}
-	#toast {
-	  position: fixed;
-	  bottom: 30px;
-	  left: 50%;
-	  transform: translateX(-50%) translateY(20px);
-	  background: linear-gradient(135deg, #22c55e, #16a34a);
-	  color: #022c22;
-	  padding: 14px 24px;
-	  border-radius: 14px;
-	  font-weight: 700;
-	  font-size: 14px;
-	  box-shadow: 0 10px 30px rgba(34,197,94,0.45);
-	  opacity: 0;
-	  pointer-events: none;
-	  transition: all 0.35s ease;
-	  z-index: 9999;
-	}
+    .badge-upcoming {
+      padding: 2px 7px; font-size: 10px; font-weight: 800;
+      color: #111; background: linear-gradient(135deg, #ffd86b, #ffb347);
+      border-radius: 8px; text-transform: uppercase;
+      animation: pulseUpcoming 1.8s infinite;
+    }
+    @keyframes pulseUpcoming { 0%,100%{box-shadow:0 0 6px rgba(255,200,80,.4)} 50%{box-shadow:0 0 14px rgba(255,200,80,.9)} }
+    .badge-non-canon {
+      padding: 2px 6px; font-size: 10px; font-weight: 800;
+      border-radius: 6px; background: rgba(239,68,68,0.12);
+      color: #f87171; border: 1px solid rgba(239,68,68,0.3);
+      text-transform: uppercase;
+    }
 
-	#toast.show {
-	  opacity: 1;
-	  transform: translateX(-50%) translateY(0);
-	}
+    /* ── SIMILAR ANIMES ── */
+    .similar-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+    }
+    .similar-card {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--card-border);
+      border-radius: 12px; overflow: hidden; cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .similar-card:hover { transform: translateY(-5px); border-color: rgba(6,182,212,0.3); box-shadow: 0 12px 30px rgba(6,182,212,0.12); }
+    .similar-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #0a1020; transition: filter 0.2s; }
+    .similar-card:hover img { filter: brightness(1.08); }
+    .similar-card-body { padding: 10px; }
+    .similar-card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .similar-card-rating { font-size: 12px; color: #fbbf24; font-weight: 700; }
 
-	#toast.remove {
-	  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-	  color: #042a3f;
-	  box-shadow: 0 10px 30px rgba(14,165,233,0.45);
-	}
-	/* Cœur qui poppe */
-	#favBtn::before {
-	  content: "❤️";
-	  position: absolute;
-	  left: 50%;
-	  top: 50%;
-	  transform: translate(-50%, -50%) scale(0);
-	  font-size: 1.8em;
-	  opacity: 0;
-	  pointer-events: none;
-	  text-shadow: 0 0 5px #fff, 0 0 10px #f00, 0 0 15px #f00;
-	}
+    /* ── COMMENTS ── */
+    .comment-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .comment-textarea {
+      width: 100%; min-height: 80px; padding: 12px 14px;
+      border-radius: 12px; border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.04); color: var(--text);
+      font-family: inherit; font-size: 14px; resize: vertical; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .comment-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(6,182,212,0.12); }
+    .comment-textarea::placeholder { color: var(--muted); }
+    .comment-submit {
+      align-self: flex-end; padding: 9px 20px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #052226; font-family: inherit; font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: transform 0.15s, filter 0.15s;
+    }
+    .comment-submit:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .comment-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-	#favBtn.liked::before {
-	  animation: heartPop 0.6s forwards;
-	}
+    .comments-list { display: flex; flex-direction: column; gap: 10px; }
+    .comment-item {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 14px 16px;
+      animation: fadeUp 0.35s ease both;
+      transition: border-color 0.2s;
+    }
+    .comment-item:hover { border-color: rgba(6,182,212,0.15); }
+    .comment-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; flex-wrap: wrap; }
+    .comment-author { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); }
+    .comment-date { font-size: 11px; color: var(--muted); }
+    .comment-text { font-size: 14px; line-height: 1.6; color: rgba(230,238,246,0.85); word-break: break-word; }
+    .comment-delete {
+      background: transparent; border: none; color: var(--muted);
+      cursor: pointer; font-size: 12px; padding: 2px 6px; border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .comment-delete:hover { color: #f87171; background: rgba(248,113,113,0.1); }
+    .comments-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 0; }
+    #commentsLoginMsg { font-size: 13px; color: var(--muted); text-align: center; padding: 12px; }
 
-	@keyframes heartPop {
-	  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-	  30%  { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
-	  60%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-	  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-	}
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22; padding: 12px 22px; border-radius: 12px;
+      font-weight: 700; font-size: 14px;
+      box-shadow: 0 8px 24px rgba(34,197,94,0.4);
+      opacity: 0; pointer-events: none;
+      transition: all 0.3s ease; z-index: 9999;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.remove { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #042a3f; box-shadow: 0 8px 24px rgba(14,165,233,0.4); }
 
-	/* Particules container */
-	#favParticles {
-	  position: absolute;
-	  pointer-events: none;
-	  left: 0; top: 0;
-	  width: 100%; height: 100%;
-	  overflow: visible;
-	}
-	#favBtn.removed::before {
-	  content: "💔"; /* ou "❤️" si tu veux juste fade-out */
-	  position: absolute;
-	  left: 50%;
-	  top: 50%;
-	  transform: translate(-50%, -50%) scale(1);
-	  font-size: 1.8em;
-	  opacity: 1;
-	  pointer-events: none;
-	  color: #f00;
-	  animation: heartFade 0.5s forwards;
-	}
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      header { padding: 12px 16px; }
+      .container { padding: 20px 14px 60px; }
+      .anime-hero { flex-direction: column; align-items: center; padding: 20px; }
+      .anime-poster { width: 200px; height: 280px; }
+      .anime-title { font-size: 1.5rem; text-align: center; }
+      .score-hero { margin: 0 auto; }
+      .genres { justify-content: center; }
+      .status-group { justify-content: center; }
+      .anime-actions { justify-content: center; }
+      .similar-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    }
 
-	@keyframes heartFade {
-	  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-	  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-	}
-	/* Conteneur boutons header */
-	.header-actions {
-	  display: flex;
-	  gap: 12px;
-	  align-items: center;
-	}
+    :focus-visible { outline: 2px solid rgba(6,182,212,0.7); outline-offset: 2px; }
 
-	/* Boutons favoris et profil */
-	.header-actions button, .header-actions a {
-	  display: inline-flex;
-	  align-items: center;
-	  justify-content: center;
-	  padding: 8px 16px;
-	  font-weight: 700;
-	  font-size: 14px;
-	  border-radius: var(--radius);
-	  border: 1px solid rgba(6,182,212,0.6);
-	  cursor: pointer;
-	  transition: all 0.3s ease;
-	  text-decoration: none;
-	  color: #e6eef6;
-	  background: linear-gradient(135deg, rgba(6,182,212,0.05), rgba(15,193,229,0.1));
-	  box-shadow: 0 0 6px rgba(6,182,212,0.5), 0 4px 12px rgba(6,182,212,0.3);
-	  position: relative;
-	  overflow: hidden;
-	}
-
-	/* Hover */
-	.header-actions button:hover, .header-actions a:hover {
-	  background: linear-gradient(135deg, var(--accent), var(--accent2));
-	  color: #052226;
-	  transform: translateY(-2px) scale(1.05);
-	  box-shadow:
-	    0 0 8px var(--accent),
-		0 0 12px var(--accent2),
-		0 4px 20px rgba(6,182,212,0.6),
-		0 6px 30px rgba(6,182,212,0.3);
-	}
-
-	/* Icônes dans les boutons */
-	.header-actions button i, .header-actions a i {
-	  margin-right: 6px;
-	  font-size: 16px;
-	}
-
-	/* Favoris actif */
-	.header-actions .favorited {
-	  background: linear-gradient(135deg, #facc15, #f97316);
-	  color: #3a2000;
-	  box-shadow:
-	    0 0 10px #facc15,
-		0 0 15px #f97316,
-		0 6px 24px rgba(250,204,21,0.5);
-	}
-
-	/* Petit pop animation */
-	.header-actions button.pop {
-	  animation: favPop 0.35s ease;
-	}
-	@keyframes favPop {
-	  0%   { transform: scale(0.9); }
-	  60%  { transform: scale(1.15); }
-	  100% { transform: scale(1); }
-	}
-	/* Glow animé pulse */
-	@keyframes neonPulse {
-	  0%, 100% { box-shadow: 0 0 6px var(--accent), 0 0 12px var(--accent2); }
-	  50% { box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent2); }
-	}
-
-	/* Animation continue */
-	.header-actions button,
-	.header-actions a {
-	  box-shadow:
-		0 0 6px rgba(6,182,212,0.4),
-		0 4px 10px rgba(6,182,212,0.25);
-	}
-	/* 🔄 Loader Anime */
-	.anime-loader {
-	  position: fixed;
-	  top: 50%;
-	  left: 50%;
-	  transform: translate(-50%, -50%);
-	  text-align: center;
-	  z-index: 999;
-	}
-
-	.spinner {
-	  width: 60px;
-	  height: 60px;
-	  border: 5px solid rgba(6,182,212,0.2);
-	  border-top: 5px solid #06b6d4;
-	  border-radius: 50%;
-	  animation: spin 1s linear infinite, pulseGlow 1.5s ease-in-out infinite;
-	  margin: 0 auto 16px;
-	}
-	@keyframes pulseGlow {
-	  0%, 100% { box-shadow: 0 0 10px rgba(6,182,212,0.3); }
-	  50% { box-shadow: 0 0 25px rgba(6,182,212,0.6); }
-	}
-	@keyframes spin {
-	  to { transform: rotate(360deg); }
-	}
-
-	#animeLoadingText {
-	  font-size: 16px;
-	  color: #9ca3af;
-	  font-style: italic;
-	}
-	@media (max-width: 600px) {
-	  .anime-info h2 {
-		font-size: 24px;
-		text-align: center;
-	  }
-	  .anime-summary {
-		font-size: 15px;
-	  }
-	  .btn, #rateSelect {
-		margin-left: auto;
-		margin-right: auto;
-	  }
-	  .anime-info.rating {
-	    margin-left: auto;
-		margin-right: auto;
-	  }
-	  .header-actions {
-		width: 100%;
-		justify-content: center;
-		flex-wrap: wrap;
-	  }
-	}
-	/* 🎬 Bloc saisons */
-	.anime-seasons {
-	  margin-top: 2px;
-	  padding: 18px;
-	  border-radius: var(--radius);
-	  background: rgba(255,255,255,0.04);
-	  border: 1px solid rgba(255,255,255,0.06);
-	  backdrop-filter: blur(6px);
-	  box-shadow:
-		inset 0 0 0 1px rgba(255,255,255,0.02),
-		0 6px 18px rgba(0,0,0,0.5);
-	}
-
-	/* Titre */
-	.anime-seasons h3 {
-	  font-size: 18px;
-	  font-weight: 700;
-	  margin-bottom: 14px;
-	  color: var(--accent);
-	  display: flex;
-	  align-items: center;
-	  gap: 8px;
-	  text-shadow: 0 0 10px rgba(6,182,212,0.35);
-	}
-
-	.anime-seasons h3::before {
-	  content: "📺";
-	}
-
-	/* Liste */
-	.seasons-list {
-	  display: flex;
-	  flex-direction: column;
-	  gap: 12px;
-	}
-
-	/* Carte saison */
-	.season-item {
-	  display: flex;
-	  justify-content: space-between;
-	  align-items: center;
-	  padding: 14px 16px;
-	  border-radius: 12px;
-	  background: linear-gradient(
-		135deg,
-		rgba(6,182,212,0.08),
-		rgba(15,193,229,0.12)
-	  );
-	  border: 1px solid rgba(6,182,212,0.25);
-	  cursor: pointer;
-	  transition: all 0.3s ease;
-	  position: relative;
-	  overflow: hidden;
-	}
-
-	/* Glow animé au hover */
-	.season-item::after {
-	  content: "";
-	  position: absolute;
-	  inset: 0;
-	  background: radial-gradient(
-		circle at left,
-		rgba(6,182,212,0.35),
-		transparent 60%
-	  );
-	  opacity: 0;
-	  transition: opacity 0.3s ease;
-	}
-
-	.season-item:hover::after {
-	  opacity: 1;
-	}
-
-	.season-item:hover {
-	  transform: translateY(-2px) scale(1.02);
-	  box-shadow:
-		0 10px 25px rgba(0,0,0,0.6),
-		0 0 20px rgba(6,182,212,0.35);
-	}
-
-	/* Texte saison */
-	.season-title {
-	  font-weight: 700;
-	  font-size: 15px;
-	  color: #e6eef6;
-	}
-
-	/* Episodes */
-	.season-episodes {
-	  font-size: 13px;
-	  color: var(--muted);
-	  background: rgba(0,0,0,0.25);
-	  padding: 4px 10px;
-	  border-radius: 999px;
-	  border: 1px solid rgba(255,255,255,0.08);
-	}
-
-	/* Mobile */
-	@media (max-width: 600px) {
-	  .anime-seasons {
-		padding: 14px;
-	  }
-
-	  .season-item {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 6px;
-	  }
-
-	  .season-episodes {
-		align-self: flex-end;
-	  }
-	}
-	.season-item.empty {
-	  opacity: 0.6;
-	  font-style: italic;
-	  justify-content: center;
-	}
-	.badge-upcoming {
-	  margin-left: 10px;
-	  padding: 3px 8px;
-	  font-size: 11px;
-	  font-weight: 700;
-	  letter-spacing: 0.5px;
-	  color: #111;
-	  background: linear-gradient(135deg, #ffd86b, #ffb347);
-	  border-radius: 12px;
-	  text-transform: uppercase;
-	  box-shadow: 0 0 10px rgba(255, 200, 80, 0.6);
-	  animation: pulseUpcoming 1.8s infinite;
-	}
-
-	@keyframes pulseUpcoming {
-	  0% {
-		box-shadow: 0 0 6px rgba(255, 200, 80, 0.4);
-	  }
-	  50% {
-		box-shadow: 0 0 14px rgba(255, 200, 80, 0.9);
-	  }
-	  100% {
-		box-shadow: 0 0 6px rgba(255, 200, 80, 0.4);
-	  }
-	}
-	.timeline-toggle {
-	  margin: 10px 0 16px;
-	  padding: 8px 14px;
-	  border-radius: 999px;
-	  border: 1px solid rgba(255,255,255,0.25);
-	  background: rgba(255,255,255,0.08);
-	  color: #e6eef6;
-	  font-size: 13px;
-	  font-weight: 700;
-	  cursor: pointer;
-	  backdrop-filter: blur(10px);
-	  transition: all 0.25s ease;
-	}
-
-	.timeline-toggle:hover {
-	  background: rgba(6,182,212,0.25);
-	  border-color: #06b6d4;
-	  transform: translateY(-1px);
-	}
-
-	.timeline-toggle.active {
-	  background: linear-gradient(135deg, #06b6d4, #3b82f6);
-	  color: #052226;
-	  border: none;
-	}
-	.badge-non-canon {
-	  margin-left: 8px;
-	  padding: 2px 6px;
-	  font-size: 10px;
-	  font-weight: 800;
-	  border-radius: 6px;
-	  background: rgba(239,68,68,0.15);
-	  color: #f87171;
-	  border: 1px solid rgba(239,68,68,0.4);
-	  text-transform: uppercase;
-	}
-	#timelineList {
-	  display: flex;
-	  flex-direction: column;
-	  gap: 10px; /* espace entre chaque case */
-	}
-	.season-item.movie {
-	  border-left: 3px solid #f59e0b;
-	}
-	/* 🧩 SPECIAL */
-	.season-item.special::before {
-	  background: #facc15; /* jaune stylé */
-	}
-
-	.season-item.special .season-episodes {
-	  font-weight: 700;
-	  font-size: 12px;
-	  letter-spacing: 0.6px;
-	  text-transform: uppercase;
-	  color: #facc15;
-	}
+    @font-face {
+      font-family: 'Mochiy Pop One';
+      src: url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display: swap;
+    }
   </style>
 </head>
 <body>
 
   <div id="particles"></div>
 
-  <header>
-    <h1 id="homeLogo" style="cursor:pointer;">AnimeHub</h1>
+  <header id="mainHeader">
+    <span class="logo-text" id="homeLogo">AnimeHub</span>
     <div class="header-actions">
-      <button id="goFavs" class="icon-btn">Favoris</button>
-      <button id="goProfile" class="icon-btn">Profil</button>
+      <button class="hbtn" id="goFavs"><i class="fa-solid fa-star"></i> Favoris</button>
+      <button class="hbtn" id="goProfile"><i class="fa-solid fa-user"></i> Profil</button>
     </div>
   </header>
 
-  <!-- 🔄 LOADER (visible au chargement) -->
-  <div id="animeLoader" class="anime-loader">
-    <div class="spinner"></div>
-    <p id="animeLoadingText"></p>
-  </div>
+  <div class="container">
 
-  <!-- 🎬 CONTENU ANIME (caché au début) -->
-  <div id="animeContent" style="display:none;">
-    <div class="container">
-      <div class="anime-details">
-        <img id="animeImg" src="" alt="Anime Image">
+    <!-- ── SKELETON ── -->
+    <div id="skeletonHero">
+      <div class="skeleton" style="width:260px;height:370px;border-radius:12px;flex-shrink:0;"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:14px;padding-top:4px;">
+        <div class="skeleton" style="height:36px;width:70%;"></div>
+        <div class="skeleton" style="height:80px;width:200px;border-radius:14px;"></div>
+        <div style="display:flex;gap:8px;">
+          <div class="skeleton" style="height:28px;width:70px;border-radius:20px;"></div>
+          <div class="skeleton" style="height:28px;width:80px;border-radius:20px;"></div>
+          <div class="skeleton" style="height:28px;width:60px;border-radius:20px;"></div>
+        </div>
+        <div class="skeleton" style="height:16px;width:55%;"></div>
+        <div class="skeleton" style="height:16px;width:40%;"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <div class="skeleton" style="height:42px;width:90px;border-radius:12px;"></div>
+          <div class="skeleton" style="height:42px;width:90px;border-radius:12px;"></div>
+          <div class="skeleton" style="height:42px;width:110px;border-radius:12px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card skeleton" style="height:120px;margin-bottom:20px;"></div>
 
+    <!-- ── CONTENU ── -->
+    <div id="animeContent">
+
+      <!-- Hero -->
+      <div class="anime-hero" style="animation-delay:0s;">
+        <div class="anime-poster-wrap">
+          <img class="anime-poster" id="animeImg" src="" alt="">
+          <div class="poster-badge" id="animeYear"></div>
+        </div>
         <div class="anime-info">
-          <h2 id="animeTitle"></h2>
+          <h1 class="anime-title" id="animeTitle"></h1>
 
-          <div class="genres" id="animeGenres">
-            <!-- Badges genres cliquables -->
+          <!-- Score -->
+          <div class="score-hero" id="scoreHero">
+            <div class="score-big" id="scoreBig">–</div>
+            <div class="score-meta">
+              <div class="score-stars" id="scoreStars"></div>
+              <div class="score-label">Score communauté</div>
+            </div>
           </div>
-		  <div class="anime-seasons" id="animeSeasons">
-			<h3 class="section-title">Timeline</h3>
-			<button id="toggleCanonBtn" class="timeline-toggle">
-			  Afficher le non-canon
-			</button>
-			<div id="timelineList"></div>
-		  </div>
-          <div class="rating" id="animeRating"></div>
-		  <div class="status-label">Statut de visionnage</div>
-		  <div class="status-group" id="watchStatus">
-			<button class="status-btn" data-status="watching">En cours</button>
-			<button class="status-btn" data-status="completed">Terminé</button>
-			<button class="status-btn" data-status="planned">À voir</button>
-		  </div>
 
-          <button class="btn" id="favBtn">Ajouter aux favoris</button>
+          <!-- Genres -->
+          <div class="genres" id="animeGenres"></div>
 
-          <select class="rateSelect" id="rateSelect">
-            <option value="">Noter</option>
-          </select>
+          <!-- Statut -->
+          <div>
+            <div class="status-label" style="margin-bottom:8px;">Statut de visionnage</div>
+            <div class="status-group" id="watchStatus">
+              <button class="status-btn" data-status="watching">▶️ En cours</button>
+              <button class="status-btn" data-status="completed">✅ Terminé</button>
+              <button class="status-btn" data-status="planned">🕒 À voir</button>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="anime-actions">
+            <button class="btn-fav" id="favBtn">☆ Favori</button>
+            <select class="rate-select" id="rateSelect">
+              <option value="">⭐ Noter</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <p class="anime-summary" id="animeSummary"></p>
+      <!-- Synopsis -->
+      <div class="section-card" style="animation-delay:0.08s;">
+        <div class="section-title"><i class="fa-solid fa-book-open"></i> Synopsis</div>
+        <p class="synopsis-text" id="animeSummary"></p>
+      </div>
+
+      <!-- Timeline -->
+      <div class="section-card" id="timelineCard" style="animation-delay:0.12s;">
+        <div class="section-title"><i class="fa-solid fa-film"></i> Timeline</div>
+        <div class="timeline-controls">
+          <button id="toggleCanonBtn" class="timeline-toggle">Afficher le non-canon</button>
+        </div>
+        <div class="timeline-list" id="timelineList"></div>
+      </div>
+
+      <!-- Animes similaires -->
+      <div class="section-card" id="similarCard" style="animation-delay:0.16s;display:none;">
+        <div class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Animes similaires</div>
+        <div class="similar-grid" id="similarGrid"></div>
+      </div>
+
+      <!-- Commentaires -->
+      <div class="section-card" style="animation-delay:0.2s;">
+        <div class="section-title"><i class="fa-solid fa-comments"></i> Avis & commentaires</div>
+        <div id="commentFormWrap">
+          <div class="comment-form">
+            <textarea class="comment-textarea" id="commentInput" placeholder="Donne ton avis sur cet anime…" maxlength="500"></textarea>
+            <button class="comment-submit" id="commentSubmit">Publier</button>
+          </div>
+        </div>
+        <div id="commentsLoginMsg" style="display:none;">
+          <a href="auth.html" style="color:var(--accent);">Connecte-toi</a> pour laisser un commentaire.
+        </div>
+        <div class="comments-list" id="commentsList"></div>
+        <div class="comments-empty" id="commentsEmpty" style="display:none;">Aucun commentaire pour l'instant. Sois le premier !</div>
+      </div>
+
     </div>
   </div>
 
   <div id="toast"></div>
 
-  <footer>
-    © 2026 AnimeHub
-  </footer>
   <script>
-
-    const canvas = document.createElement('canvas');
-    document.getElementById('particles').appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles = [];
-    const particleCount = 80;
-
-    for(let i=0;i<particleCount;i++){
-      particles.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        r: Math.random()*2+1,
-        dx: (Math.random()-0.5)*0.5,
-        dy: (Math.random()-0.5)*0.5
-      });
+    /* ── Particles ── */
+    const pCanvas = document.createElement('canvas');
+    document.getElementById('particles').appendChild(pCanvas);
+    const pCtx = pCanvas.getContext('2d');
+    pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight;
+    const pts = Array.from({length:70}, () => ({
+      x:Math.random()*pCanvas.width, y:Math.random()*pCanvas.height,
+      r:Math.random()*1.4+.4, dx:(Math.random()-.5)*.35, dy:(Math.random()-.5)*.35
+    }));
+    function drawParticles() {
+      pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+      for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>pCanvas.width)p.dx*=-1;if(p.y<0||p.y>pCanvas.height)p.dy*=-1;}
+      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+        const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<120){pCtx.beginPath();pCtx.moveTo(a.x,a.y);pCtx.lineTo(b.x,b.y);pCtx.strokeStyle=`rgba(34,211,238,${(1-d/120)*.25})`;pCtx.lineWidth=.7;pCtx.stroke();}
+      }
+      for(const p of pts){pCtx.beginPath();pCtx.arc(p.x,p.y,p.r,0,Math.PI*2);pCtx.fillStyle='rgba(200,240,255,.8)';pCtx.fill();}
+      requestAnimationFrame(drawParticles);
     }
+    drawParticles();
+    window.addEventListener('resize',()=>{pCanvas.width=window.innerWidth;pCanvas.height=window.innerHeight;});
 
-    function animateParticles(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      particles.forEach(p=>{
-        p.x += p.dx;
-        p.y += p.dy;
-        if(p.x<0 || p.x>canvas.width) p.dx*=-1;
-        if(p.y<0 || p.y>canvas.height) p.dy*=-1;
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fillStyle = 'rgba(6,182,212,0.4)';
-        ctx.fill();
-      });
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
-    window.addEventListener('resize', ()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
-
-    const animeImg = document.getElementById('animeImg');
-    window.addEventListener('scroll', ()=>{
-      const offset = window.scrollY;
-      animeImg.style.transform = `translateY(${offset*0.1}px)`;
+    /* ── Scroll header ── */
+    window.addEventListener('scroll',()=>{
+      document.getElementById('mainHeader').classList.toggle('sticky', window.scrollY>20);
     });
-	document.getElementById("goFavs")?.addEventListener("click", () => {
-	  // Redirection vers la page d'accueil avec filtre favoris
-	  window.location.href = "index.html?fav=1";
-	});
 
-	document.getElementById("goProfile")?.addEventListener("click", () => {
-	  window.location.href = "profile.html";
-	});
-	document.getElementById("homeLogo").addEventListener("click", () => {
-	  window.location.href = "animelist.html";
-	});
+    /* ── Nav ── */
+    document.getElementById('homeLogo').addEventListener('click',()=>location.href='animelist.html');
+    document.getElementById('goFavs').addEventListener('click',()=>location.href='animelist.html?fav=1');
+    document.getElementById('goProfile').addEventListener('click',()=>location.href='profile.html');
+
+    /* ── Toast ── */
+    function showToast(msg, type='ok') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast';
+      t.classList.toggle('remove', type==='remove');
+      t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'), 2400);
+    }
+
+    /* ── Score stars ── */
+    function ratingToStars(r) {
+      const full = Math.floor(r/2), half = (r%2)>=1?1:0, empty = 5-full-half;
+      return '★'.repeat(full) + (half?'½':'') + '☆'.repeat(empty);
+    }
   </script>
+
   <script type="module">
-	  /*****************************************************
-	 * 1️⃣ IMPORTS FIREBASE
-	 *****************************************************/
-	import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-	import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-	import {
-	  getFirestore, doc, getDoc, setDoc, updateDoc,
-	  arrayUnion, arrayRemove, increment, deleteField,
-	  collection, addDoc, serverTimestamp
-	} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-	/*****************************************************
-	 * 2️⃣ FIREBASE INIT
-	 *****************************************************/
-	const firebaseConfig = {
-	  apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
-	  authDomain: "animehub-7.firebaseapp.com",
-	  projectId: "animehub-7",
-	  storageBucket: "animehub-7.firebasestorage.app",
-	  messagingSenderId: "159114039206",
-	  appId: "1:159114039206:web:0461d676e7ffff25c4c967",
-	  measurementId: "G-6K4MB0XQEV"
-	};
-
-	const app = initializeApp(firebaseConfig);
-	const auth = getAuth(app);
-	const db = getFirestore(app);
-	
-	/*****************************************************
-	 * 3️⃣ VARIABLES & DOM
-	 *****************************************************/
-	const params = new URLSearchParams(window.location.search);
-	const animeId = Number(params.get("id"));
-
-	const img = document.getElementById("animeImg");
-	const title = document.getElementById("animeTitle");
-	const genresBox = document.getElementById("animeGenres");
-	const ratingBox = document.getElementById("animeRating");
-	const summary = document.getElementById("animeSummary");
-	const favBtn = document.getElementById("favBtn");
-	const rateSelect = document.getElementById("rateSelect");
-	const toggleCanonBtn = document.getElementById("toggleCanonBtn");
-	const watchStatus = document.getElementById("watchStatus");
-
-	let currentAnime = null;
-	let showNonCanon = false;
-	/*****************************************************
-	 * 🔄 LOADER
-	 *****************************************************/
-	const loader = document.getElementById("animeLoader");
-	const content = document.getElementById("animeContent");
-	const loadingText = document.getElementById("animeLoadingText");
-
-	const loadingQuotes = [
-	  "Les pages du carnet s’écrivent… 📓",
-	  "L’énergie monte… un Kamehameha se prépare 💥",
-	  "Revenir en arrière fait parfois plus mal que mourir…",
-	  "Les murs tremblent… la vérité approche ⚔️",
-	  "Un échange équivalent est en cours… 🔥",
-	  "La guerre de l’amour a commencé… qui avouera en premier ? ♟️",
-	  "Le Nen circule… l’épreuve ne fait que commencer 🎯",
-	  "Les fléaux s’agitent… garde les yeux ouverts 🩸",
-	  "La ligne du monde est en train de changer… 📡",
-	  "Un ordre est sur le point d’être donné… 👁️",
-	  "Les péchés capitaux se rassemblent… 🍺",
-	  "Rien ne va se passer comme prévu… et c’est normal 🤡",
-	  "Les émotions atteignent 100%… 💥",
-	  "Bienvenue à Night City… accroche-toi 🦾",
-	  "La volonté du feu ne s’éteint jamais 🔥",
-	  "Une mélodie s’apprête à briser le silence… 🎶",
-	  "Les sentiments prennent forme doucement…",
-	  "Le vent se lève… l’aventure continue 🏴‍☠️",
-	  "Un phénomène étrange est sur le point d’apparaître…",
-	  "Les âmes s’agitent… le combat est proche ⚡",
-	  "Un coup suffira… encore faut-il qu’il arrive 👊",
-	  "Les mots manquent… mais les émotions parlent",
-	  "Le match va reprendre… ne cligne pas des yeux 🏐",
-	  "Derrière les projecteurs, la vérité se cache…",
-	  "Une création est en train de naître ✂️",
-	  "Les petits moments font les plus belles histoires",
-	  "Entre humanité et monstruosité… le choix est flou",
-	  "Le chaos arrive… et ça va faire mal 🪚",
-	  "La douceur s’installe petit à petit…",
-	  "Derrière l’autorité se cache un cœur tendre 💖",
-	  "Les souvenirs refont surface… 🎹",
-	  "Un nouveau niveau est sur le point d’être atteint 🔥",
-	  "Les malédictions se fissurent doucement…",
-	  "Les relations sont rarement simples…",
-	  "La lame se lève… pour protéger les vivants 🩸",
-	  "Deux destins tentent de se reconnecter…",
-	  "Tout va se jouer maintenant… sans règles 🎲",
-	  "Les sentiments explosent sans prévenir",
-	  "Un dieu fauché est prêt à agir ✨",
-	  "Le passé attend d’être corrigé…",
-	  "Le compte à rebours a commencé… ⏳",
-	  "La stratégie se joue dans l’ombre ♟️",
-	  "Plus ultra… le combat continue 💥",
-	  "La taquinerie va encore frapper…",
-	  "L’amour tente un retour inattendu…",
-	  "Entre sport et sentiments, l’équilibre est fragile",
-	  "Même à la retraite, les légendes frappent fort 😎",
-	  "Chaque combat a un prix… souvent mortel",
-	  "Le sang démoniaque se réveille 🔥",
-	  "Le futur est déjà en train de s’écrire… 📓",
-	  "Les sentiments se cachent derrière un sourire",
-	  "La connexion est presque établie… 🎮",
-	  "Le bizarre arrive… et il ne plaisante pas",
-	  "La magie de l’amitié fait encore des étincelles ✨",
-	  "Le plan est en marche… silence total 🤫",
-	  "Le jeu commence vraiment maintenant…",
-	  "Le passé peut encore être changé…",
-	  "Une première fois pleine de surprises…",
-	  "Une menace colossale approche… 🚨",
-	  "La magie suit un chemin inattendu…",
-	];
-
-	function showAnimeLoader() {
-	  loadingText.textContent =
-		loadingQuotes[Math.floor(Math.random() * loadingQuotes.length)];
-	  loader.style.display = "block";
-	  content.style.display = "none";
-	}
-
-	function hideAnimeLoader() {
-	  loader.style.display = "none";
-	  content.style.display = "block";
-	}
-
-	/*****************************************************
-	 * 4️⃣ UI HELPERS
-	 *****************************************************/
-	function updateFavUI(anime, animate = true) {
-	  favBtn.classList.toggle("favorited", anime.fav);
-	  favBtn.textContent = anime.fav ? "★ Favori" : "☆ Favori";
-
-	  if (!animate) return;
-	  favBtn.classList.remove("pop");
-	  void favBtn.offsetWidth;
-	  favBtn.classList.add("pop");
-	}
-
-	function showToast(msg, type = "rate") {
-	  const toast = document.getElementById("toast");
-	  toast.textContent = msg;
-	  toast.classList.toggle("remove", type === "remove");
-	  toast.classList.add("show");
-	  setTimeout(() => toast.classList.remove("show"), 2200);
-	}
-	function animateFavParticles(button) {
-	  const rect = button.getBoundingClientRect();
-	  const particles = [];
-	  const count = 18;
-
-	  for (let i = 0; i < count; i++) {
-		particles.push({
-		  x: rect.left + rect.width / 2,
-		  y: rect.top + rect.height / 2,
-		  dx: (Math.random() - 0.5) * 10,
-		  dy: (Math.random() - 1.5) * 10,
-		  size: Math.random() * 4 + 3,
-		  life: 40
-		});
-	  }
-
-	  const canvas = document.createElement("canvas");
-	  canvas.width = window.innerWidth;
-	  canvas.height = window.innerHeight;
-	  canvas.style.position = "fixed";
-	  canvas.style.top = 0;
-	  canvas.style.left = 0;
-	  canvas.style.pointerEvents = "none";
-	  document.body.appendChild(canvas);
-
-	  const ctx = canvas.getContext("2d");
-
-	  function animate() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		particles.forEach(p => {
-		  p.x += p.dx;
-		  p.y += p.dy;
-		  p.dy += 0.3;
-		  ctx.fillStyle = "#ffd86b";
-		  ctx.beginPath();
-		  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-		  ctx.fill();
-		  p.life--;
-		});
-
-		if (particles.some(p => p.life > 0)) {
-		  requestAnimationFrame(animate);
-		} else {
-		  document.body.removeChild(canvas);
-		}
-	  }
-	  animate();
-	}
-	function playFavAnimation(button) {
-	  button.classList.add("liked");
-	  animateFavParticles(button);
-	  setTimeout(() => button.classList.remove("liked"), 600);
-	}
-	function renderTimeline(anime) {
-	  const timelineList = document.getElementById("timelineList");
-	  if (!timelineList) return;
-	  timelineList.innerHTML = "";
-
-	  if (!anime.timeline || anime.timeline.length === 0) {
-		timelineList.innerHTML = `
-		  <div class="season-item empty">
-			<span class="season-title">Timeline</span>
-			<span class="season-episodes">Infos non disponibles</span>
-		  </div>
-		`;
-		return;
-	  }
-      
-	  const sortedTimeline = [...anime.timeline]
-		.filter(item => showNonCanon || item.canon)
-		.sort((a, b) => {
-		  const dateA = a.releaseDate ? Date.parse(a.releaseDate) : 0;
-		  const dateB = b.releaseDate ? Date.parse(b.releaseDate) : 0;
-		  if (dateA !== dateB) return dateA - dateB;
-		  return (a.title || "").localeCompare(b.title || "");
-		});
-
-	  sortedTimeline.forEach(item => {
-		const div = document.createElement("div");
-		div.className = "season-item";
-		if (item.type === "movie") div.classList.add("movie");
-		const icon =
-		  item.type === "season" ? "📺" :
-		  item.type === "movie"  ? "🎬" :
-		  item.type === "ova"    ? "⭕" :
-		  item.type === "special" ? "💥" :
-		  "❓";
-
-		div.innerHTML = `
-		  <span class="season-title">
-			${icon} ${item.title}
-			${!item.canon ? '<span class="badge-non-canon">NON-CANON</span>' : ''}
-			${item.status === "upcoming"
-			  ? '<span class="badge-upcoming">UPCOMING</span>'
-			  : ""}
-		  </span>
-		
-		  <span class="season-episodes">
-		    ${
-			  item.type === "movie"
-			    ? "MOVIE"
-			    : item.episodes
-				  ? `${item.episodes} épisodes`
-				  : item.status === "upcoming"
-				    ? "Prochainement"
-				    : ""
-		    }
-		  </span>
-		`;
-
-		timelineList.appendChild(div);
-	  });
-	}
-	function updateNonCanonButton(anime) {
-	  if (!toggleCanonBtn) return;
-
-	  if (!anime.timeline || anime.timeline.length === 0) {
-		toggleCanonBtn.style.display = "none";
-		return;
-	  }
-
-	  const hasCanon = anime.timeline.some(item => item.canon === true);
-	  const hasNonCanon = anime.timeline.some(item => item.canon === false);
-
-	  // afficher le bouton UNIQUEMENT s'il y a les deux
-	  toggleCanonBtn.style.display =
-		hasCanon && hasNonCanon ? "inline-flex" : "none";
-	}
-	/*****************************************************
-	 * 5️⃣ FAVORIS
-	 *****************************************************/
-	async function syncFavoriteState(animeId) {
-	  const user = auth.currentUser;
-	  if (!user) return;
-
-	  const snap = await getDoc(doc(db, "users", user.uid));
-	  if (!snap.exists()) return;
-
-	  const favorites = snap.data().favorites || [];
-	  if (!currentAnime) return;
-
-	  currentAnime.fav = favorites.includes(animeId);
-	  updateFavUI(currentAnime, false);
-	}
-
-	async function toggleFavorite(animeId) {
-	  const user = auth.currentUser;
-	  if (!user) return;
-
-	  const userRef = doc(db, "users", user.uid);
-	  const animeRef = doc(db, "animes", String(animeId));
-
-	  const userSnap = await getDoc(userRef);
-	  const favorites = userSnap.data().favorites || [];
-
-	  const alreadyFav = favorites.includes(animeId);
-
-	  if (alreadyFav) {
-	    await updateDoc(userRef, { favorites: arrayRemove(animeId) });
-	    await updateDoc(animeRef, { likes: increment(-1) });
-	    currentAnime.fav = false;
-
-	    await sendNotification(
-	  	  user.uid,
-		  "💔 Favori retiré",
-		  currentAnime.title
-	    );
-
-	    showToast("💔 Retiré des favoris", "remove");
-	  } else {
-	    await updateDoc(userRef, { favorites: arrayUnion(animeId) });
-	    await updateDoc(animeRef, { likes: increment(1) });
-	    currentAnime.fav = true;
-
-	    await sendNotification(
-		user.uid,
-		  "⭐ Favori ajouté",
-		  currentAnime.title
-	    );
-	    showToast("❤️ Ajouté aux favoris");
-	  }
-
-	  if (currentAnime.fav) {
-		playFavAnimation(favBtn); // ❤️ + confettis
-	  } else {
-		favBtn.classList.add("removed"); // 💔
-		setTimeout(() => favBtn.classList.remove("removed"), 500);
-	  }
-
-	  updateFavUI(currentAnime, false); // pas de double anim
-	  }
-
-	async function syncUserData(animeId) {
-	  const user = auth.currentUser;
-	  if (!user) return;
-
-	  const userSnap = await getDoc(doc(db, "users", user.uid));
-	  if (!userSnap.exists()) return;
-
-	  const data = userSnap.data();
-
-	  /* FAVORIS */
-	  const favorites = data.favorites || [];
-	  currentAnime.fav = favorites.includes(animeId);
-	  updateFavUI(currentAnime, false); // ❌ PAS d'animation au chargement
-
-	  /* NOTE */
-	  const userRating = data.ratings?.[animeId] ?? null;
-	  if (userRating !== null) {
-		rateSelect.value = userRating;
-		rateSelect.classList.add("rated");
-	  } else {
-		rateSelect.value = "";
-		rateSelect.classList.remove("rated");
-	  }
-
-	  /* STATUT */
-	  const status = data.statuses?.[animeId] ?? null;
-	  updateStatusUI(status);
-	}
-
-	function updateStatusUI(status) {
-	  if (!watchStatus) return;
-	  const buttons = watchStatus.querySelectorAll(".status-btn");
-	  buttons.forEach(button => {
-		button.classList.toggle("is-active", button.dataset.status === status);
-	  });
-	}
-
-	async function setWatchStatus(animeId, status) {
-	  const user = auth.currentUser;
-	  if (!user) return;
-	  const userRef = doc(db, "users", user.uid);
-	  await updateDoc(userRef, { [`statuses.${animeId}`]: status });
-	  updateStatusUI(status);
-	  showToast(`Statut: ${status === "completed" ? "Terminé" : status === "watching" ? "En cours" : "À voir"}`);
-	}
-	/*****************************************************
-	 * 6️⃣ NOTES
-	 *****************************************************/
-	async function rateAnime(animeId, newRating) {
-	  const user = auth.currentUser;
-	  if (!user) return;
-
-	  const userRef = doc(db, "users", user.uid);
-	  const animeRef = doc(db, "animes", String(animeId));
-
-	  const userSnap = await getDoc(userRef);
-	  const animeSnap = await getDoc(animeRef);
-
-	  const oldRating = userSnap.data().ratings?.[animeId] ?? null;
-	  let ratingSum = animeSnap.data()?.ratingSum ?? 0;
-	  let ratingCount = animeSnap.data()?.ratingCount ?? 0;
-
-	  if (oldRating === null) {
-		ratingSum += newRating;
-		ratingCount++;
-	  } else {
-		ratingSum += (newRating - oldRating);
-	  }
-	  await sendNotification(
-	    user.uid,
-	    "📝 Anime noté",
-	    `${currentAnime.title} — ${newRating}/10`
-	  );
-
-	  const avgRating = ratingSum / ratingCount;
-
-	  await setDoc(animeRef, { ratingSum, ratingCount, avgRating }, { merge: true });
-	  await updateDoc(userRef, { [`ratings.${animeId}`]: newRating });
-
-	  currentAnime.rating = avgRating;
-	  ratingBox.textContent = `⭐ ${avgRating.toFixed(1)}`;
-	}
-
-	async function removeRating(animeId) {
-	  const user = auth.currentUser;
-	  if (!user) return;
-
-	  const userRef = doc(db, "users", user.uid);
-	  const animeRef = doc(db, "animes", String(animeId));
-
-	  const userSnap = await getDoc(userRef);
-	  const animeSnap = await getDoc(animeRef);
-
-	  const oldRating = userSnap.data().ratings?.[animeId];
-	  if (oldRating == null) return;
-
-	  let { ratingSum = 0, ratingCount = 0 } = animeSnap.data();
-	  ratingSum -= oldRating;
-	  ratingCount--;
-
-	  const avgRating = ratingCount > 0 ? ratingSum / ratingCount : 0;
-
-	  await setDoc(animeRef, { ratingSum, ratingCount, avgRating }, { merge: true });
-	  await updateDoc(userRef, { [`ratings.${animeId}`]: deleteField() });
-
-	  ratingBox.textContent = avgRating ? `⭐ ${avgRating.toFixed(1)}` : "Pas encore noté";
-	  rateSelect.value = "";
-	  
-	  await sendNotification(
-	    user.uid,
-	    "❌ Note supprimée",
-	    currentAnime.title
-	  );
-	}
-	// 🔹 Remplir le select de notes
-	rateSelect.innerHTML = '<option value="">Noter</option>';
-	for (let i = 0.5; i <= 10; i += 0.5) {
-	  const opt = document.createElement("option");
-	  opt.value = i;
-	  opt.textContent = i;
-	  rateSelect.appendChild(opt);
-	}
-	/*****************************************************
-	 * 7️⃣ NOTIFICATIONS␊
-	 *****************************************************/
-	async function sendNotification(userId, title, message = "") {
-	  try {
-		await addDoc(collection(db, "notifications"), {
-		  userId: userId,
-		  title: title,
-		  message: message,
-		  read: false,
-		  createdAt: serverTimestamp()
-		});
-	  } catch (err) {
-		console.error("Erreur notification:", err);
-	  }
-	}
-	async function fetchAnimeFromFirestore(animeId) {
-	  const animeSnap = await getDoc(doc(db, "animes", String(animeId)));
-	  if (!animeSnap.exists()) return null;
-
-	  const data = animeSnap.data();
-	  const anilistScore = Number.isFinite(data.anilistScore)
-		? data.anilistScore / 10
-		: null;
-	  const rating = Number.isFinite(data.avgRating)
-		? data.avgRating
-		: anilistScore;
-	  return {
-		id: Number(animeId),
-		title: data.title || "Anime",
-		genre: data.genre || [],
-		rating,
-		anilistScore,
-		year: data.seasonYear || data.year || null,
-		img: data.img || "icon_animehub.png",
-		summary: data.summary || "Synopsis indisponible.",
-		fav: false,
-		likes: data.likes || 0,
-		timeline: data.timeline || []
-	  };
-	}
-	/*****************************************************
-	 * 79⃣ INIT PAGE
-	 *****************************************************/
-	showAnimeLoader();
-	onAuthStateChanged(auth, async (user) => {
-	  if (!user) return;
-
-	  currentAnime = await fetchAnimeFromFirestore(animeId);
-	  if (!currentAnime) return;
-	  /* 🎨 INFOS ANIME (UNE SEULE FOIS) */
-	  img.src = currentAnime.img;
-	  img.alt = currentAnime.title;
-	  title.textContent = currentAnime.title;
-	  summary.textContent = currentAnime.summary;
-	  renderTimeline(currentAnime);
-	  if (toggleCanonBtn) {
-	    toggleCanonBtn.textContent = "Afficher le non-canon";
-
-	    toggleCanonBtn.onclick = () => {
-		  showNonCanon = !showNonCanon;
-		  toggleCanonBtn.classList.toggle("active", showNonCanon);
-		  toggleCanonBtn.textContent = showNonCanon
-		    ? "Masquer le non-canon"
-		    : "Afficher le non-canon";
-
-		  renderTimeline(currentAnime);
-	    };
-	  }
-	  updateNonCanonButton(currentAnime);
-	  /* 🎭 GENRES CLIQUABLES */
-	  genresBox.innerHTML = "";
-	  currentAnime.genre.forEach(g => {
-		const a = document.createElement("a");
-		a.textContent = g;
-		a.href = `index.html?genre=${encodeURIComponent(g)}`;
-		genresBox.appendChild(a);
-	  });
-
-	  if (Number.isFinite(currentAnime.rating)) {
-		ratingBox.textContent = `⭐ ${currentAnime.rating.toFixed(1)}`;
-	  } else {
-		ratingBox.textContent = "N/A";
-	  }
-	  img.src = currentAnime.img;
-	  title.textContent = currentAnime.title;
-	  summary.textContent = currentAnime.summary;
-
-	  await syncUserData(animeId);
-
-	  favBtn.onclick = () => toggleFavorite(animeId);
-	  watchStatus?.addEventListener("click", (event) => {
-		const button = event.target.closest(".status-btn");
-		if (!button) return;
-		setWatchStatus(animeId, button.dataset.status);
-	  });
-	  rateSelect.addEventListener("change", e => {
-		if (e.target.value === "") {
-		  removeRating(animeId);
-		  rateSelect.classList.remove("rated");
-		} else {
-		  rateAnime(animeId, Number(e.target.value));
-		  rateSelect.classList.add("rated");
-		}
-	  });
-	  hideAnimeLoader();
-	  });
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
+      arrayUnion, arrayRemove, increment, deleteField,
+      collection, addDoc, getDocs, query, where, orderBy, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain: "animehub-7.firebaseapp.com",
+      projectId: "animehub-7",
+      storageBucket: "animehub-7.firebasestorage.app",
+      messagingSenderId: "159114039206",
+      appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const params  = new URLSearchParams(window.location.search);
+    const animeId = Number(params.get('id'));
+
+    let currentAnime = null;
+    let currentUser  = null;
+    let showNonCanon = false;
+    let allAnimes    = [];
+
+    /* ── DOM refs ── */
+    const skeleton      = document.getElementById('skeletonHero');
+    const skeletonSyn   = skeleton.nextElementSibling;
+    const animeContent  = document.getElementById('animeContent');
+    const animeImg      = document.getElementById('animeImg');
+    const animeTitle    = document.getElementById('animeTitle');
+    const animeYear     = document.getElementById('animeYear');
+    const scoreBig      = document.getElementById('scoreBig');
+    const scoreStars    = document.getElementById('scoreStars');
+    const animeGenres   = document.getElementById('animeGenres');
+    const animeSummary  = document.getElementById('animeSummary');
+    const favBtn        = document.getElementById('favBtn');
+    const rateSelect    = document.getElementById('rateSelect');
+    const watchStatus   = document.getElementById('watchStatus');
+    const timelineList  = document.getElementById('timelineList');
+    const toggleCanonBtn= document.getElementById('toggleCanonBtn');
+    const commentInput  = document.getElementById('commentInput');
+    const commentSubmit = document.getElementById('commentSubmit');
+    const commentsList  = document.getElementById('commentsList');
+    const commentsEmpty = document.getElementById('commentsEmpty');
+
+    /* ── Rate select options ── */
+    for (let i=0.5; i<=10; i+=0.5) {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = `${i}/10`;
+      rateSelect.appendChild(opt);
+    }
+
+    /* ── Helpers ── */
+    function showContent() {
+      skeleton.style.display    = 'none';
+      skeletonSyn.style.display = 'none';
+      animeContent.style.display = 'block';
+    }
+
+    function updateFavUI(fav, animate=false) {
+      favBtn.classList.toggle('favorited', fav);
+      favBtn.textContent = fav ? '★ Favori' : '☆ Favori';
+      if (!animate) return;
+      favBtn.classList.remove('pop');
+      void favBtn.offsetWidth;
+      favBtn.classList.add('pop');
+    }
+
+    function updateStatusUI(status) {
+      watchStatus.querySelectorAll('.status-btn').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.status === status);
+      });
+    }
+
+    function updateScore(rating) {
+      if (Number.isFinite(rating)) {
+        scoreBig.textContent  = rating.toFixed(1);
+        scoreStars.textContent = ratingToStars(rating);
+      } else {
+        scoreBig.textContent  = 'N/A';
+        scoreStars.textContent = '';
+      }
+    }
+
+    /* ── Confetti fav ── */
+    function playFavAnimation(btn) {
+      btn.classList.add('liked');
+      const rect = btn.getBoundingClientRect();
+      const cvs  = document.createElement('canvas');
+      cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+      Object.assign(cvs.style, {position:'fixed',top:0,left:0,pointerEvents:'none',zIndex:9998});
+      document.body.appendChild(cvs);
+      const c = cvs.getContext('2d');
+      const ps = Array.from({length:18},()=>({
+        x:rect.left+rect.width/2, y:rect.top+rect.height/2,
+        dx:(Math.random()-.5)*10, dy:(Math.random()-1.5)*10,
+        size:Math.random()*4+3, life:40
+      }));
+      function anim(){
+        c.clearRect(0,0,cvs.width,cvs.height);
+        ps.forEach(p=>{p.x+=p.dx;p.y+=p.dy;p.dy+=.3;c.fillStyle='#ffd86b';c.beginPath();c.arc(p.x,p.y,p.size,0,Math.PI*2);c.fill();p.life--;});
+        if(ps.some(p=>p.life>0)) requestAnimationFrame(anim);
+        else document.body.removeChild(cvs);
+      }
+      anim();
+      setTimeout(()=>btn.classList.remove('liked'),600);
+    }
+
+    /* ── Timeline ── */
+    function renderTimeline(anime) {
+      timelineList.innerHTML = '';
+      if (!anime.timeline?.length) {
+        timelineList.innerHTML = '<div class="season-item empty"><span>Infos non disponibles</span></div>';
+        return;
+      }
+      const items = [...anime.timeline]
+        .filter(it => showNonCanon || it.canon !== false)
+        .sort((a,b) => {
+          const da = a.releaseDate ? Date.parse(a.releaseDate) : 0;
+          const db2= b.releaseDate ? Date.parse(b.releaseDate) : 0;
+          return da !== db2 ? da-db2 : (a.title||'').localeCompare(b.title||'');
+        });
+
+      items.forEach(item => {
+        const isCanon = item.canon !== false;
+        const icon = item.type==='season'?'📺':item.type==='movie'?'🎬':item.type==='ova'?'⭕':item.type==='special'?'💥':'❓';
+        const div = document.createElement('div');
+        div.className = 'season-item' + (item.type==='movie'?' movie':item.type==='special'?' special':'');
+        div.innerHTML = `
+          <span class="season-title">
+            ${icon} ${item.title}
+            ${!isCanon?'<span class="badge-non-canon">NON-CANON</span>':''}
+            ${item.status==='upcoming'?'<span class="badge-upcoming">UPCOMING</span>':''}
+          </span>
+          <span class="season-episodes">
+            ${item.type==='movie'?'FILM':item.episodes?`${item.episodes} ep.`:item.status==='upcoming'?'Prochainement':''}
+          </span>`;
+        timelineList.appendChild(div);
+      });
+    }
+
+    toggleCanonBtn.addEventListener('click', () => {
+      showNonCanon = !showNonCanon;
+      toggleCanonBtn.classList.toggle('active', showNonCanon);
+      toggleCanonBtn.textContent = showNonCanon ? 'Masquer le non-canon' : 'Afficher le non-canon';
+      renderTimeline(currentAnime);
+    });
+
+    /* ── Similar animes ── */
+    function renderSimilar(anime, all) {
+      const similar = all
+        .filter(a => a.id !== anime.id && a.genre?.some(g => anime.genre.includes(g)))
+        .sort((a,b) => {
+          const sharedA = a.genre.filter(g=>anime.genre.includes(g)).length;
+          const sharedB = b.genre.filter(g=>anime.genre.includes(g)).length;
+          return sharedB - sharedA || (b.rating||0)-(a.rating||0);
+        })
+        .slice(0, 6);
+
+      if (!similar.length) return;
+      const grid = document.getElementById('similarGrid');
+      const card2 = document.getElementById('similarCard');
+      card2.style.display = 'block';
+      similar.forEach((a, i) => {
+        const div = document.createElement('div');
+        div.className = 'similar-card';
+        div.style.animationDelay = `${i*0.06}s`;
+        div.innerHTML = `
+          <img src="${a.img||'icon_animehub.png'}" alt="${a.title}" loading="lazy">
+          <div class="similar-card-body">
+            <div class="similar-card-title">${a.title}</div>
+            <div class="similar-card-rating">⭐ ${Number.isFinite(a.rating)?a.rating.toFixed(1):'–'}</div>
+          </div>`;
+        div.addEventListener('click', ()=>location.href=`anime.html?id=${a.id}`);
+        grid.appendChild(div);
+      });
+    }
+
+    /* ── Comments ── */
+    async function loadComments() {
+      commentsList.innerHTML = '';
+      try {
+        const q = query(
+          collection(db,'comments'),
+          where('animeId','==',animeId),
+          orderBy('createdAt','desc')
+        );
+        const snap = await getDocs(q);
+        if (snap.empty) { commentsEmpty.style.display='block'; return; }
+        commentsEmpty.style.display = 'none';
+        snap.docs.forEach((d,i) => {
+          const data = d.data();
+          const div  = document.createElement('div');
+          div.className = 'comment-item';
+          div.style.animationDelay = `${i*0.05}s`;
+          const date = data.createdAt?.toDate?.()?.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) || '';
+          const isOwn = currentUser && data.userId === currentUser.uid;
+          div.innerHTML = `
+            <div class="comment-header">
+              <span class="comment-author">${data.username||'Anonyme'}</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="comment-date">${date}</span>
+                ${isOwn?`<button class="comment-delete" data-id="${d.id}"><i class="fa-solid fa-trash-can"></i></button>`:''}
+              </div>
+            </div>
+            <div class="comment-text">${data.text.replace(/</g,'&lt;')}</div>`;
+          commentsList.appendChild(div);
+        });
+        commentsList.querySelectorAll('.comment-delete').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            await deleteDoc(doc(db,'comments',btn.dataset.id));
+            showToast('💬 Commentaire supprimé','remove');
+            loadComments();
+          });
+        });
+      } catch(e) { console.error('Comments:', e); }
+    }
+
+    async function postComment() {
+      const text = commentInput.value.trim();
+      if (!text || !currentUser) return;
+      commentSubmit.disabled = true;
+      try {
+        const userSnap = await getDoc(doc(db,'users',currentUser.uid));
+        const username = userSnap.data()?.username || currentUser.email.split('@')[0];
+        await addDoc(collection(db,'comments'), {
+          animeId, userId: currentUser.uid,
+          username, text,
+          createdAt: serverTimestamp(),
+        });
+        commentInput.value = '';
+        showToast('💬 Commentaire publié !');
+        loadComments();
+      } catch(e) { console.error(e); }
+      commentSubmit.disabled = false;
+    }
+
+    commentSubmit.addEventListener('click', postComment);
+    commentInput.addEventListener('keydown', e => {
+      if (e.key==='Enter' && (e.ctrlKey||e.metaKey)) postComment();
+    });
+
+    /* ── Notifications ── */
+    async function sendNotification(uid, title, message='') {
+      try { await addDoc(collection(db,'notifications'),{userId:uid,title,message,read:false,createdAt:serverTimestamp()}); }
+      catch(e) { console.error(e); }
+    }
+
+    /* ── Toggle fav ── */
+    async function toggleFavorite() {
+      if (!currentUser) return;
+      const userRef  = doc(db,'users',currentUser.uid);
+      const animeRef = doc(db,'animes',String(animeId));
+      const snap     = await getDoc(userRef);
+      const favs     = snap.data().favorites || [];
+      const wasFav   = favs.includes(animeId);
+      if (wasFav) {
+        await updateDoc(userRef, {favorites: arrayRemove(animeId)});
+        await updateDoc(animeRef, {likes: increment(-1)});
+        currentAnime.fav = false;
+        showToast('💔 Retiré des favoris','remove');
+      } else {
+        await updateDoc(userRef, {favorites: arrayUnion(animeId)});
+        await updateDoc(animeRef, {likes: increment(1)});
+        currentAnime.fav = true;
+        playFavAnimation(favBtn);
+        await sendNotification(currentUser.uid,'⭐ Favori ajouté',currentAnime.title);
+        showToast('❤️ Ajouté aux favoris');
+      }
+      updateFavUI(currentAnime.fav, true);
+    }
+
+    /* ── Rate ── */
+    async function rateAnime(newRating) {
+      if (!currentUser) return;
+      const userRef  = doc(db,'users',currentUser.uid);
+      const animeRef = doc(db,'animes',String(animeId));
+      const [uSnap,aSnap] = await Promise.all([getDoc(userRef),getDoc(animeRef)]);
+      const oldRating = uSnap.data().ratings?.[animeId] ?? null;
+      let { ratingSum=0, ratingCount=0 } = aSnap.data()||{};
+      if (oldRating===null) { ratingSum+=newRating; ratingCount++; }
+      else { ratingSum+=(newRating-oldRating); }
+      const avgRating = ratingSum/ratingCount;
+      await Promise.all([
+        setDoc(animeRef,{ratingSum,ratingCount,avgRating},{merge:true}),
+        updateDoc(userRef,{[`ratings.${animeId}`]:newRating}),
+      ]);
+      currentAnime.rating = avgRating;
+      updateScore(avgRating);
+      await sendNotification(currentUser.uid,'📝 Anime noté',`${currentAnime.title} — ${newRating}/10`);
+      showToast(`⭐ Noté ${newRating}/10`);
+    }
+
+    async function removeRating() {
+      if (!currentUser) return;
+      const userRef  = doc(db,'users',currentUser.uid);
+      const animeRef = doc(db,'animes',String(animeId));
+      const [uSnap,aSnap] = await Promise.all([getDoc(userRef),getDoc(animeRef)]);
+      const old = uSnap.data().ratings?.[animeId];
+      if (old==null) return;
+      let { ratingSum=0, ratingCount=0 } = aSnap.data()||{};
+      ratingSum-=old; ratingCount--;
+      const avgRating = ratingCount>0 ? ratingSum/ratingCount : null;
+      await Promise.all([
+        setDoc(animeRef,{ratingSum,ratingCount,avgRating:avgRating??deleteField()},{merge:true}),
+        updateDoc(userRef,{[`ratings.${animeId}`]:deleteField()}),
+      ]);
+      updateScore(avgRating);
+      showToast('Note supprimée','remove');
+    }
+
+    /* ── Watch status ── */
+    async function setWatchStatus(status) {
+      if (!currentUser) return;
+      await updateDoc(doc(db,'users',currentUser.uid),{[`statuses.${animeId}`]:status});
+      updateStatusUI(status);
+      const labels = {watching:'▶️ En cours',completed:'✅ Terminé',planned:'🕒 À voir'};
+      showToast(`Statut : ${labels[status]}`);
+    }
+
+    /* ── Auth & init ── */
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
+
+      if (!user) {
+        document.getElementById('commentFormWrap').style.display = 'none';
+        document.getElementById('commentsLoginMsg').style.display = 'block';
+      }
+
+      // Load anime
+      const animeSnap = await getDoc(doc(db,'animes',String(animeId)));
+      if (!animeSnap.exists()) { showContent(); return; }
+      const data = animeSnap.data();
+      const anilistScore = Number.isFinite(data.anilistScore) ? data.anilistScore/10 : null;
+      currentAnime = {
+        id: animeId,
+        title: data.title||'Anime',
+        genre: data.genre||[],
+        rating: Number.isFinite(data.avgRating) ? data.avgRating : anilistScore,
+        year: data.seasonYear||data.year||null,
+        img: data.img||'icon_animehub.png',
+        summary: data.summary||'Synopsis indisponible.',
+        timeline: data.timeline||[],
+        fav: false,
+      };
+
+      // Populate DOM
+      animeImg.src    = currentAnime.img;
+      animeImg.alt    = currentAnime.title;
+      animeTitle.textContent = currentAnime.title;
+      document.title  = `${currentAnime.title} – AnimeHub`;
+      animeSummary.textContent = currentAnime.summary;
+      animeYear.textContent = currentAnime.year ? `📅 ${currentAnime.year}` : '';
+      if (!currentAnime.year) animeYear.style.display = 'none';
+
+      updateScore(currentAnime.rating);
+
+      // Genres
+      currentAnime.genre.forEach(g => {
+        const a = document.createElement('a');
+        a.className = 'genre-tag'; a.textContent = g;
+        a.href = `animelist.html?genre=${encodeURIComponent(g)}`;
+        animeGenres.appendChild(a);
+      });
+
+      // Timeline
+      renderTimeline(currentAnime);
+      const hasNonCanon = currentAnime.timeline.some(i=>i.canon===false);
+      const hasCanon    = currentAnime.timeline.some(i=>i.canon!==false);
+      toggleCanonBtn.style.display = (hasNonCanon && hasCanon) ? 'inline-block' : 'none';
+
+      // Load all animes for similar
+      try {
+        const allSnap = await getDocs(collection(db,'animes'));
+        allAnimes = allSnap.docs.map(d => {
+          const dd=d.data();
+          return {
+            id:Number(d.id), title:dd.title||'–', genre:dd.genre||[],
+            img:dd.img||'icon_animehub.png',
+            rating:Number.isFinite(dd.avgRating)?dd.avgRating:(Number.isFinite(dd.anilistScore)?dd.anilistScore/10:null),
+          };
+        });
+        renderSimilar(currentAnime, allAnimes);
+      } catch(e) { console.warn('Similar:', e); }
+
+      // User data
+      if (user) {
+        const uSnap = await getDoc(doc(db,'users',user.uid));
+        if (uSnap.exists()) {
+          const ud = uSnap.data();
+          currentAnime.fav = (ud.favorites||[]).includes(animeId);
+          updateFavUI(currentAnime.fav);
+          const userRating = ud.ratings?.[animeId] ?? null;
+          if (userRating !== null) { rateSelect.value = userRating; }
+          updateStatusUI(ud.statuses?.[animeId] ?? null);
+        }
+      }
+
+      // Events
+      favBtn.addEventListener('click', toggleFavorite);
+      rateSelect.addEventListener('change', e => {
+        e.target.value === '' ? removeRating() : rateAnime(Number(e.target.value));
+      });
+      watchStatus.addEventListener('click', e => {
+        const btn = e.target.closest('.status-btn');
+        if (btn) setWatchStatus(btn.dataset.status);
+      });
+
+      showContent();
+      loadComments();
+    });
   </script>
 </body>
 </html>
