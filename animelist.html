@@ -3,1323 +3,979 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AnimeList</title>
+  <title>AnimeList – AnimeHub</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon_animehub.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+
     :root {
-	  --bg: #0f1724;
-	  --card: #0b1220;
-	  --muted: #9ca3af;
-	  --accent: #06b6d4;
-	  --glass: rgba(255,255,255,0.04);
-	}
+      --bg: #0b1220;
+      --bg2: #061226;
+      --card: #0d1628;
+      --card-hover: #111e35;
+      --muted: #7e8fa8;
+      --accent: #06b6d4;
+      --accent2: #3b82f6;
+      --glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.07);
+      --text: #e6eef6;
+      --radius: 16px;
+    }
 
-	/* 🌌 Global */
-	body {
-	  margin: 0;
-	  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-	  background: linear-gradient(180deg,#0b1220 0%, #061226 100%);
-	  color: #e6eef6;
-	  -webkit-font-smoothing: antialiased;
-	  -moz-osx-font-smoothing: grayscale;
-	  transition: background 0.3s ease;
-	}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-	/* Container */
-	.container {
-	  max-width: 1100px;
-	  margin: 32px auto;
-	  padding: 20px;
-	}
-    
-	/* Loader */
-	.loader-overlay {
-	  position: fixed;
-	  inset: 0;
-	  background: linear-gradient(180deg, rgba(11,18,32,0.98) 0%, rgba(6,18,38,0.98) 100%);
-	  display: flex;
-	  align-items: center;
-	  justify-content: center;
-	  z-index: 2000;
-	}
-	.loader-card {
-	  background: rgba(11,18,32,0.9);
-	  border: 1px solid rgba(255,255,255,0.08);
-	  border-radius: 18px;
-	  padding: 24px 28px;
-	  text-align: center;
-	  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
-	  width: min(420px, 80vw);
-	}
-	.loader-spinner {
-	  width: 44px;
-	  height: 44px;
-	  border-radius: 999px;
-	  border: 3px solid rgba(255,255,255,0.12);
-	  border-top-color: var(--accent);
-	  animation: spin 0.9s linear infinite;
-	  margin: 0 auto 14px;
-	}
-	.loader-text {
-	  color: var(--muted);
-	  font-size: 14px;
-	  margin: 0;
-	}
-	@keyframes spin {
-	  to { transform: rotate(360deg); }
-	}
-	
-	/* Header sticky avec blur */
-	header {
-	  display: flex;
-	  align-items: center;
-	  justify-content: space-between;
-	  gap: 16px;
-	  margin-bottom: 18px;
-	  position: sticky;
-	  top: 0;
-	  z-index: 100;
-	  background: linear-gradient(180deg, rgba(11,18,32,0.95) 0%, rgba(6,18,38,0.95) 100%);
-	  backdrop-filter: blur(8px);
-	  padding: 20px 40px;
-	  flex-wrap: wrap;
-	  transition: box-shadow 0.2s ease, background 0.2s ease;
-	}
-	header.sticky { box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
-	
-	.logo-container {
-	  display: flex;
-	  flex-direction: column;
-	  gap: 2px;
-	}
-	
-	h1 { font-size: 28px; margin: 0; }
-	p.lead { color: var(--muted); margin: 6px 0 0; font-size: 14px; }
+    body {
+      font-family: 'DM Sans', ui-sans-serif, system-ui;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    body.fonts-not-loaded { opacity: 0; }
 
-	/* Controls recherche / filtres */
-	.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-	.search-wrap { position: relative; }
-	.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: 0.8; }
-	input.search {
-	  padding: 10px 12px 10px 36px;
-	  border-radius: 10px;
-	  border: 1px solid rgba(255,255,255,0.06);
-	  background: var(--glass);
-	  color: inherit;
-	  min-width: 220px;
-	  transition: 0.3s;
-	  box-shadow: 0 0 4px rgba(255,255,255,0.1);
-	}
-	input.search:focus { border-color: var(--accent); box-shadow: 0 0 12px rgba(6,182,212,0.3); outline: none; }
-	.select, .select-sm {
-	  padding: 10px 12px;
-	  border-radius: 10px;
-	  background: var(--glass);
-	  border: 1px solid rgba(255,255,255,0.06);
-	  color: inherit;
-	  transition: 0.3s;
-	  box-shadow: 0 0 4px rgba(255,255,255,0.1);
-	}
-	.select:hover, .select-sm:hover { border-color: var(--accent); box-shadow: 0 0 10px rgba(6,182,212,0.25); }
-	.select option, .select-sm option { color: #e6eef6; background-color: var(--card); }
-	@media (max-width:720px) {
-		.controls > select, input.search { flex: 1 1 100%; }
-	}
-	/* Grid cartes anime */
-	.grid {
-	  display: grid;
-	  grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
-	  gap: 16px;
-	  margin-top: 18px;
-	}
+    /* ── PAGE LOADER ── */
+    .loader-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(180deg, rgba(11,18,32,0.98) 0%, rgba(6,18,38,0.98) 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2000;
+      transition: opacity 0.4s ease;
+    }
+    .loader-overlay.hidden { opacity: 0; pointer-events: none; }
+    .loader-card {
+      background: rgba(13,22,40,0.9);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 32px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      width: min(380px, 80vw);
+    }
+    .loader-spinner {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: var(--accent);
+      animation: spin 0.85s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { color: var(--muted); font-size: 14px; line-height: 1.5; }
 
-	/* Cartes anime avec hover néon */
-	.card {
-	  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));
-	  border-radius: 14px;
-	  overflow: hidden;
-	  box-shadow: 0 6px 18px rgba(6,182,212,0.4);
-	  transition: transform 0.2s ease, box-shadow 0.2s ease;
-	  position: relative;
-	}
-	.card:hover {
-	  transform: translateY(-4px) rotateZ(-0.2deg);
-	  box-shadow: 0 12px 30px rgba(6,182,212,0.6), 0 0 20px rgba(6,182,212,0.25);
-	}
-	.card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #111; transition: 0.3s; }
-	.card:hover img { filter: brightness(1.1); }
+    /* ── HEADER ── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: linear-gradient(180deg, rgba(11,18,32,0.96) 0%, rgba(6,18,38,0.96) 100%);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      padding: 16px 32px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    header.sticky {
+      border-color: var(--border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    }
 
-	/* Card content */
-	.card-body { padding: 14px; }
-	.title { font-weight: 700; font-size: 16px; margin: 8px 0 6px; transition: color 0.3s; }
-	.card:hover .title { color: var(--accent); }
-	.genres { font-size: 12px; color: var(--muted); }
-	.meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+    .logo-container { cursor: pointer; display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+    .logo {
+      font-family: 'Mochiy Pop One', 'Syne', sans-serif;
+      font-size: 2rem;
+      background: linear-gradient(90deg, #fff59d, #ffeb3b, #ff9800, #ff5722);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-sub { font-size: 0.72rem; color: #94a3b8; letter-spacing: 0.3px; }
 
-	/* Boutons */
-	.btn {
-	  background: linear-gradient(135deg, var(--accent), #0fc1e5);
-	  color: #052226;
-	  padding: 8px 14px;
-	  border-radius: 10px;
-	  border: none;
-	  cursor: pointer;
-	  font-weight: 700;
-	  font-size: 13px;
-	  letter-spacing: 0.3px;
-	  box-shadow: 0 4px 14px rgba(6,182,212,0.35);
-	  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-	}
-	.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(6,182,212,0.55); filter: brightness(1.05); }
-	.btn:active { transform: translateY(0); box-shadow: 0 4px 12px rgba(6,182,212,0.35); }
+    .controls {
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap; flex: 1;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 280px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: 0.5; pointer-events: none; }
+    input.search {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      color: var(--text);
+      font-family: inherit; font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input.search::placeholder { color: var(--muted); }
+    input.search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(6,182,212,0.15); outline: none; }
 
-	/* Favoris / rating */
-	.fav-btn {
-	  background: transparent;
-	  border: 1px solid rgba(255,255,255,0.06);
-	  color: var(--accent);
-	  padding: 6px 8px;
-	  border-radius: 8px;
-	  cursor: pointer;
-	  font-weight: 700;
-	  font-size: 14px;
-	  transition: 0.2s;
-	}
-	.fav-btn:hover { background: rgba(255,255,255,0.08); backdrop-filter: blur(4px) }
+    select.select, select.select-sm {
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit; font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    select.select:hover, select.select-sm:hover { border-color: rgba(6,182,212,0.4); }
+    select option { background: #0d1628; color: var(--text); }
 
-	/* Rating badges */
-	.rating { background: rgba(0,0,0,0.45); padding: 4px 8px; border-radius: 12px; font-weight: 700; font-size: 13px; }
+    /* Vue toggle */
+    .view-toggle {
+      display: flex; gap: 4px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+    }
+    .view-btn {
+      background: transparent; border: none;
+      color: var(--muted); cursor: pointer;
+      padding: 5px 9px; border-radius: 7px;
+      font-size: 14px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .view-btn.active { background: rgba(6,182,212,0.2); color: var(--accent); }
 
-	/* Footer */
-	footer { text-align: center; color: var(--muted); margin-top: 24px; font-size: 13px; }
+    /* Auth */
+    #authContainer {
+      display: flex; gap: 8px; align-items: center;
+      margin-left: auto;
+    }
+    .notif-container {
+      position: relative; padding: 8px; border-radius: 10px; cursor: pointer;
+      color: var(--muted); transition: background 0.2s, color 0.2s;
+    }
+    .notif-container:hover { background: var(--glass); color: var(--text); }
+    .notif-badge {
+      position: absolute; top: -2px; right: -4px;
+      min-width: 16px; height: 16px; padding: 0 4px;
+      display: none; align-items: center; justify-content: center;
+      background: #ef4444; color: white;
+      font-size: 10px; font-weight: 800;
+      border-radius: 999px; border: 2px solid var(--bg);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      z-index: 200;
+    }
+    .notif-badge.show { display: flex; animation: pop 0.25s ease; }
+    @keyframes pop { 0%{transform:scale(0)} 80%{transform:scale(1.2)} 100%{transform:scale(1)} }
 
-	/* Scroll animations */
-	@keyframes fadeUp {
-	  0% { opacity: 0; transform: translateY(20px); }
-	  100% { opacity: 1; transform: translateY(0); }
-	}
+    .notif-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      width: min(360px, calc(100vw - 24px));
+      max-height: min(70vh, 500px); overflow: hidden;
+      background: #0f172a;
+      border-radius: 14px; border: 1px solid var(--border);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      z-index: 1300;
+    }
+    .notif-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+    }
+    .notif-title { font-size: 14px; font-weight: 700; }
+    .notif-actions { display: flex; gap: 8px; }
+    .notif-action-btn {
+      border: 1px solid rgba(255,255,255,0.12); background: var(--glass);
+      color: var(--text); border-radius: 8px; padding: 4px 8px;
+      font-size: 12px; cursor: pointer; font-family: inherit;
+    }
+    .notif-action-btn:hover { background: rgba(255,255,255,0.1); }
+    #notifList { list-style: none; max-height: calc(70vh - 60px); overflow-y: auto; }
+    #notifList li {
+      padding: 12px 14px; font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.4; cursor: pointer;
+      transition: background 0.15s;
+    }
+    #notifList li:hover { background: rgba(255,255,255,0.04); }
+    #notifList li.unread { background: rgba(6,182,212,0.07); border-left: 3px solid var(--accent); }
+    #notifList li:last-child { border-bottom: none; }
+    #notifEmpty { padding: 20px; color: var(--muted); text-align: center; font-size: 13px; }
 
-	/* Responsive */
-	@media (max-width:720px) {
-	  header { flex-direction: column; align-items: center; text-align: center; }
-	  .logo-container { width: 100%; align-items: center; }
-	  .controls { width: 100%; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
-	  .card img { height: 220px; }
-	  .modal { flex-direction: column; align-items: center; }
-	  .modal img { width: 180px; height: 260px; }
-	}
-	
-	.fallback-img {
-	  object-fit: contain;
-	  background: #0b1220;
-	}
-	
-	/* Bouton Top */
-	#backToTop {
-	  position: fixed; bottom: 22px; right: 22px; padding: 10px 14px;
-	  font-size: 16px; border-radius: 10px; background: var(--accent);
-	  color: #052226; border: none; cursor: pointer; font-weight: 700;
-	  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-	  transition: opacity .2s ease, transform .2s ease;
-	  display: none;
-	}
-	#backToTop.show { display: inline-flex; align-items: center; justify-content: center; opacity: 1; transform: translateY(0); }
-	#backToTop.hide { 
-	  opacity: 0; 
-	  transform: 
-	  translateY(10px); 
-	}
-	
-	.badge-trending {
-	  position: absolute;
-	  top: 10px;
-	  left: 10px;
-	  background: #ff4500;
-	  color: white;
-	  font-size: 11px;
-	  padding: 2px 6px;
-	  border-radius: 6px;
-	  font-weight: bold;
-	  z-index: 10; /* s'assure qu'il soit au-dessus de l'image */
-	  pointer-events: none; /* pas cliquable */
-	}
-	.card { position: relative; } /* nécessaire pour que le badge soit bien positionné par rapport à la carte */
-	
-	#authContainer {
-	  display: flex;
-	  gap: 8px;
-	  align-items: center;
-	  background: rgba(11,18,32,0.85);
-	  padding: 6px 12px;
-	  border-radius: 12px;
-	  backdrop-filter: blur(6px);
-	  flex-wrap: wrap;
-	  position: relative;
-	  z-index: 999;
-	}
+    @media (max-width: 768px) {
+      .notif-dropdown {
+        position: fixed; top: auto; bottom: 0; left: 0; right: 0;
+        width: 100vw; height: 50vh; max-height: 50vh;
+        border-radius: 18px 18px 0 0;
+        animation: slideUp 0.25s ease;
+      }
+      #notifList { max-height: calc(50vh - 56px); }
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 
-	#userBox {
-	  display: flex;
-	  align-items: center;
-	  gap: 6px;
-	  background: rgba(255,255,255,0.12);
-	  padding: 6px 14px;
-	  border-radius: 999px;
-	  color: white;
-	  font-weight: 700;
-	  text-decoration: none;
-	  cursor: pointer;
-	  transition: background 0.2s;
-	  z-index: 100;
-	}
-	#userBox:hover { background: rgba(255,255,255,0.2); }
+    #userBox {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.08);
+      padding: 6px 14px; border-radius: 999px;
+      color: white; font-weight: 700; font-size: 14px;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    #userBox:hover { background: rgba(255,255,255,0.14); }
 
-	.notif-container { 
-	  position: relative;
-	  border-radius: 10px;
-	  padding: 8px;
-	  cursor: pointer;
-	}
-	.notif-container:hover {
-	  background: rgba(255,255,255,0.12);
-	}
-	.notif-badge {
-	  position: absolute;
-	  top: -4px;
-	  right: -6px;
+    /* ── CONTAINER ── */
+    .container { max-width: 1140px; margin: 0 auto; padding: 24px 20px 48px; }
 
-	  min-width: 16px;
-	  height: 16px;
-	  padding: 0 4px;
+    /* ── RESULT BAR ── */
+    .result-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+    }
+    .result-count {
+      font-size: 13px; color: var(--muted);
+    }
+    .result-count strong { color: var(--accent); font-weight: 700; }
 
-	  display: none;
-	  align-items: center;
-	  justify-content: center;
+    /* ── SKELETON ── */
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .skeleton-card {
+      border-radius: var(--radius); overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+    .skeleton-img {
+      width: 100%; aspect-ratio: 2/3;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease infinite;
+    }
+    .skeleton-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .skeleton-line {
+      height: 10px; border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease infinite;
+    }
+    .skeleton-line.short { width: 55%; }
+    .skeleton-line.xshort { width: 35%; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
 
-	  background: #ef4444; /* rouge clean */
-	  color: white;
+    /* ── GRID VIEW ── */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
 
-	  font-size: 10px;
-	  font-weight: 800;
-	  line-height: 1;
+    /* ── LIST VIEW ── */
+    #grid.list-view {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
 
-	  border-radius: 999px;
-	  border: 2px solid #0b1220; /* fond du header */
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+      animation: cardIn 0.4s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(18px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      background: var(--card-hover);
+      border-color: rgba(6,182,212,0.35);
+      box-shadow: 0 16px 40px rgba(6,182,212,0.12), 0 4px 12px rgba(0,0,0,0.4);
+    }
 
-	  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-	  z-index: 200;
-	}
-	/* DESKTOP / TABLET */
-	.notif-dropdown {
-	  position: absolute;
-	  top: calc(100% + 10px);
-	  right: 0;
-	  left: auto;
-	  transform: none;
-	  width: min(360px, calc(100vw - 24px));
-	  max-width: calc(100vw - 24px);
-	  max-height: min(70vh, 520px);
-	  overflow: hidden;
-	  box-sizing: border-box;
-	  background: #0f172a;
-	  border-radius: 14px;
-	  border: 1px solid rgba(255,255,255,0.08);
-	  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-	  z-index: 1300;
-	}
-	
-	.notif-header {
-	  display: flex;
-	  align-items: center;
-	  justify-content: space-between;
-	  gap: 10px;
-	  padding: 10px 12px;
-	  border-bottom: 1px solid rgba(255,255,255,0.08);
-	}
-	.notif-title {
-	  margin: 0;
-	  font-size: 14px;
-	  font-weight: 700;
-	}
-	.notif-actions {
-	  display: flex;
-	  gap: 8px;
-	}
-	.notif-action-btn {
-	  border: 1px solid rgba(255,255,255,0.15);
-	  background: rgba(255,255,255,0.05);
-	  color: #e6eef6;
-	  border-radius: 8px;
-	  padding: 4px 8px;
-	  font-size: 12px;
-	  cursor: pointer;
-	}
-	.notif-action-btn:hover {
-	  background: rgba(255,255,255,0.12);
-	}
-	#notifList {
-	  list-style: none;
-	  margin: 0;
-	  padding: 0;
-	  max-height: calc(100vh - 170px);
-	  overflow-y: auto;
-	}
-	
-	/* MOBILE = bottom sheet */
-	@media (max-width: 768px) {
-	  .notif-dropdown {
-		position: fixed;
-		top: auto;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		transform: none;
+    /* Grid card */
+    .card-poster {
+      width: 100%; aspect-ratio: 2/3;
+      object-fit: cover; display: block;
+      background: #0a1020;
+      transition: filter 0.22s ease;
+    }
+    .card:hover .card-poster { filter: brightness(1.08); }
 
-		width: 100vw;
-		height: 50vh;
-		max-height: 50vh;
+    .card-body { padding: 12px; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .card-genres { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+    .card-rating {
+      font-size: 12px; font-weight: 700;
+      background: rgba(0,0,0,0.4);
+      padding: 2px 7px; border-radius: 8px;
+      color: #fbbf24;
+      display: flex; align-items: center; gap: 3px;
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px; font-weight: 700;
+      line-height: 1.3; margin-bottom: 8px;
+      transition: color 0.2s;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card:hover .card-title { color: var(--accent); }
 
-		border-radius: 18px 18px 0 0;
-		animation: slideUp 0.25s ease;
-	  }
-	  #notifList {
-		max-height: calc(50vh - 56px);
-		padding-bottom: max(8px, env(safe-area-inset-bottom));
-	  }
-	}
-	@keyframes slideUp {
-	  from {
-		transform: translateY(100%);
-	  }
-	  to {
-		transform: translateY(0);
-	  }
-	}
-	
-	#notifList li {
-	  padding: 12px 14px;
-	  font-size: 14px;
-	  border-bottom: 1px solid rgba(255,255,255,0.08);
-	  color: #e6eef6;
-	  word-break: break-word;
-	  white-space: normal;
-	  line-height: 1.35;
-	}
-	#notifList li.unread {
-	  background: rgba(6,182,212,0.08);
-	  border-left: 3px solid var(--accent);
-	}
+    /* Progress bar de visionnage */
+    .progress-wrap { margin-bottom: 10px; }
+    .progress-bar-bg {
+      height: 3px; border-radius: 3px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.5s ease;
+    }
+    .progress-label {
+      font-size: 10px; color: var(--muted);
+      margin-top: 3px; display: flex; justify-content: space-between;
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .status-badge.completed { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .status-badge.watching  { background: rgba(6,182,212,0.15);  color: var(--accent); }
+    .status-badge.planned   { background: rgba(148,163,184,0.12); color: #94a3b8; }
 
-	#notifList li:last-child {
-	  border-bottom: none;
-	}
+    .card-actions { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .card-year { font-size: 12px; color: var(--muted); }
 
-	#notifList li:hover {
-	  background: rgba(255,255,255,0.05);
-	}
-	#notifEmpty {
-	  padding: 16px;
-	  color: var(--muted);
-	  text-align: center;
-	  font-size: 13px;
-	}
-	.notif-badge.show {
-	  display: flex;
-	  animation: pop 0.25s ease;
-	}
+    .btn {
+      background: linear-gradient(135deg, var(--accent), #0ea5e9);
+      color: #052226; padding: 7px 13px;
+      border-radius: 9px; border: none; cursor: pointer;
+      font-family: inherit; font-weight: 700; font-size: 12px;
+      box-shadow: 0 3px 10px rgba(6,182,212,0.3);
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(6,182,212,0.45); filter: brightness(1.05); }
+    .btn:active { transform: translateY(0); }
 
-	@keyframes pop {
-	  0% { transform: scale(0); }
-	  80% { transform: scale(1.2); }
-	  100% { transform: scale(1); }
-	}
-	@media (max-width:720px) {
-		header { padding: 16px 20px; }
-	}
-	*, *::before, *::after {
-		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-	}
-	.logo {
-	  font-family: 'Mochiy Pop One', sans-serif;
-	  font-size: 2.2rem;
-	  background: linear-gradient(
-		90deg,
-		#fff59d,
-		#ffeb3b,
-		#ff9800,
-		#ff5722
-	  );
-	  -webkit-background-clip: text;
-	  -webkit-text-fill-color: transparent;
-	}
+    .fav-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent); padding: 6px 9px;
+      border-radius: 8px; cursor: pointer;
+      font-size: 15px; line-height: 1;
+      transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    }
+    .fav-btn:hover { background: rgba(6,182,212,0.1); border-color: var(--accent); transform: scale(1.15); }
+
+    /* Badge trending */
+    .badge-trending {
+      position: absolute; top: 9px; left: 9px;
+      background: linear-gradient(135deg, #ff4500, #ff6b35);
+      color: white; font-size: 10px; font-weight: 800;
+      padding: 3px 7px; border-radius: 7px;
+      pointer-events: none; z-index: 10;
+      box-shadow: 0 2px 8px rgba(255,69,0,0.4);
+    }
+
+    /* ── LIST VIEW CARD OVERRIDE ── */
+    #grid.list-view .card {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 0;
+      border-radius: 14px;
+    }
+    #grid.list-view .card-poster {
+      width: 80px; height: 110px;
+      aspect-ratio: unset; object-fit: cover;
+      border-radius: 14px 0 0 14px;
+    }
+    #grid.list-view .card-body {
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 12px 14px;
+    }
+    #grid.list-view .card-title {
+      font-size: 15px; -webkit-line-clamp: 1;
+    }
+    #grid.list-view .badge-trending {
+      top: 8px; left: 88px;
+    }
+    #grid.list-view .progress-wrap { margin-bottom: 6px; }
+
+    /* ── EMPTY ── */
+    #empty {
+      display: none; text-align: center;
+      padding: 60px 20px; color: var(--muted);
+    }
+    #empty .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+    #empty p { font-size: 15px; }
+
+    /* ── BACK TO TOP ── */
+    #backToTop {
+      position: fixed; bottom: 22px; right: 22px;
+      padding: 10px 14px; font-size: 14px; font-weight: 700;
+      border-radius: 10px; background: var(--accent);
+      color: #052226; border: none; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(6,182,212,0.4);
+      font-family: inherit;
+      transition: opacity 0.2s, transform 0.2s;
+      opacity: 0; transform: translateY(10px); pointer-events: none;
+    }
+    #backToTop.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+
+    footer { text-align: center; color: var(--muted); padding: 8px 0 0; font-size: 13px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      header { padding: 12px 16px; }
+      .controls { width: 100%; }
+      .search-wrap { max-width: 100%; }
+      #authContainer { margin-left: 0; width: 100%; justify-content: flex-end; }
+    }
+
     @font-face {
       font-family: 'Mochiy Pop One';
       src: url('MochiyPopOne-Regular.woff2') format('woff2');
-      font-weight: normal;
-      font-style: normal;
       font-display: swap;
     }
-	.logo-sub {
-	  font-size: 0.75rem;
-	  color: #cbd5e1;
-	  margin-top: 4px;
-	  letter-spacing: 0.3px;
-	}
-    @media (max-width: 600px) {
-	  .logo {
-		font-size: 1.6rem;
-	  }
-	  .logo-sub {
-		font-size: 0.65rem;
-	  }
-	}
-	body {
-      opacity: 1;
-      transition: opacity 0.6s ease;
-    }
 
-    body.fonts-not-loaded {
-      opacity: 0;
+    .btn:focus-visible, .fav-btn:focus-visible, #backToTop:focus-visible {
+      outline: 2px solid rgba(6,182,212,0.8); outline-offset: 2px;
     }
-	.btn:focus-visible,
-	.fav-btn:focus-visible,
-	#backToTop:focus-visible {
-	  outline: 2px solid rgba(6,182,212,0.8);
-	  outline-offset: 2px;
-	}
   </style>
-  <!-- Favicon classique -->
-  <link rel="icon" type="image/png" href="icon_animehub.png">
-  <!-- Icône Apple touch (pour iPhone/iPad) -->
-  <link rel="apple-touch-icon" sizes="180x180" href="icon_animehub.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="icon_animehub.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="icon_animehub.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="icon_animehub.png">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body class="fonts-not-loaded">
-	<div class="loader-overlay" id="pageLoader" aria-live="polite" aria-busy="true">
-	  <div class="loader-card">
-		<div class="loader-spinner" aria-hidden="true"></div>
-		<p class="loader-text" id="loadingMessage">Chargement...</p>
-	  </div>
-	</div>
-    <header>
-      <div class="logo-container" id="homeLogo" style="cursor:pointer;">
-	    <h1 class="logo">AnimeHub</h1>
-	    <p class="lead">Ton univers anime à portée de clic</p>
-	  </div>
 
-      <div class="controls">
-        <div class="search-wrap">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="#9ca3af" stroke-width="2"></circle></svg>
-          <input id="search" class="search" placeholder="Rechercher un anime..."/>
-        </div>
-        <select id="genre" class="select"></select>
-        <select id="sort" class="select-sm">
-          <option value="top">Top rating</option>
-          <option value="new">Les plus récents</option>
-		  <option value="az">Alphabétique (A → Z)</option>
-		  <option value="za">Alphabétique (Z → A)</option>
-		  <option value="popular">🔥 Popularité</option>
-        </select>
-		<select id="statusFilter" class="select-sm">
-          <option value="all">Tous statuts</option>
-          <option value="completed">✅ Déjà vu</option>
-          <option value="watching">▶️ En cours</option>
-          <option value="planned">🕒 À voir</option>
-        </select>
-        <select id="favFilter" class="select-sm">
-          <option value="all">Tous</option>
-          <option value="fav">Favoris seulement</option>
-        </select>
+  <!-- PAGE LOADER -->
+  <div class="loader-overlay" id="pageLoader" aria-live="polite" aria-busy="true">
+    <div class="loader-card">
+      <div class="loader-spinner" aria-hidden="true"></div>
+      <p class="loader-text" id="loadingMessage">Chargement...</p>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header id="mainHeader">
+    <div class="logo-container" id="homeLogo">
+      <h1 class="logo">AnimeHub</h1>
+      <p class="logo-sub">Ton univers anime à portée de clic</p>
+    </div>
+
+    <div class="controls">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <circle cx="11" cy="11" r="6" stroke="#9ca3af" stroke-width="2"/>
+          <path d="M21 21l-4.35-4.35" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="search" class="search" placeholder="Rechercher un anime…" autocomplete="off"/>
       </div>
-	  <div id="authContainer">
-	    <div class="notif-container" id="notifBtn">
-		  <i class="fa-solid fa-bell"></i>
-		  <span class="notif-badge" id="notifBadge">0</span>
+      <select id="genre" class="select"></select>
+      <select id="sort" class="select-sm">
+        <option value="top">⭐ Top rating</option>
+        <option value="new">🆕 Plus récents</option>
+        <option value="az">A → Z</option>
+        <option value="za">Z → A</option>
+        <option value="popular">🔥 Popularité</option>
+      </select>
+      <select id="statusFilter" class="select-sm">
+        <option value="all">Tous statuts</option>
+        <option value="completed">✅ Déjà vu</option>
+        <option value="watching">▶️ En cours</option>
+        <option value="planned">🕒 À voir</option>
+      </select>
+      <select id="favFilter" class="select-sm">
+        <option value="all">Tous</option>
+        <option value="fav">★ Favoris</option>
+      </select>
 
-		  <div class="notif-dropdown" id="notifDropdown" style="display:none;">
-			<div class="notif-header">
-			  <p class="notif-title">Notifications</p>
-			  <div class="notif-actions">
-				<button class="notif-action-btn" id="notifMarkAllBtn" type="button">Tout lire</button>
-				<button class="notif-action-btn" id="notifCloseBtn" type="button">Fermer</button>
-			  </div>
-			</div>
-			<ul id="notifList"></ul>
-			<div id="notifEmpty" style="display:none;">Aucune notification pour le moment.</div>
-		  </div>
-		</div>
-		<a href="profile.html" id="userBox">
-          <span id="username"></span>
-        </a>
-	  </div>
-	  <div id="authModal" class="modal-auth" style="display:none;">
-	    <div class="modal-auth-content">
-		  <h2 id="authTitle">Connexion</h2>
+      <!-- Toggle vue grille / liste -->
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnGrid" title="Vue grille">
+          <i class="fa-solid fa-grip"></i>
+        </button>
+        <button class="view-btn" id="btnList" title="Vue liste">
+          <i class="fa-solid fa-list"></i>
+        </button>
+      </div>
+    </div>
 
-		  <input type="email" id="authEmail" placeholder="Email">
-		  <input type="password" id="authPassword" placeholder="Mot de passe">
+    <div id="authContainer">
+      <div class="notif-container" id="notifBtn">
+        <i class="fa-solid fa-bell"></i>
+        <span class="notif-badge" id="notifBadge">0</span>
+        <div class="notif-dropdown" id="notifDropdown" style="display:none;">
+          <div class="notif-header">
+            <p class="notif-title">Notifications</p>
+            <div class="notif-actions">
+              <button class="notif-action-btn" id="notifMarkAllBtn" type="button">Tout lire</button>
+              <button class="notif-action-btn" id="notifCloseBtn" type="button">Fermer</button>
+            </div>
+          </div>
+          <ul id="notifList"></ul>
+          <div id="notifEmpty" style="display:none;">Aucune notification pour le moment.</div>
+        </div>
+      </div>
+      <a href="profile.html" id="userBox">
+        <i class="fa-solid fa-user" style="font-size:12px;opacity:0.7;"></i>
+        <span id="username"></span>
+      </a>
+    </div>
+  </header>
 
-		  <button id="authSubmit">Valider</button>
-		  <button id="authClose" class="close-auth">Fermer</button>
-	    </div>
-	  </div>
-    </header>
-	<div class="container">
+  <div class="container">
+    <!-- BARRE RÉSULTATS -->
+    <div class="result-bar">
+      <p class="result-count" id="resultCount"></p>
+    </div>
+
+    <!-- SKELETON (visible pendant le chargement) -->
+    <div class="skeleton-grid" id="skeletonGrid">
+      <!-- généré en JS -->
+    </div>
+
+    <!-- GRILLE PRINCIPALE -->
     <main>
-      <div id="grid" class="grid" style="display:none"></div>
-	   <div id="loading" style="display:none;"></div>
-      <div id="empty" style="display:none; color:var(--muted); text-align:center; padding:40px 0;">Aucun résultat...</div>
+      <div id="grid" style="display:none;"></div>
+      <div id="empty">
+        <div class="empty-icon">🔍</div>
+        <p>Aucun résultat pour cette recherche…</p>
+      </div>
     </main>
 
     <footer>Il manque ton anime ? N'hésite pas à demander pour que je le rajoute.</footer>
   </div>
 
-  <!-- Modal template -->
-  <div id="modalRoot" style="display:none"></div>
-  <button id="backToTop">↑ Top</button>
+  <div id="modalRoot" style="display:none;"></div>
+  <button id="backToTop" aria-label="Retour en haut">↑ Top</button>
+
+  <!-- ══════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════ -->
   <script>
     let ANIMES = [];
+    let filteredList = [];
+    let currentIndex = 0;
+    const ITEMS_PER_LOAD = 12;
+    let currentView = 'grid'; // 'grid' | 'list'
 
-	const genreEl = document.getElementById('genre');
-	const sortEl = document.getElementById('sort');
-	const favFilterEl = document.getElementById('favFilter');
-	const statusFilterEl = document.getElementById('statusFilter');
-	const grid = document.getElementById('grid');
-	const searchInput = document.getElementById('search');
-	const empty = document.getElementById('empty');
-	const modalRoot = document.getElementById('modalRoot');
-	const urlParams = new URLSearchParams(window.location.search);
-	const favFromUrl = urlParams.get("fav"); // "1" ou null
-	let genreFromUrl = urlParams.get('genre'); // ex: "Action" ou null
-	const loadingMessages = [
-	  "⏳ Kira observe… chargement des animes en cours",
-	  "📓 Le Death Note s’ouvre… préparation de l’univers",
-	  "👁️ Ryuk rigole pendant que les animes arrivent",
-	  "⚖️ La justice prend forme… chargement des données",
-	  "🧱 Les murs tremblent… les animes arrivent",
-	  "⚔️ Le Bataillon d’Exploration prépare la page",
-	  "👁️ Eren regarde l’horizon… chargement en cours",
-	  "🩸 La liberté a un prix… données en cours de déploiement",
-	  "🟠 Chargement en cours… le ki monte",
-	  "🌌 Voyage vers Namek… encore un instant",
-	  "🐉 Shenron est invoqué… préparation des animes",
-	  "🩸 La mort n’est pas la fin… chargement",
-	  "🕯️ Echidna observe… patience",
-	];
+    const genreEl       = document.getElementById('genre');
+    const sortEl        = document.getElementById('sort');
+    const favFilterEl   = document.getElementById('favFilter');
+    const statusFilterEl= document.getElementById('statusFilter');
+    const gridEl        = document.getElementById('grid');
+    const searchInput   = document.getElementById('search');
+    const emptyEl       = document.getElementById('empty');
+    const resultCount   = document.getElementById('resultCount');
+    const skeletonGrid  = document.getElementById('skeletonGrid');
 
-	const loadingEl = document.getElementById("loading");
-	const pageLoader = document.getElementById("pageLoader");
-	const loadingMessage = document.getElementById("loadingMessage");
+    const urlParams     = new URLSearchParams(window.location.search);
+    let genreFromUrl    = urlParams.get('genre');
+    const favFromUrl    = urlParams.get('fav');
 
-	if (loadingEl) {
-	  const randomMessage =
-		loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
-	  loadingEl.textContent = randomMessage;
-	  if (loadingMessage) {
-		loadingMessage.textContent = randomMessage;
-	  }
-	}
-	function refreshGenres() {
-		  const genres = new Set(["Tout"]);
-		  ANIMES.forEach(a => (a.genre || []).forEach(g => genres.add(g)));
-		  genreEl.innerHTML = "";
-		  genres.forEach(g => {
-			const o = document.createElement("option");
-			o.textContent = o.value = g;
-			genreEl.appendChild(o);
-		  });
+    // ── Loading messages ──
+    const loadingMessages = [
+      "⏳ Kira observe… chargement des animes en cours",
+      "📓 Le Death Note s'ouvre… préparation de l'univers",
+      "👁️ Ryuk rigole pendant que les animes arrivent",
+      "🧱 Les murs tremblent… les animes arrivent",
+      "⚔️ Le Bataillon d'Exploration prépare la page",
+      "🟠 Chargement en cours… le ki monte",
+      "🌌 Voyage vers Namek… encore un instant",
+      "🐉 Shenron est invoqué… préparation des animes",
+      "🕯️ Echidna observe… patience",
+    ];
+    const randomMsg = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    document.getElementById('loadingMessage').textContent = randomMsg;
 
-	  if (genreFromUrl) {
-			const exists = [...genreEl.options].some(
-			  opt => opt.value === genreFromUrl
-			);
+    // ── Skeleton ──
+    function buildSkeleton(count = 12) {
+      skeletonGrid.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        skeletonGrid.innerHTML += `
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line xshort"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          </div>`;
+      }
+    }
+    buildSkeleton();
 
-			if (exists) {
-			  genreEl.value = genreFromUrl;
-			}
-		  }
-		}
-	
-		const ITEMS_PER_LOAD = 6; // combien de cartes à charger à chaque fois
-	let currentIndex = 0; // index de départ pour le rendu
-	let filteredList = []; // liste filtrée après recherche/tri
+    // ── Vue toggle ──
+    document.getElementById('btnGrid').addEventListener('click', () => setView('grid'));
+    document.getElementById('btnList').addEventListener('click', () => setView('list'));
 
-	function openAnime(id) {
-	  window.location.href = `anime.html?id=${id}`;
-	}
-	function renderList(list){
-	  grid.innerHTML = '';
-	  if(!list.length){ empty.style.display='block'; return; }
-	  empty.style.display='none';
+    function setView(v) {
+      currentView = v;
+      gridEl.classList.toggle('list-view', v === 'list');
+      document.getElementById('btnGrid').classList.toggle('active', v === 'grid');
+      document.getElementById('btnList').classList.toggle('active', v === 'list');
+    }
 
-	  list.forEach((a, index) => {
-			  const poster = a.img || "icon_animehub.png";
-			  const ratingDisplay = Number.isFinite(a.rating)
-				? a.rating.toFixed(1)
-				: "N/A";
-			  const card = document.createElement('div'); 
-			  card.className = 'card';
-			  card.style.animationDelay = `${index * 0.08}s`; // 0.08s entre chaque carte
-			  card.innerHTML = `
-				<img src="${poster}" alt="${a.title || "Anime"}" class="${a.img ? "" : "fallback-img"}">
-				<div class="card-body">
-				  <div class="meta"><div class="genres">${(a.genre || []).join(' • ')}</div><div class="rating">${ratingDisplay}</div></div>
-				  <div class="title">${a.title}</div>
-				  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-					<div style="color:var(--muted); font-size:13px">${a.year ?? "—"}</div>
-				<div style="display:flex; gap:6px;">
-				  <button class="fav-btn" data-id="${a.id}">${a.fav?'★':'☆'}</button>
-				  <button class="btn" onclick="openAnime(${a.id})">Voir</button>
-				</div>
-			  </div>
-			</div>`;
-		  grid.appendChild(card);
-		});
-	  // Modale et favoris
-	  grid.querySelectorAll('.fav-btn').forEach(b => b.addEventListener('click', e=>{
-		e.stopPropagation(); toggleFavorite(Number(b.dataset.id));
-	  }));
-	}
-	function renderNextBatch() {
-	  const grid = document.getElementById('grid');
-	  if (currentIndex >= filteredList.length) return;
+    // ── Genres ──
+    function refreshGenres() {
+      const genres = new Set(['Tout']);
+      ANIMES.forEach(a => (a.genre || []).forEach(g => genres.add(g)));
+      genreEl.innerHTML = '';
+      genres.forEach(g => {
+        const o = document.createElement('option');
+        o.textContent = o.value = g;
+        genreEl.appendChild(o);
+      });
+      if (genreFromUrl) {
+        const exists = [...genreEl.options].some(opt => opt.value === genreFromUrl);
+        if (exists) genreEl.value = genreFromUrl;
+      }
+    }
 
-	  const nextBatch = filteredList.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
-	  nextBatch.forEach((a, index) => {
-			const poster = a.img || "icon_animehub.png";
-			const ratingDisplay = Number.isFinite(a.rating)
-			  ? a.rating.toFixed(1)
-			  : "N/A";
-			const card = document.createElement('div');
-			card.className = 'card';
-			card.style.animationDelay = `${(currentIndex + index) * 0.08}s`;
-
-			card.innerHTML = `
-			  <img src="${poster}" alt="${a.title || "Anime"}" class="${a.img ? "" : "fallback-img"}">
-			  <div class="card-body">
-				<div class="meta">
-				  <div class="genres">${(a.genre || []).join(' • ')}</div>
-				  <div class="rating">${ratingDisplay}</div>
-				</div>
-			<div id="activeGenre" class="active-genre hidden"></div>
-			<div class="title">
-			  ${a.title}
-			  ${a.likes >= 3 ? `<span class="badge-trending">🔥 Tendance</span>` : ''}
-			</div>
-
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-			  <div style="color:var(--muted); font-size:13px">${a.year ?? "—"}</div>
-
-			  <div style="display:flex; gap:6px; align-items:center;">
-				<button class="fav-btn" data-id="${a.id}">${a.fav ? '★' : '☆'}</button>
-				<button class="btn" onclick="openAnime(${a.id})">Voir</button>
-			  </div>
-			</div>
-		  </div>
-		`;
-
-		grid.appendChild(card);
-	  });
-
-	  currentIndex += ITEMS_PER_LOAD;
-	  
-	  // Afficher message si plus de résultats
-	  empty.style.display = currentIndex >= filteredList.length && filteredList.length === 0 ? 'block' : 'none';
-	}
-	function openModal(a){
-	  modalRoot.innerHTML = `
-		<div class="modal-backdrop" id="backdrop">
-		  <div class="modal">
-			<img src="${a.img}" alt="${a.title}">
-			<div class="info">
-			  <h2 style="margin:0 0 6px">${a.title}</h2>
-			  <div style="color:var(--muted); margin-bottom:10px">
-				${a.genre.join(' • ')} • ${a.year}
-			  </div>
-			  <p style="margin:0 0 12px; line-height:1.5; color:#dbeafe;">
-				${a.summary}
-			  </p>
-			  <div style="display:flex; gap:8px; align-items:center">
-				<div class="rating">${a.rating.toFixed(1)}</div>
-				<button class="close" id="closeModal">Fermer</button>
-			  </div>
-			</div>
-		  </div>
-		</div>
-	  `;
-
-	  modalRoot.style.display = 'block';
-
-	  document.getElementById('closeModal').onclick = closeModal;
-	  document.getElementById('backdrop').onclick = (e) => {
-		if (e.target.id === 'backdrop') closeModal();
-	  };
-	}
-
-	function closeModal(){
-	  modalRoot.style.display = 'none';
-	  modalRoot.innerHTML = '';
-	}
-	// 🔹 ouverture modale via URL (?anime=ID)
-	const params = new URLSearchParams(window.location.search);
-	const animeId = params.get("anime");
-
-	if (animeId) {
-	  const anime = ANIMES.find(a => a.id == animeId);
-	  if (anime && typeof openModal === "function") {
-		openModal(anime);
-
-		// optionnel : nettoyer l'URL
-		window.history.replaceState({}, "", "index.html");
-	  }
-	}
-	function applyFilters() {
-	  const q = searchInput.value.toLowerCase();
-	  const g = genreEl.value;
-	  const s = sortEl.value;
-	  const f = favFilterEl.value;
-
-	  filteredList = ANIMES.filter(a =>
-		(a.title || "").toLowerCase().includes(q)
-	  );
-
-	  // 🔹 FILTRE GENRE (select)
-	  if (g !== 'Tout') {
-		filteredList = filteredList.filter(a => (a.genre || []).includes(g));
-	  }
-
-	  // 🔥 FILTRE GENRE (URL) — AJOUT ICI
-	  if (genreFromUrl) {
-		filteredList = filteredList.filter(a =>
-		  (a.genre || []).includes(genreFromUrl)
-		);
-	  }
-
-	  // 🔹 FAVORIS
-	  if (f === 'fav') {
-		filteredList = filteredList.filter(a => a.fav);
-	  }
-	  if (favFromUrl === "1") {
-	    favFilterEl.value = "fav";
-	  }
-	  
-	  // 🔹 STATUT DE VISIONNAGE
-	  if (statusFilterEl.value !== 'all') {
-		filteredList = filteredList.filter(
-		  a => a.status === statusFilterEl.value
-		);
-	  }
-
-	  // 🔹 TRI
-	  if (s === 'top') {
-		filteredList.sort((a, b) => {
-		  const ratingA = Number.isFinite(a.rating) ? a.rating : -1;
-		  const ratingB = Number.isFinite(b.rating) ? b.rating : -1;
-		  return ratingB - ratingA;
-		});
-	  }
-	  if (s === 'new') filteredList.sort((a, b) => (b.year || 0) - (a.year || 0));
-	  if (s === 'az') filteredList.sort((a, b) => a.title.localeCompare(b.title));
-	  if (s === 'za') filteredList.sort((a, b) => b.title.localeCompare(a.title));
-	  if (s === 'popular') {
-		filteredList.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-	  }
-
-	  // 🔹 RESET AFFICHAGE
-	  currentIndex = 0;
-	  grid.innerHTML = '';
-	  renderNextBatch();
-	}
-	searchInput.addEventListener('input', applyFilters);
-	genreEl.addEventListener('change', () => {
-	  const selected = genreEl.value;
-
-	  if (selected === 'Tout') {
-		genreFromUrl = null;
-		urlParams.delete('genre');
-	  } else {
-		genreFromUrl = selected;
-		urlParams.set('genre', selected);
-	  }
-
-	  const newUrl =
-		window.location.pathname +
-		(urlParams.toString() ? '?' + urlParams.toString() : '');
-
-	  window.history.replaceState({}, '', newUrl);
-
-	  applyFilters();
-	});
-	sortEl.addEventListener('change', applyFilters);
-	favFilterEl.addEventListener('change', applyFilters);
-	statusFilterEl.addEventListener('change', applyFilters);
-	
-	const backToTop = document.getElementById('backToTop');
-	backToTop.classList.add('hide');
-	backToTop.addEventListener('click', () => {
-	  window.scrollTo({ top: 0, behavior: 'smooth' });
-	});
-	window.AnimeHub = { ANIMES, renderList, applyFilters };
-	window.addEventListener('scroll', () => {
-	  if (window.scrollY > 50) {
-		backToTop.classList.add('show');
-		backToTop.classList.remove('hide');
-	  } else {
-		backToTop.classList.add('hide');
-		setTimeout(() => backToTop.classList.remove('show'), 200);
-	  }
-	
-	  if(window.scrollY > 20){
-		document.querySelector('header').classList.add('sticky');
-	  } else {
-		document.querySelector('header').classList.remove('sticky');
-	  }
-
-	  // Infinite scroll
-	  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-		renderNextBatch();
-	  }
-	});
-	const authModal = document.getElementById("authModal");
-	const authTitle = document.getElementById("authTitle");
-	const authSubmit = document.getElementById("authSubmit");
-	const authEmail = document.getElementById("authEmail");
-	const authPassword = document.getElementById("authPassword");
-
-	document.getElementById("authClose").onclick = () => {
-	  authModal.style.display = "none";
-	};
-	document.fonts.ready.then(() => {
-      document.body.classList.remove("fonts-not-loaded");
-    });
-	// Les filtres sont appliqués après chargement Firestore dans onAuthStateChanged.
-	document.getElementById("homeLogo").addEventListener("click", () => {
-	  window.location.href = "index.html";
-	});
-  </script>
-  <script type="module">
-      import { 
-          initializeApp 
-      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-      import {
-	      getAuth, onAuthStateChanged
-	  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-	  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, collection, getDocs, query, where, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-	  
-      const firebaseConfig = {
-          apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
-          authDomain: "animehub-7.firebaseapp.com",
-          projectId: "animehub-7",
-          storageBucket: "animehub-7.firebasestorage.app",
-          messagingSenderId: "159114039206",
-          appId: "1:159114039206:web:0461d676e7ffff25c4c967",
-          measurementId: "G-6K4MB0XQEV"
+    // ── Status label ──
+    function statusBadgeHTML(status) {
+      if (!status) return '';
+      const map = {
+        completed: ['✅ Déjà vu',  'completed'],
+        watching:  ['▶️ En cours', 'watching'],
+        planned:   ['🕒 À voir',   'planned'],
       };
+      const [label, cls] = map[status] || ['', ''];
+      return label ? `<span class="status-badge ${cls}">${label}</span>` : '';
+    }
 
-      const app = initializeApp(firebaseConfig);
-      const userBox = document.getElementById("userBox");
-      const username = document.getElementById("username");
+    // ── Progress bar ──
+    function progressHTML(status) {
+      if (!status) return '';
+      const pct = status === 'completed' ? 100 : status === 'watching' ? 50 : 8;
+      const label = status === 'completed' ? 'Terminé' : status === 'watching' ? 'En cours' : 'Pas commencé';
+      return `
+        <div class="progress-wrap">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="progress-label"><span>${label}</span><span>${pct}%</span></div>
+        </div>`;
+    }
 
-      const openLogin = document.getElementById("openLogin");
-      const openSignup = document.getElementById("openSignup");
-	  const db = getFirestore(app);
-	  const auth = getAuth(app);
-	  const grid = document.getElementById("grid"); // ou le bon id
-	  const notifBadge = document.getElementById("notifBadge");
-	  const notifDropdown = document.getElementById("notifDropdown");
-	  const notifList = document.getElementById("notifList");
-	  const notifEmpty = document.getElementById("notifEmpty");
-	  const notifMarkAllBtn = document.getElementById("notifMarkAllBtn");
-	  const notifCloseBtn = document.getElementById("notifCloseBtn");
-	  const urlParams = new URLSearchParams(window.location.search);
-	  const notifBtn = document.getElementById("notifBtn");
-	  let notifItems = [];
+    // ── Render batch ──
+    function renderNextBatch() {
+      if (currentIndex >= filteredList.length) return;
+      const batch = filteredList.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
 
-	  function setNotifDropdownOpen(isOpen) {
-		notifDropdown.style.display = isOpen ? "block" : "none";
-	  }
-	  
-	  notifBtn.addEventListener("click", (event) => {
-		event.stopPropagation();
-		setNotifDropdownOpen(notifDropdown.style.display === "none");
-	  });
-	  notifDropdown.addEventListener("click", (event) => {
-		event.stopPropagation();
-	  });
-	  notifCloseBtn.addEventListener("click", () => {
-		setNotifDropdownOpen(false);
-	  });
-	  notifMarkAllBtn.addEventListener("click", async (event) => {
-		event.stopPropagation();
-		const unreadItems = notifItems.filter((item) => !item.read);
-		if (!unreadItems.length) return;
-		await Promise.all(
-		  unreadItems.map((item) => updateDoc(doc(db, "notifications", item.id), { read: true }))
-		);
-		notifItems = notifItems.map((item) => ({ ...item, read: true }));
-		renderNotifications();
-	  });
-	  document.addEventListener("click", (event) => {
-		if (!notifBtn.contains(event.target)) {
-		  setNotifDropdownOpen(false);
-		}
-	  });
-	  document.addEventListener("keydown", (event) => {
-		if (event.key === "Escape") {
-		  setNotifDropdownOpen(false);
-		}
-	  });
-	  userBox.addEventListener("click", () => {
-        window.location.href = "profile.html";
+      batch.forEach((a, i) => {
+        const poster = a.img || 'icon_animehub.png';
+        const ratingStr = Number.isFinite(a.rating) ? a.rating.toFixed(1) : '—';
+        const delay = (i * 55);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.animationDelay = `${delay}ms`;
+
+        card.innerHTML = `
+          ${a.likes >= 3 ? '<span class="badge-trending">🔥 Tendance</span>' : ''}
+          <img class="card-poster ${a.img ? '' : 'fallback-img'}" src="${poster}" alt="${a.title || 'Anime'}" loading="lazy">
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-genres">${(a.genre || []).join(' · ')}</span>
+              <span class="card-rating">⭐ ${ratingStr}</span>
+            </div>
+            ${statusBadgeHTML(a.status)}
+            <div class="card-title">${a.title}</div>
+            ${progressHTML(a.status)}
+            <div class="card-actions">
+              <span class="card-year">${a.year ?? '—'}</span>
+              <div style="display:flex;gap:6px;">
+                <button class="fav-btn" data-id="${a.id}" aria-label="Favori">${a.fav ? '★' : '☆'}</button>
+                <button class="btn" onclick="openAnime(${a.id})">Voir</button>
+              </div>
+            </div>
+          </div>`;
+
+        gridEl.appendChild(card);
       });
 
-	  onAuthStateChanged(auth, async (user) => {
-	    if (user) {
-		  if (openLogin) openLogin.style.display = "none";
-		  if (openSignup) openSignup.style.display = "none";
-		  userBox.style.display = "flex";
-		  await loadAnimes();
-		  await loadFavorites();
-		  await loadStatuses();
-		  await loadNotifications(user.uid);;
-		  applyFilters();
-		  try {
-		    const userDocRef = doc(db, "users", user.uid);
-		    const userSnap = await getDoc(userDocRef);
+      currentIndex += ITEMS_PER_LOAD;
+    }
 
-		    if (userSnap.exists()) {
-		      const data = userSnap.data();
-			  username.textContent = data.username || user.email.split("@")[0];
-		    } else {
-			  // Crée le doc Firestore si inexistant (utile pour comptes créés avant Firestore)
-			  const userData = {
-			    username: user.email.split("@")[0],
-			    email: user.email,
-			    favorites: [],
-			    ratings: {}
-			  };
-			  await setDoc(userDocRef, userData);
-			  username.textContent = userData.username;
-		    }
+    function openAnime(id) {
+      window.location.href = `anime.html?id=${id}`;
+    }
 
-		  } catch (err) {
-		    console.error("Erreur récupération Firestore:", err);
-		    username.textContent = user.email.split("@")[0]; // fallback
-		  }
+    // ── Apply filters ──
+    function applyFilters() {
+      const q = searchInput.value.toLowerCase().trim();
+      const g = genreEl.value;
+      const s = sortEl.value;
+      const f = favFilterEl.value;
 
-	    } else {
-		  if (openLogin) openLogin.style.display = "inline-block";
-		  if (openSignup) openSignup.style.display = "inline-block";
-		  userBox.style.display = "none";
-		  if (pageLoader) {
-			pageLoader.style.display = "none";
-			pageLoader.setAttribute("aria-busy", "false");
-		  }
-	    }
-	  });
-	  async function sendNotification(userId, title, message = "") {
-	    try {
-		  await addDoc(collection(db, "notifications"), {
-		    userId: userId,
-		    title: title,
-		    message: message,
-		    read: false,
-		    createdAt: serverTimestamp()
-		  });
-		  await loadNotifications(userId);
-	    } catch (err) {
-		  console.error("Erreur notification:", err);
-	    }
-	  }
+      filteredList = ANIMES.filter(a => (a.title || '').toLowerCase().includes(q));
 
-	  async function toggleFavorite(animeId) {
-	    const user = auth.currentUser;
-	    if (!user) {
-		  alert("Connecte-toi pour ajouter un favori !");
-		  return;
-	   }
+      if (g !== 'Tout') filteredList = filteredList.filter(a => (a.genre || []).includes(g));
+      if (genreFromUrl)  filteredList = filteredList.filter(a => (a.genre || []).includes(genreFromUrl));
+      if (f === 'fav')   filteredList = filteredList.filter(a => a.fav);
+      if (favFromUrl === '1') favFilterEl.value = 'fav';
+      if (statusFilterEl.value !== 'all') filteredList = filteredList.filter(a => a.status === statusFilterEl.value);
 
-	    const anime = ANIMES.find(a => a.id === animeId);
-	    if (!anime) return;
+      if (s === 'top')     filteredList.sort((a,b) => (Number.isFinite(b.rating)?b.rating:-1) - (Number.isFinite(a.rating)?a.rating:-1));
+      if (s === 'new')     filteredList.sort((a,b) => (b.year||0)-(a.year||0));
+      if (s === 'az')      filteredList.sort((a,b) => a.title.localeCompare(b.title));
+      if (s === 'za')      filteredList.sort((a,b) => b.title.localeCompare(a.title));
+      if (s === 'popular') filteredList.sort((a,b) => (b.likes||0)-(a.likes||0));
 
-	    const userRef = doc(db, "users", user.uid);
-	    const animeRef = doc(db, "animes", String(animeId));
+      currentIndex = 0;
+      gridEl.innerHTML = '';
+      emptyEl.style.display = 'none';
 
-	    const wasFav = anime.fav;
-	    anime.fav = !wasFav;
+      if (!filteredList.length) {
+        emptyEl.style.display = 'block';
+        resultCount.innerHTML = '<strong>0</strong> résultat';
+      } else {
+        resultCount.innerHTML = `<strong>${filteredList.length}</strong> anime${filteredList.length > 1 ? 's' : ''}`;
+        renderNextBatch();
+      }
+    }
 
-	    try {
-		  // 🔹 S'assurer que le doc anime existe
-		  const snap = await getDoc(animeRef);
-		  if (!snap.exists()) {
-		    await setDoc(animeRef, { likes: 0 }, { merge: true });
-		  }
+    // Debounce recherche
+    let searchTimer;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(applyFilters, 180);
+    });
 
-		  // 🔹 Mettre à jour les favoris de l'utilisateur
-		  if (!wasFav) {
-		    await updateDoc(userRef, { favorites: arrayUnion(animeId) });
-		    await updateDoc(animeRef, { likes: increment(1) });
-			await sendNotification(user.uid, `Tu as ajouté ${anime.title} à tes favoris !`);
-		  } else {
-		    await updateDoc(userRef, { favorites: arrayRemove(animeId) });
-		    await updateDoc(animeRef, { likes: increment(-1) });
-		  }
-	    } catch (err) {
-		  console.error("Erreur toggleFavorite:", err);
-	    }
-		if (anime.likes === 3) {
-		  sendNotificationToAllUsers(
-			"🔥 Anime tendance",
-			anime.title
-		  );
-		}
+    genreEl.addEventListener('change', () => {
+      genreFromUrl = genreEl.value === 'Tout' ? null : genreEl.value;
+      applyFilters();
+    });
+    sortEl.addEventListener('change', applyFilters);
+    favFilterEl.addEventListener('change', applyFilters);
+    statusFilterEl.addEventListener('change', applyFilters);
 
-	    // 🔹 Mettre à jour l'UI
-	    const btn = document.querySelector(`.fav-btn[data-id="${animeId}"]`);
-	    if (btn) btn.textContent = anime.fav ? "★" : "☆";
-		
-		applyFilters();
-	  }
-	  window.toggleFavorite = toggleFavorite;
+    // ── Scroll ──
+    const backToTop = document.getElementById('backToTop');
+    backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-	  // Favoris
-	  grid.addEventListener('click', e => {
-	   if (e.target.classList.contains('fav-btn')) {
-		  e.stopPropagation();
-		  const id = Number(e.target.dataset.id);
-		  toggleFavorite(id);
-	    }
-	  });
-	  async function loadFavorites() {
-	    const user = auth.currentUser;
-	    if (!user) return;
+    window.addEventListener('scroll', () => {
+      backToTop.classList.toggle('show', window.scrollY > 300);
+      document.getElementById('mainHeader').classList.toggle('sticky', window.scrollY > 20);
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) renderNextBatch();
+    });
 
-	    const userRef = doc(db, "users", user.uid);
-	    const snap = await getDoc(userRef);
+    document.getElementById('homeLogo').addEventListener('click', () => location.href = 'index.html');
+    document.fonts.ready.then(() => document.body.classList.remove('fonts-not-loaded'));
 
-	    if (!snap.exists()) return;
+    window.AnimeHub = { ANIMES, applyFilters };
+  </script>
 
-	    const data = snap.data();
-	    if (!Array.isArray(data.favorites)) return;
+  <!-- ── FIREBASE ── -->
+  <script type="module">
+    import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc,
+      arrayUnion, arrayRemove, increment,
+      collection, getDocs, query, where, orderBy,
+      addDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-	    // 🔥 Synchronisation Firestore → UI
-	    ANIMES.forEach(anime => {
-		  anime.fav = data.favorites.includes(anime.id);
-	    });
-	  }
-	  
-	  async function loadStatuses() {
-	    const user = auth.currentUser;
-	    if (!user) return;
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain: "animehub-7.firebaseapp.com",
+      projectId: "animehub-7",
+      storageBucket: "animehub-7.firebasestorage.app",
+      messagingSenderId: "159114039206",
+      appId: "1:159114039206:web:0461d676e7ffff25c4c967",
+    };
 
-	    const userRef = doc(db, "users", user.uid);
-	    const snap = await getDoc(userRef);
-	    if (!snap.exists()) return;
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-	    const data = snap.data();
-	    const statuses = data.statuses || {};
-	    ANIMES.forEach(anime => {
-		  anime.status = statuses[anime.id] || null;
-	    });
-	  }
-	  
-	  async function loadNotifications(userId) {
-	    const notifCol = collection(db, "notifications");
-	    const q = query(notifCol, where("userId", "==", userId), orderBy("createdAt", "desc"));
-	    const snapshot = await getDocs(q);
-	    notifItems = snapshot.docs.map((docSnap) => ({
-		  id: docSnap.id,
-		  ...docSnap.data()
-		}));
-		renderNotifications();
-	  }
+    const pageLoader     = document.getElementById('pageLoader');
+    const userBox        = document.getElementById('userBox');
+    const usernameEl     = document.getElementById('username');
+    const notifBtn       = document.getElementById('notifBtn');
+    const notifBadge     = document.getElementById('notifBadge');
+    const notifDropdown  = document.getElementById('notifDropdown');
+    const notifList      = document.getElementById('notifList');
+    const notifEmpty     = document.getElementById('notifEmpty');
+    const notifMarkAllBtn= document.getElementById('notifMarkAllBtn');
+    const notifCloseBtn  = document.getElementById('notifCloseBtn');
+    const gridEl         = document.getElementById('grid');
+    const skeletonGrid   = document.getElementById('skeletonGrid');
+    let notifItems = [];
 
-	  function renderNotifications() {
-		notifList.innerHTML = "";
-		let unreadCount = 0;
+    // ── Notifications ──
+    function setDropdown(open) { notifDropdown.style.display = open ? 'block' : 'none'; }
+    notifBtn.addEventListener('click', e => { e.stopPropagation(); setDropdown(notifDropdown.style.display === 'none'); });
+    notifDropdown.addEventListener('click', e => e.stopPropagation());
+    notifCloseBtn.addEventListener('click', () => setDropdown(false));
+    document.addEventListener('click', e => { if (!notifBtn.contains(e.target)) setDropdown(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setDropdown(false); });
 
-		if (!notifItems.length) {
-		  notifEmpty.style.display = "block";
-		} else {
-		  notifEmpty.style.display = "none";
-		}
+    notifMarkAllBtn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const unread = notifItems.filter(n => !n.read);
+      if (!unread.length) return;
+      await Promise.all(unread.map(n => updateDoc(doc(db, 'notifications', n.id), { read: true })));
+      notifItems = notifItems.map(n => ({ ...n, read: true }));
+      renderNotifications();
+    });
 
-		notifItems.forEach((notif) => {
-		  const li = document.createElement("li");
-		  li.className = notif.read ? "" : "unread";
-		  li.innerHTML = `
-		    <strong>${notif.title}</strong><br>
-			<span style="font-size: 0.85em; opacity: 0.8;">${notif.message || ""}</span>
-		  `;
+    async function loadNotifications(uid) {
+      const q = query(collection(db, 'notifications'), where('userId', '==', uid), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      notifItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderNotifications();
+    }
 
-		  if (!notif.read) unreadCount++;
+    function renderNotifications() {
+      notifList.innerHTML = '';
+      let unread = 0;
+      notifEmpty.style.display = notifItems.length ? 'none' : 'block';
+      notifItems.forEach(n => {
+        const li = document.createElement('li');
+        li.className = n.read ? '' : 'unread';
+        li.innerHTML = `<strong>${n.title}</strong><br><span style="font-size:.85em;opacity:.75;">${n.message||''}</span>`;
+        if (!n.read) unread++;
+        li.addEventListener('click', async e => {
+          e.stopPropagation();
+          if (n.read) return;
+          await updateDoc(doc(db, 'notifications', n.id), { read: true });
+          n.read = true; li.classList.remove('unread'); renderNotifications();
+        });
+        notifList.appendChild(li);
+      });
+      notifBadge.textContent = unread;
+      notifBadge.classList.toggle('show', unread > 0);
+    }
 
-		  li.addEventListener("click", async (event) => {
-			event.stopPropagation();
-			if (notif.read) return;
-			await updateDoc(doc(db, "notifications", notif.id), { read: true });
-			notif.read = true;
-			li.classList.remove("unread");
-			renderNotifications();
-		  });
-		
-		  notifList.appendChild(li);
-	    });
-	  
-	    notifBadge.textContent = unreadCount;
-	    if(unreadCount > 0) notifBadge.classList.add("show");
-	    else notifBadge.classList.remove("show");
-	  }
-	async function sendNotificationToAllUsers(title, message = "") {
-	  console.warn("sendNotificationToAllUsers est désactivé côté client. À déplacer côté backend (Cloud Function).", { title, message });
-	  return;
+    // ── Auth ──
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        userBox.style.display = 'none';
+        skeletonGrid.style.display = 'none';
+        pageLoader.style.display = 'none';
+        return;
+      }
 
-	  /*
-	    if (!title) {
-		  console.warn("❌ Notification annulée : title manquant");
-		  return;
-	    }
+      userBox.style.display = 'flex';
 
-	    const usersSnap = await getDocs(collection(db, "users"));
-	    const promises = [];
+      try {
+        const userRef  = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          usernameEl.textContent = userSnap.data().username || user.email.split('@')[0];
+        } else {
+          const userData = { username: user.email.split('@')[0], email: user.email, favorites: [], ratings: {} };
+          await setDoc(userRef, userData);
+          usernameEl.textContent = userData.username;
+        }
+      } catch(e) {
+        usernameEl.textContent = user.email.split('@')[0];
+      }
 
-	    usersSnap.forEach(userDoc => {
-		  promises.push(
-		    addDoc(collection(db, "notifications"), {
-			  userId: userDoc.id,
-			  title: title,
-			  message: message,
-			  read: false,
-			  createdAt: serverTimestamp()
-		    })
-		  );
-	    });
+      await loadAnimes();
+      await loadFavorites();
+      await loadStatuses();
+      await loadNotifications(user.uid);
+      applyFilters();
+    });
 
-	    await Promise.all(promises);
-	    console.log("✅ Notification envoyée à tous les utilisateurs");
-	  */
-	  }
+    // ── Load animes ──
+    async function loadAnimes() {
+      const snap = await getDocs(collection(db, 'animes'));
+      const animes = snap.docs.map(d => {
+        const data = d.data();
+        const anilistScore = Number.isFinite(data.anilistScore) ? data.anilistScore / 10 : null;
+        return {
+          id: Number(d.id),
+          title: data.title,
+          genre: data.genre || [],
+          img: data.img || 'icon_animehub.png',
+          rating: Number.isFinite(data.avgRating) ? data.avgRating : anilistScore,
+          likes: data.likes || 0,
+          year: data.seasonYear || data.year || null,
+          summary: data.summary || '',
+          fav: false, status: null,
+        };
+      });
 
-	  async function sendSiteUpdateNotification(version, message) {
-	    console.warn("sendSiteUpdateNotification est désactivé côté client. À déplacer côté backend (Cloud Function).", { version, message });
-	    return;
+      ANIMES.splice(0, ANIMES.length, ...animes);
+      window.AnimeHub = { ANIMES, applyFilters };
+      refreshGenres();
 
-	    /*
-	    const metaRef = doc(db, "meta", "lastSiteUpdate");
-	    const snap = await getDoc(metaRef);
- 
-	    // Empêche d'envoyer 2 fois la même mise à jour
-	    if (snap.exists() && snap.data().version === version) return;
+      // Cacher skeleton, montrer grille
+      skeletonGrid.style.display = 'none';
+      gridEl.style.display = 'grid';
 
-	    const usersSnap = await getDocs(collection(db, "users"));
+      pageLoader.classList.add('hidden');
+      setTimeout(() => pageLoader.style.display = 'none', 400);
+    }
 
-	    const promises = [];
-	    usersSnap.forEach(userDoc => {
-	  	  promises.push(
-		    addDoc(collection(db, "notifications"), {
-			  userId: userDoc.id,
-			  title: `🚀 Mise à jour du site (${version})`,
-			  message: message,
-			  read: false,
-			  createdAt: serverTimestamp()
-		    })
-		  );
-	    });
+    // ── Favorites ──
+    async function loadFavorites() {
+      const user = auth.currentUser;
+      if (!user) return;
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!snap.exists()) return;
+      const favs = snap.data().favorites || [];
+      ANIMES.forEach(a => { a.fav = favs.includes(a.id); });
+    }
 
-	    await Promise.all(promises);
+    async function loadStatuses() {
+      const user = auth.currentUser;
+      if (!user) return;
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!snap.exists()) return;
+      const statuses = snap.data().statuses || {};
+      ANIMES.forEach(a => { a.status = statuses[a.id] || null; });
+    }
 
-	    await setDoc(metaRef, {
-		  version,
-		  createdAt: serverTimestamp()
-	    });
+    async function sendNotification(uid, title, message = '') {
+      try {
+        await addDoc(collection(db, 'notifications'), { userId: uid, title, message, read: false, createdAt: serverTimestamp() });
+        await loadNotifications(uid);
+      } catch(e) { console.error(e); }
+    }
 
-	    console.log("✅ Notification de mise à jour envoyée");
-	    */
-	  }
-	  async function notifyNewAnimeOnce(animeId, animeTitle) {
-	    console.warn("notifyNewAnimeOnce est désactivé côté client. À déplacer côté backend (Cloud Function).", { animeId, animeTitle });
-	    return;
+    async function toggleFavorite(animeId) {
+      const user = auth.currentUser;
+      if (!user) { alert('Connecte-toi pour ajouter un favori !'); return; }
+      const anime = ANIMES.find(a => a.id === animeId);
+      if (!anime) return;
 
-	    /*
-	    const metaRef = doc(db, "meta", `anime_${animeId}`);
-	    const snap = await getDoc(metaRef);
+      const userRef  = doc(db, 'users', user.uid);
+      const animeRef = doc(db, 'animes', String(animeId));
+      const wasFav   = anime.fav;
+      anime.fav = !wasFav;
 
-	    // ⛔ Déjà notifié → on stop
-	    if (snap.exists()) return;
+      try {
+        const snap = await getDoc(animeRef);
+        if (!snap.exists()) await setDoc(animeRef, { likes: 0 }, { merge: true });
+        if (!wasFav) {
+          await updateDoc(userRef, { favorites: arrayUnion(animeId) });
+          await updateDoc(animeRef, { likes: increment(1) });
+          await sendNotification(user.uid, `Tu as ajouté ${anime.title} à tes favoris !`);
+        } else {
+          await updateDoc(userRef, { favorites: arrayRemove(animeId) });
+          await updateDoc(animeRef, { likes: increment(-1) });
+        }
+      } catch(e) { console.error(e); }
 
-	    const usersSnap = await getDocs(collection(db, "users"));
+      const btn = gridEl.querySelector(`.fav-btn[data-id="${animeId}"]`);
+      if (btn) btn.textContent = anime.fav ? '★' : '☆';
+      applyFilters();
+    }
 
-	    const promises = [];
-	    usersSnap.forEach(userDoc => {
-		  promises.push(
-		    addDoc(collection(db, "notifications"), {
-			  userId: userDoc.id,
-			  title: "🆕 Nouvel anime ajouté",
-			  message: animeTitle,
-			  read: false,
-			  createdAt: serverTimestamp()
-		    })
-	  	  );
-	    });
-
-	    await Promise.all(promises);
-
-	    // 🔒 Marque cet anime comme "déjà notifié"
-	    await setDoc(metaRef, {
-		  animeId,
-		  animeTitle,
-		  createdAt: serverTimestamp()
-	    });
-
-	    console.log(`✅ Notification envoyée pour l'anime : ${animeTitle}`);
-        */
-	  }
-	  async function loadAnimes() {
-	    const animesCol = collection(db, "animes");
-	    const snapshot = await getDocs(animesCol);
-
-	    const animes = snapshot.docs.map(docSnap => {
-		  const data = docSnap.data();
-		  const anilistScore = Number.isFinite(data.anilistScore)
-			? data.anilistScore / 10
-			: null;
-		  const rating = Number.isFinite(data.avgRating)
-			? data.avgRating
-			: anilistScore;
-		  return {
-		    id: Number(docSnap.id),
-		    title: data.title,
-		    genre: data.genre || [],
-		    img: data.img || "icon_animehub.png",
-		    rating,
-		    likes: data.likes || 0,
-		    year: data.seasonYear || data.year || null,
-		    summary: data.summary || "",
-		    timeline: data.timeline || [],
-		    fav: false
-		  };
-	    });
-		
-		if (typeof ANIMES !== "undefined") {
-		  ANIMES.splice(0, ANIMES.length, ...animes);
-		  window.AnimeHub = { ANIMES, renderList, applyFilters };
-		  refreshGenres();
-		}
-		
-	    const grid = document.getElementById('grid');
-	    const loading = document.getElementById('loading');
-
-	    loading.style.display = "none";
-	    grid.style.display = "grid";
-		if (pageLoader) {
-		  pageLoader.style.display = "none";
-		  pageLoader.setAttribute("aria-busy", "false");
-		}
-	  }
-	  // notifications ponctuelles gérées côté backend si besoin
+    window.toggleFavorite = toggleFavorite;
+    gridEl.addEventListener('click', e => {
+      if (e.target.classList.contains('fav-btn')) {
+        e.stopPropagation();
+        toggleFavorite(Number(e.target.dataset.id));
+      }
+    });
   </script>
 </body>
 </html>
