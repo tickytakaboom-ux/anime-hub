@@ -1,188 +1,270 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AnimeQuiz - Select</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnimeQuiz – Sélection</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
 
-<style>
-:root {
-  --blue-dark: #0b1220;
-  --blue-main: #061226;
-  --blue-light: #1e3a5f;
-  --blue-accent: #3b82f6;
-  --text-main: #e5e7eb;
-  --text-muted: #9ca3af;
-  --bg-card: #f4f4f4;
-  --text-card: #000;
-}
+    :root {
+      --bg:#0b1220; --bg2:#061226;
+      --card:rgba(13,22,40,0.88); --card-border:rgba(255,255,255,0.07);
+      --accent:#06b6d4; --accent2:#3b82f6;
+      --muted:#7e8fa8; --text:#e6eef6; --radius:16px;
+    }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(160deg, var(--blue-dark), var(--blue-main));
-  font-family: Inter, sans-serif;
-  color: var(--text-main);
-  display: flex;
-  justify-content: center;
-}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-main {
-  width: 100%;
-  max-width: 520px;
-  padding: 40px 20px;
-}
+    body {
+      font-family: 'DM Sans', ui-sans-serif, system-ui;
+      background: linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text); min-height: 100vh;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
 
-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
+    canvas {
+      position: fixed; top: 0; left: 0;
+      z-index: 0; opacity: .3; pointer-events: none;
+    }
 
-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 800;
-}
+    /* ── HEADER ── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,18,32,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo-text {
+      font-family: 'Mochiy Pop One','Syne',sans-serif; font-size: 1.4rem; cursor: pointer;
+      background: linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hbtn {
+      padding: 8px 14px; border-radius: 10px;
+      border: 1px solid var(--card-border); background: rgba(255,255,255,.05);
+      color: var(--text); font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background .2s, border-color .2s, transform .15s;
+      display: flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .hbtn:hover { background: rgba(6,182,212,.1); border-color: rgba(6,182,212,.4); transform: translateY(-1px); }
 
-header p {
-  margin-top: 8px;
-  color: var(--text-muted);
-}
+    /* ── PAGE ── */
+    .page {
+      position: relative; z-index: 1;
+      max-width: 580px; margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
 
-.quiz-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+    /* ── HERO ── */
+    .page-hero {
+      text-align: center; margin-bottom: 32px;
+      animation: fadeUp .5s ease both;
+    }
+    .page-hero h1 {
+      font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 900;
+      background: linear-gradient(90deg, var(--text), rgba(230,238,246,.6));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .page-hero p { font-size: 14px; color: var(--muted); }
 
-.quiz-item {
-  background: var(--bg-card);
-  color: var(--text-card);
-  border-radius: 16px;
-  padding: 18px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-}
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
 
-.quiz-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(255,255,255,0.35);
-}
+    /* ── CARD ── */
+    .card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.35);
+      animation: fadeUp .45s ease both;
+    }
 
-.quiz-title {
-  font-weight: 700;
-}
+    /* ── QUIZ LIST ── */
+    .quiz-list { display: flex; flex-direction: column; gap: 8px; }
 
-.quiz-play {
-  color: var(--blue-dark);
-  font-weight: 700;
-}
+    .quiz-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 18px; border-radius: 12px;
+      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
+      cursor: pointer; gap: 12px;
+      transition: background .2s, border-color .2s, transform .2s;
+      position: relative; overflow: hidden;
+      animation: fadeUp .4s ease both;
+    }
+    .quiz-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--accent);
+      opacity: 0; transition: opacity .2s;
+    }
+    .quiz-item:hover { background: rgba(6,182,212,.07); border-color: rgba(6,182,212,.3); transform: translateX(4px); }
+    .quiz-item:hover::before { opacity: 1; }
 
-.back {
-  margin-top: 30px;
-  text-align: center;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-.back:hover {
-  text-decoration: underline;
-}
+    .quiz-item-left { display: flex; align-items: center; gap: 12px; }
+    .quiz-num {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(6,182,212,.12); border: 1px solid rgba(6,182,212,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 900;
+      color: var(--accent);
+    }
+    .quiz-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+    .quiz-arrow { color: var(--accent); font-size: 13px; opacity: .7; transition: opacity .2s, transform .2s; }
+    .quiz-item:hover .quiz-arrow { opacity: 1; transform: translateX(3px); }
 
-</style>
+    /* ── BACK ── */
+    .back-btn {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 20px; padding: 10px 16px; border-radius: 12px;
+      border: 1px solid var(--card-border); background: rgba(255,255,255,.04);
+      color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background .2s, color .2s, border-color .2s;
+      width: fit-content;
+    }
+    .back-btn:hover { background: rgba(255,255,255,.07); color: var(--text); border-color: rgba(255,255,255,.15); }
+
+    /* ── ERROR ── */
+    .error-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .error-state h2 { font-family: 'Syne', sans-serif; font-size: 1.2rem; margin-bottom: 8px; color: var(--text); }
+
+    @media (max-width: 500px) {
+      header { padding: 12px 16px; }
+      .page { padding: 24px 14px 60px; }
+      .page-hero h1 { font-size: 1.5rem; }
+    }
+
+    @font-face {
+      font-family: 'Mochiy Pop One';
+      src: url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display: swap;
+    }
+  </style>
 </head>
-
 <body>
 
-<main>
+  <canvas id="stars"></canvas>
 
   <header>
-    <h1 id="title">Choisis ton quiz</h1>
-    <p id="desc"></p>
+    <span class="logo-text" id="homeLogo">AnimeHub</span>
+    <a class="hbtn" href="animequiz.html"><i class="fa-solid fa-arrow-left"></i> Quiz</a>
   </header>
 
-  <section class="quiz-list" id="quizList"></section>
-
-  <div class="back" onclick="location.href='animequiz.html'">
-    ← Retour aux catégories
+  <div class="page" id="page">
+    <!-- rempli par JS -->
   </div>
 
-</main>
+  <script>
+    /* ── Particles ── */
+    const canvas = document.getElementById('stars'), ctx = canvas.getContext('2d');
+    let w, h, pts;
+    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    function init() {
+      pts = Array.from({length:60}, () => ({
+        x:Math.random()*w, y:Math.random()*h,
+        r:Math.random()*1.3+.3, dx:(Math.random()-.5)*.3, dy:(Math.random()-.5)*.3
+      }));
+    }
+    function draw() {
+      ctx.clearRect(0,0,w,h);
+      for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
+      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+        const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}
+      }
+      for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
+      requestAnimationFrame(draw);
+    }
+    resize(); init(); draw();
+    window.addEventListener('resize', ()=>{resize();init();});
 
-<script>
-const quizGroups = {
-  qcu: {
-    title: "✅ QCU",
-    desc: "Testes tes connaissances sur les animes",
-    quizzes: [
-	  { id: "general", name: "General" },
-      { id: "onepiece", name: "One Piece" },
-      { id: "aot", name: "Attack on Titan" },
-      { id: "jjk", name: "Jujutsu Kaisen" },
-      { id: "naruto", name: "Naruto" }
-    ]
-  },
+    document.getElementById('homeLogo').addEventListener('click', ()=>location.href='index.html');
 
-  seinen: {
-    title: "🧠 Seinen",
-    desc: "Histoires matures et psychologiques",
-    quizzes: [
-      { id: "deathnote", name: "Death Note" },
-      { id: "monster", name: "Monster" }
-    ]
-  },
-
-  classiques: {
-    title: "📼 Classiques",
-    desc: "Les piliers de l’histoire de l’animation japonaise",
-    quizzes: [
-      { id: "dbz", name: "Dragon Ball Z" },
-      { id: "pokemon", name: "Pokémon" }
-    ]
-  },
-
-  personnages: {
-    title: "🎭 Personnages",
-    desc: "Reconnais les figures emblématiques",
-    quizzes: [
-      { id: "luffy", name: "Monkey D. Luffy" },
-      { id: "eren", name: "Eren Yeager" }
-    ]
-  }
-};
-
-const params = new URLSearchParams(window.location.search);
-const group = params.get("group");
-
-const container = document.getElementById("quizList");
-const titleEl = document.getElementById("title");
-const descEl = document.getElementById("desc");
-
-if (!quizGroups[group]) {
-  titleEl.textContent = "Catégorie introuvable 😢";
-  descEl.textContent = "";
-} else {
-  const data = quizGroups[group];
-  titleEl.textContent = data.title;
-  descEl.textContent = data.desc;
-
-  data.quizzes.forEach(q => {
-    const div = document.createElement("div");
-    div.className = "quiz-item";
-    div.innerHTML = `
-      <div class="quiz-title">${q.name}</div>
-      <div class="quiz-play">Jouer →</div>
-    `;
-    div.onclick = () => {
-      window.location.href = `play.html?quiz=${q.id}`;
+    /* ── Données quiz ── */
+    const quizGroups = {
+      qcu: {
+        title: "✅ QCU",
+        desc: "Teste tes connaissances sur les animes",
+        quizzes: [
+          { id:"general",   name:"🎌 Général" },
+          { id:"onepiece",  name:"🏴‍☠️ One Piece" },
+          { id:"aot",       name:"⚔️ Attack on Titan" },
+          { id:"jjk",       name:"🔥 Jujutsu Kaisen" },
+          { id:"hxh",       name:"🎯 Hunter X Hunter" },
+          { id:"naruto",    name:"🍃 Naruto" },
+        ]
+      },
+      seinen: {
+        title: "🧠 Seinen",
+        desc: "Histoires matures et psychologiques",
+        quizzes: [
+          { id:"deathnote", name:"📓 Death Note" },
+          { id:"monster",   name:"👁️ Monster" },
+        ]
+      },
+      classiques: {
+        title: "📼 Classiques",
+        desc: "Les piliers de l'histoire de l'animation japonaise",
+        quizzes: [
+          { id:"dbz",     name:"💥 Dragon Ball Z" },
+          { id:"pokemon", name:"⚡ Pokémon" },
+        ]
+      },
+      personnages: {
+        title: "🎭 Personnages",
+        desc: "Reconnais les figures emblématiques",
+        quizzes: [
+          { id:"luffy", name:"🏴‍☠️ Monkey D. Luffy" },
+          { id:"eren",  name:"⚔️ Eren Yeager" },
+        ]
+      }
     };
-    container.appendChild(div);
-  });
-}
-</script>
+
+    const params = new URLSearchParams(window.location.search);
+    const group  = params.get('group');
+    const page   = document.getElementById('page');
+
+    if (!quizGroups[group]) {
+      page.innerHTML = `
+        <div class="error-state">
+          <h2>Catégorie introuvable 😢</h2>
+          <p>Cette catégorie n'existe pas ou a été supprimée.</p>
+        </div>
+        <button class="back-btn" onclick="location.href='animequiz.html'">
+          <i class="fa-solid fa-arrow-left"></i> Retour
+        </button>`;
+    } else {
+      const data = quizGroups[group];
+
+      page.innerHTML = `
+        <div class="page-hero">
+          <h1>${data.title}</h1>
+          <p>${data.desc}</p>
+        </div>
+        <div class="card">
+          <div class="quiz-list" id="quizList"></div>
+        </div>
+        <button class="back-btn" onclick="location.href='animequiz.html'">
+          <i class="fa-solid fa-arrow-left"></i> Retour aux catégories
+        </button>`;
+
+      const list = document.getElementById('quizList');
+      data.quizzes.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'quiz-item';
+        div.style.animationDelay = `${i * 0.06}s`;
+        div.innerHTML = `
+          <div class="quiz-item-left">
+            <div class="quiz-num">${String(i+1).padStart(2,'0')}</div>
+            <div class="quiz-name">${q.name}</div>
+          </div>
+          <span class="quiz-arrow">→</span>`;
+        div.addEventListener('click', () => location.href = `play.html?quiz=${q.id}&group=${group}`);
+        list.appendChild(div);
+      });
+    }
+  </script>
 </body>
 </html>
