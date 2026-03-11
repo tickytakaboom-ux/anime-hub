@@ -1,426 +1,571 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AnimeQuiz - Play</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnimeQuiz – Play</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
 
-<style>
-:root {
-  --bg: #0f172a;
-  --card: #111827;
-  --primary: #2563eb;
-  --good: #22c55e;
-  --bad: #ef4444;
-  --text: #e5e7eb;
-}
+    :root {
+      --bg:#0b1220; --bg2:#061226;
+      --card:rgba(13,22,40,0.88); --card-border:rgba(255,255,255,0.07);
+      --accent:#06b6d4; --accent2:#3b82f6;
+      --muted:#7e8fa8; --text:#e6eef6; --radius:16px;
+      --good:#22c55e; --bad:#ef4444;
+    }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(180deg,#0b1220 0%, #061226 100%);
-  font-family: Inter, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--text);
-}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.quiz-container {
-  background: var(--card);
-  width: 90%;
-  max-width: 520px;
-  padding: 32px;
-  border-radius: 18px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-}
+    body {
+      font-family: 'DM Sans', ui-sans-serif, system-ui;
+      background: linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text); min-height: 100vh;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+      display: flex; flex-direction: column;
+    }
 
-.quiz-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  font-weight: 600;
-}
+    canvas { position: fixed; top:0; left:0; z-index:0; opacity:.3; pointer-events:none; }
 
-.question {
-  font-size: 1.2rem;
-  margin-bottom: 24px;
-}
+    /* ── HEADER ── */
+    header {
+      position: sticky; top:0; z-index:100;
+      background: rgba(11,18,32,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo-text {
+      font-family: 'Mochiy Pop One','Syne',sans-serif; font-size:1.4rem; cursor:pointer;
+      background: linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .hbtn {
+      padding: 8px 14px; border-radius:10px;
+      border: 1px solid var(--card-border); background: rgba(255,255,255,.05);
+      color: var(--text); font-family:inherit; font-size:13px; font-weight:700;
+      cursor:pointer; transition: background .2s, border-color .2s, transform .15s;
+      display:flex; align-items:center; gap:6px; text-decoration:none;
+    }
+    .hbtn:hover { background: rgba(6,182,212,.1); border-color: rgba(6,182,212,.4); transform: translateY(-1px); }
 
-.answers {
-  display: grid;
-  gap: 14px;
-}
+    /* ── PAGE ── */
+    .page {
+      position:relative; z-index:1; flex:1;
+      display:flex; align-items:center; justify-content:center;
+      padding: 32px 20px 60px;
+    }
 
-.answer {
-  background: #020617;
-  border: 2px solid transparent;
-  padding: 14px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: 0.2s;
-}
+    /* ── CARD ── */
+    .card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--radius); padding: 28px 26px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.5);
+      width: 100%; max-width: 520px;
+      animation: fadeUp .45s ease both;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
 
-.answer:hover {
-  border-color: var(--primary);
-}
+    /* ── PROGRESS ── */
+    .progress-wrap { margin-bottom: 18px; }
+    .progress-info {
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:12px; color:var(--muted); font-weight:700; margin-bottom:8px;
+      text-transform:uppercase; letter-spacing:.04em;
+    }
+    .progress-bar-bg { height:5px; border-radius:999px; background:rgba(255,255,255,.07); overflow:hidden; }
+    .progress-bar-fill {
+      height:100%; border-radius:999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width .5s ease;
+    }
 
-.answer.good {
-  background: rgba(34,197,94,0.2);
-  border-color: var(--good);
-}
+    /* ── SCORE ROW ── */
+    .score-row { display:flex; gap:10px; margin-bottom:18px; }
+    .score-chip {
+      flex:1; padding:9px 10px; border-radius:12px; text-align:center;
+      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
+    }
+    .score-chip-value { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:900; color:var(--accent); }
+    .score-chip-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
 
-.answer.bad {
-  background: rgba(239,68,68,0.2);
-  border-color: var(--bad);
-}
+    /* ── QUESTION ── */
+    .question-box {
+      background: rgba(6,182,212,.07); border: 1px solid rgba(6,182,212,.2);
+      border-radius:14px; padding:18px 16px; text-align:center;
+      margin-bottom:18px; min-height:70px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .question-text { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; line-height:1.4; }
 
-.answer.disabled {
-  pointer-events: none;
-  opacity: 0.6;
-}
+    /* ── ANSWERS ── */
+    .answers { display:flex; flex-direction:column; gap:9px; }
+    .answer {
+      padding: 13px 16px; border-radius:12px;
+      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
+      cursor:pointer; font-size:14px; font-weight:500;
+      transition: background .15s, border-color .15s, transform .15s;
+      display:flex; align-items:center; gap:10px;
+    }
+    .answer-letter {
+      width:26px; height:26px; border-radius:8px; flex-shrink:0;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Syne',sans-serif; font-size:12px; font-weight:900;
+      color:var(--muted); transition: background .15s, color .15s;
+    }
+    .answer:hover:not(.disabled) { background: rgba(6,182,212,.08); border-color: rgba(6,182,212,.3); transform: translateX(3px); }
+    .answer:hover:not(.disabled) .answer-letter { background: rgba(6,182,212,.2); color: var(--accent); }
 
-.next-btn {
-  margin-top: 24px;
-  width: 100%;
-  padding: 14px;
-  background: var(--primary);
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-  display: none;
-}
+    .answer.good { background: rgba(34,197,94,.1); border-color: var(--good); }
+    .answer.good .answer-letter { background: rgba(34,197,94,.2); color: var(--good); border-color: var(--good); }
+    .answer.bad  { background: rgba(239,68,68,.1);  border-color: var(--bad);  }
+    .answer.bad  .answer-letter { background: rgba(239,68,68,.2);  color: var(--bad);  border-color: var(--bad); }
+    .answer.disabled { pointer-events:none; opacity:.65; }
 
-.next-btn:hover {
-  filter: brightness(1.1);
-}
-#homeBtn {
-  background: #020617;
-  border: 2px solid var(--primary);
-  display: none;
-}
+    /* ── NEXT BTN ── */
+    .next-btn {
+      margin-top:16px; width:100%; padding:13px; border-radius:12px; border:none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#052226; font-family:inherit; font-size:15px; font-weight:700;
+      cursor:pointer; display:none;
+      transition: transform .15s, filter .15s, box-shadow .15s;
+      box-shadow: 0 4px 16px rgba(6,182,212,.3);
+    }
+    .next-btn:hover { transform: translateY(-2px); filter:brightness(1.05); box-shadow: 0 8px 24px rgba(6,182,212,.45); }
 
-</style>
+    /* ── RESULT ── */
+    .result-box { text-align:center; animation: fadeUp .4s ease both; }
+    .result-emoji { font-size:3rem; margin-bottom:12px; display:block; }
+    .result-title { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:900; margin-bottom:8px; }
+    .result-sub { font-size:14px; color:var(--muted); margin-bottom:20px; }
+    .result-stats { display:flex; gap:10px; margin-bottom:24px; }
+    .result-stat { flex:1; padding:12px; border-radius:12px; text-align:center; background:rgba(255,255,255,.04); border:1px solid var(--card-border); }
+    .result-stat-value { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:900; color:var(--accent); }
+    .result-stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
+    .result-btns { display:flex; flex-direction:column; gap:8px; }
+    .btn-primary {
+      padding:12px; border-radius:12px; border:none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color:#052226; font-family:inherit; font-size:14px; font-weight:700;
+      cursor:pointer; transition: transform .15s, filter .15s;
+    }
+    .btn-primary:hover { transform:translateY(-2px); filter:brightness(1.05); }
+    .btn-ghost {
+      padding:12px; border-radius:12px;
+      border:1px solid var(--card-border); background:transparent;
+      color:var(--muted); font-family:inherit; font-size:14px; font-weight:700;
+      cursor:pointer; transition: background .2s, color .2s;
+    }
+    .btn-ghost:hover { background:rgba(255,255,255,.06); color:var(--text); }
+    .saving { font-size:12px; color:var(--muted); text-align:center; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .saving i { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── ERROR ── */
+    .error-state { text-align:center; padding:40px 20px; }
+    .error-state h2 { font-family:'Syne',sans-serif; font-size:1.3rem; margin-bottom:8px; }
+    .error-state p { color:var(--muted); font-size:14px; margin-bottom:20px; }
+
+    @media (max-width:500px) {
+      header { padding:12px 16px; }
+      .card { padding:20px 16px; }
+    }
+
+    @font-face {
+      font-family:'Mochiy Pop One';
+      src:url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display:swap;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="quiz-container">
-  <div class="quiz-header">
-    <div id="progress">Question 1</div>
-    <div id="score">Score : 0</div>
+  <canvas id="stars"></canvas>
+
+  <header>
+    <span class="logo-text" id="homeLogo">AnimeHub</span>
+    <a class="hbtn" href="animequiz.html"><i class="fa-solid fa-arrow-left"></i> Quiz</a>
+  </header>
+
+  <div class="page">
+    <div class="card" id="quizCard">
+      <!-- Rempli par JS -->
+    </div>
   </div>
 
-  <div class="question" id="question"></div>
-
-  <div class="answers" id="answers"></div>
-
-  <button class="next-btn" id="nextBtn">Question suivante</button>
-  <button class="next-btn" id="homeBtn">Retour à l’accueil</button>
-</div>
-
-<script>
-
-const quizzes = {
-  onepiece: [
-	{
-      question: "Quelle est la profession de Zoro dans l'équipage de Luffy ?",
-      answers: ["Navigateur", "Médecin", "Cuisinier", "Epéiste"],
-      correct: 3
-    },
-	{
-      question: "Quel est le nom du second bateau de l'équipage de Luffy ?",
-      answers: ["Red Sunny", "Vogue Merry", "Thousand Sunny", "Red Merry"],
-      correct: 2
-    },
-	{
-      question: "Comment s'appelle le premier Grand Corsaire que Luffy a affronté ?",
-      answers: ["Crocodile", "Doflamingo", "Moria", "Mihawk"],
-      correct: 0
-    },
-	{
-      question: "Quel est le nom de l'île natale de Luffy ?",
-      answers: ["Kuraigana", "Jaya", "Dawn", "Little East Blue"],
-      correct: 2
-    },
-	{
-      question: "Combien d'Amiraux sont présents simultanément ?",
-      answers: ["8", "7", "3", "4"],
-      correct: 2
-    },
-	{
-      question: "Quel est le nom du continent situé au centre de Grand Line ?",
-      answers: ["Red Line", "Mary Geoise", "East Blue", "Center Island"],
-      correct: 0
-    },
-	{
-      question: "Que fait Zoro lors de sa rencontre avec Tashigi ?",
-      answers: ["Lui fait un croche pied", "Rigole d'elle", "Vole ses sabres", "Casse ses lunettes"],
-      correct: 3
-    },
-	{
-      question: "Quel plat Sanji a-t-il préparé pour Gin lors de leur première rencontre ?",
-      answers: ["Risotto au fruit de mer", "Nouilles au poulet", "Soupe de poulet", "Calamar frit"],
-      correct: 0
-    },
-	{
-      question: "Quel personnage a réussi à s'échapper de Impel Down en se tranchant les jambes ?",
-      answers: ["Shiki le tigre", "Shiki le géant", "Shiki le lion d'or", "Shiki le singe"],
-      correct: 2
-    },
-	{
-      question: "Quelle est la position de Charlotte Galette parmi les enfants de Big Mom",
-      answers: ["11", "15", "18", "21"],
-      correct: 2
+  <script>
+    /* ── Particles ── */
+    const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+    let w,h,pts;
+    function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+    function init(){pts=Array.from({length:60},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.3+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3}));}
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
+      for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}}
+      for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
+      requestAnimationFrame(draw);
     }
-  ],
+    resize();init();draw();
+    window.addEventListener('resize',()=>{resize();init();});
+    document.getElementById('homeLogo').addEventListener('click',()=>location.href='index.html');
+  </script>
 
-  aot: [
-    {
-      question: "Qui est le personnage principal de l'Attaque Des Titans ?",
-      answers: ["Livai Ackerman", "Eren Jäger", "Armin Arlert"],
-      correct: 1
-    },
-	{
-      question: "Quel branche militaire est spécialisé dans les combats de Titans ?",
-      answers: ["Bataillon d'exploration", "Police militaire", "Régiment de garnison"],
-      correct: 0
-    },
-	{
-      question: "Quel personnage est connu comme le Titan Bestial ?",
-      answers: ["Livai Ackerman", "Sieg Jäger", "Kenny Ackerman"],
-      correct: 1
-    },
-	{
-      question: "Qui se transforme en Titan Femelle ?",
-      answers: ["Annie Leonhart", "Mikasa Ackerman", "Sasha Braus"],
-      correct: 0
-    },
-	{
-      question: "Qui est le possesseur originel du Titan Assaillant avant Eren",
-      answers: ["Erwin Smith", "Kenny Ackerman", "Grisha Jäger"],
-      correct: 2
-    },
-	{
-      question: "Quelle est la caractéristique qui définit Armin ?",
-      answers: ["Force", "Intelligence", "Courage"],
-      correct: 1
-    },
-	{
-      question: "Qui est le commandant guerrier Mahr qui a élevé Reiner, Annie et Bertholdt ?",
-      answers: ["Willy Tybur", "Theo Magath", "Commandant Mahr"],
-      correct: 1
-    },
-	{
-      question: "Qui est le premier possesseur d'un Titan dans l'histoire ?",
-      answers: ["Ymir Fritz", "King Fritz", "Willy Tybur"],
-      correct: 0
-    },
-	{
-      question: "Quel est la capacité protectrice de la famille Ackerman ?",
-      answers: ["Instinct de capitaine", "Fléau des Titans", "Lien des Ackerman"],
-      correct: 2
-    },
-	{
-      question: "De quel matériau sont faites les armes du Titan Marteau ?",
-      answers: ["Fer", "Chair de Titan endurci", "Crystal de glace éclaté"],
-      correct: 1
-    },
-  ],
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-  jjk: [
-    {
-      question: "Comment nomme-t-on les entités créées à partir des émotions négatives des humains ?",
-      answers: ["Ayakashi", "Alter Ego", "Fléau", "Bijus"],
-      correct: 2
-    },
-	{
-      question: "Quelles parties du corps de Sukuna sont éparpillées dans divers endroits du Japon ?",
-      answers: ["Ses doigts", "Ses orteils", "Ses doigts et orteils", "Ses ongles"],
-      correct: 0
-    },
-	{
-      question: "Itadori développe une technique propre à lui-même qui s'appelle...",
-      answers: ["Rayon Noir", "Résonance", "Technique de l'Intervalle", "Amaterasu"],
-      correct: 2
-    },
-	{
-      question: "Kento Nanami possède une technique lui permettant de visualiser une découpe du corps de son adversaire, nommée...",
-      answers: ["Technique de l'Intervalle", "Sort de Division par 10", "7 sur 7", "9-1-1"],
-      correct: 1
-    },
-	{
-      question: "Quel leurre Mai Zenin utilise-t-elle en combat ?",
-      answers: ["Elle se fait passer pour sa jumelle", "Elle a une autre arme que son revolver", "Elle utilise un six-coups qui en a en réalité 7", "Elle peut utiliser Résonance"],
-      correct: 2
-    },
-	{
-      question: "Quel est le nom de l'adolescent que Mahito manipule après avoir tué sa mère ?",
-      answers: ["Junpei Yoshino", "Megumi Fushigoro", "Yuta Okkotsu", "Toge Inumaki"],
-      correct: 0
-    },
-	{
-      question: "Comment se nomme le sceau autour de la bouche de Toge Inumaki ?",
-      answers: ["Serpent et Crocs", "Lion et Tigre", "Loup et Chien", "Renard et Serpent"],
-      correct: 0
-    },
-	{
-      question: "Qui considère Itadori comme son Besto Friendo ?",
-      answers: ["Satoru Gojo", "Aoi Todo", "Megumi Fushigoro", "Nobara Kugisaki"],
-      correct: 1
-    },
-	{
-      question: "Un Rayon Noir est produit lorsque l'individu applique de l'énergie occulte dans un intervalle de...",
-      answers: ["0,000001 secondes", "0,1 secondes", "0,02 secondes", "0,5 secondes"],
-      correct: 0
-    },
-	{
-      question: "Sukuna est aussi surnommé...",
-      answers: ["Sukunouille", "Le Roi des Fléaux", "Le Maître Des Fléaux", "Le Duc Des Fléaux"],
-      correct: 1
-    },
-  ],
+    const app = initializeApp({
+      apiKey:"AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain:"animehub-7.firebaseapp.com",
+      projectId:"animehub-7",
+      storageBucket:"animehub-7.firebasestorage.app",
+      messagingSenderId:"159114039206",
+      appId:"1:159114039206:web:0461d676e7ffff25c4c967",
+    });
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    let currentUser = null;
+    onAuthStateChanged(auth, u => { currentUser = u; });
 
-  naruto: [
-    {
-      question: "Qui est le 7e Hokage ?",
-      answers: ["Minato", "Kakashi", "Naruto", "Sasuke"],
-      correct: 2
+    /* ══════════════════════════════════════════
+       BANQUE DE QUESTIONS
+    ══════════════════════════════════════════ */
+    const quizzes = {
+
+      general: [
+        { question:"Qui est le capitaine de l'équipage du Chapeau de Paille ?", answers:["Roronoa Zoro","Monkey D. Luffy","Shanks","Nami"], correct:1 },
+        { question:"Quel est le sort inné de Satoru Gojo ?", answers:["L'Infini","Le Feu Noir","L'Œil Divin","La Résonance"], correct:0 },
+        { question:"Comment s'appelle le premier démon vaincu par Tanjiro ?", answers:["Gyutaro","Kyogai","Démon du Temple","Nezuko"], correct:2 },
+        { question:"Qui est le protagoniste principal de DanDaDan ?", answers:["Okarun","Jin","Momo","Ken"], correct:0 },
+        { question:"Qui est le premier pilier à mourir dans Demon Slayer ?", answers:["Muichiro Tokito","Kyojuro Rengoku","Mitsuri Kanroji","Gyomei Himejima"], correct:1 },
+        { question:"Qui est le premier démon que Muzan a transformé ?", answers:["Akaza","Doma","Kokushibo","Tamayo"], correct:2 },
+        { question:"Qui a infligé la première blessure mortelle à Meruem ?", answers:["Netero","Gon","Killua","Morel"], correct:0 },
+        { question:"Qui est le seul survivant de l'équipe de Gin dans Bleach ?", answers:["Rangiku Matsumoto","Kira Izuru","Shuuhei Hisagi","Momo Hinamori"], correct:1 },
+        { question:"Qui a tué le plus de Titans en combat seul ?", answers:["Livai Ackerman","Mikasa Ackerman","Erwin Smith","Hange Zoë"], correct:0 },
+        { question:"Qui est le premier détenteur du One For All ?", answers:["Nana Shimura","Yoichi Shigaraki","Gran Torino","All Might"], correct:1 },
+      ],
+
+      onepiece: [
+        { question:"Quelle est la profession de Zoro dans l'équipage de Luffy ?", answers:["Navigateur","Médecin","Cuisinier","Épéiste"], correct:3 },
+        { question:"Quel est le nom du second bateau de l'équipage de Luffy ?", answers:["Red Sunny","Vogue Merry","Thousand Sunny","Red Merry"], correct:2 },
+        { question:"Comment s'appelle le premier Grand Corsaire que Luffy a affronté ?", answers:["Crocodile","Doflamingo","Moria","Mihawk"], correct:0 },
+        { question:"Quel est le nom de l'île natale de Luffy ?", answers:["Kuraigana","Jaya","Dawn","Little East Blue"], correct:2 },
+        { question:"Combien d'Amiraux sont présents simultanément ?", answers:["8","7","3","4"], correct:2 },
+        { question:"Quel est le nom du continent situé au centre de Grand Line ?", answers:["Red Line","Mary Geoise","East Blue","Center Island"], correct:0 },
+        { question:"Que fait Zoro lors de sa rencontre avec Tashigi ?", answers:["Lui fait un croche-pied","Rigole d'elle","Vole ses sabres","Casse ses lunettes"], correct:3 },
+        { question:"Quel plat Sanji a-t-il préparé pour Gin lors de leur première rencontre ?", answers:["Risotto aux fruits de mer","Nouilles au poulet","Soupe de poulet","Calamar frit"], correct:0 },
+        { question:"Quel personnage a réussi à s'échapper d'Impel Down en se tranchant les jambes ?", answers:["Shiki le tigre","Shiki le géant","Shiki le lion d'or","Shiki le singe"], correct:2 },
+        { question:"Quelle est la position de Charlotte Galette parmi les enfants de Big Mom ?", answers:["11e","15e","18e","21e"], correct:2 },
+      ],
+
+      aot: [
+        { question:"Qui est le personnage principal de L'Attaque des Titans ?", answers:["Livai Ackerman","Eren Jäger","Armin Arlert","Mikasa Ackerman"], correct:1 },
+        { question:"Quelle branche militaire est spécialisée dans les combats de Titans ?", answers:["Bataillon d'exploration","Police militaire","Régiment de garnison","Légion de reconnaissance"], correct:0 },
+        { question:"Quel personnage est connu comme le Titan Bestial ?", answers:["Livai Ackerman","Sieg Jäger","Kenny Ackerman","Reiner Braun"], correct:1 },
+        { question:"Qui se transforme en Titan Femelle ?", answers:["Annie Leonhart","Mikasa Ackerman","Sasha Braus","Historia Reiss"], correct:0 },
+        { question:"Qui est le possesseur originel du Titan Assaillant avant Eren ?", answers:["Erwin Smith","Kenny Ackerman","Grisha Jäger","Dina Fritz"], correct:2 },
+        { question:"Quelle est la caractéristique principale d'Armin ?", answers:["Force","Intelligence","Courage","Endurance"], correct:1 },
+        { question:"Qui est le commandant guerrier Mahr ayant élevé Reiner, Annie et Bertholdt ?", answers:["Willy Tybur","Theo Magath","Zeke Jäger","Colt Grice"], correct:1 },
+        { question:"Qui est le premier possesseur d'un Titan dans l'histoire ?", answers:["Ymir Fritz","King Fritz","Willy Tybur","Frieda Reiss"], correct:0 },
+        { question:"Quelle est la capacité protectrice de la famille Ackerman ?", answers:["Instinct de capitaine","Fléau des Titans","Lien des Ackerman","Mémoire des ancêtres"], correct:2 },
+        { question:"De quel matériau sont faites les armes du Titan Marteau ?", answers:["Fer","Chair de Titan endurci","Cristal de glace","Os solidifié"], correct:1 },
+      ],
+
+      jjk: [
+        { question:"Comment nomme-t-on les entités créées à partir des émotions négatives ?", answers:["Ayakashi","Alter Ego","Fléau","Bijus"], correct:2 },
+        { question:"Quelles parties du corps de Sukuna sont éparpillées dans le Japon ?", answers:["Ses doigts","Ses orteils","Ses doigts et orteils","Ses ongles"], correct:0 },
+        { question:"Comment s'appelle la technique propre à Itadori ?", answers:["Rayon Noir","Résonance","Technique de l'Intervalle","Amaterasu"], correct:2 },
+        { question:"Quel est le nom de la technique de Nanami pour visualiser une découpe du corps ?", answers:["Technique de l'Intervalle","Sort de Division par 10","7 sur 7","9-1-1"], correct:1 },
+        { question:"Quel leurre Mai Zenin utilise-t-elle en combat ?", answers:["Elle se fait passer pour Maki","Elle a une arme cachée","Un six-coups avec 7 balles","Elle peut utiliser Résonance"], correct:2 },
+        { question:"Quel est le nom de l'adolescent manipulé par Mahito après la mort de sa mère ?", answers:["Junpei Yoshino","Megumi Fushigoro","Yuta Okkotsu","Toge Inumaki"], correct:0 },
+        { question:"Comment se nomme le sceau autour de la bouche de Toge Inumaki ?", answers:["Serpent et Crocs","Lion et Tigre","Loup et Chien","Renard et Serpent"], correct:0 },
+        { question:"Qui considère Itadori comme son Besto Friendo ?", answers:["Satoru Gojo","Aoi Todo","Megumi Fushigoro","Nobara Kugisaki"], correct:1 },
+        { question:"Un Rayon Noir est produit lorsqu'on applique de l'énergie occulte en combien de temps ?", answers:["0,000001 secondes","0,1 secondes","0,02 secondes","0,5 secondes"], correct:0 },
+        { question:"Sukuna est aussi surnommé...", answers:["Sukunouille","Le Roi des Fléaux","Le Maître des Fléaux","Le Duc des Fléaux"], correct:1 },
+      ],
+
+      hxh: [
+        { question:"Quel est le système de capacités utilisé dans HxH ?", answers:["Chakra","Nen","Reiatsu","Haki"], correct:1 },
+        { question:"Quelle est la catégorie de Nen de Gon ?", answers:["Émetteur","Transmuteur","Amplificateur","Conjurateur"], correct:2 },
+        { question:"Qui est le président de l'Association des Chasseurs ?", answers:["Netero","Leorio","Cheadle","Pariston"], correct:0 },
+        { question:"Quel est le vœu de Killua dans son combat contre Illumi ?", answers:["Protéger Gon","Quitter la famille Zoldyck","Devenir Chasseur","Tuer Hisoka"], correct:1 },
+        { question:"Comment s'appelle l'attaque signature de Hisoka ?", answers:["Bungee Gum","Elastic Love","Rubber Nen","Aura Stretch"], correct:0 },
+        { question:"Qui est le chef des Phantomhive dans HxH ?", answers:["Chrollo Lucilfer","Hisoka","Feitan","Machi"], correct:0 },
+        { question:"Quel est le nom de l'arc avec le jeu vidéo dans HxH ?", answers:["York New","Greed Island","Chimera Ant","Heaven's Arena"], correct:1 },
+        { question:"Quelle est l'origine de Gon ?", answers:["Whale Island","Kukuroo Mountain","Yorknew City","Meteor City"], correct:0 },
+        { question:"Qui est le père biologique de Gon ?", answers:["Kite","Ging Freecss","Netero","Isaac"], correct:1 },
+        { question:"Quel examen Gon passe-t-il au début de la série ?", answers:["Examen Nen","Examen Chasseur","Tournoi Heavens Arena","Combat de rue"], correct:1 },
+      ],
+
+      naruto: [
+        { question:"Qui est le 7e Hokage ?", answers:["Minato","Kakashi","Naruto","Sasuke"], correct:2 },
+        { question:"Quel est le bijuu scellé en Naruto ?", answers:["Neuf Queues","Huit Queues","Cinq Queues","Six Queues"], correct:0 },
+        { question:"Qui est le sensei de l'équipe 7 ?", answers:["Jiraya","Guy","Kakashi","Asuma"], correct:2 },
+        { question:"Comment s'appelle la technique emblématique de Naruto ?", answers:["Chidori","Rasengan","Kage Bunshin","Sexy No Jutsu"], correct:1 },
+        { question:"Qui a tué Itachi Uchiha en combat direct ?", answers:["Sasuke","Naruto","Kakashi","Madara"], correct:0 },
+        { question:"Quel village est associé au symbole du sable ?", answers:["Konoha","Suna","Kiri","Kumo"], correct:1 },
+        { question:"Qui est le leader de l'Akatsuki ?", answers:["Itachi","Kisame","Pain","Madara"], correct:2 },
+        { question:"Quel est le Kekkei Genkai du clan Uchiha ?", answers:["Byakugan","Sharingan","Rinnegan","Jōgan"], correct:1 },
+        { question:"Comment s'appelle le père de Naruto ?", answers:["Hiruzen Sarutobi","Jiraiya","Minato Namikaze","Fugaku Uchiha"], correct:2 },
+        { question:"Quel est le nom du village de Naruto ?", answers:["Kirigakure","Konohagakure","Sunagakure","Kumogakure"], correct:1 },
+      ],
+
+      deathnote: [
+        { question:"Comment s'appelle le dieu de la mort qui laisse tomber son carnet ?", answers:["Rem","Ryuk","Gelus","Sidoh"], correct:1 },
+        { question:"Quel est le vrai nom de L ?", answers:["Lawliet","Beyond Birthday","Nate River","Mihael Keehl"], correct:0 },
+        { question:"Quel aliment L mange-t-il constamment ?", answers:["Des chips","Des sucreries","Du chocolat","Des gâteaux"], correct:1 },
+        { question:"Comment Light utilise-t-il le carnet pour avoir un alibi ?", answers:["Il le cache dans un coffre","Mécanisme de destruction automatique","Il le confie à Ryuk","Il le brûle"], correct:1 },
+        { question:"Qui est Misa Amane dans la série ?", answers:["L'enquêtrice principale","La 2e propriétaire d'un Death Note","La sœur de Light","Une agente du gouvernement"], correct:1 },
+        { question:"Quel est le nom du successeur de L ?", answers:["Near","Mello","Matt","Roger"], correct:0 },
+        { question:"Comment Light meurt-il à la fin ?", answers:["Tué par Near","Tué par Ryuk","Arrêté et emprisonné","Se suicide"], correct:1 },
+        { question:"Quelle règle du Death Note dit que la personne mourra d'une crise cardiaque par défaut ?", answers:["Règle 1","Règle 2","Règle de base","Règle de mort naturelle"], correct:2 },
+        { question:"Quel est le vrai nom de Kira ?", answers:["L Lawliet","Light Yagami","Teru Mikami","Mello"], correct:1 },
+        { question:"Quelle chaîne de TV Kira utilise-t-il pour faire ses annonces ?", answers:["NHK","Sakura TV","Fuji TV","TV Asahi"], correct:1 },
+      ],
+
+      monster: [
+        { question:"Quel est le nom du médecin protagoniste dans Monster ?", answers:["Johan Liebert","Kenzo Tenma","Heinrich Lunge","Wolfgang Grimmer"], correct:1 },
+        { question:"Comment s'appelle le 'monstre' de la série ?", answers:["Franz Bonaparta","Johan Liebert","Roberto","Peter Capek"], correct:1 },
+        { question:"Dans quelle ville Tenma sauve-t-il Johan enfant ?", answers:["Berlin","Düsseldorf","Munich","Cologne"], correct:1 },
+        { question:"Quelle est la profession de Lunge ?", answers:["Médecin","Inspecteur de police","Journaliste","Avocat"], correct:1 },
+        { question:"Comment s'appelle la sœur jumelle de Johan ?", answers:["Eva Heinemann","Nina Fortner","Anna Liebert","Dieter"], correct:1 },
+        { question:"Quel livre joue un rôle central dans l'histoire de Monster ?", answers:["Le Conte de la Forêt Noire","The Monster Without a Name","Le Livre sans Nom","L'Histoire du Monstre"], correct:1 },
+        { question:"Qui est Franz Bonaparta ?", answers:["Un ancien médecin nazi","Le créateur du programme d'éducation des enfants","Un inspecteur de police","Le père de Johan"], correct:1 },
+        { question:"Quel pays est principalement le décor de Monster ?", answers:["Autriche","Allemagne","République Tchèque","Pologne"], correct:1 },
+        { question:"Comment Tenma est-il perçu par la police ?", answers:["Comme un héros","Comme un suspect de meurtre","Comme un collaborateur","Comme un fugitif politique"], correct:1 },
+        { question:"Quelle décision de Tenma déclenche toute l'intrigue de Monster ?", answers:["Il refuse d'opérer un politicien","Il choisit d'opérer Johan plutôt qu'un maire","Il vole des médicaments","Il s'enfuit d'Allemagne"], correct:1 },
+      ],
+
+      dbz: [
+        { question:"Comment s'appelle la transformation emblématique des Saiyans ?", answers:["Super Namek","Super Saiyan","Ultra Instinct","Kaioken"], correct:1 },
+        { question:"Qui est le père de Gohan ?", answers:["Vegeta","Piccolo","Goku","Raditz"], correct:2 },
+        { question:"Quelle planète est la planète natale des Saiyans ?", answers:["Namek","Végéta","Kanassa","Arlia"], correct:1 },
+        { question:"Quel est le nom de l'attaque signature de Goku ?", answers:["Final Flash","Kamehameha","Galick Gun","Spirit Bomb"], correct:1 },
+        { question:"Qui a tué Krillin sur l'île artificielle, déclenchant la transformation SSJ de Goku ?", answers:["Cell","Beerus","Freezer","Buu"], correct:2 },
+        { question:"Quel personnage est connu pour son Galick Gun ?", answers:["Nappa","Goku","Vegeta","Broly"], correct:2 },
+        { question:"Comment s'appelle la fusion entre Goku et Vegeta via les boucles d'oreilles ?", answers:["Gogeta","Vegito","Gotenks","Gohan"], correct:1 },
+        { question:"Quel dragon exauce les vœux sur la planète Namek ?", answers:["Shenron","Porunga","Super Shenron","Black Smoke Shenron"], correct:1 },
+        { question:"Quel est le niveau de puissance maximum de Raditz ?", answers:["800","1200","1500","920"], correct:3 },
+        { question:"Comment s'appelle le dieu de la destruction dans DBZ Battle of Gods ?", answers:["Whis","Beerus","Champa","Grand Priest"], correct:1 },
+      ],
+
+      pokemon: [
+        { question:"Quel est le Pokémon de départ Feu de la première génération ?", answers:["Salamèche","Bulbizarre","Carapuce","Évoli"], correct:0 },
+        { question:"Comment s'appelle le rival d'Ash dans la série animée originale ?", answers:["Gary","Brock","Misty","Ondine"], correct:0 },
+        { question:"Quel est le numéro de Mewtwo dans le Pokédex ?", answers:["149","150","151","152"], correct:1 },
+        { question:"Quelle est la ville de départ d'Ash dans l'anime ?", answers:["Bourg Palette","Jadielle","Argenta","Azuria"], correct:0 },
+        { question:"Quel Pokémon est surnommé le Pokémon Légendaire Oiseau de Feu ?", answers:["Artikodin","Électhor","Sulfura","Moltres"], correct:2 },
+        { question:"Combien y a-t-il de Pokémon de la génération 1 ?", answers:["149","150","151","152"], correct:2 },
+        { question:"Quel type est Aquali (Vaporeon en anglais) ?", answers:["Glace","Eau","Normal","Psy"], correct:1 },
+        { question:"Qui est le Champion de la Ligue Pokémon dans la 1ère génération ?", answers:["Pierre","Jacques","Lance","Blue/Gary"], correct:3 },
+        { question:"Quel objet fait évoluer Pikachu en Raichu ?", answers:["Pierre Lune","Pierre Tonnerre","Pierre Feu","Pierre Eau"], correct:1 },
+        { question:"Comment s'appelle la Team antagoniste de la 1ère génération ?", answers:["Team Magma","Team Aqua","Team Rocket","Team Galactique"], correct:2 },
+      ],
+
+      luffy: [
+        { question:"Quel est le rêve de Monkey D. Luffy ?", answers:["Devenir le plus fort","Trouver le One Piece","Devenir Roi des Pirates","Protéger ses amis"], correct:2 },
+        { question:"Quel Fruit du Démon a mangé Luffy ?", answers:["Gomu Gomu no Mi","Mera Mera no Mi","Gura Gura no Mi","Ope Ope no Mi"], correct:0 },
+        { question:"Qui est le mentor pirate de Luffy ?", answers:["Barbe Blanche","Dragon","Shanks","Garp"], correct:2 },
+        { question:"Comment s'appelle la technique Gear Fourth de Luffy ?", answers:["Bounce Man","Tank Man","Snake Man","King Kong Gun"], correct:0 },
+        { question:"Qui est le grand-père de Luffy ?", answers:["Dragon","Barbe Blanche","Garp","Shanks"], correct:2 },
+        { question:"Quel est le vrai nom du Fruit Gomu Gomu no Mi ?", answers:["Hito Hito no Mi modèle Nika","Gomu Gomu no Mi","Rubber Rubber Fruit","Nika no Mi"], correct:0 },
+        { question:"Qui a sauvé Luffy à Marineford au péril de sa vie ?", answers:["Zoro","Ace","Barbe Blanche","Jinbe"], correct:3 },
+        { question:"Quel est le surnom donné à Luffy par les journaux après Enies Lobby ?", answers:["Chapeau de Paille","L'homme aux 100 millions","Le Pirate Caoutchouc","La Menace des Marines"], correct:1 },
+        { question:"Comment s'appelle la technique de Luffy utilisant l'Haki des Rois ?", answers:["Conqueror's Haki Burst","Thunder Bagua","Bajrang Gun","Red Roc"], correct:2 },
+        { question:"Dans quel arc Luffy utilise-t-il Gear Second pour la première fois ?", answers:["Water Seven","Enies Lobby","Thriller Bark","Impel Down"], correct:1 },
+      ],
+
+      eren: [
+        { question:"Dans quel quartier Eren grandit-il ?", answers:["Sina","Rose","Shiganshina","Maria"], correct:2 },
+        { question:"Quel Titan Eren possède-t-il en premier ?", answers:["Titan Bestial","Titan Assaillant","Titan Cuirassé","Titan Colossal"], correct:1 },
+        { question:"Qui est la mère d'Eren ?", answers:["Historia","Carla Jäger","Dina Fritz","Sasha"], correct:1 },
+        { question:"Quel est le but final d'Eren dans la série ?", answers:["Détruire les Titans","Libérer Paradis","Exterminer les Marleyens","Déclencher le Grand Fracas"], correct:3 },
+        { question:"Comment Eren active-t-il sa transformation en Titan pour la première fois sans le savoir ?", answers:["En se blessant","En mangeant un Titan","En touchant un mur","En criant"], correct:0 },
+        { question:"Qui est le premier Titan Assaillant avant Grisha Jäger ?", answers:["Ymir Fritz","Kruger (Owens)","Dina Fritz","Zeke"], correct:1 },
+        { question:"Quelle est la durée de vie des porteurs de Titan Organique ?", answers:["10 ans","13 ans","15 ans","20 ans"], correct:1 },
+        { question:"Quel personnage révèle à Eren la vérité sur le monde au sous-sol ?", answers:["Armin","Hange","Levi","Grisha via ses mémoires"], correct:3 },
+        { question:"Quel Titan Eren dévore-t-il pour acquérir le Titan Marteau ?", answers:["Lara Tybur","Annie","Pieck","Porco Galliard"], correct:0 },
+        { question:"Comment s'appelle le pouvoir qui permet à Eren de voir le futur ?", answers:["Pouvoir des Ancêtres","Chemin","Mémoire des Titans","Vision du Titan Assaillant"], correct:0 },
+      ],
+    };
+
+    /* ══════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════ */
+    const params  = new URLSearchParams(window.location.search);
+    const quizId  = params.get('quiz')  || 'general';
+    const group   = params.get('group') || 'qcu';
+    const card    = document.getElementById('quizCard');
+
+    const questions = quizzes[quizId];
+    const LETTERS   = ['A','B','C','D'];
+
+    if (!questions || !questions.length) {
+      card.innerHTML = `
+        <div class="error-state">
+          <h2>Quiz introuvable 😢</h2>
+          <p>Ce quiz n'existe pas encore.</p>
+          <button class="btn-primary" onclick="location.href='animequiz.html'">← Retour</button>
+        </div>`;
+    } else {
+      runQuiz(questions);
     }
-  ],
 
-  general: [
-    {
-      question: "Qui est le capitaine de l'équipage du Chapeau de Paille ?",
-      answers: ["Roronoa Zoro", "Monkey D. Luffy", "Shanks"],
-      correct: 1
-    },
-	{
-      question: "Quel est le sort inné de Satoru Gojo ?",
-      answers: ["L'infini", "Le Feu Noir", "L'Oeil Divin"],
-      correct: 0
-    },
-	{
-      question: "Comment s'appelle le premier démon vaincu par Tanjiro ?",
-      answers: ["Gyutaro", "Kyogai", "Démon du Temple"],
-      correct: 2
-    },
-	{
-      question: "Qui est le protagoniste principal de DanDaDan ?",
-      answers: ["Okarun", "Jin", "Momo"],
-      correct: 0
-    },
-	{
-      question: "Qui est le premier pilier à mourir dans Demon Slayer ?",
-      answers: ["Muichiro Tokito", "Kyojuro Rengoku", "Mitsuri Kanroji"],
-      correct: 1
-    },
-	{
-      question: "Qui est le premier démon que Muzan a transformé ?",
-      answers: ["Akaza", "Doma", "Kokushibo"],
-      correct: 2
-    },
-	{
-      question: "Qui a infligé la première blessure mortelle à Meruem ?",
-      answers: ["Netero", "Gon", "Killua"],
-      correct: 0
-    },
-	{
-      question: "Qui est le seul survivant de l'équipe de Gin dans Bleach ?",
-      answers: ["Rangiku Matsumoto", "Kira Izuru", "Shuuhei Hisagi"],
-      correct: 1
-    },
-	{
-      question: "Qui a tué le plus de Titans en combat seul ?",
-      answers: ["Livai Ackerman", "Mikasa Ackerman", "Erwin Smith"],
-      correct: 0
-    },
-	{
-      question: "Qui est le premier détenteur du One For All ?",
-      answers: ["Nana Shimura", "Yoichi Shigaraki", "Gran Torino"],
-      correct: 1
-    },
-  ]
-};
+    function runQuiz(qs) {
+      const TOTAL   = qs.length;
+      let current   = 0;
+      let score     = 0;
+      let correct   = 0;
+      let streak    = 0;
 
-const params = new URLSearchParams(window.location.search);
-const quizId = params.get("quiz") || "general";
+      function updateProgress() {
+        const pct = Math.round((current / TOTAL) * 100);
+        document.getElementById('progressText').textContent = `Question ${current + 1} / ${TOTAL}`;
+        document.getElementById('progressPct').textContent  = `${pct}%`;
+        document.getElementById('progressFill').style.width = `${pct}%`;
+      }
 
-const questions = quizzes[quizId];
+      function renderQuestion() {
+        const q = qs[current];
+        document.getElementById('questionText').textContent = q.question;
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('scoreVal').textContent  = score;
+        document.getElementById('streakVal').textContent = `${streak}🔥`;
+        document.getElementById('correctVal').textContent = correct;
+        updateProgress();
 
-if (!questions) {
-  document.querySelector(".quiz-container").innerHTML =
-    "<p>Quiz introuvable 😢</p>";
-  throw new Error("Quiz introuvable");
-}
+        const answersEl = document.getElementById('answersEl');
+        answersEl.innerHTML = '';
+        q.answers.forEach((text, i) => {
+          const div = document.createElement('div');
+          div.className = 'answer';
+          div.innerHTML = `<div class="answer-letter">${LETTERS[i]}</div><span>${text}</span>`;
+          div.addEventListener('click', () => selectAnswer(div, i));
+          answersEl.appendChild(div);
+        });
+      }
 
-let current = 0;
-let score = 0;
+      function selectAnswer(el, index) {
+        const correctIndex = qs[current].correct;
+        const allAnswers   = document.querySelectorAll('.answer');
+        allAnswers.forEach(a => a.classList.add('disabled'));
 
-const questionEl = document.getElementById("question");
-const answersEl = document.getElementById("answers");
-const scoreEl = document.getElementById("score");
-const progressEl = document.getElementById("progress");
-const nextBtn = document.getElementById("nextBtn");
-const container = document.getElementById("quizList");
-const questions1 = quizzes[quizId];
+        if (index === correctIndex) {
+          el.classList.add('good');
+          streak++;
+          correct++;
+          const bonus = streak >= 5 ? 5 : streak >= 3 ? 2 : 0;
+          score += 10 + bonus;
+        } else {
+          el.classList.add('bad');
+          allAnswers[correctIndex].classList.add('good');
+          streak = 0;
+        }
 
-function loadQuestion() {
-  const q = questions[current];
-  questionEl.textContent = q.question;
-  answersEl.innerHTML = "";
-  nextBtn.style.display = "none";
-  progressEl.textContent = `Question ${current + 1}`;
+        document.getElementById('scoreVal').textContent   = score;
+        document.getElementById('streakVal').textContent  = `${streak}🔥`;
+        document.getElementById('correctVal').textContent = correct;
+        document.getElementById('nextBtn').style.display  = 'block';
+      }
 
-  q.answers.forEach((text, index) => {
-    const div = document.createElement("div");
-    div.className = "answer";
-    div.textContent = text;
-    div.onclick = () => selectAnswer(div, index);
-    answersEl.appendChild(div);
-  });
-}
+      /* ── Rendu de la structure ── */
+      card.innerHTML = `
+        <div class="progress-wrap">
+          <div class="progress-info">
+            <span id="progressText">Question 1 / ${TOTAL}</span>
+            <span id="progressPct">0%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-chip"><div class="score-chip-value" id="scoreVal">0</div><div class="score-chip-label">Score</div></div>
+          <div class="score-chip"><div class="score-chip-value" id="streakVal">0🔥</div><div class="score-chip-label">Série</div></div>
+          <div class="score-chip"><div class="score-chip-value" id="correctVal">0</div><div class="score-chip-label">Corrects</div></div>
+        </div>
+        <div class="question-box"><div class="question-text" id="questionText"></div></div>
+        <div class="answers" id="answersEl"></div>
+        <button class="next-btn" id="nextBtn">Question suivante →</button>`;
 
-function selectAnswer(element, index) {
-  const correctIndex = questions[current].correct;
-  const answers = document.querySelectorAll(".answer");
+      document.getElementById('nextBtn').addEventListener('click', () => {
+        current++;
+        if (current < TOTAL) {
+          renderQuestion();
+        } else {
+          showResult(score, correct, TOTAL);
+        }
+      });
 
-  answers.forEach(a => a.classList.add("disabled"));
+      renderQuestion();
+    }
 
-  if (index === correctIndex) {
-    element.classList.add("good");
-    score++;
-    scoreEl.textContent = `Score : ${score}`;
-  } else {
-    element.classList.add("bad");
-    answers[correctIndex].classList.add("good");
-  }
+    /* ── Sauvegarde Firestore ── */
+    async function saveStats(score, correct, total) {
+      if (!currentUser) return;
+      const userRef = doc(db, 'users', currentUser.uid);
+      try {
+        const snap = await getDoc(userRef);
+        const data = snap.data() || {};
+        const prevBest    = data.quizStats?.bestScore                       ?? 0;
+        const prevCatBest = data.quizStats?.byCategory?.[group]?.bestScore  ?? 0;
 
-  nextBtn.style.display = "block";
-}
+        const updates = {
+          'quizStats.totalPlayed':                              increment(1),
+          'quizStats.totalCorrect':                            increment(correct),
+          'quizStats.totalAnswered':                           increment(total),
+          [`quizStats.byCategory.${group}.played`]:           increment(1),
+          [`quizStats.byCategory.${group}.totalCorrect`]:     increment(correct),
+          [`quizStats.byCategory.${group}.totalAnswered`]:    increment(total),
+        };
+        if (score > prevBest)    updates['quizStats.bestScore'] = score;
+        if (score > prevCatBest) updates[`quizStats.byCategory.${group}.bestScore`] = score;
 
-nextBtn.onclick = () => {
-  current++;
-  if (current < questions.length) {
-    loadQuestion();
-  } else {
-  questionEl.textContent = "Quiz terminé 🎉";
-  answersEl.innerHTML = "";
-  nextBtn.style.display = "none";
-  progressEl.textContent = "Fin";
+        await updateDoc(userRef, updates);
+      } catch(e) {
+        await setDoc(userRef, {
+          quizStats: {
+            totalPlayed:1, totalCorrect:correct, totalAnswered:total, bestScore:score,
+            byCategory: { [group]:{ played:1, totalCorrect:correct, totalAnswered:total, bestScore:score } }
+          }
+        }, { merge:true });
+      }
+    }
 
-  const homeBtn = document.getElementById("homeBtn");
-  homeBtn.style.display = "block";
-  homeBtn.onclick = () => {
-    window.location.href = "animequiz.html";
-  };
-}
-}
-loadQuestion();
-</script>
+    /* ── Écran résultat ── */
+    async function showResult(score, correct, total) {
+      const accuracy = Math.round((correct / total) * 100);
+      const emoji = accuracy===100?'🏆':accuracy>=70?'🎉':accuracy>=40?'😤':'💀';
+      const title = accuracy===100?'Parfait !':accuracy>=70?'Bien joué !':accuracy>=40?'Pas mal…':'Retente ta chance';
+      const sub   = accuracy===100?'Tu as tout trouvé, respect !':`${correct} bonne${correct>1?'s':''} réponse${correct>1?'s':''} sur ${total}`;
 
+      card.innerHTML = `
+        <div class="result-box">
+          <span class="result-emoji">${emoji}</span>
+          <div class="result-title">${title}</div>
+          <div class="result-sub">${sub}</div>
+          <div class="result-stats">
+            <div class="result-stat"><div class="result-stat-value">${score}</div><div class="result-stat-label">Score</div></div>
+            <div class="result-stat"><div class="result-stat-value">${accuracy}%</div><div class="result-stat-label">Précision</div></div>
+            <div class="result-stat"><div class="result-stat-value">${correct}/${total}</div><div class="result-stat-label">Corrects</div></div>
+          </div>
+          <div class="result-btns">
+            <button class="btn-primary" onclick="location.reload()">🔄 Rejouer</button>
+            <button class="btn-ghost" onclick="location.href='select.html?group=${group}'">← Autres quiz</button>
+          </div>
+          <div class="saving" id="savingIndicator">
+            <i class="fa-solid fa-circle-notch"></i> Sauvegarde en cours…
+          </div>
+        </div>`;
+
+      await saveStats(score, correct, total);
+      const si = document.getElementById('savingIndicator');
+      if (si) si.innerHTML = '<i class="fa-solid fa-check" style="color:#4ade80"></i> Score sauvegardé !';
+    }
+  </script>
 </body>
 </html>
