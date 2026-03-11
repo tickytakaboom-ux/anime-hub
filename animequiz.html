@@ -476,7 +476,7 @@
             const correct  = quiz.totalCorrect  ?? 0;
             const total    = quiz.totalAnswered ?? 0;
             played   = quiz.totalPlayed ?? 0;
-            score    = quiz.bestScore   ?? 0;
+            score    = (quiz.totalCorrect ?? 0) * 10; // Score cumulé
             accuracy = total > 0 ? Math.round(correct/total*100) : 0;
           } else {
             const catData = quiz.byCategory?.[cat] || {};
