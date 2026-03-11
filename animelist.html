@@ -196,8 +196,11 @@
 
     @media (max-width: 768px) {
       .notif-dropdown {
-        position: fixed; top: auto; bottom: 0; left: 0; right: 0;
-        width: 100vw; height: 50vh; max-height: 50vh;
+        position: fixed !important;
+        top: unset !important;
+        bottom: 0 !important;
+        left: 0 !important; right: 0 !important;
+        width: 100vw !important; height: 50vh; max-height: 50vh;
         border-radius: 18px 18px 0 0;
         animation: slideUp 0.25s ease;
       }
