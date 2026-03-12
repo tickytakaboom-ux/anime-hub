@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 – Page introuvable | AnimeHub</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
+
+    :root {
+      --bg: #0b1220; --bg2: #061226;
+      --card: rgba(13,22,40,0.88); --card-border: rgba(255,255,255,0.07);
+      --accent: #06b6d4; --accent2: #3b82f6;
+      --muted: #7e8fa8; --text: #e6eef6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', ui-sans-serif, system-ui;
+      background: linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text); min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      -webkit-font-smoothing: antialiased; overflow: hidden;
+      padding: 20px;
+    }
+
+    canvas { position: fixed; top: 0; left: 0; z-index: 0; opacity: .3; pointer-events: none; }
+
+    .content {
+      position: relative; z-index: 1;
+      text-align: center; max-width: 480px; width: 100%;
+      animation: fadeUp .6s ease both;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── 404 géant ── */
+    .big-404 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(6rem, 22vw, 10rem);
+      font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 40px rgba(6,182,212,0.35));
+      margin-bottom: 8px;
+      animation: glitch 4s infinite;
+    }
+
+    @keyframes glitch {
+      0%, 90%, 100% { transform: none; filter: drop-shadow(0 0 40px rgba(6,182,212,0.35)); }
+      92% { transform: translate(-3px, 1px) skewX(-1deg); filter: drop-shadow(3px 0 0 #ef4444) drop-shadow(-3px 0 0 #06b6d4); }
+      94% { transform: translate(3px, -1px) skewX(1deg); filter: drop-shadow(-3px 0 0 #ef4444) drop-shadow(3px 0 0 #06b6d4); }
+      96% { transform: none; filter: drop-shadow(0 0 40px rgba(6,182,212,0.35)); }
+    }
+
+    .emoji { font-size: 2.8rem; margin-bottom: 16px; display: block; animation: bounce 2s ease infinite; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 900;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 15px; color: var(--muted); line-height: 1.6; margin-bottom: 32px;
+    }
+
+    /* ── Boutons ── */
+    .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    .btn-primary {
+      padding: 12px 24px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #052226; font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 4px 18px rgba(6,182,212,0.35);
+      transition: transform .15s, filter .15s, box-shadow .15s;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-primary:hover { transform: translateY(-3px); filter: brightness(1.05); box-shadow: 0 10px 28px rgba(6,182,212,0.5); }
+
+    .btn-ghost {
+      padding: 12px 24px; border-radius: 12px;
+      border: 1px solid var(--card-border); background: var(--card);
+      color: var(--muted); font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; text-decoration: none; backdrop-filter: blur(8px);
+      transition: background .2s, color .2s, border-color .2s, transform .15s;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.07); color: var(--text); border-color: rgba(255,255,255,.15); transform: translateY(-2px); }
+
+    /* ── Suggestions ── */
+    .suggestions {
+      margin-top: 40px;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 20px 24px;
+      backdrop-filter: blur(10px);
+      animation: fadeUp .6s ease .15s both;
+    }
+    .suggestions-title {
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px;
+    }
+    .suggestions-list { display: flex; flex-direction: column; gap: 8px; }
+    .suggestion-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
+      text-decoration: none; color: var(--text); font-size: 14px; font-weight: 500;
+      transition: background .15s, border-color .15s, transform .15s;
+    }
+    .suggestion-link:hover { background: rgba(6,182,212,.08); border-color: rgba(6,182,212,.3); transform: translateX(4px); }
+    .suggestion-icon { font-size: 1.1rem; width: 28px; text-align: center; }
+    .suggestion-arrow { margin-left: auto; color: var(--muted); font-size: 13px; transition: transform .15s; }
+    .suggestion-link:hover .suggestion-arrow { transform: translateX(3px); color: var(--accent); }
+
+    /* ── Logo ── */
+    .logo {
+      position: fixed; top: 20px; left: 24px; z-index: 10;
+      font-family: 'Mochiy Pop One', 'Syne', sans-serif; font-size: 1.3rem;
+      background: linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none; cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+      .btns { flex-direction: column; align-items: center; }
+      .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+    }
+
+    @font-face {
+      font-family: 'Mochiy Pop One';
+      src: url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display: swap;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="stars"></canvas>
+
+  <a class="logo" href="index.html">AnimeHub</a>
+
+  <div class="content">
+    <div class="big-404">404</div>
+    <span class="emoji">😵</span>
+    <h1>Page introuvable</h1>
+    <p>Cette page n'existe pas ou a été déplacée.<br>Tu t'es peut-être perdu dans le multivers des animes.</p>
+
+    <div class="btns">
+      <a class="btn-primary" href="index.html">🏠 Accueil</a>
+      <a class="btn-ghost" href="animelist.html">📋 AnimeList</a>
+    </div>
+
+    <div class="suggestions">
+      <div class="suggestions-title">Où veux-tu aller ?</div>
+      <div class="suggestions-list">
+        <a class="suggestion-link" href="animelist.html">
+          <span class="suggestion-icon">🎌</span>
+          Parcourir les animes
+          <span class="suggestion-arrow">→</span>
+        </a>
+        <a class="suggestion-link" href="animequiz.html">
+          <span class="suggestion-icon">🧠</span>
+          Jouer au quiz
+          <span class="suggestion-arrow">→</span>
+        </a>
+        <a class="suggestion-link" href="profile.html">
+          <span class="suggestion-icon">👤</span>
+          Mon profil
+          <span class="suggestion-arrow">→</span>
+        </a>
+        <a class="suggestion-link" href="auth.html">
+          <span class="suggestion-icon">🔑</span>
+          Se connecter
+          <span class="suggestion-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Particles ── */
+    const canvas = document.getElementById('stars'), ctx = canvas.getContext('2d');
+    let w, h, pts;
+    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    function init() {
+      pts = Array.from({length:65}, () => ({
+        x:Math.random()*w, y:Math.random()*h,
+        r:Math.random()*1.3+.3, dx:(Math.random()-.5)*.3, dy:(Math.random()-.5)*.3
+      }));
+    }
+    function draw() {
+      ctx.clearRect(0,0,w,h);
+      for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
+      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+        const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}
+      }
+      for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
+      requestAnimationFrame(draw);
+    }
+    resize(); init(); draw();
+    window.addEventListener('resize', ()=>{resize();init();});
+  </script>
+</body>
+</html>
