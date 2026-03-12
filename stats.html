@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stats – AnimeHub</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
+    :root {
+      --bg:#0b1220; --bg2:#061226;
+      --card:rgba(13,22,40,0.88); --card-border:rgba(255,255,255,0.07);
+      --accent:#06b6d4; --accent2:#3b82f6;
+      --muted:#7e8fa8; --text:#e6eef6; --radius:16px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:'DM Sans',ui-sans-serif,system-ui;
+      background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%);
+      color:var(--text); min-height:100vh;
+      -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    }
+    canvas { position:fixed; top:0; left:0; z-index:0; opacity:.3; pointer-events:none; }
+    header {
+      position:sticky; top:0; z-index:100;
+      background:rgba(11,18,32,.95); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--card-border);
+      padding:14px 32px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .logo-text {
+      font-family:'Mochiy Pop One','Syne',sans-serif; font-size:1.4rem; cursor:pointer;
+      background:linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .hbtn {
+      padding:8px 14px; border-radius:10px;
+      border:1px solid var(--card-border); background:rgba(255,255,255,.05);
+      color:var(--text); font-family:inherit; font-size:13px; font-weight:700;
+      cursor:pointer; transition:background .2s,border-color .2s,transform .15s;
+      display:flex; align-items:center; gap:6px; text-decoration:none;
+    }
+    .hbtn:hover { background:rgba(6,182,212,.1); border-color:rgba(6,182,212,.4); transform:translateY(-1px); }
+    .page { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:40px 20px 80px; }
+    .hero { text-align:center; margin-bottom:36px; animation:fadeUp .5s ease both; }
+    .hero h1 {
+      font-family:'Syne',sans-serif; font-size:2rem; font-weight:900;
+      background:linear-gradient(90deg,var(--text),rgba(230,238,246,.6));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px;
+    }
+    .hero p { font-size:14px; color:var(--muted); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    .card {
+      background:var(--card); border:1px solid var(--card-border);
+      border-radius:var(--radius); padding:24px; backdrop-filter:blur(10px);
+      box-shadow:0 12px 32px rgba(0,0,0,.35); margin-bottom:18px;
+      animation:fadeUp .5s ease both;
+    }
+    .card-title {
+      font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700;
+      color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+      margin-bottom:18px; display:flex; align-items:center; gap:8px;
+    }
+    .skeleton {
+      background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 100%);
+      background-size:200% 100%; animation:shimmer 1.6s ease infinite; border-radius:10px;
+    }
+    @keyframes shimmer { to{background-position:-200% 0} }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    @media(max-width:640px) { .grid-2 { grid-template-columns:1fr; } }
+    .top-list { display:flex; flex-direction:column; gap:10px; }
+    .top-item {
+      display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px;
+      background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+      transition:background .2s,border-color .2s,transform .15s;
+      cursor:pointer; text-decoration:none; color:var(--text);
+    }
+    .top-item:hover { background:rgba(6,182,212,.07); border-color:rgba(6,182,212,.25); transform:translateX(3px); }
+    .top-rank { font-family:'Syne',sans-serif; font-weight:900; font-size:.95rem; width:24px; text-align:center; flex-shrink:0; }
+    .top-rank.gold { color:#fbbf24; }
+    .top-rank.silver { color:#94a3b8; }
+    .top-rank.bronze { color:#b45309; }
+    .top-poster { width:36px; height:50px; border-radius:6px; object-fit:cover; flex-shrink:0; background:#0a1020; }
+    .top-info { flex:1; min-width:0; }
+    .top-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .top-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+    .top-badge { font-family:'Syne',sans-serif; font-size:.95rem; font-weight:900; color:var(--accent); flex-shrink:0; }
+    .genres-list { display:flex; flex-direction:column; gap:10px; }
+    .genre-row { display:flex; flex-direction:column; gap:5px; }
+    .genre-info { display:flex; justify-content:space-between; align-items:center; }
+    .genre-name { font-size:13px; font-weight:700; }
+    .genre-count { font-size:12px; color:var(--muted); }
+    .genre-bar-bg { height:6px; border-radius:999px; background:rgba(255,255,255,.07); overflow:hidden; }
+    .genre-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width 1s ease; }
+    .members-list { display:flex; flex-direction:column; gap:8px; }
+    .member-row {
+      display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:12px;
+      background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+      transition:background .2s; cursor:pointer; text-decoration:none; color:var(--text);
+    }
+    .member-row:hover { background:rgba(6,182,212,.07); border-color:rgba(6,182,212,.25); }
+    .member-avatar {
+      width:34px; height:34px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:.95rem; font-weight:900;
+    }
+    .member-name { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .member-stat { font-size:11px; color:var(--muted); }
+    .member-score { font-family:'Syne',sans-serif; font-size:.9rem; font-weight:900; color:var(--accent); flex-shrink:0; }
+    .login-wall { text-align:center; padding:80px 20px; animation:fadeUp .5s ease both; }
+    .login-wall .icon { font-size:3rem; margin-bottom:16px; display:block; }
+    .login-wall h2 { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:900; margin-bottom:8px; }
+    .login-wall p { font-size:14px; color:var(--muted); margin-bottom:24px; }
+    .btn-primary {
+      padding:12px 24px; border-radius:12px; border:none;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#052226; font-family:inherit; font-size:14px; font-weight:700;
+      cursor:pointer; text-decoration:none; display:inline-block;
+      box-shadow:0 4px 16px rgba(6,182,212,.3); transition:transform .15s,filter .15s;
+    }
+    .btn-primary:hover { transform:translateY(-2px); filter:brightness(1.05); }
+    @media(max-width:500px) {
+      header { padding:12px 16px; }
+      .page { padding:24px 14px 60px; }
+      .hero h1 { font-size:1.6rem; }
+    }
+    @font-face {
+      font-family:'Mochiy Pop One';
+      src:url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display:swap;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <header>
+    <span class="logo-text" id="homeLogo">AnimeHub</span>
+    <div style="display:flex;gap:8px;">
+      <a class="hbtn" href="animelist.html"><i class="fa-solid fa-list"></i> AnimeList</a>
+      <a class="hbtn" href="profile.html"><i class="fa-solid fa-user"></i> Profil</a>
+    </div>
+  </header>
+  <div class="page" id="page"></div>
+  <script>
+    const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+    let w,h,pts;
+    function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+    function init(){pts=Array.from({length:65},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.3+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3}));}
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
+      for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}}
+      for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
+      requestAnimationFrame(draw);
+    }
+    resize();init();draw();
+    window.addEventListener('resize',()=>{resize();init();});
+    document.getElementById('homeLogo').addEventListener('click',()=>location.href='index.html');
+    const COLORS=[['#06b6d4','#3b82f6'],['#f97316','#ef4444'],['#8b5cf6','#ec4899'],['#10b981','#06b6d4'],['#fbbf24','#f97316'],['#6366f1','#8b5cf6'],['#e11d48','#f43f5e'],['#0ea5e9','#22d3ee']];
+    function rankLabel(n){return n===1?'🥇':n===2?'🥈':n===3?'🥉':'#'+n;}
+    function rankClass(n){return n===1?'gold':n===2?'silver':n===3?'bronze':'';}
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey:"AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain:"animehub-7.firebaseapp.com",
+      projectId:"animehub-7",
+      storageBucket:"animehub-7.firebasestorage.app",
+      messagingSenderId:"159114039206",
+      appId:"1:159114039206:web:0461d676e7ffff25c4c967",
+    });
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    const page = document.getElementById('page');
+
+    function showLoginWall() {
+      page.innerHTML = `
+        <div class="login-wall">
+          <span class="icon">🔒</span>
+          <h2>Accès réservé aux membres</h2>
+          <p>Connecte-toi pour voir les statistiques de la communauté.</p>
+          <a class="btn-primary" href="auth.html">Se connecter</a>
+        </div>`;
+    }
+
+    function showSkeleton() {
+      page.innerHTML = `
+        <div class="hero">
+          <span style="font-size:2rem;display:block;margin-bottom:10px;">📊</span>
+          <h1>Statistiques</h1>
+          <p>Les tendances de la communauté AnimeHub</p>
+        </div>
+        <div class="grid-2">
+          <div class="card skeleton" style="height:320px;"></div>
+          <div class="card skeleton" style="height:320px;"></div>
+          <div class="card skeleton" style="height:280px;"></div>
+          <div class="card skeleton" style="height:280px;"></div>
+        </div>`;
+    }
+
+    function renderStats(animes, users) {
+      const topFavs = [...animes].filter(a=>a.likes>0).sort((a,b)=>b.likes-a.likes).slice(0,8);
+      const topRated = [...animes].filter(a=>a.ratingCount>=1&&a.avgRating).sort((a,b)=>b.avgRating-a.avgRating||b.ratingCount-a.ratingCount).slice(0,8);
+
+      const genreCount = {};
+      animes.forEach(a=>(a.genre||[]).forEach(g=>{genreCount[g]=(genreCount[g]||0)+1;}));
+      const topGenres = Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      const maxGenre = topGenres[0]?.[1]||1;
+
+      const topMembers = [...users]
+        .map(u=>({...u,_activity:(u.favorites?.length||0)+Object.keys(u.ratings||{}).length,_favs:u.favorites?.length||0,_rated:Object.keys(u.ratings||{}).length}))
+        .filter(u=>u._activity>0).sort((a,b)=>b._activity-a._activity).slice(0,6);
+
+      page.innerHTML = `
+        <div class="hero" style="animation-delay:0s;">
+          <span style="font-size:2rem;display:block;margin-bottom:10px;">📊</span>
+          <h1>Statistiques</h1>
+          <p>Les tendances de la communauté AnimeHub</p>
+        </div>
+        <div class="grid-2">
+          <div class="card" style="animation-delay:.05s;">
+            <div class="card-title"><i class="fa-solid fa-heart"></i> Top favoris</div>
+            <div class="top-list" id="topFavsList"></div>
+          </div>
+          <div class="card" style="animation-delay:.08s;">
+            <div class="card-title"><i class="fa-solid fa-trophy"></i> Mieux notés</div>
+            <div class="top-list" id="topRatedList"></div>
+          </div>
+          <div class="card" style="animation-delay:.11s;">
+            <div class="card-title"><i class="fa-solid fa-tags"></i> Genres populaires</div>
+            <div class="genres-list" id="genresList"></div>
+          </div>
+          <div class="card" style="animation-delay:.14s;">
+            <div class="card-title"><i class="fa-solid fa-users"></i> Membres les plus actifs</div>
+            <div class="members-list" id="membersList"></div>
+          </div>
+        </div>`;
+
+      const empty = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px;">Aucune donnée</div>';
+
+      // Top favoris
+      const favsList = document.getElementById('topFavsList');
+      if (!topFavs.length) { favsList.innerHTML = empty; }
+      else topFavs.forEach((a,i)=>{
+        const r=i+1, el=document.createElement('a');
+        el.className='top-item'; el.href=`anime.html?id=${a.id}`;
+        el.innerHTML=`<div class="top-rank ${rankClass(r)}">${rankLabel(r)}</div>
+          <img class="top-poster" src="${a.img||'icon_animehub.png'}" alt="${a.title}" loading="lazy">
+          <div class="top-info"><div class="top-title">${a.title}</div><div class="top-sub">${(a.genre||[]).slice(0,2).join(' · ')}</div></div>
+          <div class="top-badge">❤️ ${a.likes}</div>`;
+        favsList.appendChild(el);
+      });
+
+      // Top notés
+      const ratedList = document.getElementById('topRatedList');
+      if (!topRated.length) { ratedList.innerHTML = empty; }
+      else topRated.forEach((a,i)=>{
+        const r=i+1, el=document.createElement('a');
+        el.className='top-item'; el.href=`anime.html?id=${a.id}`;
+        el.innerHTML=`<div class="top-rank ${rankClass(r)}">${rankLabel(r)}</div>
+          <img class="top-poster" src="${a.img||'icon_animehub.png'}" alt="${a.title}" loading="lazy">
+          <div class="top-info"><div class="top-title">${a.title}</div><div class="top-sub">${a.ratingCount} vote${a.ratingCount>1?'s':''}</div></div>
+          <div class="top-badge">⭐ ${a.avgRating.toFixed(1)}</div>`;
+        ratedList.appendChild(el);
+      });
+
+      // Genres
+      const genresEl = document.getElementById('genresList');
+      topGenres.forEach(([genre,count])=>{
+        const pct=Math.round((count/maxGenre)*100);
+        const div=document.createElement('div'); div.className='genre-row';
+        div.innerHTML=`<div class="genre-info"><span class="genre-name">${genre}</span><span class="genre-count">${count} anime${count>1?'s':''}</span></div>
+          <div class="genre-bar-bg"><div class="genre-bar-fill" style="width:0%" data-pct="${pct}"></div></div>`;
+        genresEl.appendChild(div);
+      });
+      requestAnimationFrame(()=>{
+        document.querySelectorAll('.genre-bar-fill').forEach(b=>{ b.style.width=b.dataset.pct+'%'; });
+      });
+
+      // Membres
+      const membersEl = document.getElementById('membersList');
+      if (!topMembers.length) { membersEl.innerHTML = empty; }
+      else topMembers.forEach((u,i)=>{
+        const av=u.avatar, emoji=av?.emoji||(u.username||'?').charAt(0).toUpperCase();
+        const pair=COLORS[(av?.colorIdx??i)%COLORS.length];
+        const el=document.createElement('a'); el.className='member-row'; el.href=`public-profile.html?uid=${u.uid}`;
+        el.innerHTML=`<div class="member-avatar" style="background:linear-gradient(135deg,${pair[0]},${pair[1]})">${emoji}</div>
+          <div style="flex:1;min-width:0;"><div class="member-name">${u.username||'Anonyme'}</div>
+          <div class="member-stat">${u._favs} favori${u._favs>1?'s':''} · ${u._rated} noté${u._rated>1?'s':''}</div></div>
+          <div class="member-score">${u._activity} pts</div>`;
+        membersEl.appendChild(el);
+      });
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { showLoginWall(); return; }
+      showSkeleton();
+      const [animesSnap, usersSnap] = await Promise.all([
+        getDocs(collection(db,'animes')),
+        getDocs(collection(db,'users')),
+      ]);
+      const animes = animesSnap.docs.map(d=>({id:Number(d.id),...d.data(),likes:d.data().likes||0,avgRating:d.data().avgRating||null,ratingCount:d.data().ratingCount||0}));
+      const users  = usersSnap.docs.map(d=>({uid:d.id,...d.data()}));
+      renderStats(animes, users);
+    });
+  </script>
+</body>
+</html>
