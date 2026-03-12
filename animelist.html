@@ -810,11 +810,23 @@
     let notifItems = [];
 
     // ── Notifications ──
+    // Sur mobile : déplacer la dropdown dans <body> pour que position:fixed fonctionne
+    if (window.innerWidth <= 768) {
+      document.body.appendChild(notifDropdown);
+    }
+    window.addEventListener('resize', () => {
+      if (window.innerWidth <= 768 && notifDropdown.parentElement !== document.body) {
+        document.body.appendChild(notifDropdown);
+      } else if (window.innerWidth > 768 && notifDropdown.parentElement === document.body) {
+        notifBtn.appendChild(notifDropdown);
+      }
+    });
+
     function setDropdown(open) { notifDropdown.style.display = open ? 'block' : 'none'; }
     notifBtn.addEventListener('click', e => { e.stopPropagation(); setDropdown(notifDropdown.style.display === 'none'); });
     notifDropdown.addEventListener('click', e => e.stopPropagation());
     notifCloseBtn.addEventListener('click', () => setDropdown(false));
-    document.addEventListener('click', e => { if (!notifBtn.contains(e.target)) setDropdown(false); });
+    document.addEventListener('click', e => { if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) setDropdown(false); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') setDropdown(false); });
 
     notifMarkAllBtn.addEventListener('click', async e => {
