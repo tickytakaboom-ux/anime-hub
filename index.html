@@ -303,6 +303,11 @@
       <h3>AnimeQuiz</h3>
       <p>Teste tes connaissances et défie tes amis avec des quiz rapides.</p>
     </article>
+    <article class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Statistiques</h3>
+      <p>Découvre les animes les plus aimés, les mieux notés et les membres les plus actifs.</p>
+    </article>
   </section>
 
   <!-- BOUTONS -->
@@ -310,6 +315,7 @@
     <button id="mainBtn" class="btn"><span>🔐</span>Connexion</button>
     <button class="btn" onclick="location.href='animelist.html'"><span>📺</span>AnimeList</button>
     <button class="btn" onclick="location.href='animequiz.html'"><span>🧠</span>AnimeQuiz</button>
+    <button class="btn" onclick="location.href='stats.html'"><span>📊</span>Stats</button>
   </div>
 </main>
 
@@ -354,7 +360,7 @@ function animateCounterTo(el, target, suffix) {
   requestAnimationFrame(step);
 }
 
-animateCounterTo(document.getElementById("statAnimes"),  2617, "");
+animateCounterTo(document.getElementById("statAnimes"),  2723, "");
 animateCounterTo(document.getElementById("statMembers"), 9,    "");
 
 onAuthStateChanged(auth, (user) => {
