@@ -411,6 +411,26 @@
       img { max-width: 100%; height: auto; }
     }
 
+    /* ── ACTIVITÉ RÉCENTE ── */
+    .activity-list { display:flex; flex-direction:column; gap:8px; }
+    .activity-item {
+      display:flex; align-items:center; gap:12px;
+      padding:10px 12px; border-radius:12px;
+      background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+      transition:background .15s, border-color .15s;
+      text-decoration:none; color:var(--text); cursor:pointer;
+    }
+    .activity-item:hover { background:rgba(6,182,212,.07); border-color:rgba(6,182,212,.25); }
+    .activity-poster {
+      width:30px; height:42px; border-radius:5px;
+      object-fit:cover; flex-shrink:0; background:#0a1020;
+    }
+    .activity-info { flex:1; min-width:0; }
+    .activity-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .activity-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+    .activity-time { font-size:11px; color:var(--muted); flex-shrink:0; }
+    .activity-icon { font-size:1.1rem; flex-shrink:0; width:24px; text-align:center; }
+
     @font-face {
       font-family: 'Mochiy Pop One';
       src: url('MochiyPopOne-Regular.woff2') format('woff2');
@@ -563,6 +583,18 @@
           </select>
         </div>
         <div class="rated-list" id="favoritesList">
+          <div class="rated-item skeleton-box" style="height:42px;"></div>
+          <div class="rated-item skeleton-box" style="height:42px;"></div>
+        </div>
+      </div>
+
+      <!-- ACTIVITÉ RÉCENTE -->
+      <div class="card full-width" style="animation-delay:0.20s;">
+        <div class="card-title">
+          <span><i class="fa-solid fa-clock-rotate-left card-title-icon"></i> Activité récente</span>
+        </div>
+        <div class="activity-list" id="activityList">
+          <div class="rated-item skeleton-box" style="height:42px;"></div>
           <div class="rated-item skeleton-box" style="height:42px;"></div>
           <div class="rated-item skeleton-box" style="height:42px;"></div>
         </div>
@@ -738,7 +770,7 @@
   <script type="module">
     import { initializeApp }  from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -937,6 +969,7 @@
 
       renderProfileLists();
       renderRecommendations();
+      await loadActivity(user.uid, userData);
 
       // Reco mode buttons
       document.querySelectorAll('.reco-mode-btn').forEach(btn => {
@@ -1058,6 +1091,89 @@
         recoListEl.appendChild(item);
       });
     }
+
+    /* ── Activité récente ── */
+    async function loadActivity(uid, userData) {
+      const el = document.getElementById('activityList');
+      if (!el) return;
+      const STATUS_LABELS = { watching:'▶️ En cours', completed:'✅ Terminé', planned:'🕒 À voir' };
+      const events = [];
+
+      // Notifs (favoris + notes)
+      try {
+        const q = query(collection(db,'notifications'), where('userId','==',uid), orderBy('createdAt','desc'), limit(20));
+        const snap = await getDocs(q);
+        snap.docs.forEach(d => {
+          const n = d.data();
+          events.push({
+            type: n.message?.includes('favori') ? 'fav' : 'rating',
+            message: n.message || '',
+            createdAt: n.createdAt?.toDate?.() || new Date(n.createdAt),
+          });
+        });
+      } catch(e) { console.warn('Notifs activité:', e); }
+
+      // Changements de statut
+      (userData.recentActivity || []).filter(a => a.type==='status').forEach(a => {
+        events.push({ type:'status', animeId:a.animeId, animeTitle:a.animeTitle, animeImg:a.animeImg, statusLabel:STATUS_LABELS[a.status]||a.statusLabel, createdAt:new Date(a.createdAt) });
+      });
+
+      events.sort((a,b) => b.createdAt - a.createdAt);
+      const top5 = events.slice(0,5);
+      el.innerHTML = '';
+
+      if (!top5.length) {
+        el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">Aucune activité récente</div>';
+        return;
+      }
+
+      // Map animes pour images/ids
+      const animesMap = {};
+      try { const s = await getDocs(collection(db,'animes')); s.docs.forEach(d => { animesMap[Number(d.id)] = d.data(); }); } catch(e) {}
+
+      top5.forEach(ev => {
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+        let icon, label, animeTitle='', animeImg='icon_animehub.png', animeId=null;
+
+        if (ev.type==='fav') {
+          icon='❤️'; label='Ajouté aux favoris';
+          const m = ev.message.match(/ajouté (.+?) à tes favoris/);
+          animeTitle = m ? m[1] : ev.message;
+          const found = Object.entries(animesMap).find(([,d]) => d.title===animeTitle);
+          if (found) { animeImg=found[1].img||animeImg; animeId=Number(found[0]); }
+        } else if (ev.type==='rating') {
+          icon='⭐'; label='Anime noté';
+          const m = ev.message.match(/noté (.+?) /);
+          animeTitle = m ? m[1] : ev.message;
+          const found = Object.entries(animesMap).find(([,d]) => d.title===animeTitle);
+          if (found) { animeImg=found[1].img||animeImg; animeId=Number(found[0]); }
+        } else {
+          icon='📋'; animeTitle=ev.animeTitle; animeImg=ev.animeImg||animeImg; label=ev.statusLabel; animeId=ev.animeId;
+        }
+
+        if (animeId) item.addEventListener('click', () => location.href=`anime.html?id=${animeId}`);
+        item.innerHTML = `
+          <span class="activity-icon">${icon}</span>
+          <img class="activity-poster" src="${animeImg}" alt="${animeTitle}" loading="lazy">
+          <div class="activity-info">
+            <div class="activity-title">${animeTitle}</div>
+            <div class="activity-sub">${label}</div>
+          </div>
+          <div class="activity-time">${formatTimeAgo(ev.createdAt)}</div>`;
+        el.appendChild(item);
+      });
+    }
+
+    function formatTimeAgo(date) {
+      const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (diff < 60)    return "À l'instant";
+      if (diff < 3600)  return `Il y a ${Math.floor(diff/60)} min`;
+      if (diff < 86400) return `Il y a ${Math.floor(diff/3600)} h`;
+      if (diff < 604800) return `Il y a ${Math.floor(diff/86400)} j`;
+      return date.toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+    }
+
   </script>
 </body>
 </html>

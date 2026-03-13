@@ -874,10 +874,24 @@
     /* ── Watch status ── */
     async function setWatchStatus(status) {
       if (!currentUser) return;
-      await updateDoc(doc(db,'users',currentUser.uid),{[`statuses.${animeId}`]:status});
+      const userRef = doc(db,'users',currentUser.uid);
+      const labels = {watching:'En cours',completed:'Terminé',planned:'À voir'};
+      const activity = {
+        type: 'status',
+        animeId,
+        animeTitle: currentAnime?.title || '',
+        animeImg: currentAnime?.img || '',
+        status,
+        statusLabel: labels[status] || status,
+        createdAt: new Date().toISOString(),
+      };
+      await Promise.all([
+        updateDoc(userRef, {[`statuses.${animeId}`]: status}),
+        updateDoc(userRef, { recentActivity: arrayUnion(activity) }),
+      ]);
       updateStatusUI(status);
-      const labels = {watching:'▶️ En cours',completed:'✅ Terminé',planned:'🕒 À voir'};
-      showToast(`Statut : ${labels[status]}`);
+      const labelsEmoji = {watching:'▶️ En cours',completed:'✅ Terminé',planned:'🕒 À voir'};
+      showToast(`Statut : ${labelsEmoji[status]}`);
     }
 
     /* ── Auth & init ── */
