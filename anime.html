@@ -632,7 +632,9 @@
 
     function updateFavUI(fav, animate=false) {
       favBtn.classList.toggle('favorited', fav);
-      favBtn.textContent = fav ? '★ Favori' : '☆ Favori';
+      const count = currentAnime.likes ?? 0;
+      const countStr = count > 0 ? ` · ${count}` : '';
+      favBtn.textContent = (fav ? '★ Favori' : '☆ Favori') + countStr;
       if (!animate) return;
       favBtn.classList.remove('pop');
       void favBtn.offsetWidth;
@@ -831,11 +833,13 @@
         await updateDoc(userRef, {favorites: arrayRemove(animeId)});
         await updateDoc(animeRef, {likes: increment(-1)});
         currentAnime.fav = false;
+        currentAnime.likes = Math.max(0, (currentAnime.likes ?? 0) - 1);
         showToast('💔 Retiré des favoris','remove');
       } else {
         await updateDoc(userRef, {favorites: arrayUnion(animeId)});
         await updateDoc(animeRef, {likes: increment(1)});
         currentAnime.fav = true;
+        currentAnime.likes = (currentAnime.likes ?? 0) + 1;
         playFavAnimation(favBtn);
         await sendNotification(currentUser.uid,'⭐ Favori ajouté',currentAnime.title);
         showToast('❤️ Ajouté aux favoris');
@@ -928,6 +932,7 @@
         img: data.img||'icon_animehub.png',
         summary: data.summary||'Synopsis indisponible.',
         timeline: data.timeline||[],
+        likes: data.likes||0,
         fav: false,
       };
 
