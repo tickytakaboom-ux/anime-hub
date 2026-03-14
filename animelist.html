@@ -442,10 +442,28 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 720px) {
-      header { padding: 12px 16px; }
-      .controls { width: 100%; }
+      header { padding: 12px 16px; gap: 10px; }
+      .controls { width: 100%; order: 2; }
       .search-wrap { max-width: 100%; }
-      #authContainer { margin-left: 0; width: 100%; justify-content: flex-end; }
+      #authContainer { margin-left: auto; }
+      .logo-sub { display: none; }
+    }
+    @media (max-width: 500px) {
+      body { overflow-x: hidden; }
+      header { padding: 10px 12px; flex-wrap: wrap; }
+      .logo { font-size: 1.5rem; }
+      .controls { gap: 6px; }
+      select.select { font-size: 12px; padding: 6px 8px; max-width: 120px; }
+      select.select-sm { font-size: 12px; padding: 6px 8px; }
+      input.search { font-size: 13px; padding: 7px 10px 7px 30px; }
+      .container { padding: 16px 12px 48px; }
+      #grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+      .card-body { padding: 8px; }
+      .card-title { font-size: 12px; }
+      .hbtn { padding: 5px 9px; font-size: 12px; }
+      #userBox { font-size: 12px; padding: 5px 10px; }
+      .result-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+      #backToTop { width: 40px; height: 40px; font-size: 14px; bottom: 16px; right: 16px; }
     }
 
     @font-face {

@@ -407,8 +407,16 @@
     /* Anti-débordement global sur mobile */
     @media (max-width: 600px) {
       body { overflow-x: hidden; }
-      * { max-width: 100%; }
+      * { max-width: 100%; box-sizing: border-box; }
       img { max-width: 100%; height: auto; }
+      .activity-item { padding: 8px 10px; gap: 8px; }
+      .activity-title { font-size: 12px; }
+      .activity-time { font-size: 10px; }
+      .reco-list { gap: 6px; }
+      .reco-item { padding: 8px 10px; }
+      .reco-title { font-size: 12px; }
+      .badge-progress-wrap { padding: 8px 10px; }
+      .badge-name { font-size: 12px; }
     }
 
     /* ── ACTIVITÉ RÉCENTE ── */

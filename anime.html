@@ -361,15 +361,26 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 720px) {
       header { padding: 12px 16px; }
+      .header-actions { gap: 6px; }
+      .hbtn { padding: 6px 10px; font-size: 12px; }
       .container { padding: 20px 14px 60px; }
       .anime-hero { flex-direction: column; align-items: center; padding: 20px; }
       .anime-poster { width: 200px; height: 280px; }
       .anime-title { font-size: 1.5rem; text-align: center; }
       .score-hero { margin: 0 auto; }
       .genres { justify-content: center; }
-      .status-group { justify-content: center; }
-      .anime-actions { justify-content: center; }
-      .similar-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .status-group { justify-content: center; flex-wrap: wrap; }
+      .anime-actions { justify-content: center; flex-wrap: wrap; }
+      .similar-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    }
+    @media (max-width: 480px) {
+      body { overflow-x: hidden; }
+      .anime-poster { width: 160px; height: 225px; }
+      .anime-title { font-size: 1.3rem; }
+      .hbtn { padding: 5px 8px; font-size: 11px; }
+      .score-big { font-size: 2.5rem; }
+      .timeline-item { padding-left: 16px; }
+      .comment-item { padding: 12px; }
     }
 
     :focus-visible { outline: 2px solid rgba(6,182,212,0.7); outline-offset: 2px; }
