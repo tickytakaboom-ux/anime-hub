@@ -8,508 +8,138 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
-
     :root {
       --bg:#0b1220; --bg2:#061226;
       --card:rgba(13,22,40,0.88); --card-border:rgba(255,255,255,0.07);
       --accent:#06b6d4; --accent2:#3b82f6;
       --muted:#7e8fa8; --text:#e6eef6; --radius:16px;
     }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     body {
-      font-family: 'DM Sans', ui-sans-serif, system-ui;
-      background: linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
-      color: var(--text); min-height: 100vh;
-      -webkit-font-smoothing: antialiased; overflow-x: hidden;
-      display: flex; flex-direction: column;
+      font-family:'DM Sans',ui-sans-serif,system-ui;
+      background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%);
+      color:var(--text); min-height:100vh;
+      -webkit-font-smoothing:antialiased; overflow-x:hidden;
     }
-
-    canvas {
-      position: fixed; top: 0; left: 0;
-      z-index: 0; opacity: .3; pointer-events: none;
-    }
-
-    /* ── HEADER ── */
+    canvas { position:fixed; top:0; left:0; z-index:0; opacity:.3; pointer-events:none; }
     header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(11,18,32,.95); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 14px 32px;
-      display: flex; align-items: center; justify-content: space-between;
+      position:sticky; top:0; z-index:100;
+      background:rgba(11,18,32,.95); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--card-border);
+      padding:14px 32px; display:flex; align-items:center; justify-content:space-between;
     }
     .logo-text {
-      font-family: 'Mochiy Pop One','Syne',sans-serif; font-size: 1.4rem; cursor: pointer;
-      background: linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-family:'Mochiy Pop One','Syne',sans-serif; font-size:1.4rem; cursor:pointer;
+      background:linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
     }
     .hbtn {
-      padding: 8px 14px; border-radius: 10px;
-      border: 1px solid var(--card-border); background: rgba(255,255,255,.05);
-      color: var(--text); font-family: inherit; font-size: 13px; font-weight: 700;
-      cursor: pointer; transition: background .2s, border-color .2s, transform .15s;
-      display: flex; align-items: center; gap: 6px; text-decoration: none;
+      padding:8px 14px; border-radius:10px;
+      border:1px solid var(--card-border); background:rgba(255,255,255,.05);
+      color:var(--text); font-family:inherit; font-size:13px; font-weight:700;
+      cursor:pointer; text-decoration:none; display:flex; align-items:center; gap:6px;
+      transition:background .2s,border-color .2s,transform .15s;
     }
-    .hbtn:hover { background: rgba(6,182,212,.1); border-color: rgba(6,182,212,.4); transform: translateY(-1px); }
+    .hbtn:hover { background:rgba(6,182,212,.1); border-color:rgba(6,182,212,.4); transform:translateY(-1px); }
+    .page { position:relative; z-index:1; max-width:560px; margin:0 auto; padding:40px 20px 80px; }
+    .page-hero { text-align:center; margin-bottom:28px; animation:fadeUp .4s ease both; }
+    .page-hero h1 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:900; margin-bottom:8px; }
+    .page-hero p { font-size:14px; color:var(--muted); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    /* ── PAGE ── */
-    .page {
-      position: relative; z-index: 1; flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      padding: 40px 20px 60px;
+    .quiz-list { display:flex; flex-direction:column; gap:10px; }
+    .quiz-item {
+      display:flex; align-items:center; gap:14px;
+      padding:16px 18px; border-radius:14px;
+      background:var(--card); border:1px solid var(--card-border);
+      cursor:pointer; text-decoration:none; color:var(--text);
+      backdrop-filter:blur(10px);
+      transition:background .2s,border-color .2s,transform .15s;
+      animation:fadeUp .4s ease both;
+      position:relative; overflow:hidden;
     }
+    .quiz-item::before {
+      content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+      background:linear-gradient(180deg,var(--accent),var(--accent2));
+      opacity:0; transition:opacity .2s;
+    }
+    .quiz-item:hover { background:rgba(6,182,212,.07); border-color:rgba(6,182,212,.3); transform:translateX(4px); }
+    .quiz-item:hover::before { opacity:1; }
+    .quiz-num {
+      font-family:'Syne',sans-serif; font-size:.75rem; font-weight:900;
+      color:var(--muted); min-width:28px; text-align:right;
+    }
+    .quiz-item-icon { font-size:1.4rem; flex-shrink:0; }
+    .quiz-item-info { flex:1; min-width:0; }
+    .quiz-item-name { font-family:'Syne',sans-serif; font-size:.95rem; font-weight:700; }
+    .quiz-item-desc { font-size:12px; color:var(--muted); margin-top:2px; }
+    .quiz-arrow { color:var(--muted); font-size:13px; transition:transform .15s,color .15s; }
+    .quiz-item:hover .quiz-arrow { transform:translateX(3px); color:var(--accent); }
 
-    /* ── CARD ── */
-    .card {
-      background: var(--card); border: 1px solid var(--card-border);
-      border-radius: var(--radius); padding: 32px 28px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 16px 48px rgba(0,0,0,.5);
-      width: 100%; max-width: 480px;
-      animation: fadeUp .5s ease both;
+    @media(max-width:500px) {
+      body { overflow-x:hidden; }
+      header { padding:10px 14px; }
+      .page { padding:20px 12px 60px; max-width:100vw; }
+      .quiz-item { padding:12px 14px; }
     }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-
-    /* ── HERO ── */
-    .challenge-hero { text-align: center; margin-bottom: 28px; }
-    .challenge-hero h1 {
-      font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 900; margin-bottom: 6px;
-    }
-    .challenge-hero p { font-size: 14px; color: var(--muted); }
-
-    /* ── PROGRESS ── */
-    .progress-wrap { margin-bottom: 20px; }
-    .progress-info {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 8px;
-      text-transform: uppercase; letter-spacing: .04em;
-    }
-    .progress-bar-bg {
-      height: 5px; border-radius: 999px;
-      background: rgba(255,255,255,.07);
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%; border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transition: width .5s ease;
-    }
-
-    /* ── SCORE STREAK ── */
-    .score-row {
-      display: flex; gap: 10px; margin-bottom: 20px;
-    }
-    .score-chip {
-      flex: 1; padding: 10px 12px; border-radius: 12px; text-align: center;
-      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
-    }
-    .score-chip-value {
-      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 900;
-      color: var(--accent);
-    }
-    .score-chip-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
-
-    /* ── QUESTION ── */
-    .question-box {
-      background: rgba(6,182,212,.07); border: 1px solid rgba(6,182,212,.2);
-      border-radius: 14px; padding: 20px 18px; text-align: center;
-      margin-bottom: 20px; min-height: 72px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .question-text {
-      font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 900;
-      line-height: 1.3;
-    }
-
-    /* ── INPUT ── */
-    .answer-input {
-      width: 100%; padding: 13px 16px; border-radius: 12px;
-      border: 1px solid var(--card-border); background: rgba(255,255,255,.05);
-      color: var(--text); font-family: inherit; font-size: 15px;
-      outline: none; transition: border-color .2s, box-shadow .2s;
-      margin-bottom: 10px;
-    }
-    .answer-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(6,182,212,.12); }
-    .answer-input::placeholder { color: var(--muted); }
-
-    .submit-btn {
-      width: 100%; padding: 13px; border-radius: 12px; border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #052226; font-family: inherit; font-size: 15px; font-weight: 700;
-      cursor: pointer; transition: transform .15s, filter .15s, box-shadow .15s;
-      box-shadow: 0 4px 16px rgba(6,182,212,.3);
-    }
-    .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 8px 24px rgba(6,182,212,.45); }
-    .submit-btn:active { transform: translateY(0); }
-
-    /* ── FEEDBACK ── */
-    .feedback {
-      text-align: center; font-size: 14px; font-weight: 700;
-      min-height: 22px; margin-top: 12px;
-      transition: opacity .2s;
-    }
-    .feedback.success { color: #4ade80; }
-    .feedback.error   { color: #f87171; }
-
-    /* ── RESULT ── */
-    .result-box { text-align: center; animation: fadeUp .4s ease both; }
-    .result-emoji { font-size: 3rem; margin-bottom: 12px; display: block; }
-    .result-title {
-      font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 900;
-      margin-bottom: 8px;
-    }
-    .result-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-    .result-stats {
-      display: flex; gap: 10px; margin-bottom: 24px;
-    }
-    .result-stat {
-      flex: 1; padding: 12px; border-radius: 12px; text-align: center;
-      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
-    }
-    .result-stat-value {
-      font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 900; color: var(--accent);
-    }
-    .result-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 3px; }
-    .result-btns { display: flex; flex-direction: column; gap: 8px; }
-    .btn-primary {
-      padding: 12px; border-radius: 12px; border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #052226; font-family: inherit; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: transform .15s, filter .15s;
-    }
-    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
-    .btn-ghost {
-      padding: 12px; border-radius: 12px;
-      border: 1px solid var(--card-border); background: transparent;
-      color: var(--muted); font-family: inherit; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: background .2s, color .2s;
-    }
-    .btn-ghost:hover { background: rgba(255,255,255,.06); color: var(--text); }
-
-    /* ── SAVING INDICATOR ── */
-    .saving {
-      font-size: 12px; color: var(--muted); text-align: center;
-      margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .saving i { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 500px) {
-      body { overflow-x: hidden; }
-      header { padding: 10px 14px; }
-      .page { padding: 20px 12px 60px; max-width: 100vw; }
-      .card { padding: 20px 14px; min-width: 0; max-width: 100%; }
-      .question-text { font-size: 1rem; }
-      .answer-btn { padding: 10px 12px; font-size: 13px; }
-      .score-bar { font-size: 12px; }
-      .result-stats { flex-direction: column; gap: 8px; }
-    }
-
     @font-face {
-      font-family: 'Mochiy Pop One';
-      src: url('MochiyPopOne-Regular.woff2') format('woff2');
-      font-display: swap;
+      font-family:'Mochiy Pop One';
+      src:url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display:swap;
     }
   </style>
 </head>
 <body>
-
   <canvas id="stars"></canvas>
-
   <header>
     <span class="logo-text" id="homeLogo">AnimeHub</span>
     <a class="hbtn" href="animequiz.html"><i class="fa-solid fa-arrow-left"></i> Quiz</a>
   </header>
 
   <div class="page">
-    <div class="card" id="quizCard">
-
-      <!-- Hero -->
-      <div class="challenge-hero">
-        <h1>🥵 Challenge</h1>
-        <p>Trouve l'anime à partir du personnage principal</p>
-      </div>
-
-      <!-- Progress -->
-      <div class="progress-wrap">
-        <div class="progress-info">
-          <span id="progressText">Question 1 / 30</span>
-          <span id="progressPct">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
-        </div>
-      </div>
-
-      <!-- Score & streak -->
-      <div class="score-row">
-        <div class="score-chip">
-          <div class="score-chip-value" id="scoreVal">0</div>
-          <div class="score-chip-label">Score</div>
-        </div>
-        <div class="score-chip">
-          <div class="score-chip-value" id="streakVal">0🔥</div>
-          <div class="score-chip-label">Série</div>
-        </div>
-        <div class="score-chip">
-          <div class="score-chip-value" id="correctVal">0</div>
-          <div class="score-chip-label">Corrects</div>
-        </div>
-      </div>
-
-      <!-- Question -->
-      <div class="question-box">
-        <div class="question-text" id="questionText">…</div>
-      </div>
-
-      <!-- Input -->
-      <input class="answer-input" id="answerInput" placeholder="Nom de l'anime…" autocomplete="off">
-      <button class="submit-btn" id="submitBtn">Valider</button>
-      <div class="feedback" id="feedback"></div>
-
+    <div class="page-hero">
+      <h1>🥵 Challenge</h1>
+      <p>Tape la bonne réponse sans indices — pour les vrais</p>
     </div>
+    <div class="quiz-list" id="quizList"></div>
   </div>
 
   <script>
-    /* ── Particles ── */
-    const canvas = document.getElementById('stars'), ctx = canvas.getContext('2d');
-    let w, h, pts;
-    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
-    function init() {
-      pts = Array.from({length:60}, () => ({
-        x:Math.random()*w, y:Math.random()*h,
-        r:Math.random()*1.3+.3, dx:(Math.random()-.5)*.3, dy:(Math.random()-.5)*.3
-      }));
-    }
-    function draw() {
+    const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+    let w,h,pts;
+    function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+    function init(){pts=Array.from({length:55},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3}));}
+    function draw(){
       ctx.clearRect(0,0,w,h);
       for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
-      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
-        const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-        if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}
-      }
+      for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}}
       for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
       requestAnimationFrame(draw);
     }
-    resize(); init(); draw();
-    window.addEventListener('resize', ()=>{resize();init();});
-    document.getElementById('homeLogo').addEventListener('click', ()=>location.href='index.html');
-  </script>
+    resize();init();draw();
+    window.addEventListener('resize',()=>{resize();init();});
+    document.getElementById('homeLogo').addEventListener('click',()=>location.href='index.html');
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-    const app = initializeApp({
-      apiKey:"AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
-      authDomain:"animehub-7.firebaseapp.com",
-      projectId:"animehub-7",
-      storageBucket:"animehub-7.firebasestorage.app",
-      messagingSenderId:"159114039206",
-      appId:"1:159114039206:web:0461d676e7ffff25c4c967",
-    });
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    let currentUser = null;
-    onAuthStateChanged(auth, u => { currentUser = u; });
-
-    /* ── Questions ── */
-    const questions = [
-      { q:"Monkey D. Luffy",      a:"one piece" },
-      { q:"Eren Yeager",          a:"attack on titan" },
-      { q:"Light Yagami",         a:"death note" },
-      { q:"Twilight",             a:"spy x family" },
-      { q:"Izuku Midoriya",       a:"my hero academia" },
-      { q:"Sung Jinwoo",          a:"solo leveling" },
-      { q:"Edward Elric",         a:"fullmetal alchemist" },
-      { q:"Tanjiro Kamado",       a:"demon slayer" },
-      { q:"Shinra Kusakabe",      a:"fire force" },
-      { q:"Denji",                a:"chainsaw man" },
-      { q:"Frieren",              a:"frieren" },
-      { q:"Gintoki Sakata",       a:"gintama" },
-      { q:"Aquamarine Hoshino",   a:"oshi no ko" },
-      { q:"Gon Freecs",           a:"hunter x hunter" },
-      { q:"Kaguya Shinomiya",     a:"love is war" },
-      { q:"Lelouch Lamperouge",   a:"code geass" },
-      { q:"Kafka Hibino",         a:"kaiju n°8" },
-      { q:"Yuji Itadori",         a:"jujutsu kaisen" },
-      { q:"Thorfinn",             a:"vinland saga" },
-      { q:"Shigeo Kageyama",      a:"mob psycho 100" },
-      { q:"Jotaro Kujo",          a:"jojo's bizarre adventure" },
-      { q:"Naruto Uzumaki",       a:"naruto" },
-      { q:"Hinata Shoyo",         a:"haikyu" },
-      { q:"Ichigo Kurosaki",      a:"bleach" },
-      { q:"Kazuma Satou",         a:"konosuba" },
-      { q:"Rudeus Greyrat",       a:"mushoku tensei" },
-      { q:"Mash Burnedead",       a:"mashle" },
-      { q:"Senku Ishigami",       a:"dr stone" },
-      { q:"Yato",                 a:"noragami" },
-      { q:"Atsushi Nakajima",     a:"bungo stray dogs" },
+    const quizzes = [
+      { id:'personnages', icon:'🎭', name:'Personnages principaux', desc:'Trouve l\'anime à partir du personnage principal — 30 personnages' },
     ];
 
-    const TOTAL = questions.length;
-    let idx     = 0;
-    let score   = 0;
-    let streak  = 0;
-    let correct = 0;
-
-    const questionText  = document.getElementById('questionText');
-    const answerInput   = document.getElementById('answerInput');
-    const submitBtn     = document.getElementById('submitBtn');
-    const feedbackEl    = document.getElementById('feedback');
-    const scoreVal      = document.getElementById('scoreVal');
-    const streakVal     = document.getElementById('streakVal');
-    const correctVal    = document.getElementById('correctVal');
-    const progressText  = document.getElementById('progressText');
-    const progressPct   = document.getElementById('progressPct');
-    const progressFill  = document.getElementById('progressFill');
-
-    function normalize(t) {
-      return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-    }
-
-    function updateProgress() {
-      const pct = Math.round((idx / TOTAL) * 100);
-      progressText.textContent = `Question ${idx + 1} / ${TOTAL}`;
-      progressPct.textContent  = `${pct}%`;
-      progressFill.style.width = `${pct}%`;
-    }
-
-    function loadQuestion() {
-      questionText.textContent = questions[idx].q;
-      answerInput.value = '';
-      feedbackEl.textContent = '';
-      feedbackEl.className = 'feedback';
-      answerInput.focus();
-      updateProgress();
-    }
-
-    function showFeedback(msg, type) {
-      feedbackEl.textContent = msg;
-      feedbackEl.className = `feedback ${type}`;
-    }
-
-    /* ── Sauvegarde Firestore ── */
-    async function saveStats() {
-      if (!currentUser) return;
-      const accuracy = Math.round((correct / TOTAL) * 100);
-      const userRef  = doc(db, 'users', currentUser.uid);
-
-      // Récupérer le meilleur score actuel
-      try {
-        const snap = await getDoc(userRef);
-        const data = snap.data() || {};
-        const prevBest    = data.quizStats?.bestScore ?? 0;
-        const prevCatBest = data.quizStats?.byCategory?.challenge?.bestScore ?? 0;
-
-        const updates = {
-          'quizStats.totalPlayed':                               increment(1),
-          'quizStats.totalCorrect':                              increment(correct),
-          'quizStats.totalAnswered':                             increment(TOTAL),
-          'quizStats.byCategory.challenge.played':              increment(1),
-          'quizStats.byCategory.challenge.totalCorrect':        increment(correct),
-          'quizStats.byCategory.challenge.totalAnswered':       increment(TOTAL),
-        };
-
-        if (score > prevBest)    updates['quizStats.bestScore'] = score;
-        if (score > prevCatBest) updates['quizStats.byCategory.challenge.bestScore'] = score;
-
-        await updateDoc(userRef, updates);
-      } catch(e) {
-        // Doc peut ne pas avoir quizStats encore — on le crée
-        await setDoc(userRef, {
-          quizStats: {
-            totalPlayed: 1, totalCorrect: correct, totalAnswered: TOTAL,
-            bestScore: score,
-            byCategory: {
-              challenge: { played:1, totalCorrect:correct, totalAnswered:TOTAL, bestScore:score }
-            }
-          }
-        }, { merge: true });
-      }
-    }
-
-    /* ── Écran de résultat ── */
-    async function showResult() {
-      const accuracy = Math.round((correct / TOTAL) * 100);
-      const emoji = accuracy === 100 ? '🏆' : accuracy >= 70 ? '🎉' : accuracy >= 40 ? '😤' : '💀';
-      const title = accuracy === 100 ? 'Parfait !' : accuracy >= 70 ? 'Bien joué !' : accuracy >= 40 ? 'Pas mal…' : 'Retente ta chance';
-      const sub   = accuracy === 100 ? 'Tu as tout trouvé, respect.' : `${correct} bonne${correct>1?'s':''} réponse${correct>1?'s':''} sur ${TOTAL}`;
-
-      document.getElementById('quizCard').innerHTML = `
-        <div class="result-box">
-          <span class="result-emoji">${emoji}</span>
-          <div class="result-title">${title}</div>
-          <div class="result-sub">${sub}</div>
-          <div class="result-stats">
-            <div class="result-stat">
-              <div class="result-stat-value">${score}</div>
-              <div class="result-stat-label">Score</div>
-            </div>
-            <div class="result-stat">
-              <div class="result-stat-value">${accuracy}%</div>
-              <div class="result-stat-label">Précision</div>
-            </div>
-            <div class="result-stat">
-              <div class="result-stat-value">${correct}/${TOTAL}</div>
-              <div class="result-stat-label">Corrects</div>
-            </div>
-          </div>
-          <div class="result-btns">
-            <button class="btn-primary" onclick="location.reload()">🔄 Rejouer</button>
-            <button class="btn-ghost" onclick="location.href='animequiz.html'">← Retour aux quiz</button>
-          </div>
-          <div class="saving" id="savingIndicator">
-            <i class="fa-solid fa-circle-notch"></i> Sauvegarde en cours…
-          </div>
-        </div>`;
-
-      await saveStats();
-      const si = document.getElementById('savingIndicator');
-      if (si) si.innerHTML = '<i class="fa-solid fa-check" style="color:#4ade80"></i> Score sauvegardé !';
-    }
-
-    /* ── Validation ── */
-    function handleSubmit() {
-      const userAnswer = normalize(answerInput.value);
-      if (!userAnswer) return;
-
-      const correct_answer = normalize(questions[idx].a);
-
-      if (userAnswer === correct_answer) {
-        streak++;
-        correct++;
-        // Score : 10 pts par bonne réponse + bonus streak
-        const bonus = streak >= 5 ? 5 : streak >= 3 ? 2 : 0;
-        score += 10 + bonus;
-
-        scoreVal.textContent  = score;
-        streakVal.textContent = `${streak}🔥`;
-        correctVal.textContent = correct;
-
-        showFeedback('Bonne réponse ✔️', 'success');
-        idx++;
-
-        if (idx < TOTAL) {
-          setTimeout(loadQuestion, 700);
-        } else {
-          setTimeout(showResult, 700);
-        }
-      } else {
-        streak = 0;
-        streakVal.textContent = `0🔥`;
-        showFeedback('Mauvaise réponse ❌', 'error');
-        answerInput.value = '';
-      }
-    }
-
-    submitBtn.addEventListener('click', handleSubmit);
-    answerInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
-
-    loadQuestion();
+    const list = document.getElementById('quizList');
+    quizzes.forEach((q, i) => {
+      const el = document.createElement('a');
+      el.className = 'quiz-item';
+      el.href = `challenge-play.html?quiz=${q.id}`;
+      el.style.animationDelay = `${i * 0.06}s`;
+      el.innerHTML = `
+        <span class="quiz-num">${String(i+1).padStart(2,'0')}</span>
+        <span class="quiz-item-icon">${q.icon}</span>
+        <div class="quiz-item-info">
+          <div class="quiz-item-name">${q.name}</div>
+          <div class="quiz-item-desc">${q.desc}</div>
+        </div>
+        <span class="quiz-arrow">→</span>`;
+      list.appendChild(el);
+    });
   </script>
 </body>
 </html>
