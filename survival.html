@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Survival – AnimeHub</title>
+  <link rel="icon" type="image/png" href="icon_animehub.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap');
+    :root {
+      --bg:#0b1220; --bg2:#061226;
+      --card:rgba(13,22,40,0.88); --card-border:rgba(255,255,255,0.07);
+      --accent:#06b6d4; --accent2:#3b82f6;
+      --muted:#7e8fa8; --text:#e6eef6; --radius:16px;
+      --danger:#ef4444; --success:#22c55e;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:'DM Sans',ui-sans-serif,system-ui;
+      background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%);
+      color:var(--text); min-height:100vh;
+      -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    }
+    canvas { position:fixed; top:0; left:0; z-index:0; opacity:.3; pointer-events:none; }
+
+    header {
+      position:sticky; top:0; z-index:100;
+      background:rgba(11,18,32,.95); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--card-border);
+      padding:14px 32px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .logo-text {
+      font-family:'Mochiy Pop One','Syne',sans-serif; font-size:1.4rem; cursor:pointer;
+      background:linear-gradient(90deg,#fff59d,#ffeb3b,#ff9800,#ff5722);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .hbtn {
+      padding:8px 14px; border-radius:10px;
+      border:1px solid var(--card-border); background:rgba(255,255,255,.05);
+      color:var(--text); font-family:inherit; font-size:13px; font-weight:700;
+      cursor:pointer; text-decoration:none; display:flex; align-items:center; gap:6px;
+      transition:background .2s,border-color .2s,transform .15s;
+    }
+    .hbtn:hover { background:rgba(6,182,212,.1); border-color:rgba(6,182,212,.4); transform:translateY(-1px); }
+
+    .page { position:relative; z-index:1; max-width:560px; margin:0 auto; padding:40px 20px 80px; }
+
+    /* ── CARD ── */
+    .card {
+      background:var(--card); border:1px solid var(--card-border);
+      border-radius:var(--radius); padding:28px 24px;
+      backdrop-filter:blur(10px); box-shadow:0 12px 32px rgba(0,0,0,.35);
+      animation:fadeUp .4s ease both;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── HUD ── */
+    .hud {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:20px; flex-wrap:wrap; gap:10px;
+    }
+    .lives { display:flex; gap:6px; }
+    .life { font-size:1.3rem; transition:transform .2s,opacity .3s; }
+    .life.lost { opacity:.2; transform:scale(.8); }
+    .hud-score {
+      font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:900;
+      color:var(--accent);
+    }
+    .hud-streak {
+      font-size:12px; font-weight:700; color:var(--muted);
+      background:rgba(255,255,255,.05); border:1px solid var(--card-border);
+      padding:4px 10px; border-radius:999px;
+    }
+    .hud-streak.hot { color:#f97316; border-color:rgba(249,115,22,.4); background:rgba(249,115,22,.08); }
+
+    /* ── PROGRESS ── */
+    .progress-bar-bg {
+      height:4px; border-radius:999px;
+      background:rgba(255,255,255,.07); margin-bottom:20px; overflow:hidden;
+    }
+    .progress-bar-fill {
+      height:100%; border-radius:999px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      transition:width .4s ease;
+    }
+
+    /* ── QUESTION ── */
+    .question-num { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+    .question-text {
+      font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:700;
+      line-height:1.45; margin-bottom:22px;
+    }
+
+    /* ── ANSWERS ── */
+    .answers { display:flex; flex-direction:column; gap:10px; }
+    .answer-btn {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 16px; border-radius:12px;
+      border:1px solid var(--card-border); background:rgba(255,255,255,.04);
+      color:var(--text); font-family:inherit; font-size:14px; font-weight:500;
+      cursor:pointer; text-align:left;
+      transition:background .15s,border-color .15s,transform .1s;
+    }
+    .answer-btn:hover:not(:disabled) { background:rgba(6,182,212,.08); border-color:rgba(6,182,212,.35); transform:translateX(3px); }
+    .answer-btn:disabled { cursor:default; }
+    .answer-btn.correct { background:rgba(34,197,94,.15); border-color:#22c55e; color:#4ade80; }
+    .answer-btn.wrong   { background:rgba(239,68,68,.15);  border-color:#ef4444; color:#f87171; }
+    .answer-letter {
+      width:28px; height:28px; border-radius:8px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(255,255,255,.08); font-size:12px; font-weight:900;
+      font-family:'Syne',sans-serif;
+    }
+
+    /* ── SHAKE ── */
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+    .card.shake { animation:shake .35s ease; }
+
+    /* ── FEEDBACK OVERLAY ── */
+    .feedback {
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+      font-size:4rem; z-index:500; pointer-events:none;
+      transition:transform .15s ease,opacity .3s ease;
+    }
+    .feedback.show { transform:translate(-50%,-50%) scale(1); }
+    .feedback.hide { opacity:0; transform:translate(-50%,-50%) scale(1.5); }
+
+    /* ── RÉSULTAT ── */
+    .result-emoji { font-size:3.5rem; margin-bottom:12px; display:block; text-align:center; }
+    .result-title {
+      font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:900;
+      text-align:center; margin-bottom:6px;
+    }
+    .result-sub { font-size:14px; color:var(--muted); text-align:center; margin-bottom:20px; }
+    .result-stats { display:flex; gap:10px; margin-bottom:20px; }
+    .result-stat {
+      flex:1; padding:14px 10px; border-radius:12px; text-align:center;
+      background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+    }
+    .result-stat-value { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:900; color:var(--accent); }
+    .result-stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
+    .record-badge {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:10px 14px; border-radius:12px; margin-bottom:16px;
+      background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.3);
+      color:#fbbf24; font-size:13px; font-weight:700;
+    }
+    .result-btns { display:flex; flex-direction:column; gap:8px; }
+    .btn-primary {
+      padding:12px; border-radius:12px; border:none;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#052226; font-family:inherit; font-size:14px; font-weight:700;
+      cursor:pointer; transition:transform .15s,filter .15s;
+    }
+    .btn-primary:hover { transform:translateY(-2px); filter:brightness(1.05); }
+    .btn-ghost {
+      padding:12px; border-radius:12px;
+      border:1px solid var(--card-border); background:transparent;
+      color:var(--muted); font-family:inherit; font-size:14px; font-weight:700;
+      cursor:pointer; transition:background .2s,color .2s;
+    }
+    .btn-ghost:hover { background:rgba(255,255,255,.06); color:var(--text); }
+
+    /* ── ÉCRAN ACCUEIL ── */
+    .intro-icon { font-size:3rem; text-align:center; display:block; margin-bottom:16px; }
+    .intro-title { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:900; text-align:center; margin-bottom:8px; }
+    .intro-desc { font-size:14px; color:var(--muted); text-align:center; line-height:1.6; margin-bottom:24px; }
+    .intro-rules { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+    .intro-rule {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 14px; border-radius:10px;
+      background:rgba(255,255,255,.04); border:1px solid var(--card-border);
+      font-size:13px;
+    }
+    .intro-rule-icon { font-size:1.1rem; flex-shrink:0; }
+    .record-display {
+      text-align:center; font-size:13px; color:var(--muted); margin-bottom:20px;
+    }
+    .record-display strong { color:var(--accent); }
+
+    @media(max-width:500px) {
+      body { overflow-x:hidden; }
+      header { padding:10px 14px; }
+      .page { padding:20px 12px 60px; }
+      .card { padding:20px 14px; }
+      .question-text { font-size:1rem; }
+      .answer-btn { padding:10px 12px; font-size:13px; }
+      .result-stats { flex-direction:column; gap:8px; }
+    }
+
+    @font-face {
+      font-family:'Mochiy Pop One';
+      src:url('MochiyPopOne-Regular.woff2') format('woff2');
+      font-display:swap;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <header>
+    <span class="logo-text" id="homeLogo">AnimeHub</span>
+    <a class="hbtn" href="animequiz.html"><i class="fa-solid fa-arrow-left"></i> Quiz</a>
+  </header>
+
+  <div class="page">
+    <div class="card" id="gameCard">
+      <!-- Rempli par JS -->
+    </div>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <script>
+    /* ── Particles ── */
+    const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+    let w,h,pts;
+    function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+    function init(){pts=Array.from({length:55},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3}));}
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
+      for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}}
+      for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
+      requestAnimationFrame(draw);
+    }
+    resize();init();draw();
+    window.addEventListener('resize',()=>{resize();init();});
+    document.getElementById('homeLogo').addEventListener('click',()=>location.href='index.html');
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey:"AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
+      authDomain:"animehub-7.firebaseapp.com", projectId:"animehub-7",
+      storageBucket:"animehub-7.firebasestorage.app",
+      messagingSenderId:"159114039206",
+      appId:"1:159114039206:web:0461d676e7ffff25c4c967",
+    });
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    /* ── Toutes les questions ── */
+    const ALL_QUESTIONS = [
+      // Général
+      { q:"Qui est le capitaine de l'équipage du Chapeau de Paille ?", a:["Roronoa Zoro","Monkey D. Luffy","Shanks","Nami"], c:1 },
+      { q:"Quel est le sort inné de Satoru Gojo ?", a:["L'Infini","Le Feu Noir","L'Œil Divin","La Résonance"], c:0 },
+      { q:"Qui est le protagoniste principal de DanDaDan ?", a:["Okarun","Jin","Momo","Ken"], c:0 },
+      { q:"Qui est le premier pilier à mourir dans Demon Slayer ?", a:["Muichiro Tokito","Kyojuro Rengoku","Mitsuri Kanroji","Gyomei Himejima"], c:1 },
+      { q:"Qui a infligé la première blessure mortelle à Meruem ?", a:["Netero","Gon","Killua","Morel"], c:0 },
+      { q:"Qui est le premier détenteur du One For All ?", a:["Nana Shimura","Yoichi Shigaraki","Gran Torino","All Might"], c:1 },
+      { q:"Dans quel anime apparaît le groupe Phantom Troupe ?", a:["Naruto","Bleach","Hunter x Hunter","Fairy Tail"], c:2 },
+      { q:"Quel personnage porte le titre de 'Roi des Pirates' à la fin de One Piece ?", a:["Shanks","Barbe Blanche","Monkey D. Luffy","Baggy"], c:2 },
+      { q:"Dans quel anime le héros utilise-t-il un carnet pour tuer ses ennemis ?", a:["Code Geass","Death Note","Promised Neverland","Monster"], c:1 },
+      { q:"Quel est le vrai nom de Guts dans Berserk ?", a:["Gambino","Guts","Griffith","Casca"], c:1 },
+      // One Piece
+      { q:"Quelle est la profession de Zoro dans l'équipage de Luffy ?", a:["Navigateur","Médecin","Cuisinier","Épéiste"], c:3 },
+      { q:"Comment s'appelle le second bateau de l'équipage de Luffy ?", a:["Red Sunny","Vogue Merry","Thousand Sunny","Red Merry"], c:2 },
+      { q:"Comment s'appelle le premier Grand Corsaire que Luffy a affronté ?", a:["Crocodile","Doflamingo","Moria","Mihawk"], c:0 },
+      { q:"Quelle est l'île natale de Luffy ?", a:["Kuraigana","Jaya","Dawn","Little East Blue"], c:2 },
+      { q:"Quel fruit du démon Luffy a-t-il mangé ?", a:["Gom Gom","Mera Mera","Ope Ope","Hana Hana"], c:0 },
+      // AoT
+      { q:"Qui est le personnage principal de L'Attaque des Titans ?", a:["Livai Ackerman","Eren Jäger","Armin Arlert","Mikasa Ackerman"], c:1 },
+      { q:"Quel personnage est connu comme le Titan Bestial ?", a:["Livai Ackerman","Sieg Jäger","Kenny Ackerman","Reiner Braun"], c:1 },
+      { q:"Qui se transforme en Titan Femelle ?", a:["Annie Leonhart","Mikasa Ackerman","Sasha Braus","Historia Reiss"], c:0 },
+      { q:"Qui est le possesseur originel du Titan Assaillant avant Eren ?", a:["Erwin Smith","Kenny Ackerman","Grisha Jäger","Dina Fritz"], c:2 },
+      { q:"Quelle nation habite hors des murs dans AoT ?", a:["Marley","Eldia","Hizuru","Paradis"], c:0 },
+      // JJK
+      { q:"Quel est le nom de la malédiction spéciale avalée par Yuji Itadori ?", a:["Mahito","Ryomen Sukuna","Geto","Jogo"], c:1 },
+      { q:"Combien de doigts Sukuna possède-t-il en tout ?", a:["15","20","10","18"], c:1 },
+      { q:"Quel est le style de combat préféré de Yuji Itadori avant la sorcellerie ?", a:["Karaté","Judo","Boxe thaï","Football"], c:2 },
+      { q:"Qui est le professeur de Yuji Itadori à l'école des exorcistes ?", a:["Gojo Satoru","Nanami Kento","Yaga","Geto"], c:0 },
+      // HxH
+      { q:"Quel type de Nen Gon utilise-t-il principalement ?", a:["Transmutation","Amplification","Matérialisation","Émission"], c:1 },
+      { q:"Qui est le président de l'Association des Chasseurs ?", a:["Netero","Cheadle","Leorio","Pariston"], c:0 },
+      { q:"Quel animal Killua peut-il transformer grâce à son Nen ?", a:["Serpent","Araignée","Chat","Requin"], c:2 },
+      // Naruto
+      { q:"Quel est le démon renard enfermé en Naruto ?", a:["Shukaku","Kyubi","Nibi","Hachibi"], c:1 },
+      { q:"Qui est le sénégi d'Itachi Uchiha ?", a:["Kisame Hoshigaki","Pain","Orochimaru","Konan"], c:0 },
+      { q:"Quel village ninja Naruto représente-t-il ?", a:["Village du sable","Village du son","Konoha","Village du nuage"], c:2 },
+      // Death Note
+      { q:"Quel est le vrai nom de Kira ?", a:["Mello","L","Light Yagami","Near"], c:2 },
+      { q:"Qui est le premier propriétaire du Death Note utilisé par Light ?", a:["Ryuk","Rem","Gelus","Armonia"], c:0 },
+      { q:"Quelle règle Light découvre-t-il en dernier pour piéger L ?", a:["Le nom doit être exact","On peut changer la cause de mort","On doit connaître le visage","Le carnet ne peut pas être détruit"], c:1 },
+      // Monster
+      { q:"Quel est le nom du tueur en série dans Monster ?", a:["Roberto","Johan Liebert","Grimmer","Schuwald"], c:1 },
+      { q:"Quelle est la profession du protagoniste de Monster ?", a:["Détective","Avocat","Chirurgien","Psychiatre"], c:2 },
+      // DBZ
+      { q:"Quelle est la race de Goku ?", a:["Humain","Namek","Saiyan","Demi-Saiyan"], c:2 },
+      { q:"Quel personnage est le père de Gohan ?", a:["Vegeta","Raditz","Goku","Piccolo"], c:2 },
+      { q:"Quelle transformation Goku atteint-il en premier ?", a:["Super Saiyan 2","Super Saiyan 3","Super Saiyan","Ultra Instinct"], c:2 },
+      // Pokémon
+      { q:"Quel est le Pokémon de départ que Sacha choisit ?", a:["Carapuce","Bulbizarre","Salamèche","Évoli"], c:2 },
+      { q:"Quel est le numéro de Pikachu dans le Pokédex ?", a:["25","35","12","50"], c:0 },
+      // Perso
+      { q:"Quel personnage est surnommé 'le plus puissant sorcier' dans JJK ?", a:["Sukuna","Nanami","Gojo Satoru","Geto"], c:2 },
+      { q:"Qui est Spike Spiegel dans Cowboy Bebop ?", a:["Un bounty hunter","Un policier","Un pilote militaire","Un marchand"], c:0 },
+      { q:"Quel est le vrai nom de 'Edward' dans FMA ?", a:["Edward Elric","Edward Hughes","Edward Mustang","Edward Greed"], c:0 },
+      { q:"Dans quel anime trouve-t-on la ville de Magnolia ?", a:["Fairy Tail","Black Clover","Bleach","Sword Art Online"], c:0 },
+      { q:"Qui est le rival principal de Naruto ?", a:["Gaara","Rock Lee","Sasuke Uchiha","Neji Hyuga"], c:2 },
+      { q:"Quelle est la technique signature de Rock Lee ?", a:["Rasengan","Chidori","Les huit Portes","Jonction"], c:2 },
+      { q:"Qui est le mangaka de One Piece ?", a:["Masashi Kishimoto","Eiichiro Oda","Tite Kubo","Hajime Isayama"], c:1 },
+      { q:"Quel est le nom de l'épée de Ichigo Kurosaki ?", a:["Senbonzakura","Zangetsu","Ryujin Jakka","Wabisuke"], c:1 },
+      { q:"Quel titan Eren acquiert-il en premier ?", a:["Le Titan Assaillant","Le Titan Cuirassé","Le Titan Colossal","Le Titan Bestial"], c:0 },
+      { q:"Dans Demon Slayer, quel est le rang le plus élevé parmi les démons ?", a:["Lune supérieure","Lune inférieure","Douze lunes","Pilier"], c:0 },
+      { q:"Qui a créé les démons dans Demon Slayer ?", a:["Doma","Akaza","Muzan Kibutsuji","Kokushibo"], c:2 },
+    ];
+
+    /* ── État ── */
+    let questions = [];
+    let qIdx = 0;
+    let lives = 3;
+    let score = 0;
+    let streak = 0;
+    let answered = false;
+    let currentUser = null;
+    let personalRecord = 0;
+
+    const card = document.getElementById('gameCard');
+    const feedbackEl = document.getElementById('feedback');
+
+    /* ── Mélange ── */
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length-1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    /* ── Écran intro ── */
+    function showIntro() {
+      card.innerHTML = `
+        <span class="intro-icon">💀</span>
+        <div class="intro-title">Survival</div>
+        <div class="intro-desc">Réponds à un maximum de questions sans perdre tes 3 vies. Pas de limite — jusqu'à la mort !</div>
+        <div class="intro-rules">
+          <div class="intro-rule"><span class="intro-rule-icon">❤️</span> 3 vies au départ</div>
+          <div class="intro-rule"><span class="intro-rule-icon">⚡</span> Chaque erreur coûte une vie</div>
+          <div class="intro-rule"><span class="intro-rule-icon">🔥</span> Bonus streak : +2 pts tous les 3 bonnes réponses consécutives</div>
+          <div class="intro-rule"><span class="intro-rule-icon">🏆</span> Record sauvegardé</div>
+        </div>
+        <div class="record-display" id="recordDisplay">Chargement du record…</div>
+        <button class="btn-primary" id="startBtn">Commencer !</button>`;
+      document.getElementById('startBtn').addEventListener('click', startGame);
+    }
+
+    /* ── Démarrer ── */
+    function startGame() {
+      questions = shuffle(ALL_QUESTIONS);
+      qIdx = 0; lives = 3; score = 0; streak = 0;
+      showQuestion();
+    }
+
+    /* ── Afficher une question ── */
+    function showQuestion() {
+      answered = false;
+      if (qIdx >= questions.length) {
+        // On a tout répondu, on recharge
+        questions = shuffle(ALL_QUESTIONS);
+        qIdx = 0;
+      }
+      const q = questions[qIdx];
+      const letters = ['A','B','C','D'];
+      const pct = Math.min((qIdx / ALL_QUESTIONS.length) * 100, 100);
+
+      card.innerHTML = `
+        <div class="hud">
+          <div class="lives" id="livesEl"></div>
+          <div class="hud-score" id="scoreEl">⭐ ${score} pts</div>
+          <div class="hud-streak ${streak >= 3 ? 'hot' : ''}" id="streakEl">${streak >= 3 ? '🔥' : '💫'} x${streak}</div>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="question-num">Question ${qIdx + 1}</div>
+        <div class="question-text">${q.q}</div>
+        <div class="answers" id="answersEl"></div>`;
+
+      // Vies
+      const livesEl = document.getElementById('livesEl');
+      for (let i = 0; i < 3; i++) {
+        const heart = document.createElement('span');
+        heart.className = 'life' + (i >= lives ? ' lost' : '');
+        heart.textContent = '❤️';
+        livesEl.appendChild(heart);
+      }
+
+      // Réponses mélangées
+      const answersEl = document.getElementById('answersEl');
+      const shuffledAnswers = shuffle(q.a.map((text, i) => ({ text, original: i })));
+      shuffledAnswers.forEach((ans, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.innerHTML = `<span class="answer-letter">${letters[i]}</span>${ans.text}`;
+        btn.addEventListener('click', () => handleAnswer(btn, ans.original === q.c, answersEl, shuffledAnswers, q.c));
+        answersEl.appendChild(btn);
+      });
+    }
+
+    /* ── Gérer une réponse ── */
+    function handleAnswer(btn, isCorrect, answersEl, shuffledAnswers, correctIdx) {
+      if (answered) return;
+      answered = true;
+
+      // Marquer bonne/mauvaise
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+      // Révéler la bonne réponse si mauvaise
+      if (!isCorrect) {
+        [...answersEl.children].forEach((b, i) => {
+          if (shuffledAnswers[i].original === correctIdx) b.classList.add('correct');
+        });
+      }
+
+      // Désactiver tous les boutons
+      [...answersEl.children].forEach(b => b.disabled = true);
+
+      if (isCorrect) {
+        streak++;
+        const bonus = streak > 0 && streak % 3 === 0 ? 2 : 0;
+        score += 10 + bonus;
+        showFeedback(streak >= 3 ? '🔥' : '✅');
+      } else {
+        lives--;
+        streak = 0;
+        card.classList.remove('shake');
+        void card.offsetWidth;
+        card.classList.add('shake');
+        showFeedback('❌');
+      }
+
+      setTimeout(() => {
+        qIdx++;
+        if (lives <= 0) {
+          endGame();
+        } else {
+          showQuestion();
+        }
+      }, 900);
+    }
+
+    /* ── Feedback visuel ── */
+    function showFeedback(emoji) {
+      feedbackEl.textContent = emoji;
+      feedbackEl.className = 'feedback show';
+      setTimeout(() => { feedbackEl.className = 'feedback hide'; }, 400);
+      setTimeout(() => { feedbackEl.className = 'feedback'; }, 700);
+    }
+
+    /* ── Fin de partie ── */
+    async function endGame() {
+      const survived = qIdx;
+      const isRecord = survived > personalRecord;
+      if (isRecord) personalRecord = survived;
+
+      // Sauvegarder
+      if (currentUser) {
+        try {
+          const userRef = doc(db, 'users', currentUser.uid);
+          const updates = {
+            'quizStats.totalPlayed': increment(1),
+            'quizStats.totalCorrect': increment(survived),
+            'quizStats.totalAnswered': increment(survived + (3 - lives > 0 ? 3 - lives : 0)),
+            'quizStats.byCategory.survival.played': increment(1),
+            'quizStats.byCategory.survival.totalCorrect': increment(survived),
+          };
+          if (isRecord) {
+            updates['quizStats.byCategory.survival.bestScore'] = survived;
+            if (survived > (await getDoc(userRef)).data()?.quizStats?.bestScore ?? 0) {
+              updates['quizStats.bestScore'] = survived;
+            }
+          }
+          await updateDoc(userRef, updates);
+        } catch(e) { console.error(e); }
+      }
+
+      const emoji = survived >= 40 ? '🏆' : survived >= 20 ? '🔥' : survived >= 10 ? '😤' : '💀';
+      const msg   = survived >= 40 ? 'Légendaire !' : survived >= 20 ? 'Impressionnant !' : survived >= 10 ? 'Pas mal !' : 'Tu feras mieux !';
+
+      card.innerHTML = `
+        <span class="result-emoji">${emoji}</span>
+        <div class="result-title">${msg}</div>
+        <div class="result-sub">Tu as survécu à ${survived} question${survived > 1 ? 's' : ''}</div>
+        ${isRecord ? `<div class="record-badge"><i class="fa-solid fa-trophy"></i> Nouveau record !</div>` : ''}
+        <div class="result-stats">
+          <div class="result-stat">
+            <div class="result-stat-value">${survived}</div>
+            <div class="result-stat-label">Questions</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-value">${score}</div>
+            <div class="result-stat-label">Points</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-value">${personalRecord}</div>
+            <div class="result-stat-label">Record</div>
+          </div>
+        </div>
+        <div class="result-btns">
+          <button class="btn-primary" id="retryBtn">🔄 Réessayer</button>
+          <button class="btn-ghost" onclick="location.href='animequiz.html'">← Retour aux quiz</button>
+        </div>`;
+
+      document.getElementById('retryBtn').addEventListener('click', startGame);
+    }
+
+    /* ── Auth ── */
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
+      if (user) {
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          personalRecord = snap.data()?.quizStats?.byCategory?.survival?.bestScore ?? 0;
+        } catch(e) {}
+      }
+      showIntro();
+      const recEl = document.getElementById('recordDisplay');
+      if (recEl) {
+        recEl.innerHTML = user
+          ? `Ton record : <strong>${personalRecord} question${personalRecord !== 1 ? 's' : ''}</strong>`
+          : 'Connecte-toi pour sauvegarder ton record.';
+      }
+    });
+  </script>
+</body>
+</html>

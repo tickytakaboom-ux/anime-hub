@@ -281,6 +281,17 @@
           <span class="mode-arrow">→</span>
         </div>
 
+        <div class="quiz-mode" data-color="red" onclick="location.href='survival.html'">
+          <div class="mode-left">
+            <div class="mode-icon">💀</div>
+            <div>
+              <div class="mode-title">Survival</div>
+              <div class="mode-desc">3 vies — jusqu'où peux-tu aller ?</div>
+            </div>
+          </div>
+          <span class="mode-arrow">→</span>
+        </div>
+
         <div class="quiz-mode" data-color="purple" onclick="location.href='select.html?group=seinen'">
           <div class="mode-left">
             <div class="mode-icon">🧠</div>
@@ -335,6 +346,7 @@
         <button class="lb-tab active" data-cat="global">🌍 Global</button>
         <button class="lb-tab" data-cat="qcu">✅ QCU</button>
         <button class="lb-tab" data-cat="challenge">🥵 Challenge</button>
+        <button class="lb-tab" data-cat="survival">💀 Survival</button>
         <button class="lb-tab" data-cat="seinen">🧠 Seinen</button>
         <button class="lb-tab" data-cat="classiques">📼 Classiques</button>
         <button class="lb-tab" data-cat="personnages">🎭 Personnages</button>
@@ -438,7 +450,7 @@
         if ((data.played||0) > favPlayed) { favPlayed = data.played; favCat = cat; }
       }
 
-      const catLabels = { qcu:'✅ QCU', challenge:'🥵 Challenge', seinen:'🧠 Seinen', classiques:'📼 Classiques', personnages:'🎭 Personnages' };
+      const catLabels = { qcu:'✅ QCU', challenge:'🥵 Challenge', survival:'💀 Survival', seinen:'🧠 Seinen', classiques:'📼 Classiques', personnages:'🎭 Personnages' };
 
       document.getElementById('statsContent').innerHTML = `
         <div class="stats-grid">
