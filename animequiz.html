@@ -292,39 +292,6 @@
           <span class="mode-arrow">→</span>
         </div>
 
-        <div class="quiz-mode" data-color="purple" onclick="location.href='select.html?group=seinen'">
-          <div class="mode-left">
-            <div class="mode-icon">🧠</div>
-            <div>
-              <div class="mode-title">Seinen</div>
-              <div class="mode-desc">Histoires matures et ambiances sombres</div>
-            </div>
-          </div>
-          <span class="mode-arrow">→</span>
-        </div>
-
-        <div class="quiz-mode" data-color="yellow" onclick="location.href='select.html?group=classiques'">
-          <div class="mode-left">
-            <div class="mode-icon">📼</div>
-            <div>
-              <div class="mode-title">Classiques</div>
-              <div class="mode-desc">Les incontournables de l'histoire</div>
-            </div>
-          </div>
-          <span class="mode-arrow">→</span>
-        </div>
-
-        <div class="quiz-mode" data-color="orange" onclick="location.href='select.html?group=personnages'">
-          <div class="mode-left">
-            <div class="mode-icon">🎭</div>
-            <div>
-              <div class="mode-title">Personnages</div>
-              <div class="mode-desc">Reconnais les héros et antagonistes</div>
-            </div>
-          </div>
-          <span class="mode-arrow">→</span>
-        </div>
-
         <div class="quiz-mode" data-color="green" id="randomMode">
           <div class="mode-left">
             <div class="mode-icon">🎲</div>
@@ -347,9 +314,7 @@
         <button class="lb-tab" data-cat="qcu">✅ QCU</button>
         <button class="lb-tab" data-cat="challenge">🥵 Challenge</button>
         <button class="lb-tab" data-cat="survival">💀 Survival</button>
-        <button class="lb-tab" data-cat="seinen">🧠 Seinen</button>
-        <button class="lb-tab" data-cat="classiques">📼 Classiques</button>
-        <button class="lb-tab" data-cat="personnages">🎭 Personnages</button>
+
       </div>
       <div class="lb-list" id="lbList">
         <div class="skeleton" style="height:52px;border-radius:12px;"></div>
@@ -387,7 +352,7 @@
     document.getElementById('homeLogo').addEventListener('click', ()=>location.href='index.html');
     document.getElementById('goProfile').addEventListener('click', ()=>location.href='profile.html');
     document.getElementById('randomMode').addEventListener('click', () => {
-      const modes = ['qcu','seinen','classiques','personnages'];
+      const modes = ['qcu'];
       location.href = `select.html?group=${modes[Math.floor(Math.random()*modes.length)]}`;
     });
 
@@ -450,7 +415,7 @@
         if ((data.played||0) > favPlayed) { favPlayed = data.played; favCat = cat; }
       }
 
-      const catLabels = { qcu:'✅ QCU', challenge:'🥵 Challenge', survival:'💀 Survival', seinen:'🧠 Seinen', classiques:'📼 Classiques', personnages:'🎭 Personnages' };
+      const catLabels = { qcu:'✅ QCU', challenge:'🥵 Challenge', survival:'💀 Survival' };
 
       document.getElementById('statsContent').innerHTML = `
         <div class="stats-grid">
