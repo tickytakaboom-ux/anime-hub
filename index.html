@@ -144,12 +144,15 @@
   .features {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-items: center;
     gap: 1.2rem;
     width: 100%;
     margin-bottom: 2rem;
   }
 
   .feature-card {
+    text-decoration: none; color: var(--text-light);
+    width: 100%;
     padding: 20px;
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.04);
@@ -157,8 +160,9 @@
     text-align: left;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     min-height: 140px;
+    display: flex; flex-direction: column;
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-    cursor: default;
+    cursor: pointer;
   }
 
   .feature-card:hover {
@@ -174,6 +178,18 @@
     font-size: 1.05rem;
   }
 
+  /* Avatar dans la card profil */
+  .user-avatar-ring {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 900;
+    border: 2px solid rgba(6,182,212,0.4);
+    margin-bottom: 10px;
+  }
+
+  .feature-card:last-child:nth-child(3n+1) {
+    grid-column: 2 / 3;
+  }
   .feature-card p {
     margin: 0;
     color: rgba(230, 238, 246, 0.65);
@@ -288,29 +304,29 @@
 
   <!-- FEATURE CARDS -->
   <section class="features">
-    <article class="feature-card">
-      <div class="feature-icon">✨</div>
-      <h3>Profil</h3>
-      <p>Retrouve ton profil, ta progression et tes activités.</p>
-    </article>
-    <article class="feature-card">
+    <a class="feature-card" id="userCard" href="auth.html">
+      <div class="feature-icon" id="userCardIcon">🔐</div>
+      <h3 id="userCardTitle">Connexion</h3>
+      <p id="userCardDesc">Connecte-toi pour accéder à ton profil et tes statistiques.</p>
+    </a>
+    <a class="feature-card" href="animelist.html">
       <div class="feature-icon">📺</div>
       <h3>AnimeList</h3>
       <p>Crée ta liste d'animes et garde une trace de tes coups de cœur.</p>
-    </article>
-    <article class="feature-card">
+    </a>
+    <a class="feature-card" href="animequiz.html">
       <div class="feature-icon">🧠</div>
       <h3>AnimeQuiz</h3>
       <p>Teste tes connaissances et défie tes amis avec des quiz rapides.</p>
-    </article>
+    </a>
+    <a class="feature-card" href="stats.html">
+      <div class="feature-icon">📊</div>
+      <h3>Statistiques</h3>
+      <p>Découvre les animes les plus aimés, les mieux notés et les membres les plus actifs.</p>
+    </a>
   </section>
 
-  <!-- BOUTONS -->
-  <div class="buttons">
-    <button id="mainBtn" class="btn"><span>🔐</span>Connexion</button>
-    <button class="btn" onclick="location.href='animelist.html'"><span>📺</span>AnimeList</button>
-    <button class="btn" onclick="location.href='animequiz.html'"><span>🧠</span>AnimeQuiz</button>
-  </div>
+
 </main>
 
 <script>
@@ -323,7 +339,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
@@ -337,7 +353,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const mainBtn = document.getElementById("mainBtn");
+const COLORS = [['#06b6d4','#3b82f6'],['#f97316','#ef4444'],['#8b5cf6','#ec4899'],['#10b981','#06b6d4'],['#fbbf24','#f97316'],['#6366f1','#8b5cf6'],['#e11d48','#f43f5e'],['#0ea5e9','#22d3ee']];
 
 // ── Compteurs hardcodés ──
 function animateCounterTo(el, target, suffix) {
@@ -354,16 +370,42 @@ function animateCounterTo(el, target, suffix) {
   requestAnimationFrame(step);
 }
 
-animateCounterTo(document.getElementById("statAnimes"),  2723, "");
+animateCounterTo(document.getElementById("statAnimes"),  2617, "");
 animateCounterTo(document.getElementById("statMembers"), 9,    "");
 
-onAuthStateChanged(auth, (user) => {
+const userCard     = document.getElementById("userCard");
+const userCardIcon = document.getElementById("userCardIcon");
+const userCardTitle = document.getElementById("userCardTitle");
+const userCardDesc  = document.getElementById("userCardDesc");
+
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    mainBtn.innerHTML = "<span>👤</span>Profil";
-    mainBtn.onclick = () => location.href = "profile.html";
+    userCard.href = "profile.html";
+    // Charger le profil
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      const data = snap.exists() ? snap.data() : {};
+      const username = data.username || user.email?.split('@')[0] || 'Mon profil';
+      const av = data.avatar;
+      const emoji = av?.emoji || username.charAt(0).toUpperCase();
+      const pair = COLORS[(av?.colorIdx ?? 0) % COLORS.length];
+      const favCount = (data.favorites || []).length;
+      const ratedCount = Object.keys(data.ratings || {}).length;
+
+      // Remplacer l'icône par l'avatar réel
+      userCardIcon.outerHTML = `<div class="feature-icon user-avatar-ring" id="userCardIcon" style="background:linear-gradient(135deg,${pair[0]},${pair[1]})">${emoji}</div>`;
+      userCardTitle.textContent = username;
+      userCardDesc.textContent = `${favCount} favori${favCount !== 1 ? 's' : ''} · ${ratedCount} noté${ratedCount !== 1 ? 's' : ''}`;
+    } catch(e) {
+      userCardIcon.textContent = '👤';
+      userCardTitle.textContent = 'Mon profil';
+      userCardDesc.textContent = 'Voir mon profil et mes activités.';
+    }
   } else {
-    mainBtn.innerHTML = "<span>🔐</span>Connexion";
-    mainBtn.onclick = () => location.href = "auth.html";
+    userCard.href = "auth.html";
+    userCardIcon.textContent = '🔐';
+    userCardTitle.textContent = 'Connexion';
+    userCardDesc.textContent = 'Connecte-toi pour accéder à ton profil et tes statistiques.';
   }
 });
 </script>

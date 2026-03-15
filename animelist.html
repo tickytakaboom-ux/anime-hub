@@ -241,6 +241,47 @@
     }
     .result-count strong { color: var(--accent); font-weight: 700; }
 
+    /* ── GENRE PICKER ── */
+    .genre-picker { position: relative; }
+    .genre-picker-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--glass);
+      color: var(--text); font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: border-color .2s, background .2s;
+    }
+    .genre-picker-btn:hover, .genre-picker-btn.active { border-color: rgba(6,182,212,.5); background: rgba(6,182,212,.08); }
+    .genre-picker-dropdown {
+      position: absolute; top: calc(100% + 6px); left: 0;
+      background: #0f1a2e; border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.6);
+      z-index: 300; min-width: 260px; max-width: 320px;
+      display: none;
+    }
+    .genre-picker-dropdown.open { display: block; animation: cardIn .18s ease; }
+    .genre-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .genre-chip {
+      padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      border: 1px solid var(--border); background: rgba(255,255,255,.04);
+      color: var(--muted); cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .genre-chip:hover { background: rgba(6,182,212,.1); border-color: rgba(6,182,212,.4); color: var(--text); }
+    .genre-chip.selected { background: rgba(6,182,212,.18); border-color: var(--accent); color: var(--accent); }
+    .genre-clear-btn {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      background: none; border: none; cursor: pointer; padding: 0;
+      font-family: inherit; transition: color .2s;
+    }
+    .genre-clear-btn:hover { color: var(--text); }
+    @media (max-width: 500px) {
+      .genre-picker-dropdown { position: fixed; top: unset; bottom: 0; left: 0; right: 0;
+        width: 100vw; max-width: 100vw; border-radius: 18px 18px 0 0;
+        max-height: 60vh; overflow-y: auto; padding: 16px 14px 28px; }
+    }
+
     .btn-discover {
       display: flex; align-items: center; gap: 7px;
       padding: 7px 14px; border-radius: 10px;
@@ -565,7 +606,16 @@
         </svg>
         <input id="search" class="search" placeholder="Rechercher un anime…" autocomplete="off"/>
       </div>
-      <select id="genre" class="select"></select>
+      <div class="genre-picker" id="genrePicker">
+        <button class="genre-picker-btn" id="genrePickerBtn">
+          <span id="genrePickerLabel">🎌 Genres</span>
+          <i class="fa-solid fa-chevron-down" style="font-size:10px;margin-left:4px;"></i>
+        </button>
+        <div class="genre-picker-dropdown" id="genrePickerDropdown">
+          <div class="genre-chips" id="genreChips"></div>
+          <button class="genre-clear-btn" id="genreClearBtn">Tout effacer</button>
+        </div>
+      </div>
       <select id="sort" class="select-sm">
         <option value="top">⭐ Top rating</option>
         <option value="new">🆕 Plus récents</option>
@@ -658,7 +708,33 @@
     const ITEMS_PER_LOAD = 12;
     let currentView = 'grid'; // 'grid' | 'list'
 
-    const genreEl       = document.getElementById('genre');
+    // Genre multi-select
+    let selectedGenres = new Set();
+    const genrePickerBtn      = document.getElementById('genrePickerBtn');
+    const genrePickerDropdown = document.getElementById('genrePickerDropdown');
+    const genrePickerLabel    = document.getElementById('genrePickerLabel');
+    const genreChipsEl        = document.getElementById('genreChips');
+    const genreClearBtn       = document.getElementById('genreClearBtn');
+
+    function updateGenreLabel() {
+      if (selectedGenres.size === 0) genrePickerLabel.textContent = '🎌 Genres';
+      else if (selectedGenres.size === 1) genrePickerLabel.textContent = [...selectedGenres][0];
+      else genrePickerLabel.textContent = `🎌 ${selectedGenres.size} genres`;
+      genrePickerBtn.classList.toggle('active', selectedGenres.size > 0);
+    }
+
+    genrePickerBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      genrePickerDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', () => genrePickerDropdown.classList.remove('open'));
+    genrePickerDropdown.addEventListener('click', e => e.stopPropagation());
+    genreClearBtn.addEventListener('click', () => {
+      selectedGenres.clear();
+      genreChipsEl.querySelectorAll('.genre-chip').forEach(ch => ch.classList.remove('selected'));
+      updateGenreLabel();
+      applyFilters();
+    });
     const sortEl        = document.getElementById('sort');
     const favFilterEl   = document.getElementById('favFilter');
     const statusFilterEl= document.getElementById('statusFilter');
@@ -717,17 +793,28 @@
 
     // ── Genres ──
     function refreshGenres() {
-      const genres = new Set(['Tout']);
+      const genres = new Set();
       ANIMES.forEach(a => (a.genre || []).forEach(g => genres.add(g)));
-      genreEl.innerHTML = '';
-      genres.forEach(g => {
-        const o = document.createElement('option');
-        o.textContent = o.value = g;
-        genreEl.appendChild(o);
+      genreChipsEl.innerHTML = '';
+      [...genres].sort().forEach(g => {
+        const chip = document.createElement('button');
+        chip.className = 'genre-chip' + (selectedGenres.has(g) ? ' selected' : '');
+        chip.textContent = g;
+        chip.addEventListener('click', () => {
+          if (selectedGenres.has(g)) { selectedGenres.delete(g); chip.classList.remove('selected'); }
+          else { selectedGenres.add(g); chip.classList.add('selected'); }
+          updateGenreLabel();
+          applyFilters();
+        });
+        genreChipsEl.appendChild(chip);
       });
+      // Appliquer genreFromUrl si présent
       if (genreFromUrl) {
-        const exists = [...genreEl.options].some(opt => opt.value === genreFromUrl);
-        if (exists) genreEl.value = genreFromUrl;
+        selectedGenres.add(genreFromUrl);
+        genreChipsEl.querySelectorAll('.genre-chip').forEach(ch => {
+          if (ch.textContent === genreFromUrl) ch.classList.add('selected');
+        });
+        updateGenreLabel();
       }
     }
 
@@ -804,14 +891,14 @@
     // ── Apply filters ──
     function applyFilters() {
       const q = searchInput.value.toLowerCase().trim();
-      const g = genreEl.value;
       const s = sortEl.value;
       const f = favFilterEl.value;
 
       filteredList = ANIMES.filter(a => (a.title || '').toLowerCase().includes(q));
 
-      if (g !== 'Tout') filteredList = filteredList.filter(a => (a.genre || []).includes(g));
-      if (genreFromUrl)  filteredList = filteredList.filter(a => (a.genre || []).includes(genreFromUrl));
+      if (selectedGenres.size > 0) {
+        filteredList = filteredList.filter(a => [...selectedGenres].every(g => (a.genre || []).includes(g)));
+      }
       if (f === 'fav')   filteredList = filteredList.filter(a => a.fav);
       if (favFromUrl === '1') favFilterEl.value = 'fav';
       if (statusFilterEl.value !== 'all') filteredList = filteredList.filter(a => a.status === statusFilterEl.value);
@@ -842,10 +929,7 @@
       searchTimer = setTimeout(applyFilters, 180);
     });
 
-    genreEl.addEventListener('change', () => {
-      genreFromUrl = genreEl.value === 'Tout' ? null : genreEl.value;
-      applyFilters();
-    });
+
     sortEl.addEventListener('change', applyFilters);
     favFilterEl.addEventListener('change', applyFilters);
     statusFilterEl.addEventListener('change', applyFilters);
