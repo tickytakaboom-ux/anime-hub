@@ -241,6 +241,45 @@
     }
     .result-count strong { color: var(--accent); font-weight: 700; }
 
+    /* ── PROGRESSION GLOBALE ── */
+    .progress-global {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 14px 18px;
+      margin-bottom: 16px; backdrop-filter: blur(10px);
+    }
+    .progress-global-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .progress-global-title {
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    }
+    .progress-global-pct {
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 900;
+      color: var(--accent);
+    }
+    .progress-global-bar-bg {
+      height: 6px; border-radius: 999px;
+      background: rgba(255,255,255,.07); overflow: hidden; margin-bottom: 10px;
+    }
+    .progress-global-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width .6s ease;
+    }
+    .progress-global-chips {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .progress-chip {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
+      padding: 3px 9px; border-radius: 999px;
+    }
+    .progress-chip.completed { color: #4ade80; border-color: rgba(74,222,128,.25); background: rgba(74,222,128,.07); }
+    .progress-chip.watching  { color: var(--accent); border-color: rgba(6,182,212,.25); background: rgba(6,182,212,.07); }
+    .progress-chip.planned   { color: #94a3b8; border-color: rgba(148,163,184,.25); background: rgba(148,163,184,.07); }
+
     /* ── GENRE PICKER ── */
     .genre-picker { position: relative; }
     .genre-picker-btn {
@@ -673,6 +712,24 @@
   </header>
 
   <div class="container">
+
+    <!-- PROGRESSION GLOBALE -->
+    <div class="progress-global" id="progressGlobal" style="display:none;">
+      <div class="progress-global-header">
+        <span class="progress-global-title">📊 Ma progression</span>
+        <span class="progress-global-pct" id="progressGlobalPct">0%</span>
+      </div>
+      <div class="progress-global-bar-bg">
+        <div class="progress-global-bar-fill" id="progressGlobalFill" style="width:0%"></div>
+      </div>
+      <div class="progress-global-chips">
+        <span class="progress-chip completed">✅ <span id="pgCompleted">0</span> vus</span>
+        <span class="progress-chip watching">▶️ <span id="pgWatching">0</span> en cours</span>
+        <span class="progress-chip planned">🕒 <span id="pgPlanned">0</span> à voir</span>
+        <span class="progress-chip" id="pgTotalChip">📋 <span id="pgTotal">0</span> au total</span>
+      </div>
+    </div>
+
     <!-- BARRE RÉSULTATS -->
     <div class="result-bar">
       <p class="result-count" id="resultCount"></p>
@@ -1135,6 +1192,23 @@
       ANIMES.forEach(a => { a.fav = favs.includes(a.id); });
     }
 
+    function updateProgressGlobal() {
+      const total     = ANIMES.length;
+      const completed = ANIMES.filter(a => a.status === 'completed').length;
+      const watching  = ANIMES.filter(a => a.status === 'watching').length;
+      const planned   = ANIMES.filter(a => a.status === 'planned').length;
+      const seen      = completed + watching + planned;
+      const pct       = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      document.getElementById('progressGlobal').style.display = seen > 0 ? 'block' : 'none';
+      document.getElementById('progressGlobalPct').textContent = `${pct}%`;
+      document.getElementById('progressGlobalFill').style.width = `${pct}%`;
+      document.getElementById('pgCompleted').textContent = completed;
+      document.getElementById('pgWatching').textContent  = watching;
+      document.getElementById('pgPlanned').textContent   = planned;
+      document.getElementById('pgTotal').textContent     = total;
+    }
+
     async function loadStatuses() {
       const user = auth.currentUser;
       if (!user) return;
@@ -1142,6 +1216,7 @@
       if (!snap.exists()) return;
       const statuses = snap.data().statuses || {};
       ANIMES.forEach(a => { a.status = statuses[a.id] || null; });
+      updateProgressGlobal();
     }
 
     async function sendNotification(uid, title, message = '') {
