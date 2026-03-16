@@ -633,6 +633,9 @@
         <option value="all">Tous</option>
         <option value="fav">★ Favoris</option>
       </select>
+      <select id="yearFilter" class="select-sm">
+        <option value="all">📅 Année</option>
+      </select>
 
       <!-- Toggle vue grille / liste -->
       <div class="view-toggle">
@@ -738,6 +741,7 @@
     const sortEl        = document.getElementById('sort');
     const favFilterEl   = document.getElementById('favFilter');
     const statusFilterEl= document.getElementById('statusFilter');
+    const yearFilterEl  = document.getElementById('yearFilter');
     const gridEl        = document.getElementById('grid');
     const searchInput   = document.getElementById('search');
     const emptyEl       = document.getElementById('empty');
@@ -792,6 +796,16 @@
     }
 
     // ── Genres ──
+    function refreshYears() {
+      const years = [...new Set(ANIMES.map(a => a.year).filter(Boolean))].sort((a,b) => b-a);
+      yearFilterEl.innerHTML = '<option value="all">📅 Année</option>';
+      years.forEach(y => {
+        const o = document.createElement('option');
+        o.value = o.textContent = y;
+        yearFilterEl.appendChild(o);
+      });
+    }
+
     function refreshGenres() {
       const genres = new Set();
       ANIMES.forEach(a => (a.genre || []).forEach(g => genres.add(g)));
@@ -902,6 +916,7 @@
       if (f === 'fav')   filteredList = filteredList.filter(a => a.fav);
       if (favFromUrl === '1') favFilterEl.value = 'fav';
       if (statusFilterEl.value !== 'all') filteredList = filteredList.filter(a => a.status === statusFilterEl.value);
+      if (yearFilterEl.value !== 'all') filteredList = filteredList.filter(a => String(a.year) === yearFilterEl.value);
 
       if (s === 'top')     filteredList.sort((a,b) => (Number.isFinite(b.rating)?b.rating:-1) - (Number.isFinite(a.rating)?a.rating:-1));
       if (s === 'new')     filteredList.sort((a,b) => (b.year||0)-(a.year||0));
@@ -932,6 +947,7 @@
 
     sortEl.addEventListener('change', applyFilters);
     favFilterEl.addEventListener('change', applyFilters);
+    yearFilterEl.addEventListener('change', applyFilters);
     statusFilterEl.addEventListener('change', applyFilters);
 
     // ── Scroll ──
@@ -1099,6 +1115,7 @@
       ANIMES.splice(0, ANIMES.length, ...animes);
       window.AnimeHub = { ANIMES, applyFilters };
       refreshGenres();
+      refreshYears();
 
       // Cacher skeleton, montrer grille
       skeletonGrid.style.display = 'none';
