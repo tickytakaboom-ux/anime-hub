@@ -194,6 +194,20 @@
     .lb-sub { font-size: 11px; color: var(--muted); }
     .lb-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 20px 0; }
 
+    /* ── HISTORIQUE ── */
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 12px;
+      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
+    }
+    .history-icon { font-size: 1.2rem; flex-shrink: 0; width: 28px; text-align: center; }
+    .history-info { flex: 1; min-width: 0; }
+    .history-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .history-score { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 900; color: var(--accent); flex-shrink: 0; }
+    .history-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 16px 0; }
+
     /* ── NOT LOGGED ── */
     .login-prompt {
       text-align: center; padding: 20px; color: var(--muted); font-size: 14px;
@@ -303,6 +317,14 @@
           <span class="mode-arrow">→</span>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Historique -->
+    <div class="card" style="animation-delay:.13s;">
+      <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Dernières parties</div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">Aucune partie jouée récemment.</div>
       </div>
     </div>
 
@@ -518,6 +540,51 @@
     });
 
     /* ── Auth & init ── */
+    /* ── Historique localStorage ── */
+    function renderHistory() {
+      const el = document.getElementById('historyList');
+      const HISTORY_KEY = 'animehub_game_history';
+      let history = [];
+      try { history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e) {}
+
+      if (!history.length) {
+        el.innerHTML = '<div class="history-empty">Aucune partie jouée récemment.</div>';
+        return;
+      }
+
+      const icons = { qcu:'✅', challenge:'🥵', survival:'💀', personnages:'🎭', episodes:'📺' };
+      const names = { qcu:'QCU', challenge:'Challenge', survival:'Survival', personnages:'Personnages', episodes:'Premier épisode' };
+
+      el.innerHTML = '';
+      history.slice(0, 5).forEach(g => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const date = new Date(g.date);
+        const timeAgo = formatTimeAgo(date);
+        const icon = icons[g.mode] || '🎮';
+        const name = names[g.mode] || g.mode;
+        const scoreStr = g.mode === 'survival' ? `${g.score} questions` : `${g.score} pts`;
+        const accStr = g.accuracy != null ? ` · ${g.accuracy}%` : '';
+        item.innerHTML = `
+          <span class="history-icon">${icon}</span>
+          <div class="history-info">
+            <div class="history-name">${name}${g.quiz ? ' — ' + g.quiz : ''}</div>
+            <div class="history-meta">${timeAgo}${accStr}</div>
+          </div>
+          <span class="history-score">${scoreStr}</span>`;
+        el.appendChild(item);
+      });
+    }
+
+    function formatTimeAgo(date) {
+      const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (diff < 60)    return "À l'instant";
+      if (diff < 3600)  return `Il y a ${Math.floor(diff/60)} min`;
+      if (diff < 86400) return `Il y a ${Math.floor(diff/3600)} h`;
+      if (diff < 604800) return `Il y a ${Math.floor(diff/86400)} j`;
+      return date.toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+    }
+
     onAuthStateChanged(auth, async user => {
       currentUser = user;
 
@@ -528,6 +595,9 @@
       } else {
         renderStatsLoggedOut();
       }
+
+      // Historique
+      renderHistory();
 
       // Leaderboard
       await loadAllUsers();

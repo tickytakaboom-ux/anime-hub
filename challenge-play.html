@@ -293,12 +293,12 @@
         { q:"Une fin et un début",                                                    a:"haikyuu" },
         { q:"Stone World",                                                            a:"dr stone" },
         { q:"Le jour où je suis devenu un Shinigami",                                 a:"bleach" },
-        { q:"121045",                                                                 a:"the promised neverland" },
+        { q:"121045",                                                                 a:"promised neverland" },
         { q:"I'm Used to It",                                                         a:"solo leveling" },
-        { q:"Arataka Reigen, autoproclamé Médium de génie ~ et Mob ~",                a:"mob psycho 100" },
+        { q:"Arataka Reigen, autoproclamé Médium de génie ~ et Mob ~",               a:"mob psycho 100" },
         { q:"L'opération « Strix »",                                                  a:"spy x family" },
         { q:"Prologue du commencement et de la fin",                                  a:"steins gate" },
-        { q:"Le monde de l'épée",                                                     a:"sword art online" },
+        { q:"Le monde de l'épée",                                                    a:"sword art online" },
         { q:"Mort aux ténèbres",                                                      a:"akame ga kill" },
         { q:"Tigre et Dragon",                                                        a:"toradora" },
       ]
@@ -390,8 +390,18 @@
       }
     }
 
+        function saveToHistory(scoreVal, accVal, quizName) {
+      const HISTORY_KEY = 'animehub_game_history';
+      let hist = [];
+      try { hist = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e) {}
+      hist.unshift({ mode: 'challenge', score: scoreVal, accuracy: accVal, quiz: quizName || null, date: new Date().toISOString() });
+      if (hist.length > 20) hist = hist.slice(0, 20);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+    }
+
     async function showResult() {
       clearProgress();
+      saveToHistory(score, Math.round(correct/TOTAL*100), quizId);
       const accuracy = Math.round((correct / TOTAL) * 100);
       const emoji = accuracy === 100 ? '🏆' : accuracy >= 70 ? '🎉' : accuracy >= 40 ? '😤' : '💀';
       const title = accuracy === 100 ? 'Parfait !' : accuracy >= 70 ? 'Bien joué !' : accuracy >= 40 ? 'Pas mal…' : 'Retente ta chance';

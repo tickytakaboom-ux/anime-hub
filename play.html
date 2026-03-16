@@ -545,8 +545,18 @@
     }
 
     /* ── Écran résultat ── */
+        function saveToHistory(scoreVal, accVal, quizName) {
+      const HISTORY_KEY = 'animehub_game_history';
+      let hist = [];
+      try { hist = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e) {}
+      hist.unshift({ mode: 'qcu', score: scoreVal, accuracy: accVal, quiz: quizName || null, date: new Date().toISOString() });
+      if (hist.length > 20) hist = hist.slice(0, 20);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+    }
+
     async function showResult(score, correct, total) {
       const accuracy = Math.round((correct / total) * 100);
+      saveToHistory(score, accuracy, group || null);
       const emoji = accuracy===100?'🏆':accuracy>=70?'🎉':accuracy>=40?'😤':'💀';
       const title = accuracy===100?'Parfait !':accuracy>=70?'Bien joué !':accuracy>=40?'Pas mal…':'Retente ta chance';
       const sub   = accuracy===100?'Tu as tout trouvé, respect !':`${correct} bonne${correct>1?'s':''} réponse${correct>1?'s':''} sur ${total}`;

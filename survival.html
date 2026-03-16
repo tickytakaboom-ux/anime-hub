@@ -454,8 +454,18 @@
     }
 
     /* ── Fin de partie ── */
+        function saveToHistory(scoreVal, accVal, quizName) {
+      const HISTORY_KEY = 'animehub_game_history';
+      let hist = [];
+      try { hist = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e) {}
+      hist.unshift({ mode: 'survival', score: scoreVal, accuracy: accVal, quiz: quizName || null, date: new Date().toISOString() });
+      if (hist.length > 20) hist = hist.slice(0, 20);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+    }
+
     async function endGame() {
       const survived = qIdx;
+      saveToHistory(survived, null, null);
       const isRecord = survived > personalRecord;
       if (isRecord) personalRecord = survived;
 
