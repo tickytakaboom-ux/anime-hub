@@ -31,7 +31,6 @@
       z-index: 0; opacity: .3; pointer-events: none;
     }
 
-    /* ── HEADER ── */
     header {
       position: sticky; top: 0; z-index: 100;
       background: rgba(11,18,32,.95); backdrop-filter: blur(12px);
@@ -53,14 +52,12 @@
     }
     .hbtn:hover { background: rgba(6,182,212,.1); border-color: rgba(6,182,212,.4); transform: translateY(-1px); }
 
-    /* ── PAGE ── */
     .page {
       position: relative; z-index: 1; flex: 1;
       display: flex; align-items: center; justify-content: center;
       padding: 40px 20px 60px;
     }
 
-    /* ── CARD ── */
     .card {
       background: var(--card); border: 1px solid var(--card-border);
       border-radius: var(--radius); padding: 32px 28px;
@@ -71,58 +68,32 @@
     }
     @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
 
-    /* ── HERO ── */
     .challenge-hero { text-align: center; margin-bottom: 28px; }
-    .challenge-hero h1 {
-      font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 900; margin-bottom: 6px;
-    }
+    .challenge-hero h1 { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 900; margin-bottom: 6px; }
     .challenge-hero p { font-size: 14px; color: var(--muted); }
 
-    /* ── PROGRESS ── */
     .progress-wrap { margin-bottom: 20px; }
     .progress-info {
       display: flex; justify-content: space-between; align-items: center;
       font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 8px;
       text-transform: uppercase; letter-spacing: .04em;
     }
-    .progress-bar-bg {
-      height: 5px; border-radius: 999px;
-      background: rgba(255,255,255,.07);
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%; border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transition: width .5s ease;
-    }
+    .progress-bar-bg { height: 5px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .5s ease; }
 
-    /* ── SCORE STREAK ── */
-    .score-row {
-      display: flex; gap: 10px; margin-bottom: 20px;
-    }
-    .score-chip {
-      flex: 1; padding: 10px 12px; border-radius: 12px; text-align: center;
-      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
-    }
-    .score-chip-value {
-      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 900;
-      color: var(--accent);
-    }
+    .score-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .score-chip { flex: 1; padding: 10px 12px; border-radius: 12px; text-align: center; background: rgba(255,255,255,.04); border: 1px solid var(--card-border); }
+    .score-chip-value { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 900; color: var(--accent); }
     .score-chip-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
 
-    /* ── QUESTION ── */
     .question-box {
       background: rgba(6,182,212,.07); border: 1px solid rgba(6,182,212,.2);
       border-radius: 14px; padding: 20px 18px; text-align: center;
       margin-bottom: 20px; min-height: 72px;
       display: flex; align-items: center; justify-content: center;
     }
-    .question-text {
-      font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 900;
-      line-height: 1.3;
-    }
+    .question-text { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 900; line-height: 1.3; }
 
-    /* ── INPUT ── */
     .answer-input {
       width: 100%; padding: 13px 16px; border-radius: 12px;
       border: 1px solid var(--card-border); background: rgba(255,255,255,.05);
@@ -143,55 +114,25 @@
     .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 8px 24px rgba(6,182,212,.45); }
     .submit-btn:active { transform: translateY(0); }
 
-    /* ── FEEDBACK ── */
-    .feedback {
-      text-align: center; font-size: 14px; font-weight: 700;
-      min-height: 22px; margin-top: 12px;
-      transition: opacity .2s;
-    }
+    .feedback { text-align: center; font-size: 14px; font-weight: 700; min-height: 22px; margin-top: 12px; transition: opacity .2s; }
     .feedback.success { color: #4ade80; }
     .feedback.error   { color: #f87171; }
 
-    /* ── RESULT ── */
     .result-box { text-align: center; animation: fadeUp .4s ease both; }
     .result-emoji { font-size: 3rem; margin-bottom: 12px; display: block; }
-    .result-title {
-      font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 900;
-      margin-bottom: 8px;
-    }
+    .result-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 8px; }
     .result-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-    .result-stats {
-      display: flex; gap: 10px; margin-bottom: 24px;
-    }
-    .result-stat {
-      flex: 1; padding: 12px; border-radius: 12px; text-align: center;
-      background: rgba(255,255,255,.04); border: 1px solid var(--card-border);
-    }
-    .result-stat-value {
-      font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 900; color: var(--accent);
-    }
+    .result-stats { display: flex; gap: 10px; margin-bottom: 24px; }
+    .result-stat { flex: 1; padding: 12px; border-radius: 12px; text-align: center; background: rgba(255,255,255,.04); border: 1px solid var(--card-border); }
+    .result-stat-value { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 900; color: var(--accent); }
     .result-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 3px; }
     .result-btns { display: flex; flex-direction: column; gap: 8px; }
-    .btn-primary {
-      padding: 12px; border-radius: 12px; border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #052226; font-family: inherit; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: transform .15s, filter .15s;
-    }
+    .btn-primary { padding: 12px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #052226; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform .15s, filter .15s; }
     .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
-    .btn-ghost {
-      padding: 12px; border-radius: 12px;
-      border: 1px solid var(--card-border); background: transparent;
-      color: var(--muted); font-family: inherit; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: background .2s, color .2s;
-    }
+    .btn-ghost { padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); background: transparent; color: var(--muted); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .2s, color .2s; }
     .btn-ghost:hover { background: rgba(255,255,255,.06); color: var(--text); }
 
-    /* ── SAVING INDICATOR ── */
-    .saving {
-      font-size: 12px; color: var(--muted); text-align: center;
-      margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
+    .saving { font-size: 12px; color: var(--muted); text-align: center; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .saving i { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -201,8 +142,6 @@
       .page { padding: 20px 12px 60px; max-width: 100vw; }
       .card { padding: 20px 14px; min-width: 0; max-width: 100%; }
       .question-text { font-size: 1rem; }
-      .answer-btn { padding: 10px 12px; font-size: 13px; }
-      .score-bar { font-size: 12px; }
       .result-stats { flex-direction: column; gap: 8px; }
     }
 
@@ -224,14 +163,10 @@
 
   <div class="page">
     <div class="card" id="quizCard">
-
-      <!-- Hero -->
       <div class="challenge-hero">
         <h1>🥵 Challenge</h1>
-        <p>Trouve l'anime à partir du personnage principal</p>
+        <p id="quizDesc">Trouve l'anime…</p>
       </div>
-
-      <!-- Progress -->
       <div class="progress-wrap">
         <div class="progress-info">
           <span id="progressText">Question 1 / 30</span>
@@ -241,8 +176,6 @@
           <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
         </div>
       </div>
-
-      <!-- Score & streak -->
       <div class="score-row">
         <div class="score-chip">
           <div class="score-chip-value" id="scoreVal">0</div>
@@ -257,38 +190,24 @@
           <div class="score-chip-label">Corrects</div>
         </div>
       </div>
-
-      <!-- Question -->
       <div class="question-box">
         <div class="question-text" id="questionText">…</div>
       </div>
-
-      <!-- Input -->
       <input class="answer-input" id="answerInput" placeholder="Nom de l'anime…" autocomplete="off">
       <button class="submit-btn" id="submitBtn">Valider</button>
       <div class="feedback" id="feedback"></div>
-
     </div>
   </div>
 
   <script>
-    /* ── Particles ── */
     const canvas = document.getElementById('stars'), ctx = canvas.getContext('2d');
     let w, h, pts;
     function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
-    function init() {
-      pts = Array.from({length:60}, () => ({
-        x:Math.random()*w, y:Math.random()*h,
-        r:Math.random()*1.3+.3, dx:(Math.random()-.5)*.3, dy:(Math.random()-.5)*.3
-      }));
-    }
+    function init() { pts = Array.from({length:60}, () => ({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.3+.3,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3})); }
     function draw() {
       ctx.clearRect(0,0,w,h);
       for(const p of pts){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>w)p.dx*=-1;if(p.y<0||p.y>h)p.dy*=-1;}
-      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
-        const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-        if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}
-      }
+      for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<115){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(34,211,238,${(1-d/115)*.22})`;ctx.lineWidth=.6;ctx.stroke();}}
       for(const p of pts){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(200,240,255,.75)';ctx.fill();}
       requestAnimationFrame(draw);
     }
@@ -304,8 +223,7 @@
 
     const app = initializeApp({
       apiKey:"AIzaSyCaJZi1Bn1vbeKOC5cM3Gi6nOFyWaH4NK4",
-      authDomain:"animehub-7.firebaseapp.com",
-      projectId:"animehub-7",
+      authDomain:"animehub-7.firebaseapp.com", projectId:"animehub-7",
       storageBucket:"animehub-7.firebasestorage.app",
       messagingSenderId:"159114039206",
       appId:"1:159114039206:web:0461d676e7ffff25c4c967",
@@ -316,96 +234,93 @@
     let currentUser = null;
     onAuthStateChanged(auth, u => { currentUser = u; });
 
-    /* ── Quiz ID depuis URL ── */
     const urlParams = new URLSearchParams(window.location.search);
-    const quizId = urlParams.get('quiz') || 'challenge_personnages';
+    const quizId = urlParams.get('quiz') || 'personnages';
 
-    /* ── Banques de questions ── */
     const allQuizzes = {
       personnages: [
-      { q:"Monkey D. Luffy",      a:"one piece" },
-      { q:"Eren Yeager",          a:"attack on titan" },
-      { q:"Light Yagami",         a:"death note" },
-      { q:"Twilight",             a:"spy x family" },
-      { q:"Izuku Midoriya",       a:"my hero academia" },
-      { q:"Sung Jinwoo",          a:"solo leveling" },
-      { q:"Edward Elric",         a:"fullmetal alchemist" },
-      { q:"Tanjiro Kamado",       a:"demon slayer" },
-      { q:"Shinra Kusakabe",      a:"fire force" },
-      { q:"Denji",                a:"chainsaw man" },
-      { q:"Frieren",              a:"frieren" },
-      { q:"Gintoki Sakata",       a:"gintama" },
-      { q:"Aquamarine Hoshino",   a:"oshi no ko" },
-      { q:"Gon Freecs",           a:"hunter x hunter" },
-      { q:"Kaguya Shinomiya",     a:"love is war" },
-      { q:"Lelouch Lamperouge",   a:"code geass" },
-      { q:"Kafka Hibino",         a:"kaiju n°8" },
-      { q:"Yuji Itadori",         a:"jujutsu kaisen" },
-      { q:"Thorfinn",             a:"vinland saga" },
-      { q:"Shigeo Kageyama",      a:"mob psycho 100" },
-      { q:"Jotaro Kujo",          a:"jojo's bizarre adventure" },
-      { q:"Naruto Uzumaki",       a:"naruto" },
-      { q:"Hinata Shoyo",         a:"haikyu" },
-      { q:"Ichigo Kurosaki",      a:"bleach" },
-      { q:"Kazuma Satou",         a:"konosuba" },
-      { q:"Rudeus Greyrat",       a:"mushoku tensei" },
-      { q:"Mash Burnedead",       a:"mashle" },
-      { q:"Senku Ishigami",       a:"dr stone" },
-      { q:"Yato",                 a:"noragami" },
-      { q:"Atsushi Nakajima",     a:"bungo stray dogs" },
+        { q:"Monkey D. Luffy",      a:"one piece" },
+        { q:"Eren Yeager",          a:"attack on titan" },
+        { q:"Light Yagami",         a:"death note" },
+        { q:"Twilight",             a:"spy x family" },
+        { q:"Izuku Midoriya",       a:"my hero academia" },
+        { q:"Sung Jinwoo",          a:"solo leveling" },
+        { q:"Edward Elric",         a:"fullmetal alchemist" },
+        { q:"Tanjiro Kamado",       a:"demon slayer" },
+        { q:"Shinra Kusakabe",      a:"fire force" },
+        { q:"Denji",                a:"chainsaw man" },
+        { q:"Frieren",              a:"frieren" },
+        { q:"Gintoki Sakata",       a:"gintama" },
+        { q:"Aquamarine Hoshino",   a:"oshi no ko" },
+        { q:"Gon Freecs",           a:"hunter x hunter" },
+        { q:"Kaguya Shinomiya",     a:"love is war" },
+        { q:"Lelouch Lamperouge",   a:"code geass" },
+        { q:"Kafka Hibino",         a:"kaiju n°8" },
+        { q:"Yuji Itadori",         a:"jujutsu kaisen" },
+        { q:"Thorfinn",             a:"vinland saga" },
+        { q:"Shigeo Kageyama",      a:"mob psycho 100" },
+        { q:"Jotaro Kujo",          a:"jojo's bizarre adventure" },
+        { q:"Naruto Uzumaki",       a:"naruto" },
+        { q:"Hinata Shoyo",         a:"haikyu" },
+        { q:"Ichigo Kurosaki",      a:"bleach" },
+        { q:"Kazuma Satou",         a:"konosuba" },
+        { q:"Rudeus Greyrat",       a:"mushoku tensei" },
+        { q:"Mash Burnedead",       a:"mashle" },
+        { q:"Senku Ishigami",       a:"dr stone" },
+        { q:"Yato",                 a:"noragami" },
+        { q:"Atsushi Nakajima",     a:"bungo stray dogs" },
       ],
       episodes: [
-        { q:"Ryomen Sukuna",                              a:"jujutsu kaisen" },
-        { q:"Cruauté",                                    a:"demon slayer" },
-        { q:"À vous, dans 2000 ans",                      a:"attack on titan" },
-        { q:"Renaissance",                                a:"death note" },
-        { q:"Apparais ! Naruto Uzumaki",                  a:"naruto" },
-        { q:"Un départ et des amis",                      a:"hunter x hunter" },
-        { q:"Je suis Luffy ! Celui qui deviendra Roi des Pirates", a:"one piece" },
-        { q:"Izuku Midoriya : Les origines",              a:"my hero academia" },
-        { q:"Le chien et la tronçonneuse",                a:"chainsaw man" },
-        { q:"Quelque part qui ne soit pas ici !",         a:"vinland saga" },
-        { q:"On demande le docteur Tenma",                a:"monster" },
-        { q:"Asteroid Blues",                             a:"cowboy bebop" },
-        { q:"L'alchimiste Fullmetal",                     a:"fullmetal alchemist brotherhood" },
-        { q:"Sept fléchettes mortelles",                  a:"death parade" },
-        { q:"Dio l'envahisseur",                          a:"jojo's bizarre adventure" },
-        { q:"L'épéiste noir",                             a:"berserk" },
-        { q:"Le jour où le démon vient au monde",         a:"code geass" },
-        { q:"L'homme le plus fort du monde",              a:"one punch man" },
-        { q:"La fin de l'aventure",                       a:"frieren" },
-        { q:"Une fin et un début",                        a:"haikyuu" },
-        { q:"Stone World",                                a:"dr stone" },
-        { q:"Le jour où je suis devenu un Shinigami",     a:"bleach" },
-        { q:"121045",                                     a:"promised neverland" },
-        { q:"I'm Used to It",                             a:"solo leveling" },
-        { q:"Arataka Reigen, autoproclamé Médium de génie ~ et Mob ~", a:"mob psycho 100" },
-        { q:"L'opération « Strix »",                      a:"spy x family" },
-        { q:"Prologue du commencement et de la fin",      a:"steins gate" },
-        { q:"Le monde de l'épée",                         a:"sword art online" },
-        { q:"Mort aux ténèbres",                          a:"akame ga kill" },
-		{ q:"Tigre et Dragon",                            a:"toradora" },
+        { q:"Ryomen Sukuna",                                                          a:"jujutsu kaisen" },
+        { q:"Cruauté",                                                                a:"demon slayer" },
+        { q:"À vous, dans 2000 ans",                                                  a:"attack on titan" },
+        { q:"Renaissance",                                                            a:"death note" },
+        { q:"Apparais ! Naruto Uzumaki",                                              a:"naruto" },
+        { q:"Un départ et des amis",                                                  a:"hunter x hunter" },
+        { q:"Je suis Luffy ! Celui qui deviendra Roi des Pirates",                    a:"one piece" },
+        { q:"Izuku Midoriya : Les origines",                                          a:"my hero academia" },
+        { q:"Le chien et la tronçonneuse",                                            a:"chainsaw man" },
+        { q:"Quelque part qui ne soit pas ici !",                                     a:"vinland saga" },
+        { q:"On demande le docteur Tenma",                                            a:"monster" },
+        { q:"Asteroid Blues",                                                         a:"cowboy bebop" },
+        { q:"L'alchimiste Fullmetal",                                                 a:"fullmetal alchemist brotherhood" },
+        { q:"Sept fléchettes mortelles",                                              a:"death parade" },
+        { q:"Dio l'envahisseur",                                                      a:"jojo's bizarre adventure" },
+        { q:"L'épéiste noir",                                                         a:"berserk" },
+        { q:"Le jour où le démon vient au monde",                                     a:"code geass" },
+        { q:"L'homme le plus fort du monde",                                          a:"one punch man" },
+        { q:"La fin de l'aventure",                                                   a:"frieren" },
+        { q:"Une fin et un début",                                                    a:"haikyuu" },
+        { q:"Stone World",                                                            a:"dr stone" },
+        { q:"Le jour où je suis devenu un Shinigami",                                 a:"bleach" },
+        { q:"121045",                                                                 a:"promised neverland" },
+        { q:"I'm Used to It",                                                         a:"solo leveling" },
+        { q:"Arataka Reigen, autoproclamé Médium de génie ~ et Mob ~",               a:"mob psycho 100" },
+        { q:"L'opération « Strix »",                                                  a:"spy x family" },
+        { q:"Prologue du commencement et de la fin",                                  a:"steins gate" },
+        { q:"Le monde de l'épée",                                                    a:"sword art online" },
+        { q:"Mort aux ténèbres",                                                      a:"akame ga kill" },
+        { q:"Tigre et Dragon",                                                        a:"toradora" },
       ]
+    };
+
+    const quizDescs = {
+      personnages: "Trouve l'anime à partir du personnage principal",
+      episodes:    "Trouve l'anime à partir du titre de son premier épisode",
     };
 
     const questions = allQuizzes[quizId] || allQuizzes['personnages'];
     const TOTAL = questions.length;
 
-    // ── Reprise de progression ──
+    document.getElementById('quizDesc').textContent = quizDescs[quizId] || quizDescs['personnages'];
+
     const SAVE_KEY = `challenge_progress_${quizId}`;
     function loadProgress() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
-        if (saved && saved.idx < TOTAL) return saved;
-      } catch(e) {}
+      try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.idx < TOTAL) return s; } catch(e) {}
       return null;
     }
-    function saveProgress() {
-      localStorage.setItem(SAVE_KEY, JSON.stringify({ idx, score, streak, correct }));
-    }
-    function clearProgress() {
-      localStorage.removeItem(SAVE_KEY);
-    }
+    function saveProgress() { localStorage.setItem(SAVE_KEY, JSON.stringify({ idx, score, streak, correct })); }
+    function clearProgress() { localStorage.removeItem(SAVE_KEY); }
 
     const saved = loadProgress();
     let idx     = saved?.idx     ?? 0;
@@ -413,20 +328,18 @@
     let streak  = saved?.streak  ?? 0;
     let correct = saved?.correct ?? 0;
 
-    const questionText  = document.getElementById('questionText');
-    const answerInput   = document.getElementById('answerInput');
-    const submitBtn     = document.getElementById('submitBtn');
-    const feedbackEl    = document.getElementById('feedback');
-    const scoreVal      = document.getElementById('scoreVal');
-    const streakVal     = document.getElementById('streakVal');
-    const correctVal    = document.getElementById('correctVal');
-    const progressText  = document.getElementById('progressText');
-    const progressPct   = document.getElementById('progressPct');
-    const progressFill  = document.getElementById('progressFill');
+    const questionText = document.getElementById('questionText');
+    const answerInput  = document.getElementById('answerInput');
+    const submitBtn    = document.getElementById('submitBtn');
+    const feedbackEl   = document.getElementById('feedback');
+    const scoreVal     = document.getElementById('scoreVal');
+    const streakVal    = document.getElementById('streakVal');
+    const correctVal   = document.getElementById('correctVal');
+    const progressText = document.getElementById('progressText');
+    const progressPct  = document.getElementById('progressPct');
+    const progressFill = document.getElementById('progressFill');
 
-    function normalize(t) {
-      return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-    }
+    function normalize(t) { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
 
     function updateProgress() {
       const pct = Math.round((idx / TOTAL) * 100);
@@ -440,6 +353,10 @@
       answerInput.value = '';
       feedbackEl.textContent = '';
       feedbackEl.className = 'feedback';
+      // Mettre à jour les chips si reprise
+      scoreVal.textContent   = score;
+      streakVal.textContent  = `${streak}🔥`;
+      correctVal.textContent = correct;
       answerInput.focus();
       updateProgress();
     }
@@ -449,114 +366,74 @@
       feedbackEl.className = `feedback ${type}`;
     }
 
-    /* ── Sauvegarde Firestore ── */
     async function saveStats() {
       if (!currentUser) return;
-      const accuracy = Math.round((correct / TOTAL) * 100);
-      const userRef  = doc(db, 'users', currentUser.uid);
-
-      // Récupérer le meilleur score actuel
+      const userRef = doc(db, 'users', currentUser.uid);
       try {
         const snap = await getDoc(userRef);
         const data = snap.data() || {};
         const prevBest    = data.quizStats?.bestScore ?? 0;
-        const prevCatBest = data.quizStats?.byCategory?.challenge?.bestScore ?? 0;
-
+        const prevCatBest = data.quizStats?.byCategory?.[quizId]?.bestScore ?? 0;
         const updates = {
-          'quizStats.totalPlayed':                               increment(1),
-          'quizStats.totalCorrect':                              increment(correct),
-          'quizStats.totalAnswered':                             increment(TOTAL),
-          [`quizStats.byCategory.${quizId}.played`]:         increment(1),
-          [`quizStats.byCategory.${quizId}.totalCorrect`]:    increment(correct),
-          'quizStats.byCategory.challenge.totalAnswered':       increment(TOTAL),
+          'quizStats.totalPlayed':   increment(1),
+          'quizStats.totalCorrect':  increment(correct),
+          'quizStats.totalAnswered': increment(TOTAL),
+          [`quizStats.byCategory.${quizId}.played`]:        increment(1),
+          [`quizStats.byCategory.${quizId}.totalCorrect`]:  increment(correct),
+          [`quizStats.byCategory.${quizId}.totalAnswered`]: increment(TOTAL),
         };
-
         if (score > prevBest)    updates['quizStats.bestScore'] = score;
-        if (score > prevCatBest) updates['quizStats.byCategory.challenge.bestScore'] = score;
-
+        if (score > prevCatBest) updates[`quizStats.byCategory.${quizId}.bestScore`] = score;
         await updateDoc(userRef, updates);
       } catch(e) {
-        // Doc peut ne pas avoir quizStats encore — on le crée
-        await setDoc(userRef, {
-          quizStats: {
-            totalPlayed: 1, totalCorrect: correct, totalAnswered: TOTAL,
-            bestScore: score,
-            byCategory: {
-              challenge: { played:1, totalCorrect:correct, totalAnswered:TOTAL, bestScore:score }
-            }
-          }
-        }, { merge: true });
+        await setDoc(userRef, { quizStats: { totalPlayed:1, totalCorrect:correct, totalAnswered:TOTAL, bestScore:score, byCategory:{ [quizId]:{ played:1, totalCorrect:correct, totalAnswered:TOTAL, bestScore:score } } } }, { merge:true });
       }
     }
 
-    /* ── Écran de résultat ── */
     async function showResult() {
       clearProgress();
       const accuracy = Math.round((correct / TOTAL) * 100);
       const emoji = accuracy === 100 ? '🏆' : accuracy >= 70 ? '🎉' : accuracy >= 40 ? '😤' : '💀';
       const title = accuracy === 100 ? 'Parfait !' : accuracy >= 70 ? 'Bien joué !' : accuracy >= 40 ? 'Pas mal…' : 'Retente ta chance';
       const sub   = accuracy === 100 ? 'Tu as tout trouvé, respect.' : `${correct} bonne${correct>1?'s':''} réponse${correct>1?'s':''} sur ${TOTAL}`;
-
       document.getElementById('quizCard').innerHTML = `
         <div class="result-box">
           <span class="result-emoji">${emoji}</span>
           <div class="result-title">${title}</div>
           <div class="result-sub">${sub}</div>
           <div class="result-stats">
-            <div class="result-stat">
-              <div class="result-stat-value">${score}</div>
-              <div class="result-stat-label">Score</div>
-            </div>
-            <div class="result-stat">
-              <div class="result-stat-value">${accuracy}%</div>
-              <div class="result-stat-label">Précision</div>
-            </div>
-            <div class="result-stat">
-              <div class="result-stat-value">${correct}/${TOTAL}</div>
-              <div class="result-stat-label">Corrects</div>
-            </div>
+            <div class="result-stat"><div class="result-stat-value">${score}</div><div class="result-stat-label">Score</div></div>
+            <div class="result-stat"><div class="result-stat-value">${accuracy}%</div><div class="result-stat-label">Précision</div></div>
+            <div class="result-stat"><div class="result-stat-value">${correct}/${TOTAL}</div><div class="result-stat-label">Corrects</div></div>
           </div>
           <div class="result-btns">
             <button class="btn-primary" onclick="location.reload()">🔄 Rejouer</button>
             <button class="btn-ghost" onclick="location.href='challenge.html'">← Retour aux quiz</button>
           </div>
-          <div class="saving" id="savingIndicator">
-            <i class="fa-solid fa-circle-notch"></i> Sauvegarde en cours…
-          </div>
+          <div class="saving" id="savingIndicator"><i class="fa-solid fa-circle-notch"></i> Sauvegarde en cours…</div>
         </div>`;
-
       await saveStats();
       const si = document.getElementById('savingIndicator');
       if (si) si.innerHTML = '<i class="fa-solid fa-check" style="color:#4ade80"></i> Score sauvegardé !';
     }
 
-    /* ── Validation ── */
     function handleSubmit() {
       const userAnswer = normalize(answerInput.value);
       if (!userAnswer) return;
-
       const correct_answer = normalize(questions[idx].a);
-
       if (userAnswer === correct_answer) {
         streak++;
         correct++;
-        // Score : 10 pts par bonne réponse + bonus streak
         const bonus = streak >= 5 ? 5 : streak >= 3 ? 2 : 0;
         score += 10 + bonus;
-
-        scoreVal.textContent  = score;
-        streakVal.textContent = `${streak}🔥`;
+        scoreVal.textContent   = score;
+        streakVal.textContent  = `${streak}🔥`;
         correctVal.textContent = correct;
-
         showFeedback('Bonne réponse ✔️', 'success');
         idx++;
         saveProgress();
-
-        if (idx < TOTAL) {
-          setTimeout(loadQuestion, 700);
-        } else {
-          setTimeout(showResult, 700);
-        }
+        if (idx < TOTAL) { setTimeout(loadQuestion, 700); }
+        else             { setTimeout(showResult, 700); }
       } else {
         streak = 0;
         streakVal.textContent = `0🔥`;
@@ -568,10 +445,9 @@
     submitBtn.addEventListener('click', handleSubmit);
     answerInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
 
-    // Bandeau de reprise si progression sauvegardée
     if (saved && saved.idx > 0) {
       const banner = document.createElement('div');
-      banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f1a2e;border:1px solid rgba(6,182,212,.4);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;color:#06b6d4;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5);display:flex;align-items:center;gap:10px;';
+      banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f1a2e;border:1px solid rgba(6,182,212,.4);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:700;color:#06b6d4;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.5);display:flex;align-items:center;gap:10px;white-space:nowrap;';
       banner.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Reprise — question ${saved.idx + 1}/${TOTAL} <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#7e8fa8;cursor:pointer;font-size:1rem;margin-left:4px;">✕</button>`;
       document.body.appendChild(banner);
       setTimeout(() => banner.remove(), 4000);
