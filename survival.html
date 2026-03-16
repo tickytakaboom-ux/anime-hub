@@ -312,6 +312,7 @@
 
     /* ── État ── */
     let questions = [];
+    let usedIndices = new Set(); // indices déjà posés dans la session
     let qIdx = 0;
     let lives = 3;
     let score = 0;
@@ -353,6 +354,7 @@
     /* ── Démarrer ── */
     function startGame() {
       questions = shuffle(ALL_QUESTIONS);
+      usedIndices = new Set();
       qIdx = 0; lives = 3; score = 0; streak = 0;
       showQuestion();
     }
@@ -360,11 +362,17 @@
     /* ── Afficher une question ── */
     function showQuestion() {
       answered = false;
-      if (qIdx >= questions.length) {
-        // On a tout répondu, on recharge
-        questions = shuffle(ALL_QUESTIONS);
-        qIdx = 0;
+      // Si on a tout utilisé, on repart sur les non posées ; si vraiment tout épuisé on reset
+      if (usedIndices.size >= ALL_QUESTIONS.length) usedIndices.clear();
+      // Trouver la prochaine question non posée
+      let nextIdx = qIdx % ALL_QUESTIONS.length;
+      let tries = 0;
+      while (usedIndices.has(nextIdx) && tries < ALL_QUESTIONS.length) {
+        nextIdx = (nextIdx + 1) % ALL_QUESTIONS.length;
+        tries++;
       }
+      qIdx = nextIdx;
+      usedIndices.add(qIdx);
       const q = questions[qIdx];
       const letters = ['A','B','C','D'];
       const pct = Math.min((qIdx / ALL_QUESTIONS.length) * 100, 100);
@@ -436,7 +444,7 @@
       }
 
       setTimeout(() => {
-        qIdx++;
+        qIdx = (qIdx + 1) % ALL_QUESTIONS.length;
         if (lives <= 0) {
           endGame();
         } else {
