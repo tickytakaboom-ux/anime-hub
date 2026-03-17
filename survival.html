@@ -311,15 +311,21 @@
     ];
 
     /* ── État ── */
-    let questions = [];
-    let usedIndices = new Set(); // indices déjà posés dans la session
-    let qIdx = 0;
+    let questionQueue = []; // file infinie sans répétition
+    let qCount = 0;         // nb total de questions posées (affiché + pour le score)
     let lives = 3;
     let score = 0;
     let streak = 0;
     let answered = false;
     let currentUser = null;
     let personalRecord = 0;
+
+    /* ── File infinie ── */
+    function refillQueue(excludeLast = []) {
+      // Mélanger toutes les questions sauf les N dernières pour éviter répétitions
+      const available = ALL_QUESTIONS.filter(q => !excludeLast.includes(q));
+      questionQueue.push(...shuffle(available.length > 0 ? available : ALL_QUESTIONS));
+    }
 
     const card = document.getElementById('gameCard');
     const feedbackEl = document.getElementById('feedback');
@@ -353,29 +359,24 @@
 
     /* ── Démarrer ── */
     function startGame() {
-      questions = shuffle(ALL_QUESTIONS);
-      usedIndices = new Set();
-      qIdx = 0; lives = 3; score = 0; streak = 0;
+      questionQueue = [];
+      refillQueue();
+      qCount = 0; lives = 3; score = 0; streak = 0;
       showQuestion();
     }
 
     /* ── Afficher une question ── */
     function showQuestion() {
       answered = false;
-      // Si on a tout utilisé, on repart sur les non posées ; si vraiment tout épuisé on reset
-      if (usedIndices.size >= ALL_QUESTIONS.length) usedIndices.clear();
-      // Trouver la prochaine question non posée
-      let nextIdx = qIdx % ALL_QUESTIONS.length;
-      let tries = 0;
-      while (usedIndices.has(nextIdx) && tries < ALL_QUESTIONS.length) {
-        nextIdx = (nextIdx + 1) % ALL_QUESTIONS.length;
-        tries++;
+      // Recharger la file si presque vide
+      if (questionQueue.length < 5) {
+        const recentlyShown = questionQueue.slice(0, 10);
+        refillQueue(recentlyShown);
       }
-      qIdx = nextIdx;
-      usedIndices.add(qIdx);
-      const q = questions[qIdx];
+      const q = questionQueue.shift();
+      qCount++;
       const letters = ['A','B','C','D'];
-      const pct = Math.min((qIdx / ALL_QUESTIONS.length) * 100, 100);
+      const pct = ((qCount - 1) % ALL_QUESTIONS.length) / ALL_QUESTIONS.length * 100;
 
       card.innerHTML = `
         <div class="hud">
@@ -386,7 +387,7 @@
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" style="width:${pct}%"></div>
         </div>
-        <div class="question-num">Question ${qIdx + 1}</div>
+        <div class="question-num">Question ${qCount}</div>
         <div class="question-text">${q.q}</div>
         <div class="answers" id="answersEl"></div>`;
 
@@ -444,7 +445,6 @@
       }
 
       setTimeout(() => {
-        qIdx = (qIdx + 1) % ALL_QUESTIONS.length;
         if (lives <= 0) {
           endGame();
         } else {
@@ -472,7 +472,7 @@
     }
 
     async function endGame() {
-      const survived = qIdx;
+      const survived = qCount - 1; // questions répondues correctement
       saveToHistory(survived, null, null);
       const isRecord = survived > personalRecord;
       if (isRecord) personalRecord = survived;
