@@ -333,6 +333,17 @@
     .btn-discover:hover { background: rgba(6,182,212,0.15); border-color: rgba(6,182,212,0.6); transform: translateY(-1px); }
     .btn-discover:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
+    .btn-reset {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 12px; border-radius: 10px;
+      border: 1px solid rgba(239,68,68,.3);
+      background: rgba(239,68,68,.07);
+      color: #f87171; font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background .2s, border-color .2s, transform .15s;
+      white-space: nowrap; display: none;
+    }
+    .btn-reset:hover { background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.6); transform: translateY(-1px); }
+
     /* Modal découverte */
     .discover-overlay {
       position: fixed; inset: 0; z-index: 500;
@@ -733,9 +744,12 @@
     <!-- BARRE RÉSULTATS -->
     <div class="result-bar">
       <p class="result-count" id="resultCount"></p>
-      <button class="btn-discover" id="discoverBtn" title="Anime aléatoire parmi les résultats">
-        🎲 Découverte
-      </button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-reset" id="resetBtn">✕ Réinitialiser</button>
+        <button class="btn-discover" id="discoverBtn" title="Anime aléatoire parmi les résultats">
+          🎲 Découverte
+        </button>
+      </div>
     </div>
 
     <!-- SKELETON (visible pendant le chargement) -->
@@ -1005,6 +1019,46 @@
     sortEl.addEventListener('change', applyFilters);
     favFilterEl.addEventListener('change', applyFilters);
     yearFilterEl.addEventListener('change', applyFilters);
+
+    // ── Bouton reset ──
+    const resetBtn = document.getElementById('resetBtn');
+
+    function hasActiveFilters() {
+      return searchInput.value.trim() !== '' ||
+             sortEl.value !== 'top' ||
+             favFilterEl.value !== 'all' ||
+             statusFilterEl.value !== 'all' ||
+             yearFilterEl.value !== 'all' ||
+             selectedGenres.size > 0;
+    }
+
+    function updateResetBtn() {
+      const btn = document.getElementById('resetBtn');
+      if (btn) btn.style.display = hasActiveFilters() ? 'flex' : 'none';
+    }
+
+    function resetFilters() {
+      searchInput.value = '';
+      sortEl.value = 'top';
+      favFilterEl.value = 'all';
+      statusFilterEl.value = 'all';
+      yearFilterEl.value = 'all';
+      selectedGenres.clear();
+      genreFromUrl = null;
+      document.querySelectorAll('.genre-chip').forEach(ch => ch.classList.remove('selected'));
+      updateGenreLabel();
+      updateResetBtn();
+      applyFilters();
+    }
+
+    resetBtn.addEventListener('click', resetFilters);
+
+    // Afficher/cacher le bouton reset à chaque changement de filtre
+    ['input', 'change'].forEach(evt => searchInput.addEventListener(evt, updateResetBtn));
+    sortEl.addEventListener('change', updateResetBtn);
+    favFilterEl.addEventListener('change', updateResetBtn);
+    statusFilterEl.addEventListener('change', updateResetBtn);
+    yearFilterEl.addEventListener('change', updateResetBtn);
     statusFilterEl.addEventListener('change', applyFilters);
 
     // ── Scroll ──
@@ -1173,6 +1227,7 @@
       window.AnimeHub = { ANIMES, applyFilters };
       refreshGenres();
       refreshYears();
+      updateResetBtn();
 
       // Cacher skeleton, montrer grille
       skeletonGrid.style.display = 'none';
