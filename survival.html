@@ -311,8 +311,9 @@
     ];
 
     /* ── État ── */
-    let questionQueue = []; // file infinie sans répétition
-    let qCount = 0;         // nb total de questions posées (affiché + pour le score)
+    let shuffledOrder = [];  // ordre mélangé des indices
+    let orderPos = 0;        // position dans l'ordre actuel
+    let qCount = 0;          // questions posées au total
     let lives = 3;
     let score = 0;
     let streak = 0;
@@ -320,11 +321,19 @@
     let currentUser = null;
     let personalRecord = 0;
 
-    /* ── File infinie ── */
-    function refillQueue(excludeLast = []) {
-      // Mélanger toutes les questions sauf les N dernières pour éviter répétitions
-      const available = ALL_QUESTIONS.filter(q => !excludeLast.includes(q));
-      questionQueue.push(...shuffle(available.length > 0 ? available : ALL_QUESTIONS));
+    /* ── Génère un nouvel ordre mélangé différent du précédent ── */
+    function newShuffledOrder(avoidFirst = -1) {
+      const indices = Array.from({length: ALL_QUESTIONS.length}, (_, i) => i);
+      // Fisher-Yates
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      // Si la 1ère question du nouvel ordre est la même que la dernière du précédent, on l'échange
+      if (avoidFirst !== -1 && indices[0] === avoidFirst && indices.length > 1) {
+        [indices[0], indices[1]] = [indices[1], indices[0]];
+      }
+      return indices;
     }
 
     const card = document.getElementById('gameCard');
@@ -359,8 +368,8 @@
 
     /* ── Démarrer ── */
     function startGame() {
-      questionQueue = [];
-      refillQueue();
+      shuffledOrder = newShuffledOrder();
+      orderPos = 0;
       qCount = 0; lives = 3; score = 0; streak = 0;
       showQuestion();
     }
@@ -368,15 +377,13 @@
     /* ── Afficher une question ── */
     function showQuestion() {
       answered = false;
-      // Recharger la file si presque vide
-      if (questionQueue.length < 5) {
-        const recentlyShown = questionQueue.slice(0, 10);
-        refillQueue(recentlyShown);
-      }
-      const q = questionQueue.shift();
+      // Sécurité — ne devrait pas arriver, la victoire est gérée dans handleAnswer
+      if (orderPos >= ALL_QUESTIONS.length) { endGame(true); return; }
+      const q = ALL_QUESTIONS[shuffledOrder[orderPos]];
+      orderPos++;
       qCount++;
       const letters = ['A','B','C','D'];
-      const pct = ((qCount - 1) % ALL_QUESTIONS.length) / ALL_QUESTIONS.length * 100;
+      const pct = ((orderPos - 1) / ALL_QUESTIONS.length) * 100;
 
       card.innerHTML = `
         <div class="hud">
@@ -446,7 +453,9 @@
 
       setTimeout(() => {
         if (lives <= 0) {
-          endGame();
+          endGame(false);
+        } else if (orderPos >= ALL_QUESTIONS.length) {
+          endGame(true); // GG, toutes les questions réussies !
         } else {
           showQuestion();
         }
@@ -471,8 +480,8 @@
       localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
     }
 
-    async function endGame() {
-      const survived = qCount - 1; // questions répondues correctement
+    async function endGame(victory = false) {
+      const survived = victory ? ALL_QUESTIONS.length : qCount - 1;
       saveToHistory(survived, null, null);
       const isRecord = survived > personalRecord;
       if (isRecord) personalRecord = survived;
@@ -498,13 +507,13 @@
         } catch(e) { console.error(e); }
       }
 
-      const emoji = survived >= 40 ? '🏆' : survived >= 20 ? '🔥' : survived >= 10 ? '😤' : '💀';
-      const msg   = survived >= 40 ? 'Légendaire !' : survived >= 20 ? 'Impressionnant !' : survived >= 10 ? 'Pas mal !' : 'Tu feras mieux !';
+      const emoji = victory ? '🏆' : survived >= 40 ? '🔥' : survived >= 20 ? '😤' : survived >= 10 ? '😤' : '💀';
+      const msg   = victory ? 'GG, invaincu !' : survived >= 40 ? 'Impressionnant !' : survived >= 20 ? 'Pas mal !' : 'Tu feras mieux !';
 
       card.innerHTML = `
         <span class="result-emoji">${emoji}</span>
         <div class="result-title">${msg}</div>
-        <div class="result-sub">Tu as survécu à ${survived} question${survived > 1 ? 's' : ''}</div>
+        <div class="result-sub">${victory ? "Tu as survécu aux 50 questions sans perdre une seule vie. Légende." : "Tu as survécu à " + survived + " question" + (survived > 1 ? "s" : "")}</div>
         ${isRecord ? `<div class="record-badge"><i class="fa-solid fa-trophy"></i> Nouveau record !</div>` : ''}
         <div class="result-stats">
           <div class="result-stat">
