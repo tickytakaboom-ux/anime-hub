@@ -368,13 +368,15 @@
     .comment-tag.question { background: rgba(251,191,36,.15); color: #fbbf24; }
     .comment-tag.spoiler  { background: rgba(239,68,68,.15);  color: #f87171; }
 
-    .spoiler-wrap { position: relative; cursor: pointer; }
+    .spoiler-wrap { position: relative; cursor: pointer; overflow: hidden; border-radius: 6px; }
+    .spoiler-wrap .comment-text { filter: blur(6px); user-select: none; transition: filter .3s; }
+    .spoiler-wrap.revealed .comment-text { filter: none; user-select: auto; }
     .spoiler-mask {
-      position: absolute; inset: 0; border-radius: 6px;
-      background: rgba(10,18,35,.97);
+      position: absolute; inset: 0;
+      background: rgba(10,18,35,.6);
       display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 700; color: var(--muted);
-      transition: opacity .2s; user-select: none;
+      font-size: 12px; font-weight: 700; color: var(--text);
+      transition: opacity .2s; user-select: none; border-radius: 6px;
     }
     .spoiler-wrap.revealed .spoiler-mask { opacity: 0; pointer-events: none; }
 
