@@ -808,6 +808,7 @@
       genreChipsEl.querySelectorAll('.genre-chip').forEach(ch => ch.classList.remove('selected'));
       updateGenreLabel();
       applyFilters();
+      updateResetBtn();
     });
     const sortEl        = document.getElementById('sort');
     const favFilterEl   = document.getElementById('favFilter');
@@ -890,6 +891,7 @@
           else { selectedGenres.add(g); chip.classList.add('selected'); }
           updateGenreLabel();
           applyFilters();
+          updateResetBtn();
         });
         genreChipsEl.appendChild(chip);
       });
