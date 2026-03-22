@@ -302,6 +302,8 @@
     .similar-card-body { padding: 10px; }
     .similar-card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .similar-card-rating { font-size: 12px; color: #fbbf24; font-weight: 700; }
+    .similar-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+    .similar-card-likes { font-size: 11px; color: var(--muted); font-weight: 600; }
 
     /* ── COMMENTS ── */
     .comment-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
@@ -343,6 +345,38 @@
     .comment-delete:hover { color: #f87171; background: rgba(248,113,113,0.1); }
     .comments-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 0; }
     #commentsLoginMsg { font-size: 13px; color: var(--muted); text-align: center; padding: 12px; }
+
+    /* ── TAGS COMMENTAIRES ── */
+    .comment-tags-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tag-chip {
+      padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      border: 1px solid var(--card-border); background: rgba(255,255,255,.04);
+      color: var(--muted); cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .tag-chip:hover { background: rgba(255,255,255,.08); color: var(--text); }
+    .tag-chip.selected { color: #fff; }
+    .tag-chip[data-tag="avis"].selected    { background: rgba(6,182,212,.2);  border-color: var(--accent); color: var(--accent); }
+    .tag-chip[data-tag="question"].selected { background: rgba(251,191,36,.15); border-color: #fbbf24; color: #fbbf24; }
+    .tag-chip[data-tag="spoiler"].selected  { background: rgba(239,68,68,.15); border-color: #ef4444; color: #f87171; }
+
+    .comment-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; margin-bottom: 6px;
+    }
+    .comment-tag.avis     { background: rgba(6,182,212,.15);  color: var(--accent); }
+    .comment-tag.question { background: rgba(251,191,36,.15); color: #fbbf24; }
+    .comment-tag.spoiler  { background: rgba(239,68,68,.15);  color: #f87171; }
+
+    .spoiler-wrap { position: relative; cursor: pointer; }
+    .spoiler-mask {
+      position: absolute; inset: 0; border-radius: 6px;
+      background: rgba(15,26,46,.95); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      transition: opacity .2s;
+    }
+    .spoiler-wrap.revealed .spoiler-mask { opacity: 0; pointer-events: none; }
 
     /* ── TOAST ── */
     #toast {
@@ -499,6 +533,11 @@
         <div class="section-title"><i class="fa-solid fa-comments"></i> Avis & commentaires</div>
         <div id="commentFormWrap">
           <div class="comment-form">
+            <div class="comment-tags-picker" id="tagPicker">
+              <button class="tag-chip" data-tag="avis">💬 Avis</button>
+              <button class="tag-chip" data-tag="question">❓ Question</button>
+              <button class="tag-chip" data-tag="spoiler">⚠️ Spoiler</button>
+            </div>
             <textarea class="comment-textarea" id="commentInput" placeholder="Donne ton avis sur cet anime…" maxlength="500"></textarea>
             <button class="comment-submit" id="commentSubmit">Publier</button>
           </div>
@@ -744,7 +783,10 @@
           <img src="${a.img||'icon_animehub.png'}" alt="${a.title}" loading="lazy">
           <div class="similar-card-body">
             <div class="similar-card-title">${a.title}</div>
-            <div class="similar-card-rating">⭐ ${Number.isFinite(a.rating)?a.rating.toFixed(1):'–'}</div>
+            <div class="similar-card-footer">
+              <div class="similar-card-rating">⭐ ${Number.isFinite(a.rating)?a.rating.toFixed(1):'–'}</div>
+              ${(a.likes||0) > 0 ? `<div class="similar-card-likes">❤️ ${a.likes}</div>` : ''}
+            </div>
           </div>`;
         div.addEventListener('click', ()=>location.href=`anime.html?id=${a.id}`);
         grid.appendChild(div);
@@ -770,6 +812,10 @@
           div.style.animationDelay = `${i*0.05}s`;
           const date = data.createdAt?.toDate?.()?.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) || '';
           const isOwn = currentUser && data.userId === currentUser.uid;
+          const tagLabels = { avis:'💬 Avis', question:'❓ Question', spoiler:'⚠️ Spoiler' };
+          const tagHtml = data.tag ? `<span class="comment-tag ${data.tag}">${tagLabels[data.tag]||data.tag}</span>` : '';
+          const textContent = data.text.replace(/</g,'&lt;');
+          const isSpoiler = data.tag === 'spoiler';
           div.innerHTML = `
             <div class="comment-header">
               <span class="comment-author">${data.username||'Anonyme'}</span>
@@ -778,8 +824,18 @@
                 ${isOwn?`<button class="comment-delete" data-id="${d.id}"><i class="fa-solid fa-trash-can"></i></button>`:''}
               </div>
             </div>
-            <div class="comment-text">${data.text.replace(/</g,'&lt;')}</div>`;
+            ${tagHtml}
+            ${isSpoiler
+              ? `<div class="spoiler-wrap" id="spoiler_${d.id}">
+                   <div class="comment-text">${textContent}</div>
+                   <div class="spoiler-mask">👁️ Cliquer pour révéler le spoiler</div>
+                 </div>`
+              : `<div class="comment-text">${textContent}</div>`
+            }`;
           commentsList.appendChild(div);
+        });
+        commentsList.querySelectorAll('.spoiler-wrap').forEach(wrap => {
+          wrap.addEventListener('click', () => wrap.classList.toggle('revealed'));
         });
         commentsList.querySelectorAll('.comment-delete').forEach(btn => {
           btn.addEventListener('click', async () => {
@@ -798,17 +854,30 @@
       try {
         const userSnap = await getDoc(doc(db,'users',currentUser.uid));
         const username = userSnap.data()?.username || currentUser.email.split('@')[0];
+        const selectedTag = document.querySelector('.tag-chip.selected')?.dataset.tag || null;
         await addDoc(collection(db,'comments'), {
           animeId, userId: currentUser.uid,
           username, text,
+          tag: selectedTag,
           createdAt: serverTimestamp(),
         });
+        // Reset tag
+        document.querySelectorAll('.tag-chip').forEach(ch => ch.classList.remove('selected'));
         commentInput.value = '';
         showToast('💬 Commentaire publié !');
         loadComments();
       } catch(e) { console.error(e); }
       commentSubmit.disabled = false;
     }
+
+    // Tag picker
+    document.querySelectorAll('.tag-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const wasSelected = chip.classList.contains('selected');
+        document.querySelectorAll('.tag-chip').forEach(ch => ch.classList.remove('selected'));
+        if (!wasSelected) chip.classList.add('selected');
+      });
+    });
 
     commentSubmit.addEventListener('click', postComment);
     commentInput.addEventListener('keydown', e => {
