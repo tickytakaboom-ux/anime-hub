@@ -179,6 +179,22 @@
     }
     .record-display strong { color:var(--accent); }
 
+    /* ── RÉVISION ── */
+    .revision-section { margin-top: 20px; }
+    .revision-title {
+      font-family:'Syne',sans-serif; font-size:.85rem; font-weight:700;
+      color:var(--muted); text-transform:uppercase; letter-spacing:.06em;
+      margin-bottom:12px; display:flex; align-items:center; gap:6px;
+    }
+    .revision-list { display:flex; flex-direction:column; gap:8px; }
+    .revision-item {
+      padding:10px 12px; border-radius:12px;
+      background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.2);
+    }
+    .revision-question { font-size:13px; font-weight:700; margin-bottom:4px; color:var(--text); }
+    .revision-answer { font-size:12px; color:#4ade80; font-weight:600; }
+    .revision-given { font-size:11px; color:#f87171; margin-top:2px; }
+
     @media(max-width:500px) {
       body { overflow-x:hidden; }
       header { padding:10px 14px; }
@@ -314,6 +330,7 @@
     let orderPos = 0;        // position dans l'ordre actuel
     let qCount = 0;          // questions posées au total
     let lives = 3;
+    let mistakes = [];       // erreurs pour la révision
     let score = 0;
     let streak = 0;
     let answered = false;
@@ -369,7 +386,7 @@
     function startGame() {
       shuffledOrder = newShuffledOrder();
       orderPos = 0;
-      qCount = 0; lives = 3; score = 0; streak = 0;
+      qCount = 0; lives = 3; score = 0; streak = 0; mistakes = [];
       showQuestion();
     }
 
@@ -444,6 +461,10 @@
       } else {
         lives--;
         streak = 0;
+        // Sauvegarder l'erreur pour la révision
+        const correctText = shuffledAnswers.find(a => a.original === correctIdx)?.text || '';
+        const givenText = btn.textContent.replace(/^[A-D]\s*/, '').trim();
+        mistakes.push({ q: card.querySelector('.question-text')?.textContent || '', correct: correctText, given: givenText });
         card.classList.remove('shake');
         void card.offsetWidth;
         card.classList.add('shake');
@@ -531,7 +552,19 @@
         <div class="result-btns">
           <button class="btn-primary" id="retryBtn">🔄 Réessayer</button>
           <button class="btn-ghost" onclick="location.href='animequiz.html'">← Retour aux quiz</button>
-        </div>`;
+        </div>
+        ${mistakes.length > 0 ? `
+        <div class="revision-section">
+          <div class="revision-title"><i class="fa-solid fa-book-open"></i> Révision — tes erreurs</div>
+          <div class="revision-list">
+            ${mistakes.map(m => `
+              <div class="revision-item">
+                <div class="revision-question">${m.q}</div>
+                <div class="revision-answer">✅ ${m.correct}</div>
+                <div class="revision-given">Ta réponse : ${m.given}</div>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}`;
 
       document.getElementById('retryBtn').addEventListener('click', startGame);
     }
