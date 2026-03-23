@@ -293,6 +293,10 @@
             <div class="card-title"><i class="fa-solid fa-trophy"></i> Classement quiz global</div>
             <div class="members-list" id="membersList"></div>
           </div>
+          <div class="card" style="animation-delay:.17s;grid-column:1/-1;">
+            <div class="card-title"><i class="fa-solid fa-users"></i> Membres les plus actifs</div>
+            <div class="members-list" id="activeList"></div>
+          </div>
         </div>`;
 
       const empty = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px;">Aucune donnée</div>';
@@ -337,6 +341,31 @@
       });
 
       // Membres
+      // Membres les plus actifs (favoris + notes)
+      const topActive = [...users]
+        .map(u => ({
+          ...u,
+          _activity: (u.favorites?.length||0) + Object.keys(u.ratings||{}).length,
+          _favs: u.favorites?.length||0,
+          _rated: Object.keys(u.ratings||{}).length,
+        }))
+        .filter(u => u._activity > 0)
+        .sort((a,b) => b._activity - a._activity)
+        .slice(0, 6);
+
+      const activeEl = document.getElementById('activeList');
+      if (!topActive.length) { activeEl.innerHTML = empty; }
+      else topActive.forEach((u,i) => {
+        const av=u.avatar, emoji=av?.emoji||(u.username||'?').charAt(0).toUpperCase();
+        const pair=COLORS[(av?.colorIdx??i)%COLORS.length];
+        const el=document.createElement('a'); el.className='member-row'; el.href=`public-profile.html?uid=${u.uid}`;
+        el.innerHTML=`<div class="member-avatar" style="background:linear-gradient(135deg,${pair[0]},${pair[1]})">${emoji}</div>
+          <div style="flex:1;min-width:0;"><div class="member-name">#${i+1} ${u.username||'Anonyme'}</div>
+          <div class="member-stat">${u._favs} favori${u._favs>1?'s':''} · ${u._rated} noté${u._rated>1?'s':''}</div></div>
+          <div class="member-score">${u._activity} pts</div>`;
+        activeEl.appendChild(el);
+      });
+
       const membersEl = document.getElementById('membersList');
       if (!topMembers.length) { membersEl.innerHTML = empty; }
       else {
