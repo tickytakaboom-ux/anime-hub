@@ -259,8 +259,16 @@
       const maxGenre = topGenres[0]?.[1]||1;
 
       const topMembers = [...users]
-        .map(u=>({...u,_activity:(u.favorites?.length||0)+Object.keys(u.ratings||{}).length,_favs:u.favorites?.length||0,_rated:Object.keys(u.ratings||{}).length}))
-        .filter(u=>u._activity>0).sort((a,b)=>b._activity-a._activity).slice(0,6);
+        .map(u => {
+          const quiz = u.quizStats || {};
+          const quizScore  = (quiz.totalCorrect ?? 0) * 10;
+          const quizPlayed = quiz.totalPlayed ?? 0;
+          const accuracy   = quiz.totalAnswered > 0 ? Math.round(quiz.totalCorrect/quiz.totalAnswered*100) : 0;
+          return { ...u, _activity: quizScore, _played: quizPlayed, _accuracy: accuracy };
+        })
+        .filter(u => u._activity > 0)
+        .sort((a,b) => b._activity - a._activity || b._accuracy - a._accuracy)
+        .slice(0, 6);
 
       page.innerHTML = `
         <div class="hero" style="animation-delay:0s;">
@@ -282,7 +290,7 @@
             <div class="genres-list" id="genresList"></div>
           </div>
           <div class="card" style="animation-delay:.14s;">
-            <div class="card-title"><i class="fa-solid fa-users"></i> Membres les plus actifs</div>
+            <div class="card-title"><i class="fa-solid fa-trophy"></i> Classement quiz global</div>
             <div class="members-list" id="membersList"></div>
           </div>
         </div>`;
@@ -349,7 +357,7 @@
             <div class="podium-medal">${medals[vi]}</div>
             <div class="podium-avatar" style="background:linear-gradient(135deg,${pair[0]},${pair[1]})">${emoji}</div>
             <div class="podium-name">${u.username||'Anonyme'}</div>
-            <div class="podium-score">${u._activity} pts</div>
+            <div class="podium-score">${u._activity} pts · ${u._accuracy}%</div>
             <div class="podium-block">#${ranks[vi]}</div>`;
           podium.appendChild(slot);
         });
@@ -370,7 +378,7 @@
           const el=document.createElement('a'); el.className='member-row'; el.href=`public-profile.html?uid=${u.uid}`;
           el.innerHTML=`<div class="member-avatar" style="background:linear-gradient(135deg,${pair[0]},${pair[1]})">${emoji}</div>
             <div style="flex:1;min-width:0;"><div class="member-name">#${realIdx+1} ${u.username||'Anonyme'}</div>
-            <div class="member-stat">${u._favs} favori${u._favs>1?'s':''} · ${u._rated} noté${u._rated>1?'s':''}</div></div>
+            <div class="member-stat">${u._played} partie${u._played>1?'s':''} · ${u._accuracy}% précision</div></div>
             <div class="member-score">${u._activity} pts</div>`;
           membersEl.appendChild(el);
         });
