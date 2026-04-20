@@ -265,45 +265,94 @@
   /* ── SNAKE EASTER EGG ── */
   #snakeOverlay {
     display: none; position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,.92); backdrop-filter: blur(8px);
+    background: rgba(2,6,18,.96); backdrop-filter: blur(12px);
     align-items: center; justify-content: center; flex-direction: column;
   }
-  #snakeOverlay.open { display: flex; }
+  #snakeOverlay.open { display: flex; animation: snakeFadeIn .25s ease; }
+  @keyframes snakeFadeIn { from{opacity:0} to{opacity:1} }
+
   #snakeModal {
-    background: #0a1020; border: 1px solid rgba(6,182,212,.3);
-    border-radius: 20px; padding: 24px; text-align: center;
-    box-shadow: 0 24px 64px rgba(0,0,0,.8);
+    background: linear-gradient(145deg, #0d1829, #061020);
+    border: 1px solid rgba(6,182,212,.2);
+    border-radius: 24px; padding: 28px 24px 20px; text-align: center;
+    box-shadow: 0 32px 80px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.04) inset;
     animation: fadeUp .3s ease both;
+    position: relative; overflow: hidden;
+    max-width: 360px; width: calc(100vw - 32px);
   }
+  #snakeModal::before {
+    content: ''; position: absolute; top: -40%; left: -20%;
+    width: 60%; height: 60%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(6,182,212,.08), transparent 70%);
+    pointer-events: none;
+  }
+
+  #snakeHeader { margin-bottom: 16px; }
   #snakeModal h2 {
-    font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 900;
-    margin-bottom: 4px; color: #e6eef6;
+    font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 900;
+    color: #e6eef6; margin-bottom: 4px; letter-spacing: -.01em;
   }
-  #snakeModal p { font-size: 13px; color: #7e8fa8; margin-bottom: 14px; }
-  #snakeCanvas {
-    border: 2px solid rgba(6,182,212,.4); border-radius: 10px;
-    display: block; background: #061226;
+  #snakeModal h2 span { color: #06b6d4; }
+  #snakeModal p { font-size: 12px; color: #4a5568; margin: 0; }
+
+  #snakeCanvasWrap {
+    position: relative; display: inline-block;
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 0 0 2px rgba(6,182,212,.25), 0 8px 32px rgba(0,0,0,.6);
+  }
+  #snakeCanvas { display: block; background: #04090f; }
+  #snakeCanvasOverlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; pointer-events: none;
+    background: rgba(4,9,15,.75); backdrop-filter: blur(2px);
+    transition: opacity .2s;
+  }
+  #snakeCanvasOverlay.hidden { opacity: 0; }
+  #snakeOverlayEmoji { font-size: 2.5rem; margin-bottom: 8px; }
+  #snakeOverlayText {
+    font-family: 'Syne', sans-serif; font-size: .85rem; font-weight: 700;
+    color: #e6eef6; text-align: center; padding: 0 16px;
+  }
+
+  #snakeHUD {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 12px 0 4px; padding: 8px 12px;
+    background: rgba(255,255,255,.03); border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.06);
   }
   #snakeScore {
     font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 900;
-    color: #06b6d4; margin: 10px 0 6px;
+    color: #06b6d4;
   }
-  #snakeMsg { font-size: 13px; color: #7e8fa8; min-height: 20px; }
-  #snakeClose {
-    margin-top: 14px; padding: 8px 20px; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05);
-    color: #e6eef6; font-family: inherit; font-size: 13px; font-weight: 700;
-    cursor: pointer; transition: background .2s;
+  #snakeBest {
+    font-family: 'Syne', sans-serif; font-size: .75rem; font-weight: 700;
+    color: #4a5568;
   }
-  #snakeClose:hover { background: rgba(255,255,255,.1); }
+  #snakeBest span { color: #fbbf24; }
+
   #snakeMobileControls {
-    display: none; gap: 8px; flex-direction: column; align-items: center; margin-top: 12px;
+    display: none; gap: 6px; flex-direction: column;
+    align-items: center; margin: 10px 0 4px;
   }
   #snakeMobileControls button {
-    width: 44px; height: 44px; border-radius: 10px;
-    border: 1px solid rgba(6,182,212,.3); background: rgba(6,182,212,.1);
-    color: #06b6d4; font-size: 1.1rem; cursor: pointer;
+    width: 46px; height: 46px; border-radius: 12px;
+    border: 1px solid rgba(6,182,212,.25);
+    background: rgba(6,182,212,.08);
+    color: #06b6d4; font-size: 1rem; cursor: pointer;
+    transition: background .15s, transform .1s; font-family: inherit;
+    display: flex; align-items: center; justify-content: center;
   }
+  #snakeMobileControls button:active { background: rgba(6,182,212,.2); transform: scale(.92); }
+
+  #snakeClose {
+    margin-top: 12px; padding: 8px 20px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.07); background: transparent;
+    color: #4a5568; font-family: inherit; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: color .2s, border-color .2s;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  #snakeClose:hover { color: #e6eef6; border-color: rgba(255,255,255,.15); }
+
   @media(max-width:500px) { #snakeMobileControls { display: flex; } }
 
   @font-face {
@@ -376,14 +425,24 @@
 <!-- 🐍 SNAKE EASTER EGG -->
 <div id="snakeOverlay">
   <div id="snakeModal">
-    <h2>🐍 Snake — Fruit du Démon</h2>
-    <p>Mange les fruits du démon, évite les murs et toi-même !</p>
-    <canvas id="snakeCanvas" width="280" height="280"></canvas>
-    <div id="snakeScore">Score : 0</div>
-    <div id="snakeMsg">Appuie sur une touche pour commencer</div>
+    <div id="snakeHeader">
+      <h2>🐍 <span>Fruit du Démon</span></h2>
+      <p>Mange les fruits, évite les murs et toi-même</p>
+    </div>
+    <div id="snakeCanvasWrap">
+      <canvas id="snakeCanvas" width="280" height="280"></canvas>
+      <div id="snakeCanvasOverlay">
+        <div id="snakeOverlayEmoji">🐍</div>
+        <div id="snakeOverlayText">Appuie sur une touche<br>pour commencer</div>
+      </div>
+    </div>
+    <div id="snakeHUD">
+      <div id="snakeScore">0 pts</div>
+      <div id="snakeBest">Meilleur : <span id="snakeBestVal">0</span></div>
+    </div>
     <div id="snakeMobileControls">
       <button id="snakeUp">↑</button>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:6px;">
         <button id="snakeLeft">←</button>
         <button id="snakeDown">↓</button>
         <button id="snakeRight">→</button>
@@ -590,29 +649,35 @@ counters.forEach(c => observer.observe(c));
 <script>
 /* ── 🐍 SNAKE EASTER EGG ── */
 (function() {
-  const overlay  = document.getElementById('snakeOverlay');
-  const canvas   = document.getElementById('snakeCanvas');
-  const scoreEl  = document.getElementById('snakeScore');
-  const msgEl    = document.getElementById('snakeMsg');
-  const closeBtn = document.getElementById('snakeClose');
-  const ctx      = canvas.getContext('2d');
+  const overlay      = document.getElementById('snakeOverlay');
+  const canvas       = document.getElementById('snakeCanvas');
+  const canvasOverlay= document.getElementById('snakeCanvasOverlay');
+  const overlayEmoji = document.getElementById('snakeOverlayEmoji');
+  const overlayText  = document.getElementById('snakeOverlayText');
+  const scoreEl      = document.getElementById('snakeScore');
+  const bestEl       = document.getElementById('snakeBestVal');
+  const closeBtn     = document.getElementById('snakeClose');
+  const ctx          = canvas.getContext('2d');
 
   const CELL = 20, COLS = 14, ROWS = 14;
   canvas.width  = CELL * COLS;
   canvas.height = CELL * ROWS;
 
-  // Emojis fruits du démon
   const FRUITS = ['🍊','🍇','🍓','🍑','🍒','🍋','🍈'];
+  let best = parseInt(localStorage.getItem('snake_best')||'0');
 
-  let snake, dir, nextDir, food, score, gameLoop, running, started;
+  let snake, dir, nextDir, food, score, gameLoop, running;
 
   function init() {
     snake = [{x:7, y:7}, {x:6, y:7}, {x:5, y:7}];
     dir = {x:1, y:0}; nextDir = {x:1, y:0};
-    score = 0; running = false; started = false;
+    score = 0; running = false;
     spawnFood();
-    scoreEl.textContent = 'Score : 0';
-    msgEl.textContent = 'Appuie sur une touche pour commencer';
+    scoreEl.textContent = '0 pts';
+    bestEl.textContent = best;
+    canvasOverlay.classList.remove('hidden');
+    overlayEmoji.textContent = '🐍';
+    overlayText.innerHTML = 'Appuie sur une touche<br>pour commencer';
     draw();
   }
 
@@ -669,7 +734,7 @@ counters.forEach(c => observer.observe(c));
 
     if (head.x === food.x && head.y === food.y) {
       score += 10;
-      scoreEl.textContent = `Score : ${score}`;
+      scoreEl.textContent = `${score} pts`;
       spawnFood();
     } else {
       snake.pop();
@@ -680,18 +745,24 @@ counters.forEach(c => observer.observe(c));
   function gameOver() {
     clearInterval(gameLoop);
     running = false;
-    msgEl.textContent = `💀 Game over ! Score : ${score} — Appuie sur une touche pour rejouer`;
-    // Flash rouge
-    ctx.fillStyle = 'rgba(239,68,68,.15)';
+    if (score > best) { best = score; localStorage.setItem('snake_best', best); bestEl.textContent = best; }
+    // Flash rouge sur canvas
+    ctx.fillStyle = 'rgba(239,68,68,.2)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Overlay game over
+    setTimeout(() => {
+      canvasOverlay.classList.remove('hidden');
+      overlayEmoji.textContent = '💀';
+      overlayText.innerHTML = `<b style="color:#f87171">${score} pts</b><br><span style="font-size:11px;color:#4a5568">Appuie pour rejouer</span>`;
+    }, 200);
   }
 
   function startGame() {
     if (running) return;
     clearInterval(gameLoop);
     init();
-    started = true; running = true;
-    msgEl.textContent = '';
+    running = true;
+    canvasOverlay.classList.add('hidden');
     gameLoop = setInterval(step, 130);
   }
 
@@ -707,9 +778,8 @@ counters.forEach(c => observer.observe(c));
     if (newDir) {
       e.preventDefault();
       if (!running) { startGame(); return; }
-      // Empêcher demi-tour
       if (newDir.x !== -dir.x || newDir.y !== -dir.y) nextDir = newDir;
-    } else if (!running) {
+    } else if (!running && e.key !== 'Escape') {
       startGame();
     }
   });
