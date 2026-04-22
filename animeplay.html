@@ -652,6 +652,8 @@ function addToTeamFromModal(id){
   document.getElementById('char-modal-overlay').classList.remove('show');
   showToast(`✅ ${ALL_CHARS.find(c=>c.id===id).name} ajouté à l'équipe !`);
 }
+
+function doGacha(n){
   const cost=n===1?50:450;
   if(state.crystals<cost){alert('Pas assez de cristaux ! 💎');return;}
   state.crystals-=cost;
