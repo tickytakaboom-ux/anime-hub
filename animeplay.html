@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISEKAI CLASH — Anime Gacha RPG</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#f5c842;--gold2:#ffaa00;--red:#e63946;--blue:#00d4ff;--green:#39ff14;--purple:#b44fff;--bg:#08080f;--bg2:#0d0d1a;--bg3:#12122a;--card:#161630;--border:#2a2a5a;--text:#e8e8ff;--muted:#7777aa;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Rajdhani','Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 20%,rgba(180,79,255,.07) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(0,212,255,.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  .stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .star{position:absolute;width:2px;height:2px;border-radius:50%;background:white;animation:twinkle var(--d,3s) infinite ease-in-out;opacity:var(--o,.5);}
+  @keyframes twinkle{0%,100%{opacity:var(--o,.5);transform:scale(1);}50%{opacity:.1;transform:scale(.5);}}
+  #app{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 12px 60px;}
+  header{text-align:center;padding:24px 0 14px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+  header h1{font-family:'Cinzel Decorative',serif;font-size:clamp(1.3rem,5vw,2.4rem);background:linear-gradient(135deg,var(--gold) 0%,#fff 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s infinite linear;background-size:200% 200%;}
+  @keyframes shimmer{0%{background-position:0% 50%;}100%{background-position:200% 50%;}}
+  .subtitle{font-size:.7rem;letter-spacing:6px;color:var(--muted);margin-top:4px;text-transform:uppercase;}
+  .resources{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
+  .res-item{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:5px;}
+  .tabs{display:flex;gap:5px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+  .tab-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
+  .tab-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .tab-btn.active{background:linear-gradient(135deg,rgba(245,200,66,.15),rgba(255,170,0,.1));border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(245,200,66,.2);}
+  .screen{display:none;}.screen.active{display:block;animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .section-title{font-family:'Cinzel Decorative',serif;font-size:.95rem;color:var(--gold);margin-bottom:14px;padding-bottom:7px;border-bottom:1px solid var(--border);letter-spacing:1px;}
+  /* GACHA */
+  .gacha-banner{background:linear-gradient(135deg,var(--bg3),#1a1040);border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;}
+  .gacha-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(180,79,255,.08));pointer-events:none;}
+  .gacha-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold);margin-bottom:5px;}
+  .gacha-subtitle{color:var(--muted);font-size:.82rem;margin-bottom:18px;}
+  .gacha-orb{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff8,var(--purple),#0005);margin:0 auto 18px;cursor:pointer;position:relative;box-shadow:0 0 40px rgba(180,79,255,.5),0 0 80px rgba(180,79,255,.2);transition:transform .2s,box-shadow .2s;animation:pulse-orb 3s infinite ease-in-out;}
+  .gacha-orb:hover{transform:scale(1.08);box-shadow:0 0 60px rgba(180,79,255,.8),0 0 100px rgba(180,79,255,.3);}
+  @keyframes pulse-orb{0%,100%{box-shadow:0 0 40px rgba(180,79,255,.5),0 0 80px rgba(180,79,255,.2);}50%{box-shadow:0 0 60px rgba(180,79,255,.7),0 0 120px rgba(180,79,255,.3);}}
+  .gacha-orb-inner{position:absolute;inset:15px;border-radius:50%;background:radial-gradient(circle at 40% 30%,rgba(255,255,255,.4),transparent 60%);font-size:2.3rem;display:flex;align-items:center;justify-content:center;}
+  .gacha-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .gacha-btn{background:linear-gradient(135deg,#1a1040,#2a1560);border:1px solid var(--purple);color:var(--text);padding:9px 22px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:1px;transition:all .2s;}
+  .gacha-btn:hover{background:linear-gradient(135deg,#2a1560,#3a1880);box-shadow:0 0 20px rgba(180,79,255,.4);}
+  .gacha-btn .cost{color:var(--gold);font-size:.78rem;display:block;}
+  .pity-bar{margin-top:14px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;}
+  .pity-label{font-size:.72rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+  .pity-track{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+  .pity-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));border-radius:3px;transition:width .4s;}
+  /* RESULT */
+  .gacha-result{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+  .gacha-result.show{display:flex;animation:fadeIn .4s ease;}
+  .result-cards{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:820px;padding:16px;}
+  .result-card{width:105px;border-radius:12px;padding:10px 7px;text-align:center;cursor:default;animation:card-appear .4s ease both;border:2px solid transparent;position:relative;overflow:hidden;}
+  @keyframes card-appear{from{transform:scale(0) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
+  .result-card.r5{background:linear-gradient(160deg,#2a1a00,#4a2e00);border-color:var(--gold);box-shadow:0 0 20px rgba(245,200,66,.5);}
+  .result-card.r4{background:linear-gradient(160deg,#1a0a2a,#2e1050);border-color:var(--purple);box-shadow:0 0 15px rgba(180,79,255,.4);}
+  .result-card.r3{background:linear-gradient(160deg,#0a1a2a,#102040);border-color:var(--blue);}
+  .result-card.r2{background:linear-gradient(160deg,#0a1a0a,#102010);border-color:#444;}
+  .result-card .char-emoji{font-size:2rem;display:block;margin-bottom:3px;}
+  .result-card .char-name{font-size:.68rem;font-weight:700;color:var(--text);line-height:1.2;}
+  .result-card .char-anime{font-size:.58rem;color:var(--muted);margin-top:2px;}
+  .stars-row{display:flex;justify-content:center;gap:1px;margin-top:3px;}
+  .stars-row span{font-size:.58rem;color:var(--gold);}
+  .result-card.r3 .stars-row span{color:var(--blue);}
+  .result-card.r2 .stars-row span{color:#777;}
+  .new-badge{position:absolute;top:4px;right:4px;background:var(--red);color:white;font-size:.52rem;padding:1px 4px;border-radius:3px;font-weight:700;}
+  .result-close{background:var(--card);border:1px solid var(--border);color:var(--text);padding:9px 38px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:2px;transition:all .2s;}
+  .result-close:hover{border-color:var(--gold);color:var(--gold);}
+  .rates-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px;}
+  .rates-box h3{font-size:.8rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+  .rate-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:.82rem;border-bottom:1px solid rgba(255,255,255,.04);}
+  .rate-row:last-child{border:none;}
+  /* COLLECTION */
+  .coll-filter{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;justify-content:center;}
+  .filter-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:4px 11px;border-radius:20px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:600;transition:all .15s;}
+  .filter-btn.active,.filter-btn:hover{border-color:var(--blue);color:var(--blue);}
+  .coll-stats-bar{display:flex;gap:12px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;}
+  .coll-stat{font-size:.8rem;color:var(--muted);}
+  .coll-stat span{color:var(--gold);font-weight:700;}
+  .collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;}
+  .coll-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:12px 8px;text-align:center;transition:all .2s;cursor:pointer;position:relative;}
+  .coll-card:hover{transform:translateY(-3px);border-color:var(--blue);}
+  .coll-card.locked{opacity:.3;filter:grayscale(1);}
+  .coll-card.r5{border-color:rgba(245,200,66,.4);}
+  .coll-card.r4{border-color:rgba(180,79,255,.3);}
+  .coll-card .char-emoji{font-size:2.2rem;display:block;margin-bottom:5px;}
+  .coll-card .char-name{font-size:.77rem;font-weight:700;line-height:1.2;}
+  .coll-card .char-anime{font-size:.62rem;color:var(--muted);margin-top:2px;}
+  .coll-card .char-count{position:absolute;top:5px;right:7px;font-size:.68rem;color:var(--gold);font-weight:700;}
+  .coll-card .coll-stats{font-size:.62rem;color:var(--muted);margin-top:5px;}
+  .empty-coll{grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:.88rem;}
+  /* TEAM */
+  .team-builder{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:600px){.team-builder{grid-template-columns:1fr;}}
+  .team-slots h3,.bench-section h3{font-size:.77rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+  .team-slot{background:var(--card);border:2px dashed var(--border);border-radius:11px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:7px;min-height:65px;cursor:pointer;transition:all .2s;}
+  .team-slot:hover{border-color:var(--blue);}
+  .team-slot.filled{border-style:solid;border-color:var(--border);}
+  .team-slot.filled.r5{border-color:rgba(245,200,66,.5);background:linear-gradient(135deg,var(--card),rgba(245,200,66,.05));}
+  .team-slot.filled.r4{border-color:rgba(180,79,255,.4);background:linear-gradient(135deg,var(--card),rgba(180,79,255,.05));}
+  .slot-emoji{font-size:1.9rem;}.slot-info{flex:1;}.slot-name{font-weight:700;font-size:.88rem;}.slot-anime{font-size:.68rem;color:var(--muted);}.slot-power{font-size:.72rem;color:var(--gold);margin-top:2px;}
+  .slot-remove{color:var(--red);cursor:pointer;font-size:1.1rem;opacity:.6;}.slot-remove:hover{opacity:1;}
+  .slot-empty{color:var(--muted);font-size:.82rem;width:100%;text-align:center;}
+  .bench-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-height:380px;overflow-y:auto;padding-right:3px;}
+  .bench-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:9px 5px;text-align:center;cursor:pointer;transition:all .15s;font-size:.72rem;}
+  .bench-card:hover{border-color:var(--gold);transform:scale(1.03);}
+  .bench-card.in-team{opacity:.4;cursor:default;}.bench-card.in-team:hover{transform:none;border-color:var(--border);}
+  .bench-card .be{font-size:1.7rem;display:block;margin-bottom:2px;}
+  .team-power-bar{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:12px;margin-top:14px;text-align:center;}
+  .tp-label{font-size:.72rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+  .tp-value{font-size:1.9rem;font-weight:700;color:var(--gold);font-family:'Cinzel Decorative',serif;}
+  /* BATTLE */
+  .arc-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;justify-content:center;}
+  .arc-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:600;transition:all .2s;text-align:center;min-width:130px;}
+  .arc-btn:hover{border-color:var(--blue);color:var(--blue);}
+  .arc-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(245,200,66,.08);}
+  .arc-btn.locked{opacity:.35;cursor:not-allowed;}
+  .arc-btn .arc-name{font-weight:700;font-size:.85rem;}
+  .arc-btn .arc-waves{font-size:.65rem;color:var(--muted);display:block;margin-top:2px;}
+  .arc-btn.active .arc-waves{color:var(--gold2);}
+  .battle-area{background:linear-gradient(180deg,#050510,#0d0d1a);border:1px solid var(--border);border-radius:14px;padding:18px;min-height:380px;}
+  .battle-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .wave-info{font-size:.82rem;color:var(--muted);}
+  .wave-num{font-size:1.2rem;font-weight:700;color:var(--gold);font-family:'Cinzel Decorative',serif;}
+  .combatants{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;}
+  .fighter-group{flex:1;}
+  .fighter-group-title{font-size:.68rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+  .fighter{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px;margin-bottom:7px;display:flex;align-items:center;gap:9px;transition:background .3s;}
+  .fighter.dead{opacity:.3;filter:grayscale(1);}
+  .fighter-emoji{font-size:1.7rem;}.fighter-info{flex:1;min-width:0;}
+  .fighter-type{font-size:.6rem;color:var(--purple);margin-bottom:1px;}
+  .fighter-name{font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hp-bar-wrap{height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:4px;overflow:hidden;}
+  .hp-bar{height:100%;border-radius:3px;transition:width .4s ease;}
+  .hp-bar.high{background:linear-gradient(90deg,var(--green),#00ff88);}
+  .hp-bar.mid{background:linear-gradient(90deg,var(--gold2),var(--gold));}
+  .hp-bar.low{background:linear-gradient(90deg,#ff4400,var(--red));}
+  .hp-text{font-size:.62rem;color:var(--muted);margin-top:2px;}
+  .shield-bar-wrap{height:4px;background:rgba(0,212,255,.1);border-radius:3px;margin-top:2px;overflow:hidden;}
+  .shield-bar{height:100%;background:linear-gradient(90deg,var(--blue),#00aaff);border-radius:3px;transition:width .4s;}
+  .vs-divider{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:18px;}
+  .vs-text{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--red);text-shadow:0 0 10px var(--red);}
+  .battle-log{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:7px;padding:9px 12px;height:80px;overflow-y:auto;font-size:.75rem;line-height:1.65;margin-bottom:12px;}
+  .battle-log p{margin:0;}
+  .log-hit{color:#ff9999;}.log-crit{color:var(--red);font-weight:700;}.log-heal{color:var(--green);}.log-special{color:var(--gold);font-weight:700;}.log-win{color:var(--gold);font-weight:700;font-size:.88rem;}.log-debuff{color:#ff8800;}
+  .battle-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .battle-btn{padding:9px 20px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:1px;transition:all .2s;border:none;}
+  .btn-attack{background:linear-gradient(135deg,#5a0a0a,#8a1010);border:1px solid var(--red);color:white;}
+  .btn-attack:hover{background:linear-gradient(135deg,#8a1010,#aa1515);box-shadow:0 0 15px rgba(230,57,70,.4);}
+  .btn-special{background:linear-gradient(135deg,#1a0a3a,#2a1060);border:1px solid var(--purple);color:white;}
+  .btn-special:hover{box-shadow:0 0 15px rgba(180,79,255,.4);}
+  .btn-burst{background:linear-gradient(135deg,#2a1a00,#4a3000);border:1px solid var(--gold);color:white;}
+  .btn-burst:hover:not(:disabled){box-shadow:0 0 15px rgba(245,200,66,.4);}
+  .btn-burst:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-auto{background:linear-gradient(135deg,#0a0a2a,#101040);border:1px solid #555;color:#888;}
+  .btn-auto.on{background:linear-gradient(135deg,#0a2a0a,#104010);border-color:var(--green);color:var(--green);box-shadow:0 0 10px rgba(57,255,20,.25);}
+  .no-team-msg{text-align:center;padding:50px 20px;color:var(--muted);}
+  .no-team-msg .big{font-size:2.8rem;margin-bottom:10px;}
+  .boss-banner{text-align:center;padding:9px;margin-bottom:12px;background:linear-gradient(135deg,rgba(230,57,70,.1),rgba(180,79,255,.1));border:1px solid var(--red);border-radius:10px;}
+  .boss-banner .boss-title{font-family:'Cinzel Decorative',serif;font-size:.88rem;color:var(--red);letter-spacing:2px;}
+  .enemy-abilities{font-size:.65rem;color:var(--muted);margin-top:3px;}
+  .status-icons{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;}
+  .status-icon{font-size:.65rem;background:rgba(255,255,255,.08);border-radius:4px;padding:1px 4px;}
+  /* FORGE */
+  .forge-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .forge-card.r5{border-color:rgba(245,200,66,.35);}
+  .forge-card.r4{border-color:rgba(180,79,255,.3);}
+  .forge-emoji{font-size:2.2rem;flex-shrink:0;}
+  .forge-info{flex:1;min-width:160px;}
+  .forge-name{font-weight:700;font-size:.92rem;}
+  .forge-anime{font-size:.68rem;color:var(--muted);}
+  .forge-stats{display:flex;gap:10px;margin-top:6px;font-size:.75rem;flex-wrap:wrap;}
+  .forge-stat{background:rgba(255,255,255,.05);border-radius:6px;padding:2px 8px;}
+  .forge-stat span{color:var(--gold);font-weight:700;}
+  .forge-lvl{font-size:.7rem;color:var(--purple);margin-top:3px;}
+  .forge-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .upgrade-btn{background:linear-gradient(135deg,#1a1a00,#3a2e00);border:1px solid var(--gold2);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;transition:all .2s;white-space:nowrap;}
+  .upgrade-btn:hover{background:linear-gradient(135deg,#3a2e00,#5a4500);box-shadow:0 0 12px rgba(245,200,66,.25);}
+  .upgrade-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .upgrade-btn .cost{color:var(--gold);font-size:.7rem;display:block;}
+  .max-badge{background:var(--gold);color:#000;font-size:.65rem;padding:2px 7px;border-radius:10px;font-weight:700;}
+  /* SPECIAL COOLDOWN bars */
+  .sp-bar-wrap{height:4px;background:rgba(180,79,255,.15);border-radius:3px;margin-top:3px;overflow:hidden;}
+  .sp-bar{height:100%;background:linear-gradient(90deg,var(--purple),#dd88ff);border-radius:3px;transition:width .3s ease;}
+  .sp-ready{color:var(--purple);font-size:.62rem;font-weight:700;}
+  .sp-cd{color:var(--muted);font-size:.62rem;}
+  /* FUSION */
+  .fusion-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .fusion-card.r5{border-color:rgba(245,200,66,.35);}.fusion-card.r4{border-color:rgba(180,79,255,.3);}
+  .fusion-count{font-size:2rem;font-weight:900;color:var(--gold);min-width:40px;text-align:center;}
+  .fusion-info{flex:1;min-width:140px;}.fusion-name{font-weight:700;font-size:.9rem;}.fusion-sub{font-size:.68rem;color:var(--muted);margin-top:2px;}
+  .fusion-btn{background:linear-gradient(135deg,#0a1a2a,#102040);border:1px solid var(--blue);color:var(--text);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;transition:all .2s;white-space:nowrap;}
+  .fusion-btn:hover{box-shadow:0 0 12px rgba(0,212,255,.3);}.fusion-btn:disabled{opacity:.3;cursor:not-allowed;}
+  .fusion-btn .sub{font-size:.68rem;color:var(--blue);display:block;}
+  /* ACHIEVEMENTS */
+  .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+  .ach-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:13px;display:flex;align-items:center;gap:12px;}
+  .ach-card.done{border-color:rgba(245,200,66,.4);background:linear-gradient(135deg,var(--card),rgba(245,200,66,.04));}
+  .ach-card.locked{opacity:.45;}
+  .ach-icon{font-size:1.9rem;flex-shrink:0;}.ach-info{flex:1;}.ach-name{font-weight:700;font-size:.85rem;}
+  .ach-desc{font-size:.68rem;color:var(--muted);margin-top:2px;}.ach-reward{font-size:.68rem;color:var(--gold);margin-top:3px;}
+  .ach-check{font-size:1.2rem;color:var(--gold);}
+  .ach-progress{height:4px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:5px;overflow:hidden;}
+  .ach-prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:2px;transition:width .4s;}
+  /* PASSIVE */
+  .passive-tag{display:inline-block;background:rgba(180,79,255,.15);border:1px solid rgba(180,79,255,.3);border-radius:6px;padding:1px 7px;font-size:.62rem;color:var(--purple);margin-top:3px;}
+  /* CHARACTER DETAIL MODAL */
+  .char-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;align-items:center;justify-content:center;padding:16px;}
+  .char-modal-overlay.show{display:flex;animation:fadeIn .25s ease;}
+  .char-modal{background:var(--bg2);border:1px solid var(--border);border-radius:18px;width:100%;max-width:440px;overflow:hidden;position:relative;}
+  .char-modal-header{padding:20px 20px 0;display:flex;align-items:flex-start;gap:14px;position:relative;}
+  .char-modal-emoji{font-size:3.5rem;line-height:1;}
+  .char-modal-title{flex:1;}
+  .char-modal-name{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--text);line-height:1.2;}
+  .char-modal-anime{font-size:.78rem;color:var(--muted);margin-top:3px;}
+  .char-modal-stars{font-size:.9rem;margin-top:4px;}
+  .char-modal-close{position:absolute;top:14px;right:16px;font-size:1.4rem;cursor:pointer;color:var(--muted);line-height:1;transition:color .15s;}
+  .char-modal-close:hover{color:var(--red);}
+  .char-modal-body{padding:16px 20px 20px;}
+  .char-modal-power{background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(255,170,0,.05));border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+  .cmp-label{font-size:.72rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+  .cmp-value{font-size:1.6rem;font-weight:900;color:var(--gold);font-family:'Cinzel Decorative',serif;}
+  .char-modal-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+  .cms{background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;}
+  .cms-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .cms-val{font-size:.95rem;font-weight:700;margin-top:2px;}
+  .cms-bonus{font-size:.62rem;color:var(--green);margin-top:1px;}
+  .char-modal-sp{background:linear-gradient(135deg,rgba(180,79,255,.08),rgba(180,79,255,.03));border:1px solid rgba(180,79,255,.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;}
+  .csp-title{font-size:.7rem;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+  .csp-name{font-weight:700;font-size:.9rem;color:var(--text);}
+  .csp-dmg{font-size:.75rem;color:var(--muted);margin-top:2px;}
+  .csp-cd{font-size:.72rem;color:var(--purple);margin-top:2px;}
+  .char-modal-passive{background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(0,212,255,.02));border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;}
+  .cpp-title{font-size:.7rem;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+  .cpp-name{font-weight:700;font-size:.88rem;color:var(--text);}
+  .cpp-desc{font-size:.75rem;color:var(--muted);margin-top:3px;line-height:1.5;}
+  .char-modal-locked{text-align:center;padding:30px 20px;color:var(--muted);}
+  .char-modal-locked .lock-emoji{font-size:2.5rem;margin-bottom:8px;}
+  .char-modal-addteam{width:100%;background:linear-gradient(135deg,#0a1a2a,#102040);border:1px solid var(--blue);color:var(--text);padding:9px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;transition:all .2s;margin-top:4px;}
+  .char-modal-addteam:hover{box-shadow:0 0 12px rgba(0,212,255,.3);}
+  .char-modal-addteam:disabled{opacity:.4;cursor:not-allowed;}
+  .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:linear-gradient(135deg,#1a1a00,#3a2e00);border:1px solid var(--gold);color:var(--gold);padding:10px 24px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;z-index:9999;transition:transform .4s ease;pointer-events:none;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="toast" id="toast"></div>
+<div id="app">
+  <header>
+    <h1>⚔ ISEKAI CLASH ⚔</h1>
+    <div class="subtitle">Anime Gacha × RPG — v2.0</div>
+  </header>
+  <div class="resources">
+    <div class="res-item">💎 <span id="crystals">500</span></div>
+    <div class="res-item">🪙 <span id="gold-res">1200</span></div>
+    <div class="res-item">🔥 Arc <span id="arc-progress">1</span></div>
+    <div class="res-item">⚡ Vague <span id="wave-progress">1</span></div>
+    <div class="res-item">🏅 <span id="total-wins">0</span> victoires</div>
+  </div>
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="showTab('gacha',this)">🎲 Gacha</button>
+    <button class="tab-btn" onclick="showTab('collection',this)">📚 Collection</button>
+    <button class="tab-btn" onclick="showTab('team',this)">⚔ Équipe</button>
+    <button class="tab-btn" onclick="showTab('forge',this)">🔨 Forge</button>
+    <button class="tab-btn" onclick="showTab('fusion',this)">🔮 Fusion</button>
+    <button class="tab-btn" onclick="showTab('battle',this)">🔥 Combat</button>
+    <button class="tab-btn" onclick="showTab('infinite',this)">♾ Infini</button>
+    <button class="tab-btn" onclick="showTab('achievements',this)">🏆 Succès</button>
+  </nav>
+
+  <div id="gacha" class="screen active">
+    <div class="section-title">✦ INVOCATION</div>
+    <div class="gacha-banner">
+      <div class="gacha-title">✦ BANNIÈRE MULTI-UNIVERS ✦</div>
+      <div class="gacha-subtitle">65+ guerriers de tous les mondes vous attendent</div>
+      <div class="gacha-orb" onclick="doGacha(1)"><div class="gacha-orb-inner">🌀</div></div>
+      <div class="gacha-btns">
+        <button class="gacha-btn" onclick="doGacha(1)">INVOQUER ×1<span class="cost">💎 50 cristaux</span></button>
+        <button class="gacha-btn" onclick="doGacha(10)">INVOQUER ×10<span class="cost">💎 450 cristaux (−10%)</span></button>
+      </div>
+      <div class="pity-bar">
+        <div class="pity-label">Pitié ★★★★★ — <span id="pity-count">0</span>/90 invocations</div>
+        <div class="pity-track"><div class="pity-fill" id="pity-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="rates-box">
+      <h3>⭐ Taux d'invocation</h3>
+      <div class="rate-row"><div>⭐⭐⭐⭐⭐</div><span style="color:var(--gold)">Légendaire</span><span style="color:var(--gold)">3% (garanti à 90)</span></div>
+      <div class="rate-row"><div>⭐⭐⭐⭐</div><span style="color:var(--purple)">Épique</span><span style="color:var(--purple)">15%</span></div>
+      <div class="rate-row"><div>⭐⭐⭐</div><span style="color:var(--blue)">Rare</span><span style="color:var(--blue)">35%</span></div>
+      <div class="rate-row"><div>⭐⭐</div><span style="color:#888">Commun</span><span style="color:#888">47%</span></div>
+    </div>
+  </div>
+
+  <div id="collection" class="screen">
+    <div class="section-title">📚 COLLECTION</div>
+    <div class="coll-stats-bar">
+      <div class="coll-stat">Obtenus: <span id="owned-count">0</span>/<span id="total-count">0</span></div>
+      <div class="coll-stat">★★★★★: <span id="legend-count">0</span></div>
+      <div class="coll-stat">★★★★: <span id="epic-count">0</span></div>
+    </div>
+    <div class="coll-filter">
+      <button class="filter-btn active" onclick="filterColl('all',this)">Tous</button>
+      <button class="filter-btn" onclick="filterColl('owned',this)">Possédés</button>
+      <button class="filter-btn" onclick="filterColl('5',this)">★★★★★</button>
+      <button class="filter-btn" onclick="filterColl('4',this)">★★★★</button>
+      <button class="filter-btn" onclick="filterColl('3',this)">★★★</button>
+      <button class="filter-btn" onclick="filterColl('2',this)">★★</button>
+    </div>
+    <div class="collection-grid" id="coll-grid"></div>
+  </div>
+
+  <div id="team" class="screen">
+    <div class="section-title">⚔ CONSTRUIRE L'ÉQUIPE</div>
+    <div class="team-builder">
+      <div class="team-slots">
+        <h3>✦ Équipe Active (3 max)</h3>
+        <div id="team-slot-0" class="team-slot" onclick="selectSlot(0)"><div class="slot-empty">+ Ajouter un guerrier</div></div>
+        <div id="team-slot-1" class="team-slot" onclick="selectSlot(1)"><div class="slot-empty">+ Ajouter un guerrier</div></div>
+        <div id="team-slot-2" class="team-slot" onclick="selectSlot(2)"><div class="slot-empty">+ Ajouter un guerrier</div></div>
+        <div class="team-power-bar"><div class="tp-label">Puissance Totale</div><div class="tp-value" id="team-power">0</div></div>
+      </div>
+      <div class="bench-section">
+        <h3>✦ Roster (<span id="roster-count">0</span> guerriers)</h3>
+        <div class="bench-grid" id="bench-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="forge" class="screen">
+    <div class="section-title">🔨 FORGE — Améliorer les Personnages</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Dépensez vos 🪙 pièces d'or pour améliorer ATK, HP et DEF de vos guerriers.</div>
+    <div id="forge-grid"></div>
+  </div>
+
+  <div id="fusion" class="screen">
+    <div class="section-title">🔮 FUSION — Sacrifier des doublons</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Fusionnez <b>3 doublons</b> du même personnage pour obtenir une version <b>+1 étoile</b> (max ★★★★★).<br>Les personnages déjà ★★★★★ peuvent être fusionnés pour des <b>cristaux</b>.</div>
+    <div id="fusion-grid"></div>
+  </div>
+
+  <div id="infinite" class="screen">
+    <div class="section-title">♾ MODE INFINI</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Affrontez des vagues sans fin. Chaque vague est plus dure. Battez votre record !</div>
+    <div id="infinite-best" style="text-align:center;margin-bottom:16px;"></div>
+    <div class="battle-area"><div id="infinite-content"></div></div>
+  </div>
+
+  <div id="achievements" class="screen">
+    <div class="section-title">🏆 SUCCÈS</div>
+    <div id="achievements-grid"></div>
+  </div>
+
+  <div id="battle" class="screen">
+    <div class="section-title">🔥 COMBAT</div>
+    <div id="arc-selector-container"></div>
+    <div class="battle-area"><div id="battle-content"></div></div>
+  </div>
+</div>
+
+<div class="gacha-result" id="gacha-result">
+  <div style="font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--gold);margin-bottom:6px;">✦ INVOCATION ✦</div>
+  <div class="result-cards" id="result-cards"></div>
+  <button class="result-close" onclick="closeResult()">CONFIRMER</button>
+</div>
+
+<!-- CHARACTER DETAIL MODAL -->
+<div class="char-modal-overlay" id="char-modal-overlay" onclick="closeCharModal(event)">
+  <div class="char-modal" id="char-modal"></div>
+</div>
+
+<script>
+const ALL_CHARS=[
+  // ★★★★★ LÉGENDAIRES
+  {id:'goku_ssj',name:'Goku SSJ4',anime:'Dragon Ball GT',emoji:'🐉',rarity:5,atk:560,hp:2000,def:220,sp:'Kamehameha X10',sDmg:1100,type:'Attaquant'},
+  {id:'naruto_s',name:'Naruto Sage',anime:'Naruto Shippuden',emoji:'🦊',rarity:5,atk:510,hp:1900,def:200,sp:'Baryon Mode',sDmg:1050,type:'Attaquant'},
+  {id:'saitama',name:'Saitama',anime:'One Punch Man',emoji:'👊',rarity:5,atk:650,hp:1600,def:120,sp:'Serious Punch',sDmg:1400,type:'Attaquant'},
+  {id:'zoro_km',name:'Zoro King of Hell',anime:'One Piece',emoji:'⚔',rarity:5,atk:530,hp:2100,def:250,sp:'Asura Ichibugin',sDmg:1080,type:'Tank'},
+  {id:'levi',name:'Levi Ackerman',anime:'AoT',emoji:'🗡',rarity:5,atk:540,hp:1800,def:230,sp:'Ackerman Instinct',sDmg:1000,type:'Attaquant'},
+  {id:'itachi',name:'Itachi Uchiha',anime:'Naruto',emoji:'🪶',rarity:5,atk:490,hp:1750,def:240,sp:'Amaterasu',sDmg:950,type:'Mage'},
+  {id:'gojo',name:'Gojo Satoru',anime:'Jujutsu Kaisen',emoji:'🌌',rarity:5,atk:580,hp:1850,def:200,sp:'Hollow Purple',sDmg:1200,type:'Mage'},
+  {id:'sukuna',name:'Ryomen Sukuna',anime:'Jujutsu Kaisen',emoji:'👹',rarity:5,atk:620,hp:1700,def:180,sp:'Malevolent Shrine',sDmg:1300,type:'Attaquant'},
+  {id:'aizen',name:'Aizen Sosuke',anime:'Bleach',emoji:'🎭',rarity:5,atk:570,hp:1900,def:210,sp:'Kyoka Suigetsu',sDmg:1150,type:'Mage'},
+  {id:'madara',name:'Madara Uchiha',anime:'Naruto',emoji:'👁',rarity:5,atk:600,hp:2000,def:230,sp:'Susanoo Complet',sDmg:1200,type:'Tank'},
+  {id:'escanor',name:'Escanor',anime:'Seven Deadly Sins',emoji:'☀',rarity:5,atk:590,hp:1950,def:190,sp:'The One',sDmg:1250,type:'Attaquant'},
+  {id:'luffy_g5',name:'Luffy Gear 5',anime:'One Piece',emoji:'🌀',rarity:5,atk:550,hp:2050,def:210,sp:'Bajrang Gun',sDmg:1120,type:'Attaquant'},
+  {id:'rimuru',name:'Rimuru Tempest',anime:'Tensei Slime',emoji:'🫐',rarity:5,atk:520,hp:2200,def:260,sp:'Raphael',sDmg:980,type:'Support'},
+  {id:'ainz',name:'Ainz Ooal Gown',anime:'Overlord',emoji:'💀',rarity:5,atk:510,hp:2300,def:280,sp:'Fallen Down',sDmg:1000,type:'Mage'},
+  {id:'whitebeard',name:'Barbe Blanche',anime:'One Piece',emoji:'🌊',rarity:5,atk:530,hp:2400,def:300,sp:'Gura Gura no Mi',sDmg:1050,type:'Tank'},
+  // ★★★★ ÉPIQUES
+  {id:'sasuke',name:'Sasuke',anime:'Naruto',emoji:'⚡',rarity:4,atk:400,hp:1400,def:170,sp:'Chidori',sDmg:680,type:'Attaquant'},
+  {id:'luffy_g4',name:'Luffy Gear 4',anime:'One Piece',emoji:'👒',rarity:4,atk:390,hp:1500,def:160,sp:'King Kong Gun',sDmg:660,type:'Attaquant'},
+  {id:'ichigo',name:'Ichigo Bankai',anime:'Bleach',emoji:'🌙',rarity:4,atk:430,hp:1350,def:180,sp:'Getsuga Tensho',sDmg:720,type:'Attaquant'},
+  {id:'todoroki',name:'Todoroki',anime:'My Hero Academia',emoji:'🔥',rarity:4,atk:410,hp:1400,def:170,sp:'Half-Cold Half-Hot',sDmg:700,type:'Mage'},
+  {id:'mikasa',name:'Mikasa',anime:'AoT',emoji:'🎖',rarity:4,atk:380,hp:1450,def:185,sp:'Slash Storm',sDmg:640,type:'Attaquant'},
+  {id:'rem',name:'Rem',anime:'Re:Zero',emoji:'💙',rarity:4,atk:360,hp:1350,def:145,sp:'Ice Flower',sDmg:600,type:'Support'},
+  {id:'killua',name:'Killua',anime:'HxH',emoji:'💧',rarity:4,atk:420,hp:1300,def:165,sp:'Godspeed',sDmg:700,type:'Attaquant'},
+  {id:'meliodas',name:'Méliodas',anime:'Seven Deadly Sins',emoji:'🗡',rarity:4,atk:440,hp:1380,def:175,sp:'Full Counter',sDmg:730,type:'Attaquant'},
+  {id:'zero_two',name:'Zero Two',anime:'FranXX',emoji:'🦕',rarity:4,atk:370,hp:1400,def:150,sp:'Stampede Mode',sDmg:620,type:'Attaquant'},
+  {id:'erza',name:'Erza Scarlet',anime:'Fairy Tail',emoji:'⚔',rarity:4,atk:410,hp:1420,def:180,sp:'Requip Magia',sDmg:680,type:'Tank'},
+  {id:'natsu',name:'Natsu',anime:'Fairy Tail',emoji:'🔥',rarity:4,atk:430,hp:1360,def:160,sp:'Fire Dragon Roar',sDmg:720,type:'Attaquant'},
+  {id:'jotaro',name:'Jotaro Kujo',anime:'JoJo',emoji:'🎩',rarity:4,atk:450,hp:1320,def:175,sp:'ORA ORA ORA',sDmg:740,type:'Attaquant'},
+  {id:'giorno',name:'Giorno',anime:'JoJo',emoji:'💛',rarity:4,atk:400,hp:1380,def:165,sp:'Gold Experience Requiem',sDmg:660,type:'Support'},
+  {id:'tanjiro',name:'Tanjiro',anime:'Demon Slayer',emoji:'💧',rarity:4,atk:380,hp:1420,def:170,sp:'Hinokami Kagura',sDmg:630,type:'Attaquant'},
+  {id:'inosuke',name:'Inosuke',anime:'Demon Slayer',emoji:'🐗',rarity:4,atk:460,hp:1280,def:155,sp:'Beast Breathing',sDmg:760,type:'Attaquant'},
+  {id:'nobara',name:'Nobara',anime:'Jujutsu Kaisen',emoji:'🔨',rarity:4,atk:390,hp:1340,def:158,sp:'Hairpin',sDmg:650,type:'Attaquant'},
+  {id:'hinata',name:'Hinata Hyuga',anime:'Naruto',emoji:'💜',rarity:4,atk:350,hp:1300,def:140,sp:'Twin Lion Fists',sDmg:580,type:'Support'},
+  // ★★★ RARES
+  {id:'kenshin',name:'Kenshin',anime:'Rurouni Kenshin',emoji:'🌸',rarity:3,atk:270,hp:1000,def:125,sp:'Ougi: Kuzu Ryu Sen',sDmg:430,type:'Attaquant'},
+  {id:'gon',name:'Gon Freecss',anime:'HxH',emoji:'🌿',rarity:3,atk:260,hp:950,def:115,sp:'Jajanken Rock',sDmg:410,type:'Attaquant'},
+  {id:'edward',name:'Edward Elric',anime:'FMA Brotherhood',emoji:'🔩',rarity:3,atk:280,hp:970,def:120,sp:'Alchimie de combat',sDmg:445,type:'Mage'},
+  {id:'spike',name:'Spike Spiegel',anime:'Cowboy Bebop',emoji:'🚀',rarity:3,atk:295,hp:930,def:110,sp:'Jeet Kune Do',sDmg:460,type:'Attaquant'},
+  {id:'yusuke',name:'Yusuke Urameshi',anime:'Yu Yu Hakusho',emoji:'👻',rarity:3,atk:285,hp:960,def:118,sp:'Raïko Ken',sDmg:450,type:'Attaquant'},
+  {id:'inuyasha',name:'Inuyasha',anime:'Inuyasha',emoji:'🐺',rarity:3,atk:275,hp:990,def:125,sp:'Kaze no Kizu',sDmg:435,type:'Attaquant'},
+  {id:'gohan',name:'Gohan Bête',anime:'Dragon Ball Super',emoji:'💢',rarity:3,atk:310,hp:950,def:115,sp:'Masenko Ha',sDmg:480,type:'Attaquant'},
+  {id:'vegeta',name:'Vegeta',anime:'Dragon Ball Z',emoji:'👑',rarity:3,atk:305,hp:940,def:112,sp:'Final Flash',sDmg:475,type:'Attaquant'},
+  {id:'rukia',name:'Rukia Kuchiki',anime:'Bleach',emoji:'❄',rarity:3,atk:260,hp:960,def:120,sp:'Hakuren',sDmg:410,type:'Mage'},
+  {id:'asuna',name:'Asuna',anime:'SAO',emoji:'⚡',rarity:3,atk:270,hp:970,def:118,sp:'Starburst Stream',sDmg:430,type:'Attaquant'},
+  {id:'kirito',name:'Kirito',anime:'SAO',emoji:'🗡',rarity:3,atk:285,hp:980,def:122,sp:'Dual Blade',sDmg:450,type:'Attaquant'},
+  {id:'mob',name:'Mob',anime:'Mob Psycho 100',emoji:'😶',rarity:3,atk:260,hp:1050,def:125,sp:'100% Mode',sDmg:420,type:'Mage'},
+  {id:'reigen',name:'Reigen',anime:'Mob Psycho 100',emoji:'💼',rarity:3,atk:200,hp:950,def:130,sp:'1000% Satsui',sDmg:320,type:'Support'},
+  {id:'yugi',name:'Yami Yugi',anime:'Yu-Gi-Oh!',emoji:'🃏',rarity:3,atk:250,hp:920,def:108,sp:'Dark Magician',sDmg:395,type:'Mage'},
+  {id:'sesshomaru',name:'Sesshomaru',anime:'Inuyasha',emoji:'🌙',rarity:3,atk:300,hp:940,def:112,sp:'Dokkasou',sDmg:470,type:'Attaquant'},
+  {id:'nami',name:'Nami',anime:'One Piece',emoji:'🌩',rarity:3,atk:240,hp:880,def:105,sp:'Clima-Tact',sDmg:380,type:'Support'},
+  {id:'ryuk',name:'Ryuk',anime:'Death Note',emoji:'📓',rarity:3,atk:240,hp:900,def:100,sp:'Death Note',sDmg:390,type:'Mage'},
+  // ★★ COMMUNS
+  {id:'krillin',name:'Krillin',anime:'Dragon Ball Z',emoji:'😅',rarity:2,atk:155,hp:640,def:85,sp:'Destructo Disc',sDmg:245,type:'Attaquant'},
+  {id:'sanji',name:'Sanji',anime:'One Piece',emoji:'🍳',rarity:2,atk:165,hp:660,def:88,sp:'Diable Jambe',sDmg:265,type:'Attaquant'},
+  {id:'rock_lee',name:'Rock Lee',anime:'Naruto',emoji:'🥋',rarity:2,atk:175,hp:620,def:78,sp:'Hachimon Tonkou',sDmg:285,type:'Attaquant'},
+  {id:'mineta',name:'Mineta',anime:'My Hero Academia',emoji:'🍇',rarity:2,atk:120,hp:580,def:72,sp:'Pop Off',sDmg:190,type:'Support'},
+  {id:'usopp',name:'Usopp',anime:'One Piece',emoji:'🎯',rarity:2,atk:145,hp:610,def:80,sp:'Firebird Star',sDmg:230,type:'Attaquant'},
+  {id:'choji',name:'Choji',anime:'Naruto',emoji:'🦋',rarity:2,atk:160,hp:700,def:92,sp:'Butterfly Mode',sDmg:255,type:'Tank'},
+  {id:'chopper',name:'Tony Chopper',anime:'One Piece',emoji:'🦌',rarity:2,atk:130,hp:680,def:90,sp:'Monster Point',sDmg:210,type:'Support'},
+  {id:'ochako',name:'Ochako',anime:'My Hero Academia',emoji:'🌸',rarity:2,atk:140,hp:650,def:85,sp:'Meteorite',sDmg:225,type:'Attaquant'},
+  {id:'zenitsu',name:'Zenitsu',anime:'Demon Slayer',emoji:'💛',rarity:2,atk:180,hp:600,def:75,sp:'Thunderclap Flash',sDmg:290,type:'Attaquant'},
+];
+
+const ARCS=[
+  {id:1,name:'Forêt des Démons',emoji:'🌲',waves:5,unlockAt:0,
+   enemies:[
+    {name:'Gobelin Rouge',emoji:'👺',hp:300,atk:60,def:10,abilities:[]},
+    {name:'Ogre Sauvage',emoji:'👹',hp:500,atk:90,def:20,abilities:['enrage']},
+    {name:'Loup Fantôme',emoji:'🐺',hp:700,atk:120,def:30,abilities:['dodge']},
+    {name:'Sorcier Noir',emoji:'🧙',hp:900,atk:150,def:40,abilities:['poison','enrage']},
+    {name:'⚠ BOSS: Démon Roi',emoji:'😈',hp:2500,atk:220,def:60,abilities:['enrage','shield','counter'],isBoss:true},
+  ]},
+  {id:2,name:'Cités en Ruines',emoji:'🏚',waves:6,unlockAt:5,
+   enemies:[
+    {name:'Soldat Mutant',emoji:'🧟',hp:800,atk:180,def:50,abilities:[]},
+    {name:'Mécha Chasseur',emoji:'🤖',hp:1000,atk:210,def:70,abilities:['shield']},
+    {name:'Titan Errant',emoji:'🗿',hp:1400,atk:250,def:80,abilities:['enrage']},
+    {name:'Sorcière Maudite',emoji:'🧝',hp:1100,atk:230,def:65,abilities:['poison','dodge']},
+    {name:'Gardien Corrompu',emoji:'⚙',hp:1600,atk:280,def:90,abilities:['shield','counter']},
+    {name:'⚠ BOSS: Roi Titan',emoji:'👑',hp:5000,atk:350,def:100,abilities:['enrage','shield','counter','regen'],isBoss:true},
+  ]},
+  {id:3,name:'Abysses Infernaux',emoji:'🔥',waves:7,unlockAt:11,
+   enemies:[
+    {name:'Démon Forgeron',emoji:'🔨',hp:1200,atk:260,def:80,abilities:[]},
+    {name:'Serpent Abyssal',emoji:'🐍',hp:1400,atk:290,def:95,abilities:['poison']},
+    {name:'Golem Ardent',emoji:'🌋',hp:2000,atk:310,def:110,abilities:['shield','enrage']},
+    {name:'Archimage Noir',emoji:'🎭',hp:1600,atk:330,def:100,abilities:['poison','dodge','counter']},
+    {name:'Chimère Monstrueuse',emoji:'🐲',hp:2200,atk:340,def:115,abilities:['enrage','regen']},
+    {name:'Ange Déchu',emoji:'👼',hp:1800,atk:360,def:105,abilities:['shield','counter','dodge']},
+    {name:'⚠ BOSS: Seigneur du Chaos',emoji:'💢',hp:8000,atk:450,def:140,abilities:['enrage','shield','counter','poison','regen'],isBoss:true},
+  ]},
+  {id:4,name:'Royaume des Dieux',emoji:'⛩',waves:8,unlockAt:18,
+   enemies:[
+    {name:'Demi-Dieu Guerrier',emoji:'⚔',hp:2000,atk:380,def:130,abilities:['counter']},
+    {name:'Oracle Maudit',emoji:'🔮',hp:1800,atk:400,def:120,abilities:['poison','dodge']},
+    {name:'Phénix Noir',emoji:'🦅',hp:2400,atk:420,def:140,abilities:['regen','enrage']},
+    {name:'Titan Céleste',emoji:'🗡',hp:3000,atk:440,def:160,abilities:['shield','counter']},
+    {name:'Dragon Divin',emoji:'🐉',hp:3500,atk:460,def:150,abilities:['enrage','poison','counter']},
+    {name:'Valkyrie Corrompue',emoji:'🛡',hp:2800,atk:430,def:165,abilities:['shield','regen','dodge']},
+    {name:'Nécromancien Ancien',emoji:'☠',hp:2600,atk:450,def:145,abilities:['regen','counter','poison']},
+    {name:'⚠ BOSS ULTIME: Dieu de la Destruction',emoji:'💥',hp:14000,atk:600,def:200,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
+  {id:5,name:'Fin du Multivers',emoji:'🌌',waves:10,unlockAt:26,
+   enemies:[
+    {name:'Entité Cosmique I',emoji:'🌑',hp:3000,atk:500,def:180,abilities:['counter','enrage']},
+    {name:'Entité Cosmique II',emoji:'🌒',hp:3500,atk:520,def:190,abilities:['shield','poison']},
+    {name:'Gardien du Vide',emoji:'🕳',hp:4000,atk:540,def:200,abilities:['regen','counter','dodge']},
+    {name:'Esprit de Néant',emoji:'👁',hp:3800,atk:560,def:195,abilities:['enrage','shield']},
+    {name:'Maître du Destin',emoji:'⚫',hp:4500,atk:580,def:210,abilities:['counter','regen','poison']},
+    {name:'Corrupted Hero',emoji:'🦸',hp:4200,atk:570,def:205,abilities:['enrage','dodge','counter']},
+    {name:'Antimatter Beast',emoji:'💠',hp:5000,atk:600,def:220,abilities:['shield','regen','enrage']},
+    {name:'Herald of End',emoji:'🌠',hp:5500,atk:620,def:230,abilities:['poison','counter','shield','enrage']},
+    {name:'Destroyer Clone',emoji:'🔻',hp:6000,atk:640,def:240,abilities:['regen','dodge','enrage','counter']},
+    {name:'⚠ BOSS FINAL: Le Dévoreur de Mondes',emoji:'🌀',hp:25000,atk:800,def:300,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
+];
+
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
+
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function save(){try{localStorage.setItem('isekai2',JSON.stringify(state));}catch(e){}}
+function load(){try{const s=localStorage.getItem('isekai2');if(s){const d=JSON.parse(s);Object.assign(state,d);}}catch(e){}}
+
+function buildStars(){const c=document.getElementById('stars');for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--o:${.2+Math.random()*.6};animation-delay:${Math.random()*4}s`;c.appendChild(s);}}
+
+function updateRes(){
+  document.getElementById('crystals').textContent=state.crystals;
+  document.getElementById('gold-res').textContent=state.gold;
+  document.getElementById('total-wins').textContent=state.totalWins||0;
+  document.getElementById('arc-progress').textContent=state.currentArc;
+  const wd=state.arcProgress[state.currentArc]||0;
+  document.getElementById('wave-progress').textContent=wd+1;
+  const p=state.pity||0;
+  const pf=document.getElementById('pity-fill');
+  const pc=document.getElementById('pity-count');
+  if(pf)pf.style.width=(p/90*100)+'%';
+  if(pc)pc.textContent=p;
+}
+
+function showTab(name,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(name==='collection')renderCollection('all');
+  if(name==='team')renderTeam();
+  if(name==='forge')renderForge();
+  if(name==='fusion')renderFusion();
+  if(name==='achievements')renderAchievements();
+  if(name==='infinite')renderInfiniteScreen();
+  if(name==='battle')renderBattleScreen();
+}
+
+function rollChar(){
+  state.pity=(state.pity||0)+1;
+  let rarity;
+  const r=Math.random()*100;
+  if(state.pity>=90){rarity=5;state.pity=0;}
+  else if(r<3){rarity=5;state.pity=0;}
+  else if(r<18)rarity=4;
+  else if(r<53)rarity=3;
+  else rarity=2;
+  const pool=ALL_CHARS.filter(c=>c.rarity===rarity);
+  const char=pool[Math.floor(Math.random()*pool.length)];
+  state.owned[char.id]=(state.owned[char.id]||0)+1;
+  return char;
+}
+
+// ═══════════════════════════════════════════
+//  POWER FORMULA — ATK + HP + DEF + upgrades
+// ═══════════════════════════════════════════
+function getCharPower(id){
+  const c=ALL_CHARS.find(ch=>ch.id===id);
+  if(!c)return 0;
+  const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+  const atkFinal=c.atk+Math.round(c.atk*(u.atk||0)*0.12);
+  const hpFinal =c.hp +Math.round(c.hp *(u.hp ||0)*0.12);
+  const defFinal=c.def+Math.round(c.def*(u.def||0)*0.12);
+  return atkFinal + hpFinal + defFinal;
+}
+
+// ═══════════════════════════════════════════
+//  CHARACTER DETAIL MODAL
+// ═══════════════════════════════════════════
+function openCharModal(id){
+  const c=ALL_CHARS.find(ch=>ch.id===id);
+  if(!c)return;
+  const isOwned=!!(state.owned[id]);
+  const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+  const atkBonus=Math.round(c.atk*(u.atk||0)*0.12);
+  const hpBonus =Math.round(c.hp *(u.hp ||0)*0.12);
+  const defBonus=Math.round(c.def*(u.def||0)*0.12);
+  const sDmgBonus=Math.round(c.sDmg*(u.atk||0)*0.08);
+  const power=getCharPower(id);
+  const passive=getPassive(id);
+  const inTeam=state.team.includes(id);
+  const rarityColors={5:'var(--gold)',4:'var(--purple)',3:'var(--blue)',2:'#888'};
+  const col=rarityColors[c.rarity]||'#888';
+
+  let body='';
+  if(isOwned){
+    body=`
+      <div class="char-modal-header">
+        <div class="char-modal-emoji">${c.emoji}</div>
+        <div class="char-modal-title">
+          <div class="char-modal-name">${c.name}</div>
+          <div class="char-modal-anime">${c.anime} · ${c.type}</div>
+          <div class="char-modal-stars" style="color:${col}">${'★'.repeat(c.rarity)}${'☆'.repeat(5-c.rarity)}</div>
+        </div>
+        <div class="char-modal-close" onclick="closeCharModal()">✕</div>
+      </div>
+      <div class="char-modal-body">
+        <div class="char-modal-power">
+          <div><div class="cmp-label">Force Totale</div><div class="cmp-value">${power.toLocaleString()}</div></div>
+          <div style="text-align:right;font-size:.72rem;color:var(--muted)">Possédé<br><span style="color:var(--gold);font-weight:700">×${state.owned[id]}</span></div>
+        </div>
+        <div class="char-modal-stats">
+          <div class="cms">
+            <div class="cms-label">⚔ ATK</div>
+            <div class="cms-val" style="color:var(--red)">${c.atk+atkBonus}</div>
+            ${atkBonus>0?`<div class="cms-bonus">+${atkBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
+          </div>
+          <div class="cms">
+            <div class="cms-label">❤ HP</div>
+            <div class="cms-val" style="color:var(--green)">${c.hp+hpBonus}</div>
+            ${hpBonus>0?`<div class="cms-bonus">+${hpBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
+          </div>
+          <div class="cms">
+            <div class="cms-label">🛡 DEF</div>
+            <div class="cms-val" style="color:var(--blue)">${c.def+defBonus}</div>
+            ${defBonus>0?`<div class="cms-bonus">+${defBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
+          </div>
+        </div>
+        <div class="char-modal-sp">
+          <div class="csp-title">✨ Attaque Spéciale</div>
+          <div class="csp-name">${c.sp}</div>
+          <div class="csp-dmg">Dégâts : <b>${c.sDmg+sDmgBonus}</b>${sDmgBonus>0?` <span style="color:var(--green)">(+${sDmgBonus} forge)</span>`:''}</div>
+          <div class="csp-cd">Cooldown : 3 tours · BURST : ×2.8 dégâts</div>
+        </div>
+        ${passive?`<div class="char-modal-passive">
+          <div class="cpp-title">⚡ Passif</div>
+          <div class="cpp-name">${passive.name}</div>
+          <div class="cpp-desc">${passive.desc}</div>
+        </div>`:''}
+        <button class="char-modal-addteam" onclick="addToTeamFromModal('${id}')" ${inTeam?'disabled':''}>
+          ${inTeam?'✅ Déjà dans l\'équipe':'+ Ajouter à l\'équipe'}
+        </button>
+      </div>`;
+  } else {
+    body=`
+      <div class="char-modal-header">
+        <div class="char-modal-emoji" style="filter:grayscale(1);opacity:.5">${c.emoji}</div>
+        <div class="char-modal-title">
+          <div class="char-modal-name" style="color:var(--muted)">???</div>
+          <div class="char-modal-anime">${c.anime}</div>
+          <div class="char-modal-stars" style="color:${col}">${'★'.repeat(c.rarity)}${'☆'.repeat(5-c.rarity)}</div>
+        </div>
+        <div class="char-modal-close" onclick="closeCharModal()">✕</div>
+      </div>
+      <div class="char-modal-body">
+        <div class="char-modal-locked">
+          <div class="lock-emoji">🔒</div>
+          <div style="font-weight:700;margin-bottom:6px;">Personnage non obtenu</div>
+          <div style="font-size:.78rem;">Invoquez pour débloquer ce personnage et découvrir ses capacités.</div>
+        </div>
+      </div>`;
+  }
+  document.getElementById('char-modal').innerHTML=body;
+  document.getElementById('char-modal-overlay').classList.add('show');
+}
+
+function closeCharModal(e){
+  if(e&&e.target!==document.getElementById('char-modal-overlay'))return;
+  document.getElementById('char-modal-overlay').classList.remove('show');
+}
+
+function addToTeamFromModal(id){
+  addToTeam(id);
+  document.getElementById('char-modal-overlay').classList.remove('show');
+  showToast(`✅ ${ALL_CHARS.find(c=>c.id===id).name} ajouté à l'équipe !`);
+}
+  const cost=n===1?50:450;
+  if(state.crystals<cost){alert('Pas assez de cristaux ! 💎');return;}
+  state.crystals-=cost;
+  const results=[];
+  for(let i=0;i<n;i++)results.push(rollChar());
+  save();updateRes();showResults(results);
+}
+
+function showResults(chars){
+  const cont=document.getElementById('result-cards');cont.innerHTML='';
+  chars.forEach((c,i)=>{
+    const isNew=state.owned[c.id]===1;
+    const div=document.createElement('div');
+    div.className=`result-card r${c.rarity}`;div.style.animationDelay=`${i*.08}s`;
+    div.innerHTML=`${isNew?'<div class="new-badge">NEW!</div>':''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div class="stars-row">${'<span>★</span>'.repeat(c.rarity)}</div>`;
+    cont.appendChild(div);
+  });
+  document.getElementById('gacha-result').classList.add('show');
+}
+function closeResult(){document.getElementById('gacha-result').classList.remove('show');}
+
+function filterColl(f,btn){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderCollection(f);}
+function renderCollection(filter){
+  const grid=document.getElementById('coll-grid');grid.innerHTML='';
+  const ownedAll=ALL_CHARS.filter(c=>state.owned[c.id]>0);
+  const unowned=ALL_CHARS.filter(c=>!state.owned[c.id]);
+  let all=[...ownedAll.sort((a,b)=>b.rarity-a.rarity),...unowned.sort((a,b)=>b.rarity-a.rarity)];
+  if(filter==='owned')all=ownedAll;
+  else if(['2','3','4','5'].includes(filter))all=all.filter(c=>String(c.rarity)===filter);
+  document.getElementById('owned-count').textContent=ownedAll.length;
+  document.getElementById('total-count').textContent=ALL_CHARS.length;
+  document.getElementById('legend-count').textContent=ownedAll.filter(c=>c.rarity===5).length;
+  document.getElementById('epic-count').textContent=ownedAll.filter(c=>c.rarity===4).length;
+  if(!all.length){grid.innerHTML='<div class="empty-coll">Aucun personnage ici.</div>';return;}
+  all.forEach(c=>{
+    const isOwned=!!state.owned[c.id];
+    const div=document.createElement('div');
+    div.className=`coll-card r${c.rarity} ${isOwned?'':'locked'}`;
+    div.onclick=()=>openCharModal(c.id);
+    div.innerHTML=`${isOwned&&state.owned[c.id]>1?`<div class="char-count">×${state.owned[c.id]}</div>`:''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div style="text-align:center;font-size:.68rem;margin-top:3px;">${'★'.repeat(c.rarity)}</div>${isOwned?`<div class="coll-stats">⚡ ${getCharPower(c.id).toLocaleString()}</div>${getPassive(c.id)?`<div class="passive-tag">⚡${getPassive(c.id).name}</div>`:''}` :'<div class="coll-stats">???</div>'}`;    grid.appendChild(div);
+  });
+}
+
+function renderTeam(){
+  for(let i=0;i<3;i++){
+    const slot=document.getElementById(`team-slot-${i}`);
+    const char=state.team[i]?ALL_CHARS.find(c=>c.id===state.team[i]):null;
+    if(char){
+      slot.className=`team-slot filled r${char.rarity}`;
+      slot.innerHTML=`<div class="slot-emoji">${char.emoji}</div><div class="slot-info"><div class="slot-name">${char.name}</div><div class="slot-anime">${char.anime}·${'★'.repeat(char.rarity)}·${char.type}</div><div class="slot-power">⚡ ${getCharPower(char.id).toLocaleString()}</div>${getPassive(char.id)?`<div class="passive-tag">⚡ ${getPassive(char.id).name}</div>`:''}</div><div class="slot-remove" onclick="removeFromTeam(${i},event)">✕</div>`;
+    } else {
+      slot.className='team-slot';slot.innerHTML=`<div class="slot-empty">+ Ajouter un guerrier</div>`;
+    }
+  }
+  const bench=document.getElementById('bench-grid');bench.innerHTML='';
+  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  document.getElementById('roster-count').textContent=owned.length;
+  owned.forEach(c=>{
+    const inTeam=state.team.includes(c.id);
+    const div=document.createElement('div');
+    div.className=`bench-card ${inTeam?'in-team':''}`;
+    div.innerHTML=`<span class="be">${c.emoji}</span><div style="font-size:.68rem;font-weight:700">${c.name}</div><div style="font-size:.58rem;color:var(--muted)">${'★'.repeat(c.rarity)}</div>`;
+    if(!inTeam)div.onclick=()=>addToTeam(c.id);
+    bench.appendChild(div);
+  });
+  const power=state.team.reduce((acc,id)=>{if(!id)return acc;return acc+getCharPower(id);},0);
+  document.getElementById('team-power').textContent=power.toLocaleString();
+}
+function selectSlot(i){state.selectedSlot=i;}
+function addToTeam(id){const empty=state.team.indexOf(null);if(empty===-1){const s=state.selectedSlot!==null?state.selectedSlot:0;state.team[s]=id;}else state.team[empty]=id;save();renderTeam();}
+function removeFromTeam(i,e){e.stopPropagation();state.team[i]=null;save();renderTeam();}
+
+function getTotalWavesDone(){return ARCS.reduce((sum,a)=>sum+(state.arcProgress[a.id]||0),0);}
+
+function renderBattleScreen(){
+  if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0};
+  const cont=document.getElementById('arc-selector-container');
+  const totalDone=getTotalWavesDone();
+  cont.innerHTML=`<div class="arc-selector">${ARCS.map(a=>{
+    const unlocked=totalDone>=(a.unlockAt||0)||a.id===1;
+    const wd=state.arcProgress[a.id]||0;
+    const done=wd>=a.waves;
+    return `<div class="arc-btn ${state.currentArc===a.id?'active':''} ${!unlocked?'locked':''}" onclick="${unlocked?`selectArc(${a.id})`:''}">
+      <div class="arc-name">${a.emoji} ${a.name}</div>
+      <span class="arc-waves">${done?'✅ Terminé':wd+'/'+a.waves+' vagues'}${!unlocked?' 🔒':''}</span>
+    </div>`;
+  }).join('')}</div>`;
+  renderBattle();
+}
+
+function selectArc(id){
+  const totalDone=getTotalWavesDone();
+  const arc=ARCS.find(a=>a.id===id);
+  if(totalDone<(arc.unlockAt||0)&&id!==1)return;
+  state.currentArc=id;state.battleState=null;
+  save();updateRes();renderBattleScreen();
+}
+
+function getEnemyForCurrentWave(){
+  const arc=ARCS.find(a=>a.id===state.currentArc);
+  const wd=state.arcProgress[state.currentArc]||0;
+  const idx=Math.min(wd,arc.enemies.length-1);
+  return arc.enemies[idx];
+}
+
+function initBattleState(){
+  const chars=state.team.filter(Boolean).map(id=>{
+    const c=ALL_CHARS.find(ch=>ch.id===id);
+    const upg=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+    const lvl=getCharLevel(id);
+    const atkBonus=Math.round(c.atk*(upg.atk||0)*0.12);
+    const hpBonus=Math.round(c.hp*(upg.hp||0)*0.12);
+    const defBonus=Math.round(c.def*(upg.def||0)*0.12);
+    const finalAtk=c.atk+atkBonus;
+    const finalHp=c.hp+hpBonus;
+    const finalDef=c.def+defBonus;
+    const finalSDmg=Math.round(c.sDmg*(1+(upg.atk||0)*0.08));
+    return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3};
+  });
+  const enemyData=getEnemyForCurrentWave();
+  const scaleFactor=1+(state.currentArc-1)*0.3+((state.arcProgress[state.currentArc]||0)*0.05);
+  const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities]};
+  state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0};
+}
+
+function renderBattle(){
+  const cont=document.getElementById('battle-content');
+  if(state.team.filter(Boolean).length===0){cont.innerHTML=`<div class="no-team-msg"><div class="big">⚔</div><div>Pas d'équipe !</div><div style="margin-top:8px;font-size:.8rem;">Allez dans <b>Équipe</b> pour recruter des guerriers.</div></div>`;return;}
+  if(!state.battleState||state.battleState.over)initBattleState();
+  renderBattleUI();
+}
+
+function renderBattleUI(){
+  const cont=document.getElementById('battle-content');
+  const bs=state.battleState;if(!bs)return;
+  const arc=ARCS.find(a=>a.id===state.currentArc);
+  const wd=state.arcProgress[state.currentArc]||0;
+
+  const heroHTML=bs.heroes.map((h,i)=>{
+    const pct=Math.max(0,h.currentHp/h.maxHp*100);
+    const hpClass=pct>60?'high':pct>25?'mid':'low';
+    const si=h.statuses&&h.statuses.length?`<div class="status-icons">${h.statuses.map(s=>`<span class="status-icon">${s}</span>`).join('')}</div>`:'';
+    const shB=h.shield>0?`<div class="shield-bar-wrap"><div class="shield-bar" style="width:${Math.min(100,h.shield/300*100)}%"></div></div><div class="hp-text" style="color:var(--blue)">🛡 ${h.shield}</div>`:'';
+    const cd=h.spCooldown||0;const maxCd=h.spMaxCd||3;
+    const spBar=`<div class="sp-bar-wrap"><div class="sp-bar" style="width:${cd===0?100:((maxCd-cd)/maxCd*100)}%"></div></div><div class="${cd===0?'sp-ready':'sp-cd'}">${cd===0?`✨ ${h.sp} PRÊTE`:`✨ CD: ${cd} tour${cd>1?'s':''}`}</div>`;
+    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-type">${h.type}</div><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpClass}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${shB}${spBar}${si}</div></div>`;
+  }).join('');
+
+  const e=bs.enemy;
+  const epct=Math.max(0,e.currentHp/e.maxHp*100);
+  const ehpC=epct>60?'high':epct>25?'mid':'low';
+  const esi=e.statuses&&e.statuses.length?`<div class="status-icons">${e.statuses.map(s=>`<span class="status-icon">${s}</span>`).join('')}</div>`:'';
+  const eshB=e.shield>0?`<div class="shield-bar-wrap"><div class="shield-bar" style="width:${Math.min(100,e.shield/1000*100)}%"></div></div><div class="hp-text" style="color:var(--blue)">🛡 ${e.shield}</div>`:'';
+  const bossHTML=e.isBoss?`<div class="boss-banner"><div class="boss-title">⚠ BOSS ⚠</div><div class="enemy-abilities">Capacités: ${e.abilities.join(' · ')}</div></div>`:'';
+  const logHTML=bs.log.slice(-6).map(l=>`<p class="${l.type}">${l.text}</p>`).join('');
+  const aliveForBtn=bs.heroes.filter(h=>h.currentHp>0);
+  const anySpReady=aliveForBtn.some(h=>(h.spCooldown||0)===0);
+  const bc=bs.burstCharge||0;
+
+  let actHTML='';
+  if(!bs.over){
+    actHTML=`<div class="battle-actions">
+      <button class="battle-btn btn-attack" onclick="doAttack('normal')">⚔ ATTAQUE</button>
+      <button class="battle-btn btn-special" onclick="doAttack('special')" ${!anySpReady?'disabled':''}>✨ SPÉCIALE${!anySpReady?' ⏳':''}</button>
+      <button class="battle-btn btn-burst" onclick="doAttack('burst')" ${bc<3?'disabled':''}>💥 BURST${bc>=3?' READY!':' ('+bc+'/3)'}</button>
+      <button class="battle-btn btn-auto ${state.autoMode?'on':''}" onclick="toggleAuto()">🤖 AUTO ${state.autoMode?'ON':'OFF'}</button>
+    </div>`;
+  } else if(bs.won){
+    actHTML=`<div class="battle-actions"><button class="battle-btn btn-attack" onclick="nextBattle()">➡ CONTINUER</button></div>`;
+  } else {
+    actHTML=`<div class="battle-actions"><button class="battle-btn btn-special" onclick="retryBattle()">🔄 RÉESSAYER</button></div>`;
+  }
+
+  cont.innerHTML=`
+    <div class="battle-header">
+      <div class="wave-info">${arc.emoji} ${arc.name}<br><span class="wave-num">Vague ${wd+1}/${arc.waves}</span></div>
+      <div style="font-size:.75rem;color:var(--muted);text-align:right">Difficulté<br><span style="color:var(--red)">${'🔥'.repeat(Math.min(state.currentArc+Math.floor(wd/2),9))}</span></div>
+    </div>
+    ${bossHTML}
+    <div class="combatants">
+      <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
+      <div class="vs-divider"><div class="vs-text">VS</div></div>
+      <div class="fighter-group"><div class="fighter-group-title">💀 Ennemi</div>
+        <div class="fighter ${e.currentHp<=0?'dead':''}" id="enemy-fighter"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}${e.enraged?'<span style="color:var(--red);margin-left:4px">🔥ENRAGÉ</span>':''}</div><div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div>${eshB}${esi}</div></div>
+      </div>
+    </div>
+    <div class="battle-log">${logHTML}</div>
+    ${actHTML}
+  `;
+}
+
+function addLog(text,type=''){state.battleState.log.push({text,type});}
+
+function doAttack(mode){
+  const bs=state.battleState;if(!bs||bs.over)return;
+  if(mode==='burst'&&(bs.burstCharge||0)<3)return;
+  if(mode==='special'&&!bs.heroes.filter(h=>h.currentHp>0).some(h=>(h.spCooldown||0)===0))return;
+  const alive=bs.heroes.filter(h=>h.currentHp>0);
+  if(!alive.length){checkBattleEnd();return;}
+  tickStatuses(bs);
+
+  alive.forEach(hero=>{
+    if(bs.enemy.currentHp<=0)return;
+    let dmg=0,logText='',logType='log-hit';
+    if(mode==='normal'){
+      dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
+      dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);
+      applyPassiveTrigger(hero,bs,'escanor');
+      applyPassiveTrigger(hero,bs,'onNormalAtk');
+      const isCrit=Math.random()<.2;
+      const critMult=getPassive(hero.id)&&getPassive(hero.id).isCritBoost?2.5:1.8;
+      if(isCrit){dmg=Math.round(dmg*critMult);logType='log-crit';logText=`💥 CRITIQUE! ${hero.name} frappe (${dmg} dmg)`;}
+      else logText=`⚔ ${hero.name} attaque (${dmg} dmg)`;
+      // Double hit passive
+      if(getPassive(hero.id)&&getPassive(hero.id).isDoubleHit&&Math.random()<getPassive(hero.id).doubleChance){
+        const d2=Math.max(1,hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15))-bs.enemy.def);
+        bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-d2);
+        logText+=` + double (${d2})`;
+      }
+      // Tick down cooldown on normal attack
+      if((hero.spCooldown||0)>0) hero.spCooldown=Math.max(0,(hero.spCooldown||0)-1);
+    } else if(mode==='special'){
+      if((hero.spCooldown||0)>0){
+        // hero not ready, do a normal attack instead
+        dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
+        logText=`⚔ ${hero.name} attaque (spéciale en CD — ${dmg} dmg)`;
+        hero.spCooldown=Math.max(0,(hero.spCooldown||0)-1);
+      } else {
+        dmg=hero.sDmg+randInt(-Math.round(hero.sDmg*.1),Math.round(hero.sDmg*.1));
+        logText=`✨ ${hero.name}: ${hero.sp}! (${dmg} dmg)`;logType='log-special';
+        hero.spCooldown=hero.spMaxCd||3;
+        if(hero.type==='Support'){const heal=Math.round(hero.atk*1.5);const t=alive[Math.floor(Math.random()*alive.length)];t.currentHp=Math.min(t.maxHp,t.currentHp+heal);addLog(`💚 ${hero.name} soigne ${t.name} (+${heal} HP)`,'log-heal');}
+      }
+    } else if(mode==='burst'){
+      dmg=Math.round(hero.sDmg*2.8)+randInt(-100,100);
+      logText=`💥 BURST ULTIME! ${hero.name}: ${hero.sp}! (${dmg} dmg)`;logType='log-crit';
+      hero.spCooldown=hero.spMaxCd||3;
+    }
+    if(bs.enemy.abilities.includes('counter')&&Math.random()<.2&&bs.enemy.currentHp>0){
+      const cd=Math.round(dmg*.35);
+      const t=alive[Math.floor(Math.random()*alive.length)];
+      t.currentHp=Math.max(0,t.currentHp-cd);
+      addLog(`🔄 ${bs.enemy.name} contre! (${cd} dmg)`,'log-debuff');
+    }
+    if(bs.enemy.shield>0){const ab=Math.min(bs.enemy.shield,dmg);bs.enemy.shield=Math.max(0,bs.enemy.shield-ab);dmg-=ab;if(ab>0)addLog(`🛡 Bouclier absorbe ${ab}`,'log-debuff');}
+    dmg=Math.max(1,dmg-bs.enemy.def);
+    bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
+    applyPassiveTrigger(hero,bs,'lifesteal',dmg);
+    if(getPassive(hero.id)&&getPassive(hero.id).isAntiRegen) bs.enemy._antiRegen=true;
+    if(getPassive(hero.id)&&getPassive(hero.id).isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);addLog(`❄ ${hero.name} gèle l'ennemi! ATK −20%`,'log-special');}
+    addLog(logText,logType);
+  });
+
+  if(mode==='burst')bs.burstCharge=0;
+  else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
+  // Turn-start passives (regen etc)
+  bs.heroes.filter(h=>h.currentHp>0).forEach(h=>applyPassiveTrigger(h,bs,'onTurnStart'));
+
+  if(bs.enemy.currentHp>0){
+    const e=bs.enemy;
+    if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){
+      e.enraged=true;e.atk=Math.round(e.atk*1.6);
+      addLog(`😡 ${e.name} s'ENRAGE! ATK ×1.6!`,'log-crit');
+    }
+    if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.15){e.shield=Math.round(e.maxHp*.08);addLog(`🛡 ${e.name} génère un bouclier!`,'log-debuff');}
+    if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.2){const rg=Math.round(e.maxHp*.04);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addLog(`💚 ${e.name} régénère +${rg} HP`,'log-heal');}
+    const alive2=bs.heroes.filter(h=>h.currentHp>0);
+    if(alive2.length){
+      const attacks=e.isBoss?2:1;
+      for(let k=0;k<attacks;k++){
+        const t=alive2[Math.floor(Math.random()*alive2.length)];
+        if(t.currentHp<=0)continue;
+        const tp=getPassive(t.id);
+        if(tp&&tp.isDodge&&Math.random()<tp.dodgeChance){addLog(`💨 ${t.name} esquive!`,'log-heal');continue;}
+        if(e.abilities.includes('dodge')&&Math.random()<.15){addLog(`💨 Ennemi esquive!`,'log-debuff');continue;}
+        let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));
+        ed=applyDefensivePassive(t,ed,bs);
+        if(e.abilities.includes('poison')&&Math.random()<.25){if(!t.statuses.includes('☠Poison')){t.statuses.push('☠Poison');addLog(`☠ ${t.name} est empoisonné!`,'log-debuff');}}
+        ed=Math.max(1,ed-t.def);
+        t.currentHp=Math.max(0,t.currentHp-ed);
+        addLog(`💀 ${e.name} frappe ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');
+      }
+    }
+  }
+  bs.turn++;checkBattleEnd();renderBattleUI();
+}
+
+function tickStatuses(bs){
+  bs.heroes.forEach(h=>{
+    if(!h.statuses)return;
+    if(h.statuses.includes('☠Poison')){
+      const d=Math.round(h.maxHp*.05);h.currentHp=Math.max(0,h.currentHp-d);
+      addLog(`☠ ${h.name} perd ${d} HP (poison)`,'log-debuff');
+      if(Math.random()<.35)h.statuses=h.statuses.filter(s=>s!=='☠Poison');
+    }
+  });
+}
+
+function checkBattleEnd(){
+  const bs=state.battleState;
+  if(bs.enemy.currentHp<=0){
+    bs.over=true;bs.won=true;
+    if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0};
+    state.arcProgress[state.currentArc]=(state.arcProgress[state.currentArc]||0)+1;
+    state.totalWins=(state.totalWins||0)+1;
+    const g=100*state.currentArc*(bs.enemy.isBoss?5:1);
+    const cr=bs.enemy.isBoss?60:state.currentArc*6;
+    state.gold+=g;state.crystals+=cr;
+    addLog(`🏆 Victoire! +${g}🪙 +${cr}💎`,'log-win');
+    const arc=ARCS.find(a=>a.id===state.currentArc);
+    if(state.arcProgress[state.currentArc]>=arc.waves)addLog(`✅ Arc "${arc.name}" terminé!`,'log-win');
+    if(bs.enemy.isBoss)state.bossKills=(state.bossKills||0)+1;
+    save();updateRes();checkAchievements();
+    if(state.autoMode)toggleAuto();
+  } else {
+    const alive=bs.heroes.filter(h=>h.currentHp>0);
+    if(!alive.length){bs.over=true;bs.won=false;addLog('💔 Défaite... Renforcez votre équipe!','log-crit');if(state.autoMode)toggleAuto();}
+  }
+}
+
+function nextBattle(){
+  const arc=ARCS.find(a=>a.id===state.currentArc);
+  const wd=state.arcProgress[state.currentArc]||0;
+  if(wd>=arc.waves){const next=ARCS.find(a=>a.id===state.currentArc+1);if(next){selectArc(next.id);return;}}
+  state.battleState=null;save();updateRes();renderBattleScreen();
+}
+function retryBattle(){state.battleState=null;renderBattle();}
+
+function toggleAuto(){
+  state.autoMode=!state.autoMode;
+  if(state.autoMode){
+    state.autoInterval=setInterval(()=>{
+      if(!state.battleState||state.battleState.over){
+        if(state.battleState&&state.battleState.won)nextBattle();
+        else{state.battleState=null;renderBattle();}
+      } else {
+        const m=Math.random()<.12?'burst':Math.random()<.3?'special':'normal';
+        doAttack(m);
+      }
+    },900);
+  } else {clearInterval(state.autoInterval);}
+  renderBattleUI();
+}
+
+// ═══════════════════════════════════════════
+//  FORGE
+// ═══════════════════════════════════════════
+const MAX_UPGRADE=10;
+const UPGRADE_COST_BASE=200; // gold per level per stat
+
+function getCharLevel(id){
+  if(!state.upgrades||!state.upgrades[id])return 1;
+  const u=state.upgrades[id];
+  return 1+((u.atk||0)+(u.hp||0)+(u.def||0));
+}
+
+function getUpgradeCost(id,stat){
+  const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+  const currentLevel=(u[stat]||0);
+  return UPGRADE_COST_BASE*(currentLevel+1)*Math.ceil(ALL_CHARS.find(c=>c.id===id).rarity/2);
+}
+
+function doUpgrade(id,stat){
+  if(!state.upgrades)state.upgrades={};
+  if(!state.upgrades[id])state.upgrades[id]={atk:0,hp:0,def:0};
+  const u=state.upgrades[id];
+  if((u[stat]||0)>=MAX_UPGRADE)return;
+  const cost=getUpgradeCost(id,stat);
+  if(state.gold<cost){alert(`Pas assez d'or ! Il vous faut ${cost} 🪙`);return;}
+  state.gold-=cost;
+  u[stat]=(u[stat]||0)+1;
+  save();updateRes();renderForge();
+}
+
+function renderForge(){
+  const grid=document.getElementById('forge-grid');
+  if(!grid)return;
+  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  if(!owned.length){grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">Invoquez des personnages pour les améliorer !</div>';return;}
+  grid.innerHTML=owned.map(c=>{
+    const u=state.upgrades&&state.upgrades[c.id]||{atk:0,hp:0,def:0};
+    const lvl=getCharLevel(c.id);
+    const atkBonus=Math.round(c.atk*(u.atk||0)*0.12);
+    const hpBonus=Math.round(c.hp*(u.hp||0)*0.12);
+    const defBonus=Math.round(c.def*(u.def||0)*0.12);
+    const atkCost=getUpgradeCost(c.id,'atk');
+    const hpCost=getUpgradeCost(c.id,'hp');
+    const defCost=getUpgradeCost(c.id,'def');
+    const maxAtk=(u.atk||0)>=MAX_UPGRADE;
+    const maxHp=(u.hp||0)>=MAX_UPGRADE;
+    const maxDef=(u.def||0)>=MAX_UPGRADE;
+    return `<div class="forge-card r${c.rarity}">
+      <div class="forge-emoji">${c.emoji}</div>
+      <div class="forge-info">
+        <div class="forge-name">${c.name} ${'★'.repeat(c.rarity)}</div>
+        <div class="forge-anime">${c.anime} · ${c.type}</div>
+        <div class="forge-lvl">Niveau Forge: ${lvl} · Force: ⚡${getCharPower(c.id).toLocaleString()}</div>
+        <div class="forge-stats">
+          <div class="forge-stat">⚔ ATK <span>${c.atk}${atkBonus>0?'+'+atkBonus:''}</span> (niv.${u.atk||0})</div>
+          <div class="forge-stat">❤ HP <span>${c.hp}${hpBonus>0?'+'+hpBonus:''}</span> (niv.${u.hp||0})</div>
+          <div class="forge-stat">🛡 DEF <span>${c.def}${defBonus>0?'+'+defBonus:''}</span> (niv.${u.def||0})</div>
+        </div>
+      </div>
+      <div class="forge-actions">
+        ${maxAtk?`<span class="max-badge">ATK MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','atk')">+ATK<span class="cost">${atkCost}🪙</span></button>`}
+        ${maxHp?`<span class="max-badge">HP MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','hp')">+HP<span class="cost">${hpCost}🪙</span></button>`}
+        ${maxDef?`<span class="max-badge">DEF MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','def')">+DEF<span class="cost">${defCost}🪙</span></button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+//  PASSIFS UNIQUES
+// ═══════════════════════════════════════════
+const PASSIVES = {
+  goku_ssj:  {name:'Ki Infini',     desc:'Chaque attaque normale recharge 1 tour de CD spéciale',  fn:(hero)=>{ if(hero.spCooldown>0)hero.spCooldown=Math.max(0,hero.spCooldown-1); }},
+  saitama:   {name:'Un Seul Coup',  desc:'20% de chance d\'infliger 3× ATK au lieu de 1×',         fn:(hero,bs)=>{ return Math.random()<.2?3:1; }, isDmgMult:true},
+  levi:      {name:'Instinct Ackerman', desc:'30% de chance d\'esquiver toute attaque ennemie',    fn:null, isDodge:true, dodgeChance:.3},
+  gojo:      {name:'Infinité',      desc:'Réduit tous les dégâts reçus de 25%',                    fn:null, isDmgReduce:true, reduceAmt:.25},
+  sukuna:    {name:'Roi des Fléaux',desc:'Les critiques infligent 2.5× au lieu de 1.8×',           fn:null, isCritBoost:true},
+  aizen:     {name:'Kyoka Suigetsu',desc:'10% de chance de refléter 50% des dégâts à l\'ennemi',  fn:null, isReflect:true, reflectChance:.1},
+  madara:    {name:'Hagoromo',      desc:'Se régénère de 5% HP max chaque tour',                   fn:(hero)=>{ hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(hero.maxHp*.05)); }},
+  escanor:   {name:'Le Plus Fort',  desc:'ATK augmente de 5% à chaque attaque normale (cumul 10)',fn:null, isEscanor:true},
+  luffy_g5:  {name:'Joie du Combat',desc:'Guérit 8% HP max après chaque victoire',                fn:null},
+  rimuru:    {name:'Sage du Chaos', desc:'L\'équipe récupère 3% HP max chaque tour',               fn:(hero,bs)=>{ bs.heroes.forEach(h=>{ if(h.currentHp>0) h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.03)); }); }},
+  ainz:      {name:'Roi des Morts', desc:'Les ennemis morts ne reviennent jamais (anti-regen)',    fn:null, isAntiRegen:true},
+  whitebeard:{name:'Homme le Plus Fort', desc:'Réduit l\'ATK ennemi de 15% au combat',            fn:null, isAtkDebuff:true},
+  rem:       {name:'Oni Berserk',   desc:'Se soigne 15% HP max quand elle passe sous 30% vie',     fn:null, isLastStand:true},
+  killua:    {name:'Godspeed',      desc:'20% de chance d\'attaquer 2 fois par tour',              fn:null, isDoubleHit:true, doubleChance:.2},
+  jotaro:    {name:'Star Platinum', desc:'Arrête le temps : 15% de chance d\'annuler l\'attaque ennemie', fn:null, isDodge:true, dodgeChance:.15},
+  meliodas:  {name:'Full Counter',  desc:'Renvoie 60% des dégâts reçus à l\'ennemi',               fn:null, isFullCounter:true, counterAmt:.6},
+  natsu:     {name:'Flamme Dévorante', desc:'Absorbe 10% des dégâts infligés en HP',               fn:null, isLifesteal:true, lifestealAmt:.1},
+  todoroki:  {name:'Demi-Froid Demi-Chaud', desc:'Applique Gel à l\'ennemi (réduit son ATK de 20%)', fn:null, isFreeze:true},
+};
+
+function getPassive(id){ return PASSIVES[id]||null; }
+
+function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
+  const p=getPassive(hero.id);
+  if(!p)return dmg;
+  if(triggerType==='onNormalAtk'&&p.fn) p.fn(hero,bs);
+  if(triggerType==='onTurnStart'&&p.fn) p.fn(hero,bs);
+  if(triggerType==='dmgMult'&&p.isDmgMult) return dmg*p.fn(hero,bs);
+  if(triggerType==='lifesteal'&&p.isLifesteal){ hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(dmg*p.lifestealAmt)); }
+  if(triggerType==='escanor'&&p.isEscanor){
+    if(!hero._escanorStacks)hero._escanorStacks=0;
+    if(hero._escanorStacks<10){ hero.atk=Math.round(hero.atk*1.05); hero._escanorStacks++; }
+  }
+  return dmg;
+}
+
+function applyDefensivePassive(hero, dmg, bs){
+  const p=getPassive(hero.id);
+  if(!p)return dmg;
+  if(p.isDmgReduce) dmg=Math.round(dmg*(1-p.reduceAmt));
+  if(p.isFullCounter&&bs.enemy.currentHp>0){
+    const reflected=Math.round(dmg*p.counterAmt);
+    bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-reflected);
+    addLog(`🔄 ${hero.name} Full Counter! (${reflected} dmg refléchi)`,'log-special');
+  }
+  if(p.isLastStand&&!hero._lastStandUsed&&hero.currentHp/hero.maxHp<.3){
+    const heal=Math.round(hero.maxHp*.15);
+    hero.currentHp=Math.min(hero.maxHp,hero.currentHp+heal);
+    hero._lastStandUsed=true;
+    addLog(`💙 ${hero.name} Oni Berserk! (+${heal} HP)`,'log-heal');
+  }
+  return dmg;
+}
+
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ═══════════════════════════════════════════
+//  FUSION
+// ═══════════════════════════════════════════
+function renderFusion(){
+  const grid=document.getElementById('fusion-grid');
+  if(!grid)return;
+  const fuseable=ALL_CHARS.filter(c=>{
+    const count=state.owned[c.id]||0;
+    return count>=3||(count>=1&&c.rarity===5);
+  }).sort((a,b)=>b.rarity-a.rarity);
+  if(!fuseable.length){
+    grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">Aucun personnage fusionnable.<br><small>Il vous faut 3 doublons du même personnage.</small></div>';
+    return;
+  }
+  grid.innerHTML=fuseable.map(c=>{
+    const count=state.owned[c.id]||0;
+    const is5star=c.rarity===5;
+    const canFuse=count>=3&&!is5star;
+    const canConvert=count>=3&&is5star;
+    const result=is5star?null:ALL_CHARS.filter(x=>x.rarity===c.rarity+1);
+    const passive=getPassive(c.id);
+    return `<div class="fusion-card r${c.rarity}">
+      <div class="fusion-count">×${count}</div>
+      <div class="fusion-info">
+        <div class="fusion-name">${c.emoji} ${c.name} ${'★'.repeat(c.rarity)}</div>
+        <div class="fusion-sub">${c.anime} · ${c.type}</div>
+        ${passive?`<div class="passive-tag">⚡ Passif: ${passive.name}</div>`:''}
+        ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px;">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
+        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">★★★★★ → 30 💎 cristaux</div>`:''}
+        ${!canFuse&&!canConvert?`<div class="fusion-sub" style="margin-top:4px;">Besoin de ${3-count} doublon(s) de plus</div>`:''}
+      </div>
+      <div>
+        ${canFuse?`<button class="fusion-btn" onclick="doFusion('${c.id}')">FUSIONNER<span class="sub">3× ${c.name}</span></button>`:''}
+        ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">→ 30 💎</span></button>`:''}
+        ${!canFuse&&!canConvert?`<button class="fusion-btn" disabled>FUSIONNER<span class="sub">${3-count} manquant(s)</span></button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function doFusion(id){
+  const c=ALL_CHARS.find(x=>x.id===id);
+  if((state.owned[id]||0)<3){return;}
+  if(c.rarity>=5){return;}
+  state.owned[id]-=3;
+  if(state.owned[id]<=0)delete state.owned[id];
+  // Give random char of rarity+1
+  const pool=ALL_CHARS.filter(x=>x.rarity===c.rarity+1);
+  const result=pool[Math.floor(Math.random()*pool.length)];
+  state.owned[result.id]=(state.owned[result.id]||0)+1;
+  state.fusionCount=(state.fusionCount||0)+1;
+  save(); renderFusion();
+  showToast(`🔮 Fusion! ${c.name} → ${result.emoji} ${result.name} ${'★'.repeat(result.rarity)}`);
+  checkAchievements();
+}
+
+function doConvert(id){
+  if((state.owned[id]||0)<3)return;
+  state.owned[id]-=3;
+  if(state.owned[id]<=0)delete state.owned[id];
+  state.crystals+=30;
+  save(); updateRes(); renderFusion();
+  showToast('💎 +30 cristaux obtenus par conversion !');
+}
+
+// ═══════════════════════════════════════════
+//  ACHIEVEMENTS
+// ═══════════════════════════════════════════
+const ACHIEVEMENTS=[
+  {id:'first_win',    icon:'⚔',name:'Premier Sang',      desc:'Remportez votre premier combat',              reward:'💎×20',  rewardFn:()=>{state.crystals+=20;},  check:()=>(state.totalWins||0)>=1,         progress:()=>Math.min(1,state.totalWins||0), max:1},
+  {id:'wins10',       icon:'🏆',name:'Guerrier',           desc:'Remportez 10 combats',                        reward:'💎×50',  rewardFn:()=>{state.crystals+=50;},  check:()=>(state.totalWins||0)>=10,        progress:()=>Math.min(10,state.totalWins||0), max:10},
+  {id:'wins50',       icon:'🌟',name:'Héros de l\'Isekai', desc:'Remportez 50 combats',                        reward:'💎×150', rewardFn:()=>{state.crystals+=150;}, check:()=>(state.totalWins||0)>=50,        progress:()=>Math.min(50,state.totalWins||0), max:50},
+  {id:'wins100',      icon:'👑',name:'Seigneur de Guerre', desc:'Remportez 100 combats',                       reward:'💎×300', rewardFn:()=>{state.crystals+=300;}, check:()=>(state.totalWins||0)>=100,       progress:()=>Math.min(100,state.totalWins||0), max:100},
+  {id:'first5star',   icon:'✨',name:'Légende',             desc:'Obtenez votre premier ★★★★★',                reward:'🪙×500', rewardFn:()=>{state.gold+=500;},    check:()=>ALL_CHARS.filter(c=>c.rarity===5&&(state.owned[c.id]||0)>0).length>=1, progress:()=>Math.min(1,ALL_CHARS.filter(c=>c.rarity===5&&(state.owned[c.id]||0)>0).length), max:1},
+  {id:'collect10',    icon:'📚',name:'Collectionneur',      desc:'Obtenez 10 personnages différents',           reward:'💎×30',  rewardFn:()=>{state.crystals+=30;},  check:()=>Object.keys(state.owned||{}).length>=10, progress:()=>Math.min(10,Object.keys(state.owned||{}).length), max:10},
+  {id:'collect30',    icon:'📖',name:'Grand Collectionneur',desc:'Obtenez 30 personnages différents',           reward:'💎×100', rewardFn:()=>{state.crystals+=100;}, check:()=>Object.keys(state.owned||{}).length>=30, progress:()=>Math.min(30,Object.keys(state.owned||{}).length), max:30},
+  {id:'arc1done',     icon:'🌲',name:'Survivant de la Forêt',desc:'Terminez l\'Arc 1',                        reward:'💎×40',  rewardFn:()=>{state.crystals+=40;},  check:()=>(state.arcProgress&&state.arcProgress[1]||0)>=5, progress:()=>Math.min(5,(state.arcProgress&&state.arcProgress[1])||0), max:5},
+  {id:'arc3done',     icon:'🔥',name:'Seigneur des Abysses',desc:'Terminez l\'Arc 3',                         reward:'💎×120', rewardFn:()=>{state.crystals+=120;}, check:()=>(state.arcProgress&&state.arcProgress[3]||0)>=7, progress:()=>Math.min(7,(state.arcProgress&&state.arcProgress[3])||0), max:7},
+  {id:'arc5done',     icon:'🌌',name:'Sauveur du Multivers', desc:'Terminez l\'Arc 5',                        reward:'💎×500', rewardFn:()=>{state.crystals+=500;}, check:()=>(state.arcProgress&&state.arcProgress[5]||0)>=10, progress:()=>Math.min(10,(state.arcProgress&&state.arcProgress[5])||0), max:10},
+  {id:'fusion1',      icon:'🔮',name:'Alchimiste',           desc:'Effectuez votre première fusion',            reward:'🪙×300', rewardFn:()=>{state.gold+=300;},    check:()=>(state.fusionCount||0)>=1, progress:()=>Math.min(1,state.fusionCount||0), max:1},
+  {id:'forge10',      icon:'🔨',name:'Forgeron',             desc:'Atteignez 10 niveaux totaux en Forge',       reward:'💎×60',  rewardFn:()=>{state.crystals+=60;},  check:()=>getTotalForgeLevel()>=10, progress:()=>Math.min(10,getTotalForgeLevel()), max:10},
+  {id:'infinite20',   icon:'♾', name:'Infini',              desc:'Atteignez la vague 20 en mode infini',        reward:'💎×200', rewardFn:()=>{state.crystals+=200;}, check:()=>(state.infiniteBest||0)>=20, progress:()=>Math.min(20,state.infiniteBest||0), max:20},
+  {id:'boss1',        icon:'💀',name:'Tueur de Boss',        desc:'Vainquez votre premier boss',                reward:'💎×50',  rewardFn:()=>{state.crystals+=50;},  check:()=>(state.bossKills||0)>=1, progress:()=>Math.min(1,state.bossKills||0), max:1},
+  {id:'boss5',        icon:'🔱',name:'Chasseur de Titans',   desc:'Vainquez 5 boss',                            reward:'💎×150', rewardFn:()=>{state.crystals+=150;}, check:()=>(state.bossKills||0)>=5, progress:()=>Math.min(5,state.bossKills||0), max:5},
+];
+
+function getTotalForgeLevel(){
+  if(!state.upgrades)return 0;
+  return Object.values(state.upgrades).reduce((s,u)=>s+(u.atk||0)+(u.hp||0)+(u.def||0),0);
+}
+
+function checkAchievements(){
+  if(!state.achDone)state.achDone={};
+  let newUnlocked=false;
+  ACHIEVEMENTS.forEach(a=>{
+    if(!state.achDone[a.id]&&a.check()){
+      state.achDone[a.id]=true;
+      a.rewardFn();
+      newUnlocked=true;
+      showToast(`🏆 Succès débloqué: ${a.name}! ${a.reward}`);
+    }
+  });
+  if(newUnlocked){save();updateRes();}
+}
+
+function renderAchievements(){
+  const grid=document.getElementById('achievements-grid');
+  if(!grid)return;
+  checkAchievements();
+  const done=ACHIEVEMENTS.filter(a=>state.achDone&&state.achDone[a.id]).length;
+  grid.innerHTML=`<div style="text-align:center;margin-bottom:14px;font-size:.85rem;color:var(--muted)">Complétés: <span style="color:var(--gold);font-weight:700">${done}/${ACHIEVEMENTS.length}</span></div><div class="ach-grid">${ACHIEVEMENTS.map(a=>{
+    const isDone=state.achDone&&state.achDone[a.id];
+    const prog=a.progress();const max=a.max;const pct=Math.round(prog/max*100);
+    return `<div class="ach-card ${isDone?'done':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-info">
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+        <div class="ach-reward">${isDone?'✅ Obtenu':a.reward}</div>
+        ${!isDone?`<div class="ach-progress"><div class="ach-prog-fill" style="width:${pct}%"></div></div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">${prog}/${max}</div>`:''}
+      </div>
+      ${isDone?`<div class="ach-check">✓</div>`:''}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ═══════════════════════════════════════════
+//  MODE INFINI
+// ═══════════════════════════════════════════
+function renderInfiniteScreen(){
+  const best=state.infiniteBest||0;
+  document.getElementById('infinite-best').innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Meilleur record</div><div style="font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold)">Vague ${best}</div>`;
+  if(!state.infiniteBattle||state.infiniteBattle.over) renderInfiniteIdle();
+  else renderInfiniteUI();
+}
+
+function renderInfiniteIdle(){
+  const cont=document.getElementById('infinite-content');
+  if(state.team.filter(Boolean).length===0){
+    cont.innerHTML=`<div class="no-team-msg"><div class="big">⚔</div><div>Pas d'équipe! Allez dans <b>Équipe</b>.</div></div>`;return;
+  }
+  const best=state.infiniteBest||0;
+  cont.innerHTML=`<div style="text-align:center;padding:40px 20px;">
+    <div style="font-size:3rem;margin-bottom:12px;">⚔</div>
+    <div style="font-size:.9rem;color:var(--muted);margin-bottom:20px;">Les ennemis deviennent plus forts à chaque vague.<br>Chaque vague gagnée = or + cristaux.</div>
+    <button class="battle-btn btn-attack" onclick="startInfinite()">🚀 COMMENCER</button>
+  </div>`;
+}
+
+function startInfinite(){
+  if(state.team.filter(Boolean).length===0)return;
+  const chars=state.team.filter(Boolean).map(id=>{
+    const c=ALL_CHARS.find(ch=>ch.id===id);
+    const upg=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+    const atkB=Math.round(c.atk*(upg.atk||0)*0.12);
+    const hpB=Math.round(c.hp*(upg.hp||0)*0.12);
+    const defB=Math.round(c.def*(upg.def||0)*0.12);
+    return {...c,atk:c.atk+atkB,hp:c.hp+hpB,def:c.def+defB,sDmg:Math.round(c.sDmg*(1+(upg.atk||0)*0.08)),currentHp:c.hp+hpB,maxHp:c.hp+hpB,shield:0,statuses:[],spCooldown:0,spMaxCd:3};
+  });
+  state.infiniteBattle={wave:1,heroes:chars,enemy:makeInfiniteEnemy(1),log:[],over:false,won:false,burstCharge:0};
+  renderInfiniteUI();
+}
+
+function makeInfiniteEnemy(wave){
+  const templates=[
+    {name:'Chasseur',emoji:'🗡'},{name:'Berserk',emoji:'💢'},{name:'Sorcier Noir',emoji:'🧙'},
+    {name:'Dragon',emoji:'🐲'},{name:'Titan',emoji:'🗿'},{name:'Démon',emoji:'😈'},
+    {name:'Dieu de la Guerre',emoji:'⚡'},{name:'Entité Cosmique',emoji:'🌑'},
+  ];
+  const t=templates[Math.floor(Math.random()*templates.length)];
+  const abilities=[];
+  if(wave>=3)abilities.push('enrage');
+  if(wave>=5)abilities.push('shield');
+  if(wave>=8)abilities.push('regen');
+  if(wave>=12)abilities.push('counter');
+  if(wave>=16)abilities.push('poison');
+  if(wave>=20)abilities.push('dodge');
+  const isBoss=wave%5===0;
+  return {
+    name:`${isBoss?'⚠ BOSS: ':''}${t.name} Niv.${wave}`,
+    emoji:t.emoji,isBoss,
+    abilities,
+    currentHp:Math.round(400*Math.pow(1.18,wave-1)),
+    maxHp:Math.round(400*Math.pow(1.18,wave-1)),
+    atk:Math.round(50*Math.pow(1.15,wave-1)),
+    def:Math.round(10*Math.pow(1.12,wave-1)),
+    shield:0,enraged:false,statuses:[],
+  };
+}
+
+function renderInfiniteUI(){
+  const cont=document.getElementById('infinite-content');
+  const bs=state.infiniteBattle;if(!bs)return;
+  const heroHTML=bs.heroes.map((h,i)=>{
+    const pct=Math.max(0,h.currentHp/h.maxHp*100);
+    const hpC=pct>60?'high':pct>25?'mid':'low';
+    const cd=h.spCooldown||0;const mcd=h.spMaxCd||3;
+    const spBar=`<div class="sp-bar-wrap"><div class="sp-bar" style="width:${cd===0?100:((mcd-cd)/mcd*100)}%"></div></div><div class="${cd===0?'sp-ready':'sp-cd'}">${cd===0?`✨ PRÊTE`:`CD:${cd}`}</div>`;
+    return `<div class="fighter ${h.currentHp<=0?'dead':''}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpC}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${spBar}</div></div>`;
+  }).join('');
+  const e=bs.enemy;
+  const epct=Math.max(0,e.currentHp/e.maxHp*100);
+  const ehpC=epct>60?'high':epct>25?'mid':'low';
+  const logHTML=bs.log.slice(-5).map(l=>`<p class="${l.type}">${l.text}</p>`).join('');
+  const alive=bs.heroes.filter(h=>h.currentHp>0);
+  const anySpReady=alive.some(h=>(h.spCooldown||0)===0);
+  const bc=bs.burstCharge||0;
+  let actHTML='';
+  if(!bs.over){
+    actHTML=`<div class="battle-actions">
+      <button class="battle-btn btn-attack" onclick="doInfiniteAttack('normal')">⚔ ATTAQUE</button>
+      <button class="battle-btn btn-special" onclick="doInfiniteAttack('special')" ${!anySpReady?'disabled':''}>✨ SPÉCIALE</button>
+      <button class="battle-btn btn-burst" onclick="doInfiniteAttack('burst')" ${bc<3?'disabled':''}>💥 BURST${bc>=3?' READY!':' ('+bc+'/3)'}</button>
+    </div>`;
+  } else if(bs.won){
+    actHTML=`<div class="battle-actions"><button class="battle-btn btn-attack" onclick="nextInfiniteWave()">➡ VAGUE ${bs.wave+1}</button><button class="battle-btn btn-special" onclick="stopInfinite()">🛑 ARRÊTER</button></div>`;
+  } else {
+    actHTML=`<div class="battle-actions"><button class="battle-btn btn-special" onclick="renderInfiniteIdle()">🔄 RECOMMENCER</button></div>`;
+  }
+  cont.innerHTML=`<div class="battle-header"><div class="wave-info">♾ Mode Infini<br><span class="wave-num">Vague ${bs.wave}</span></div><div style="font-size:.75rem;color:var(--muted);text-align:right">Record<br><span style="color:var(--gold)">${state.infiniteBest||0}</span></div></div>
+    <div class="combatants">
+      <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
+      <div class="vs-divider"><div class="vs-text">VS</div></div>
+      <div class="fighter-group"><div class="fighter-group-title">💀 Ennemi</div>
+        <div class="fighter ${e.currentHp<=0?'dead':''}"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div></div></div>
+      </div>
+    </div>
+    <div class="battle-log">${logHTML}</div>${actHTML}`;
+}
+
+function doInfiniteAttack(mode){
+  const bs=state.infiniteBattle;if(!bs||bs.over)return;
+  if(mode==='burst'&&(bs.burstCharge||0)<3)return;
+  const alive=bs.heroes.filter(h=>h.currentHp>0);
+  if(!alive.length)return;
+  // Tick passives on turn start
+  alive.forEach(h=>applyPassiveTrigger(h,bs,'onTurnStart'));
+  alive.forEach(hero=>{
+    if(bs.enemy.currentHp<=0)return;
+    let dmg=0,logText='',logType='log-hit';
+    if(mode==='normal'){
+      dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
+      dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);
+      applyPassiveTrigger(hero,bs,'escanor');
+      applyPassiveTrigger(hero,bs,'onNormalAtk');
+      const crit=Math.random()<.2;
+      const critMult=getPassive(hero.id)&&getPassive(hero.id).isCritBoost?2.5:1.8;
+      if(crit){dmg=Math.round(dmg*critMult);logType='log-crit';logText=`💥 CRIT! ${hero.name} (${dmg})`;}
+      else logText=`⚔ ${hero.name} (${dmg})`;
+      if((hero.spCooldown||0)>0)hero.spCooldown=Math.max(0,hero.spCooldown-1);
+      // Double hit passive
+      if(getPassive(hero.id)&&getPassive(hero.id).isDoubleHit&&Math.random()<getPassive(hero.id).doubleChance){
+        const d2=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
+        bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-Math.max(1,d2-bs.enemy.def));
+        logText+=` + double (${d2})`;
+      }
+    } else if(mode==='special'){
+      if((hero.spCooldown||0)>0){dmg=hero.atk;logText=`⚔ ${hero.name} attaque (CD)`;hero.spCooldown=Math.max(0,hero.spCooldown-1);}
+      else{dmg=hero.sDmg+randInt(-Math.round(hero.sDmg*.1),Math.round(hero.sDmg*.1));logText=`✨ ${hero.name}: ${hero.sp}! (${dmg})`;logType='log-special';hero.spCooldown=hero.spMaxCd||3;}
+    } else {
+      dmg=Math.round(hero.sDmg*2.8)+randInt(-100,100);logText=`💥 BURST! ${hero.name} (${dmg})`;logType='log-crit';hero.spCooldown=hero.spMaxCd||3;
+    }
+    applyPassiveTrigger(hero,bs,'lifesteal',dmg);
+    if(getPassive(hero.id)&&getPassive(hero.id).isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);bs.infiniteBattle&&addInfLog(`❄ ${hero.name} gèle l'ennemi! ATK -20%`,'log-special');}
+    if(getPassive(hero.id)&&getPassive(hero.id).isAntiRegen) bs.enemy._antiRegen=true;
+    dmg=Math.max(1,dmg-bs.enemy.def);
+    bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
+    addInfLog(logText,logType);
+  });
+  if(mode==='burst')bs.burstCharge=0;
+  else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
+  if(bs.enemy.currentHp>0){
+    const e=bs.enemy;
+    if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.6);addInfLog(`😡 ${e.name} ENRAGE!`,'log-crit');}
+    if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.15){e.shield=Math.round(e.maxHp*.08);addInfLog(`🛡 Bouclier ennemi!`,'log-debuff');}
+    if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.2){const rg=Math.round(e.maxHp*.04);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addInfLog(`💚 Regen +${rg}`,'log-heal');}
+    const alive2=bs.heroes.filter(h=>h.currentHp>0);
+    if(alive2.length){
+      const attacks=e.isBoss?2:1;
+      for(let k=0;k<attacks;k++){
+        const t=alive2[Math.floor(Math.random()*alive2.length)];
+        if(t.currentHp<=0)continue;
+        const p=getPassive(t.id);
+        if(p&&p.isDodge&&Math.random()<p.dodgeChance){addInfLog(`💨 ${t.name} esquive!`,'log-heal');continue;}
+        if(e.abilities.includes('dodge')&&Math.random()<.12){addInfLog(`💨 Ennemi esquive!`,'log-debuff');continue;}
+        let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));
+        ed=applyDefensivePassive(t,ed,bs);
+        if(p&&p.isDmgReduce)ed=Math.round(ed*(1-p.reduceAmt));
+        ed=Math.max(1,ed-t.def);
+        t.currentHp=Math.max(0,t.currentHp-ed);
+        addInfLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');
+      }
+    }
+  }
+  // Check end
+  if(bs.enemy.currentHp<=0){
+    bs.over=true;bs.won=true;
+    const gold=50*bs.wave*(bs.enemy.isBoss?3:1);
+    const cr=bs.wave*(bs.enemy.isBoss?15:3);
+    state.gold+=gold;state.crystals+=cr;
+    if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;}
+    if(bs.wave>(state.infiniteBest||0)){state.infiniteBest=bs.wave;showToast(`🎉 Nouveau record: Vague ${bs.wave}!`);}
+    addInfLog(`🏆 Vague ${bs.wave} terminée! +${gold}🪙 +${cr}💎`,'log-win');
+    save();updateRes();checkAchievements();
+  } else {
+    const alive3=bs.heroes.filter(h=>h.currentHp>0);
+    if(!alive3.length){
+      bs.over=true;bs.won=false;
+      addInfLog(`💔 Défaite à la vague ${bs.wave}`,'log-crit');
+      save();updateRes();checkAchievements();
+    }
+  }
+  renderInfiniteUI();
+  document.getElementById('infinite-best').innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Meilleur record</div><div style="font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold)">Vague ${state.infiniteBest||0}</div>`;
+}
+
+function addInfLog(text,type=''){if(state.infiniteBattle)state.infiniteBattle.log.push({text,type});}
+
+function nextInfiniteWave(){
+  const bs=state.infiniteBattle;if(!bs)return;
+  bs.wave++;
+  // Partial heal between waves
+  bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.15));});
+  bs.enemy=makeInfiniteEnemy(bs.wave);
+  bs.log=[];bs.over=false;bs.won=false;bs.burstCharge=0;
+  renderInfiniteUI();
+}
+function stopInfinite(){state.infiniteBattle=null;renderInfiniteScreen();}
+
+// INIT
+buildStars();
+load();
+if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0};
+if(!state.pity)state.pity=0;
+if(!state.totalWins)state.totalWins=0;
+if(!state.upgrades)state.upgrades={};
+if(!state.fusionCount)state.fusionCount=0;
+if(!state.bossKills)state.bossKills=0;
+if(!state.achDone)state.achDone={};
+if(!state.infiniteBest)state.infiniteBest=0;
+if(!state.owned||Object.keys(state.owned).length===0){
+  state.owned={gon:1,krillin:1,rock_lee:1};
+  state.team=['gon','krillin','rock_lee'];
+  save();
+}
+updateRes();
+checkAchievements();
+</script>
+</body>
+</html>
