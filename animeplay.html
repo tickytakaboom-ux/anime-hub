@@ -239,6 +239,63 @@
   .char-modal-addteam:disabled{opacity:.4;cursor:not-allowed;}
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:linear-gradient(135deg,#1a1a00,#3a2e00);border:1px solid var(--gold);color:var(--gold);padding:10px 24px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;z-index:9999;transition:transform .4s ease;pointer-events:none;white-space:nowrap;}
   .toast.show{transform:translateX(-50%) translateY(0);}
+  /* ── DAMAGE FLOATS ── */
+  .dmg-float{position:fixed;pointer-events:none;z-index:9999;font-family:'Cinzel Decorative',serif;font-weight:900;animation:dmg-rise .9s ease-out forwards;}
+  @keyframes dmg-rise{0%{opacity:1;transform:translateY(0) scale(1.1);}80%{opacity:.9;}100%{opacity:0;transform:translateY(-62px) scale(.75);}}
+  /* ── FIGHTER ANIMATIONS ── */
+  @keyframes fighter-attack{0%{transform:translateX(0);}30%{transform:translateX(22px) scale(1.05);}70%{transform:translateX(22px) scale(1.05);}100%{transform:translateX(0) scale(1);}}
+  @keyframes fighter-hit{0%{transform:translateX(0);filter:brightness(1);}20%{transform:translateX(-8px);filter:brightness(2) saturate(0);}50%{transform:translateX(4px);filter:brightness(1.6);}100%{transform:translateX(0);filter:brightness(1);}}
+  @keyframes fighter-death{0%{opacity:1;transform:scale(1);}100%{opacity:.25;transform:scale(.9) grayscale(1);}}
+  @keyframes fighter-crit{0%{transform:scale(1);}30%{transform:scale(1.15);}60%{transform:scale(.95);}100%{transform:scale(1);}}
+  .fighter.anim-attack{animation:fighter-attack .45s ease;}
+  .fighter.anim-hit{animation:fighter-hit .35s ease;}
+  .fighter.anim-crit{animation:fighter-crit .4s ease;}
+  /* ── TERRAIN BANNER ── */
+  .terrain-banner{border-radius:10px;padding:7px 14px;margin-bottom:12px;font-size:.75rem;display:flex;align-items:center;gap:8px;border:1px solid;}
+  /* ── XP BAR ── */
+  .xp-bar-wrap{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:20px;padding:5px 14px;display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .xp-level{font-family:'Cinzel Decorative',serif;font-size:.78rem;color:var(--gold);white-space:nowrap;}
+  .xp-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+  .xp-fill{height:100%;background:linear-gradient(90deg,#00d4ff,var(--purple));border-radius:3px;transition:width .5s ease;}
+  .xp-text{font-size:.68rem;color:var(--muted);white-space:nowrap;}
+  /* ── QUESTS ── */
+  .quest-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;margin-bottom:9px;display:flex;align-items:center;gap:14px;}
+  .quest-card.done{border-color:rgba(57,255,20,.35);background:linear-gradient(135deg,var(--card),rgba(57,255,20,.03));}
+  .quest-icon{font-size:1.7rem;flex-shrink:0;}
+  .quest-info{flex:1;}
+  .quest-name{font-weight:700;font-size:.88rem;}
+  .quest-desc{font-size:.7rem;color:var(--muted);margin-top:2px;}
+  .quest-reward{font-size:.7rem;color:var(--gold);margin-top:3px;}
+  .quest-prog-wrap{height:5px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:5px;overflow:hidden;}
+  .quest-prog-fill{height:100%;background:linear-gradient(90deg,var(--green),#00ff88);border-radius:3px;transition:width .4s;}
+  .quest-claim-btn{background:linear-gradient(135deg,#0a2a0a,#104010);border:1px solid var(--green);color:var(--green);padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+  .quest-claim-btn:hover{box-shadow:0 0 10px rgba(57,255,20,.3);}
+  .quest-claim-btn:disabled{opacity:.35;cursor:not-allowed;color:var(--muted);border-color:var(--border);}
+  .quest-reset{font-size:.72rem;color:var(--muted);text-align:center;margin-bottom:14px;}
+  /* ── SHOP ── */
+  .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+  .shop-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;transition:all .2s;}
+  .shop-item:hover{transform:translateY(-2px);}
+  .shop-item.gold-item{border-color:rgba(245,200,66,.3);}
+  .shop-item.crystal-item{border-color:rgba(180,79,255,.3);}
+  .shop-emoji{font-size:2.2rem;display:block;margin-bottom:8px;}
+  .shop-name{font-weight:700;font-size:.88rem;margin-bottom:3px;}
+  .shop-desc{font-size:.68rem;color:var(--muted);margin-bottom:10px;line-height:1.4;}
+  .shop-buy-btn{width:100%;background:linear-gradient(135deg,#1a1a00,#3a2e00);border:1px solid var(--gold2);color:var(--text);padding:7px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;transition:all .2s;}
+  .shop-buy-btn:hover{box-shadow:0 0 10px rgba(245,200,66,.25);}
+  .shop-buy-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .shop-buy-btn.crystal-btn{background:linear-gradient(135deg,#1a0a3a,#2a1060);border-color:var(--purple);}
+  /* ── PULL HISTORY ── */
+  .pull-hist-wrap{max-height:400px;overflow-y:auto;}
+  .pull-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.78rem;}
+  .pull-row:last-child{border:none;}
+  .pull-emoji{font-size:1.3rem;width:32px;text-align:center;}
+  .pull-name{flex:1;font-weight:600;}
+  .pull-stars{font-size:.7rem;}
+  .pull-new{background:var(--red);color:#fff;font-size:.55rem;padding:1px 5px;border-radius:4px;font-weight:700;}
+  .hist-stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;justify-content:center;}
+  .hist-stat{font-size:.8rem;color:var(--muted);}
+  .hist-stat span{color:var(--gold);font-weight:700;}
 </style>
 </head>
 <body>
@@ -256,15 +313,23 @@
     <div class="res-item">⚡ Vague <span id="wave-progress">1</span></div>
     <div class="res-item">🏅 <span id="total-wins">0</span> victoires</div>
   </div>
+  <div class="xp-bar-wrap">
+    <div class="xp-level">Niv. <span id="player-level">1</span></div>
+    <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+    <div class="xp-text"><span id="xp-current">0</span>/<span id="xp-next">100</span> XP</div>
+  </div>
   <nav class="tabs">
     <button class="tab-btn active" onclick="showTab('gacha',this)">🎲 Gacha</button>
     <button class="tab-btn" onclick="showTab('collection',this)">📚 Collection</button>
     <button class="tab-btn" onclick="showTab('team',this)">⚔ Équipe</button>
     <button class="tab-btn" onclick="showTab('forge',this)">🔨 Forge</button>
     <button class="tab-btn" onclick="showTab('fusion',this)">🔮 Fusion</button>
+    <button class="tab-btn" onclick="showTab('shop',this)">🛒 Boutique</button>
+    <button class="tab-btn" onclick="showTab('quests',this)">📋 Quêtes</button>
     <button class="tab-btn" onclick="showTab('battle',this)">🔥 Combat</button>
     <button class="tab-btn" onclick="showTab('infinite',this)">♾ Infini</button>
     <button class="tab-btn" onclick="showTab('achievements',this)">🏆 Succès</button>
+    <button class="tab-btn" onclick="showTab('history',this)">📜 Historique</button>
   </nav>
 
   <div id="gacha" class="screen active">
@@ -348,6 +413,24 @@
   <div id="achievements" class="screen">
     <div class="section-title">🏆 SUCCÈS</div>
     <div id="achievements-grid"></div>
+  </div>
+
+  <div id="shop" class="screen">
+    <div class="section-title">🛒 BOUTIQUE</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Dépensez vos ressources pour progresser plus vite.</div>
+    <div id="shop-content"></div>
+  </div>
+
+  <div id="quests" class="screen">
+    <div class="section-title">📋 QUÊTES JOURNALIÈRES</div>
+    <div class="quest-reset" id="quest-reset-info"></div>
+    <div id="quests-content"></div>
+  </div>
+
+  <div id="history" class="screen">
+    <div class="section-title">📜 HISTORIQUE DES INVOCATIONS</div>
+    <div class="hist-stats" id="hist-stats"></div>
+    <div class="pull-hist-wrap" id="pull-hist-list"></div>
   </div>
 
   <div id="battle" class="screen">
@@ -508,6 +591,7 @@ function updateRes(){
   const pc=document.getElementById('pity-count');
   if(pf)pf.style.width=(p/90*100)+'%';
   if(pc)pc.textContent=p;
+  updateXpBar();
 }
 
 function showTab(name,btn){
@@ -521,6 +605,9 @@ function showTab(name,btn){
   if(name==='fusion')renderFusion();
   if(name==='achievements')renderAchievements();
   if(name==='infinite')renderInfiniteScreen();
+  if(name==='shop')renderShop();
+  if(name==='quests')renderQuests();
+  if(name==='history')renderHistory();
   if(name==='battle')renderBattleScreen();
 }
 
@@ -659,7 +746,9 @@ function doGacha(n){
   state.crystals-=cost;
   const results=[];
   for(let i=0;i<n;i++)results.push(rollChar());
-  save();updateRes();showResults(results);
+  recordPull(results);
+  for(let i=0;i<n;i++)trackQuest('dailyGacha');
+  save();updateRes();showResults(results);checkAchievements();
 }
 
 function showResults(chars){
@@ -773,6 +862,9 @@ function initBattleState(){
     const finalSDmg=Math.round(c.sDmg*(1+(upg.atk||0)*0.08));
     return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3};
   });
+  // Apply shop bonuses
+  if(state.pendingCdReset){chars.forEach(h=>{h.spCooldown=0;});state.pendingCdReset=false;save();}
+  if(state.pendingHeal){/* already at full HP from initiation */state.pendingHeal=false;save();}
   const enemyData=getEnemyForCurrentWave();
   const scaleFactor=1+(state.currentArc-1)*0.3+((state.arcProgress[state.currentArc]||0)*0.05);
   const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities]};
@@ -832,6 +924,7 @@ function renderBattleUI(){
       <div class="wave-info">${arc.emoji} ${arc.name}<br><span class="wave-num">Vague ${wd+1}/${arc.waves}</span></div>
       <div style="font-size:.75rem;color:var(--muted);text-align:right">Difficulté<br><span style="color:var(--red)">${'🔥'.repeat(Math.min(state.currentArc+Math.floor(wd/2),9))}</span></div>
     </div>
+    ${getTerrainHTML(state.currentArc)}
     ${bossHTML}
     <div class="combatants">
       <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
@@ -885,6 +978,7 @@ function doAttack(mode){
         dmg=hero.sDmg+randInt(-Math.round(hero.sDmg*.1),Math.round(hero.sDmg*.1));
         logText=`✨ ${hero.name}: ${hero.sp}! (${dmg} dmg)`;logType='log-special';
         hero.spCooldown=hero.spMaxCd||3;
+        trackQuest('dailySp');
         if(hero.type==='Support'){const heal=Math.round(hero.atk*1.5);const t=alive[Math.floor(Math.random()*alive.length)];t.currentHp=Math.min(t.maxHp,t.currentHp+heal);addLog(`💚 ${hero.name} soigne ${t.name} (+${heal} HP)`,'log-heal');}
       }
     } else if(mode==='burst'){
@@ -909,6 +1003,9 @@ function doAttack(mode){
 
   if(mode==='burst')bs.burstCharge=0;
   else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
+  // Apply terrain effect each turn
+  const terrain=TERRAINS[state.currentArc];
+  if(terrain&&terrain.fn) terrain.fn(bs);
   // Turn-start passives (regen etc)
   bs.heroes.filter(h=>h.currentHp>0).forEach(h=>applyPassiveTrigger(h,bs,'onTurnStart'));
 
@@ -965,7 +1062,9 @@ function checkBattleEnd(){
     addLog(`🏆 Victoire! +${g}🪙 +${cr}💎`,'log-win');
     const arc=ARCS.find(a=>a.id===state.currentArc);
     if(state.arcProgress[state.currentArc]>=arc.waves)addLog(`✅ Arc "${arc.name}" terminé!`,'log-win');
-    if(bs.enemy.isBoss)state.bossKills=(state.bossKills||0)+1;
+    if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;trackQuest('dailyBoss');}
+    giveXp(30+state.currentArc*10);
+    trackQuest('dailyWins');
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
   } else {
@@ -1025,6 +1124,7 @@ function doUpgrade(id,stat){
   if(state.gold<cost){alert(`Pas assez d'or ! Il vous faut ${cost} 🪙`);return;}
   state.gold-=cost;
   u[stat]=(u[stat]||0)+1;
+  trackQuest('dailyForge');
   save();updateRes();renderForge();
 }
 
@@ -1464,6 +1564,262 @@ function nextInfiniteWave(){
 }
 function stopInfinite(){state.infiniteBattle=null;renderInfiniteScreen();}
 
+// ═══════════════════════════════════════════
+//  XP & PLAYER LEVEL
+// ═══════════════════════════════════════════
+const XP_PER_LEVEL=[0,100,220,380,580,840,1160,1560,2060,2680,3440,4380,5540,6960,8700,10820,13400,16520,20280,24800,30000];
+function getXpToNext(lvl){return XP_PER_LEVEL[Math.min(lvl,XP_PER_LEVEL.length-1)]||30000;}
+function giveXp(amount){
+  if(!state.xp)state.xp=0;
+  if(!state.playerLevel)state.playerLevel=1;
+  state.xp+=amount;
+  let leveled=false;
+  while(state.playerLevel<20&&state.xp>=getXpToNext(state.playerLevel)){
+    state.xp-=getXpToNext(state.playerLevel);
+    state.playerLevel++;
+    leveled=true;
+    const rewards={crystals:30,gold:200};
+    state.crystals+=rewards.crystals;state.gold+=rewards.gold;
+    showToast(`🎉 Niveau ${state.playerLevel}! +${rewards.crystals}💎 +${rewards.gold}🪙`);
+  }
+  if(leveled)save();
+  updateXpBar();
+}
+function updateXpBar(){
+  const lvl=state.playerLevel||1;
+  const xp=state.xp||0;
+  const next=getXpToNext(lvl);
+  const el=document.getElementById('player-level');
+  const fill=document.getElementById('xp-fill');
+  const cur=document.getElementById('xp-current');
+  const nxt=document.getElementById('xp-next');
+  if(el)el.textContent=lvl;
+  if(fill)fill.style.width=(lvl>=20?100:Math.round(xp/next*100))+'%';
+  if(cur)cur.textContent=xp;
+  if(nxt)nxt.textContent=lvl>=20?'MAX':next;
+}
+
+// ═══════════════════════════════════════════
+//  DAMAGE FLOAT NUMBERS
+// ═══════════════════════════════════════════
+function spawnDmgFloat(text,color,targetEl){
+  if(!targetEl)return;
+  const rect=targetEl.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.className='dmg-float';
+  el.style.cssText=`left:${rect.left+rect.width/2-20}px;top:${rect.top+rect.height/4}px;color:${color};font-size:${text.toString().length>4?'1.1rem':'1.4rem'};text-shadow:0 2px 8px #000a;`;
+  el.textContent=text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),920);
+}
+
+// ═══════════════════════════════════════════
+//  TERRAIN EFFECTS (per arc)
+// ═══════════════════════════════════════════
+const TERRAINS={
+  1:{name:'Forêt Maudite',emoji:'🌲',color:'rgba(57,255,20,.12)',borderColor:'rgba(57,255,20,.3)',effect:'Ennemis régénèrent +2% HP/tour',fn:(bs)=>{if(bs.enemy.currentHp>0){const rg=Math.round(bs.enemy.maxHp*.02);bs.enemy.currentHp=Math.min(bs.enemy.maxHp,bs.enemy.currentHp+rg);}}},
+  2:{name:'Cités en Ruines',emoji:'🏚',color:'rgba(230,57,70,.08)',borderColor:'rgba(230,57,70,.25)',effect:'Dégâts critiques +10% pour tous',fn:null},
+  3:{name:'Abysses Infernaux',emoji:'🔥',color:'rgba(255,100,0,.1)',borderColor:'rgba(255,100,0,.3)',effect:'Héros perdent 2% HP max chaque tour (brûlure)',fn:(bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0){const burn=Math.round(h.maxHp*.02);h.currentHp=Math.max(1,h.currentHp-burn);}});}},
+  4:{name:'Royaume des Dieux',emoji:'⛩',color:'rgba(0,212,255,.08)',borderColor:'rgba(0,212,255,.25)',effect:'DEF de tous les ennemis +20%',fn:null},
+  5:{name:'Fin du Multivers',emoji:'🌌',color:'rgba(180,79,255,.1)',borderColor:'rgba(180,79,255,.3)',effect:'Toutes les spéciales font −15% de dégâts (résistance cosmique)',fn:null},
+};
+
+// ═══════════════════════════════════════════
+//  ANIMATED BATTLE HELPER
+// ═══════════════════════════════════════════
+function animFighter(id,cls){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.remove('anim-attack','anim-hit','anim-crit');
+  void el.offsetWidth;
+  el.classList.add(cls);
+  setTimeout(()=>el.classList.remove(cls),450);
+}
+
+// ═══════════════════════════════════════════
+//  SHOP
+// ═══════════════════════════════════════════
+const SHOP_ITEMS=[
+  {id:'crystals_small', name:'Sachet de Cristaux',  emoji:'💎', desc:'Obtenez 50 cristaux immédiatement.',         price:500,  currency:'gold', reward:()=>{state.crystals+=50;},  label:'+50 💎'},
+  {id:'crystals_big',   name:'Coffre de Cristaux',  emoji:'💎', desc:'Obtenez 200 cristaux immédiatement.',        price:1800, currency:'gold', reward:()=>{state.crystals+=200;}, label:'+200 💎'},
+  {id:'gold_pull',      name:'Invocation Garantie', emoji:'🎲', desc:'Une invocation gratuite (équivalent 50💎).', price:800,  currency:'gold', reward:()=>{const c=rollChar();showResults([c]);}, label:'×1 Pull'},
+  {id:'forge_kit',      name:'Kit de Forge',        emoji:'🔨', desc:'Améliore automatiquement 1 stat aléatoire de votre meilleur perso.', price:600, currency:'gold', reward:()=>applyForgeKit(), label:'Forge ×1'},
+  {id:'xp_boost',       name:'Parchemin d\'XP',     emoji:'📜', desc:'Gagnez 500 XP instantanément.',               price:400,  currency:'gold', reward:()=>{giveXp(500);}, label:'+500 XP'},
+  {id:'hp_potion',      name:'Potion de Vie',        emoji:'🧪', desc:'Soigne toute votre équipe à 100% HP avant le prochain combat.', price:300, currency:'gold', reward:()=>{state.pendingHeal=true;}, label:'Soin complet'},
+  {id:'crystal_pull10', name:'10 Invocations',       emoji:'🌀', desc:'10 invocations garanties (économie vs acheter des cristaux).',    price:4000, currency:'gold', reward:()=>{const r=[];for(let i=0;i<10;i++)r.push(rollChar());showResults(r);}, label:'×10 Pulls'},
+  {id:'reset_cd',       name:'Réinitialisation CD',  emoji:'⚡', desc:'Remet à zéro tous les cooldowns de spéciale de votre équipe.',   price:350,  currency:'gold', reward:()=>{state.pendingCdReset=true;showToast('⚡ CD spéciales réinitialisés au prochain combat!');}, label:'Reset CD'},
+];
+
+function applyForgeKit(){
+  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  if(!owned.length)return;
+  const target=owned[0];
+  if(!state.upgrades[target.id])state.upgrades[target.id]={atk:0,hp:0,def:0};
+  const stats=['atk','hp','def'];
+  const stat=stats[Math.floor(Math.random()*3)];
+  if(state.upgrades[target.id][stat]<10){
+    state.upgrades[target.id][stat]++;
+    showToast(`🔨 ${target.name} +${stat.toUpperCase()} (forge kit)!`);
+  } else {
+    showToast('🔨 Forge Kit: toutes les stats max sur ce perso!');
+  }
+}
+
+function renderShop(){
+  const cont=document.getElementById('shop-content');
+  if(!cont)return;
+  cont.innerHTML=`
+    <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span></div>
+    <div class="shop-grid">${SHOP_ITEMS.map(item=>`
+      <div class="shop-item gold-item">
+        <span class="shop-emoji">${item.emoji}</span>
+        <div class="shop-name">${item.name}</div>
+        <div class="shop-desc">${item.desc}</div>
+        <button class="shop-buy-btn" onclick="buyShopItem('${item.id}')" ${(state.gold||0)<item.price?'disabled':''}>
+          ${item.label} — ${item.price.toLocaleString()} 🪙
+        </button>
+      </div>`).join('')}
+    </div>`;
+}
+
+function buyShopItem(id){
+  const item=SHOP_ITEMS.find(x=>x.id===id);
+  if(!item||state.gold<item.price)return;
+  state.gold-=item.price;
+  item.reward();
+  save();updateRes();renderShop();
+  showToast(`✅ ${item.name} acheté !`);
+  checkAchievements();
+}
+
+// ═══════════════════════════════════════════
+//  DAILY QUESTS
+// ═══════════════════════════════════════════
+const QUEST_DEFS=[
+  {id:'q_win3',    icon:'⚔', name:'Guerrier du jour',   desc:'Remporter 3 combats',                   target:3,  trackKey:'dailyWins',   reward:{crystals:20,gold:0},   rewardLabel:'+20 💎'},
+  {id:'q_sp5',     icon:'✨', name:'Maître des Spéciales',desc:'Utiliser 5 attaques spéciales',          target:5,  trackKey:'dailySp',     reward:{crystals:0,gold:300},  rewardLabel:'+300 🪙'},
+  {id:'q_gacha3',  icon:'🎲', name:'Chasseur d\'étoiles', desc:'Effectuer 3 invocations',               target:3,  trackKey:'dailyGacha',  reward:{crystals:15,gold:0},   rewardLabel:'+15 💎'},
+  {id:'q_boss',    icon:'💀', name:'Tueur de Boss',       desc:'Vaincre 1 boss',                        target:1,  trackKey:'dailyBoss',   reward:{crystals:30,gold:200}, rewardLabel:'+30 💎 +200 🪙'},
+  {id:'q_forge',   icon:'🔨', name:'Forgeron du jour',    desc:'Effectuer 2 améliorations en Forge',    target:2,  trackKey:'dailyForge',  reward:{crystals:0,gold:400},  rewardLabel:'+400 🪙'},
+];
+
+function getTodayKey(){return new Date().toISOString().slice(0,10);}
+
+function initQuests(){
+  const today=getTodayKey();
+  if(!state.quests||state.quests.date!==today){
+    // Pick 3 random quests for today
+    const shuffled=[...QUEST_DEFS].sort(()=>Math.random()-.5).slice(0,3);
+    state.quests={
+      date:today,
+      active:shuffled.map(q=>({...q,progress:0,claimed:false})),
+      dailyWins:0,dailySp:0,dailyGacha:0,dailyBoss:0,dailyForge:0,
+    };
+    save();
+  }
+}
+
+function trackQuest(key,amount=1){
+  initQuests();
+  if(!state.quests)return;
+  state.quests[key]=(state.quests[key]||0)+amount;
+  state.quests.active.forEach(q=>{
+    if(q.trackKey===key) q.progress=Math.min(q.target,state.quests[key]||0);
+  });
+  save();
+}
+
+function claimQuest(idx){
+  initQuests();
+  const q=state.quests.active[idx];
+  if(!q||q.claimed||q.progress<q.target)return;
+  q.claimed=true;
+  state.crystals+=(q.reward.crystals||0);
+  state.gold+=(q.reward.gold||0);
+  giveXp(80);
+  save();updateRes();renderQuests();
+  showToast(`✅ Quête "${q.name}" complétée! ${q.rewardLabel}`);
+  checkAchievements();
+}
+
+function renderQuests(){
+  initQuests();
+  const cont=document.getElementById('quests-content');
+  const info=document.getElementById('quest-reset-info');
+  if(!cont)return;
+  const now=new Date();
+  const tomorrow=new Date(now);
+  tomorrow.setDate(tomorrow.getDate()+1);
+  tomorrow.setHours(0,0,0,0);
+  const diffH=Math.ceil((tomorrow-now)/3600000);
+  if(info)info.textContent=`Nouvelles quêtes dans ${diffH}h · ${getTodayKey()}`;
+  cont.innerHTML=state.quests.active.map((q,i)=>{
+    const pct=Math.round(q.progress/q.target*100);
+    const done=q.progress>=q.target;
+    return `<div class="quest-card ${q.claimed?'done':''}">
+      <div class="quest-icon">${q.icon}</div>
+      <div class="quest-info">
+        <div class="quest-name">${q.name}</div>
+        <div class="quest-desc">${q.desc} (${q.progress}/${q.target})</div>
+        <div class="quest-reward">${q.rewardLabel}</div>
+        <div class="quest-prog-wrap"><div class="quest-prog-fill" style="width:${pct}%"></div></div>
+      </div>
+      <button class="quest-claim-btn" onclick="claimQuest(${i})" ${(!done||q.claimed)?'disabled':''}>
+        ${q.claimed?'✅':'Réclamer'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+//  PULL HISTORY
+// ═══════════════════════════════════════════
+function recordPull(chars){
+  if(!state.pullHistory)state.pullHistory=[];
+  const now=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  chars.forEach(c=>{
+    const isNew=state.owned[c.id]===1;
+    state.pullHistory.unshift({id:c.id,name:c.name,emoji:c.emoji,rarity:c.rarity,anime:c.anime,isNew,time:now});
+  });
+  if(state.pullHistory.length>100)state.pullHistory=state.pullHistory.slice(0,100);
+}
+
+function renderHistory(){
+  const list=document.getElementById('pull-hist-list');
+  const stats=document.getElementById('hist-stats');
+  if(!list)return;
+  const h=state.pullHistory||[];
+  if(stats){
+    const total=h.length;
+    const r5=h.filter(x=>x.rarity===5).length;
+    const r4=h.filter(x=>x.rarity===4).length;
+    const news=h.filter(x=>x.isNew).length;
+    stats.innerHTML=`<div class="hist-stat">Total: <span>${total}</span></div><div class="hist-stat">★★★★★: <span>${r5}</span></div><div class="hist-stat">★★★★: <span>${r4}</span></div><div class="hist-stat">Nouveaux: <span>${news}</span></div>`;
+  }
+  if(!h.length){list.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px">Aucune invocation encore.</div>';return;}
+  const col={5:'var(--gold)',4:'var(--purple)',3:'var(--blue)',2:'#666'};
+  list.innerHTML=h.map(p=>`<div class="pull-row">
+    <div class="pull-emoji">${p.emoji}</div>
+    <div class="pull-name" style="color:${col[p.rarity]||'#fff'}">${p.name}</div>
+    <div class="pull-stars" style="color:${col[p.rarity]||'#fff'}">${'★'.repeat(p.rarity)}</div>
+    <div style="font-size:.65rem;color:var(--muted)">${p.anime}</div>
+    ${p.isNew?'<span class="pull-new">NEW</span>':''}
+    <div style="font-size:.62rem;color:var(--muted);margin-left:auto">${p.time}</div>
+  </div>`).join('');
+}
+
+// ═══════════════════════════════════════════
+//  TERRAIN EFFECT in battle
+// ═══════════════════════════════════════════
+function getTerrainHTML(arcId){
+  const t=TERRAINS[arcId];
+  if(!t)return '';
+  return `<div class="terrain-banner" style="background:${t.color};border-color:${t.borderColor}">
+    <span style="font-size:1.2rem">${t.emoji}</span>
+    <div><b style="font-size:.78rem">${t.name}</b><br><span style="font-size:.68rem;color:var(--muted)">${t.effect}</span></div>
+  </div>`;
+}
+
 // INIT
 buildStars();
 load();
@@ -1475,6 +1831,12 @@ if(!state.fusionCount)state.fusionCount=0;
 if(!state.bossKills)state.bossKills=0;
 if(!state.achDone)state.achDone={};
 if(!state.infiniteBest)state.infiniteBest=0;
+if(!state.xp)state.xp=0;
+if(!state.playerLevel)state.playerLevel=1;
+if(!state.pullHistory)state.pullHistory=[];
+if(state.pendingHeal===undefined)state.pendingHeal=false;
+if(state.pendingCdReset===undefined)state.pendingCdReset=false;
+initQuests();
 if(!state.owned||Object.keys(state.owned).length===0){
   state.owned={gon:1,krillin:1,rock_lee:1};
   state.team=['gon','krillin','rock_lee'];
