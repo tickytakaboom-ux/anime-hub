@@ -515,6 +515,21 @@ const ALL_CHARS=[
   {id:'chopper',name:'Tony Chopper',anime:'One Piece',emoji:'🦌',rarity:2,atk:130,hp:680,def:90,sp:'Monster Point',sDmg:210,type:'Support'},
   {id:'ochako',name:'Ochako',anime:'My Hero Academia',emoji:'🌸',rarity:2,atk:140,hp:650,def:85,sp:'Meteorite',sDmg:225,type:'Attaquant'},
   {id:'zenitsu',name:'Zenitsu',anime:'Demon Slayer',emoji:'💛',rarity:2,atk:180,hp:600,def:75,sp:'Thunderclap Flash',sDmg:290,type:'Attaquant'},
+  // ★★★★★ NOUVEAUX LÉGENDAIRES
+  {id:'yoruichi',name:'Yoruichi Shihoin',anime:'Bleach',emoji:'⚡',rarity:5,atk:575,hp:1820,def:215,sp:'Shunko',sDmg:1130,type:'Attaquant'},
+  {id:'law',name:'Trafalgar Law',anime:'One Piece',emoji:'🔱',rarity:5,atk:545,hp:1880,def:205,sp:'Shambles',sDmg:1090,type:'Mage'},
+  {id:'beerus',name:'Beerus',anime:'Dragon Ball Super',emoji:'😼',rarity:5,atk:640,hp:1750,def:195,sp:'Hakai',sDmg:1380,type:'Attaquant'},
+  {id:'eren_titan',name:'Eren Titan Fondateur',anime:'AoT',emoji:'🌍',rarity:5,atk:610,hp:2500,def:320,sp:'Titans du Paradis',sDmg:1160,type:'Tank'},
+  // ★★★★ NOUVEAUX ÉPIQUES
+  {id:'senku',name:'Senku Ishigami',anime:'Dr. Stone',emoji:'🧪',rarity:4,atk:320,hp:1250,def:145,sp:'Nitro Flash',sDmg:540,type:'Support'},
+  {id:'kaneki',name:'Ken Kaneki',anime:'Tokyo Ghoul',emoji:'🕷',rarity:4,atk:440,hp:1360,def:162,sp:'Kagune Unleashed',sDmg:735,type:'Attaquant'},
+  {id:'megumin',name:'Megumin',anime:'KonoSuba',emoji:'💥',rarity:4,atk:460,hp:1180,def:130,sp:'EXPLOSION!!!',sDmg:980,type:'Mage'},
+  {id:'accelerator',name:'Accelerator',anime:'A Certain Magical Index',emoji:'🌀',rarity:4,atk:430,hp:1400,def:200,sp:'Vector Reflect',sDmg:720,type:'Tank'},
+  // ★★★ NOUVEAUX RARES
+  {id:'osamu',name:'Osamu Dazai',anime:'Bungou Stray Dogs',emoji:'🎭',rarity:3,atk:255,hp:910,def:108,sp:'No Longer Human',sDmg:405,type:'Support'},
+  {id:'shinra',name:'Shinra Kusakabe',anime:'Fire Force',emoji:'🔥',rarity:3,atk:295,hp:940,def:112,sp:'Rapid Fire',sDmg:465,type:'Attaquant'},
+  {id:'darkness',name:'Lalatina Darkness',anime:'KonoSuba',emoji:'🛡',rarity:3,atk:190,hp:1100,def:200,sp:'Crusader Shield',sDmg:300,type:'Tank'},
+  {id:'aqua',name:'Aqua',anime:'KonoSuba',emoji:'💧',rarity:3,atk:210,hp:980,def:110,sp:'Sacred Exorcism',sDmg:340,type:'Support'},
 ];
 
 const ARCS=[
@@ -569,9 +584,37 @@ const ARCS=[
     {name:'Destroyer Clone',emoji:'🔻',hp:6000,atk:640,def:240,abilities:['regen','dodge','enrage','counter']},
     {name:'⚠ BOSS FINAL: Le Dévoreur de Mondes',emoji:'🌀',hp:25000,atk:800,def:300,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
   ]},
+  {id:6,name:'Multivers Brisé',emoji:'💔',waves:10,unlockAt:36,
+   enemies:[
+    {name:'Écho Corrompu',emoji:'👤',hp:5000,atk:650,def:220,abilities:['counter','dodge']},
+    {name:'Spectre du Vide',emoji:'🕳',hp:5500,atk:680,def:235,abilities:['poison','regen']},
+    {name:'Paradoxe Vivant',emoji:'🔄',hp:6000,atk:700,def:245,abilities:['enrage','counter']},
+    {name:'Entité Miroir',emoji:'🪞',hp:6500,atk:720,def:250,abilities:['shield','dodge','poison']},
+    {name:'Démon Temporel',emoji:'⌛',hp:7000,atk:740,def:260,abilities:['regen','enrage','counter']},
+    {name:'Ange de l\'Apocalypse',emoji:'🕊',hp:7500,atk:760,def:270,abilities:['shield','counter','poison']},
+    {name:'Titan du Néant',emoji:'🗿',hp:8500,atk:780,def:280,abilities:['enrage','regen','dodge']},
+    {name:'Chasseur de Mondes',emoji:'🌍',hp:9000,atk:800,def:290,abilities:['shield','counter','enrage','poison']},
+    {name:'Éveillé Corrompu',emoji:'👁',hp:10000,atk:820,def:300,abilities:['regen','dodge','counter','enrage']},
+    {name:'⚠ BOSS: L\'Architecte du Chaos',emoji:'🏗',hp:40000,atk:980,def:380,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
+  {id:7,name:'L\'Au-Delà',emoji:'🌠',waves:12,unlockAt:46,
+   enemies:[
+    {name:'Gardien Éternel I',emoji:'⚪',hp:8000,atk:850,def:300,abilities:['counter','shield']},
+    {name:'Gardien Éternel II',emoji:'⚫',hp:8500,atk:880,def:315,abilities:['enrage','poison']},
+    {name:'Séraphin Noir',emoji:'🖤',hp:9000,atk:900,def:325,abilities:['regen','dodge','counter']},
+    {name:'Démiurge Brisé',emoji:'⚡',hp:9500,atk:920,def:335,abilities:['shield','enrage','poison']},
+    {name:'Éon Muet',emoji:'🔇',hp:10000,atk:940,def:345,abilities:['regen','counter','dodge','enrage']},
+    {name:'Fantôme Originel',emoji:'👻',hp:10500,atk:960,def:355,abilities:['shield','poison','counter']},
+    {name:'Vortex Conscient',emoji:'🌪',hp:11000,atk:980,def:365,abilities:['enrage','regen','shield','dodge']},
+    {name:'Héraut du Silence',emoji:'🤐',hp:11500,atk:1000,def:375,abilities:['counter','poison','enrage','shield']},
+    {name:'Titan Ancestral',emoji:'🏔',hp:12000,atk:1020,def:385,abilities:['regen','dodge','counter','enrage','poison']},
+    {name:'Éclipse Incarnée',emoji:'🌑',hp:13000,atk:1050,def:400,abilities:['shield','counter','regen','enrage','dodge']},
+    {name:'Néant Conscient',emoji:'🕳',hp:15000,atk:1080,def:420,abilities:['enrage','shield','counter','poison','regen','dodge']},
+    {name:'⚠ BOSS ABSOLU: Dieu Originel',emoji:'✨',hp:80000,atk:1300,def:500,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function save(){try{localStorage.setItem('isekai2',JSON.stringify(state));}catch(e){}}
@@ -868,7 +911,13 @@ function initBattleState(){
   const enemyData=getEnemyForCurrentWave();
   const scaleFactor=1+(state.currentArc-1)*0.3+((state.arcProgress[state.currentArc]||0)*0.05);
   const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities]};
-  state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0};
+  state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0,combo:0};
+  // Fire battle-start passives (Law swap, Whitebeard ATK debuff)
+  chars.forEach(h=>{
+    applyPassiveTrigger(h,state.battleState,'onBattleStart');
+    const p=getPassive(h.id);
+    if(p&&p.isAtkDebuff&&!enemy._atkDebuffed){enemy._atkDebuffed=true;enemy.atk=Math.round(enemy.atk*.85);}
+  });
 }
 
 function renderBattle(){
@@ -976,9 +1025,17 @@ function doAttack(mode){
         hero.spCooldown=Math.max(0,(hero.spCooldown||0)-1);
       } else {
         dmg=hero.sDmg+randInt(-Math.round(hero.sDmg*.1),Math.round(hero.sDmg*.1));
-        logText=`✨ ${hero.name}: ${hero.sp}! (${dmg} dmg)`;logType='log-special';
+        // Megumin: always crit, ignores 60% DEF
+        const p=getPassive(hero.id);
+        if(p&&p.isMegumin){
+          dmg=Math.round(hero.sDmg*1.8); // always crit
+          logText=`💥✨ ${hero.name}: ${hero.sp}! CRITIQUE GARANTI! (${dmg} dmg)`;logType='log-crit';
+        } else {
+          logText=`✨ ${hero.name}: ${hero.sp}! (${dmg} dmg)`;logType='log-special';
+        }
         hero.spCooldown=hero.spMaxCd||3;
         trackQuest('dailySp');
+        applyPassiveTrigger(hero,bs,'onSpecial');
         if(hero.type==='Support'){const heal=Math.round(hero.atk*1.5);const t=alive[Math.floor(Math.random()*alive.length)];t.currentHp=Math.min(t.maxHp,t.currentHp+heal);addLog(`💚 ${hero.name} soigne ${t.name} (+${heal} HP)`,'log-heal');}
       }
     } else if(mode==='burst'){
@@ -993,11 +1050,20 @@ function doAttack(mode){
       addLog(`🔄 ${bs.enemy.name} contre! (${cd} dmg)`,'log-debuff');
     }
     if(bs.enemy.shield>0){const ab=Math.min(bs.enemy.shield,dmg);bs.enemy.shield=Math.max(0,bs.enemy.shield-ab);dmg-=ab;if(ab>0)addLog(`🛡 Bouclier absorbe ${ab}`,'log-debuff');}
-    dmg=Math.max(1,dmg-bs.enemy.def);
+    // Megumin ignores 60% DEF
+    const hpassive=getPassive(hero.id);
+    const defReduction=hpassive&&hpassive.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def;
+    dmg=Math.max(1,dmg-defReduction);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
     applyPassiveTrigger(hero,bs,'lifesteal',dmg);
-    if(getPassive(hero.id)&&getPassive(hero.id).isAntiRegen) bs.enemy._antiRegen=true;
-    if(getPassive(hero.id)&&getPassive(hero.id).isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);addLog(`❄ ${hero.name} gèle l'ennemi! ATK −20%`,'log-special');}
+    // Arc 6 terrain: 10% of damage dealt reflected back to attacker
+    if(state.currentArc===6&&bs.enemy.currentHp>0){
+      const reflect=Math.round(dmg*.1);
+      if(reflect>0){hero.currentHp=Math.max(0,hero.currentHp-reflect);addLog(`💔 Terrain: ${reflect} dmg réfléchis sur ${hero.name}`,'log-debuff');}
+    }
+    if(hpassive&&hpassive.isAntiRegen) bs.enemy._antiRegen=true;
+    if(hpassive&&hpassive.isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);addLog(`❄ ${hero.name} gèle l'ennemi! ATK −20%`,'log-special');}
+    if(hpassive&&hpassive.isAtkDebuff&&!bs.enemy._atkDebuffed){bs.enemy._atkDebuffed=true;bs.enemy.atk=Math.round(bs.enemy.atk*.85);addLog(`🌊 ${hero.name}: ATK ennemi −15%!`,'log-special');}
     addLog(logText,logType);
   });
 
@@ -1035,9 +1101,15 @@ function doAttack(mode){
       }
     }
   }
-  bs.turn++;checkBattleEnd();renderBattleUI();
+  bs.turn++;
+  // Combo: track if heroes took damage this turn
+  const aliveNow=bs.heroes.filter(h=>h.currentHp>0);
+  const hpNow=aliveNow.reduce((s,h)=>s+h.currentHp,0);
+  if(hpNow<(bs._lastHp||hpNow+1)){bs.combo=0;}
+  else{bs.combo=(bs.combo||0)+1;if(bs.combo>0&&bs.combo%3===0)addLog(`🔥 COMBO x${bs.combo}! ATK +${bs.combo*5}% ce tour`,'log-special');}
+  bs._lastHp=hpNow;
+  checkBattleEnd();renderBattleUI();
 }
-
 function tickStatuses(bs){
   bs.heroes.forEach(h=>{
     if(!h.statuses)return;
@@ -1056,10 +1128,14 @@ function checkBattleEnd(){
     if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0};
     state.arcProgress[state.currentArc]=(state.arcProgress[state.currentArc]||0)+1;
     state.totalWins=(state.totalWins||0)+1;
-    const g=100*state.currentArc*(bs.enemy.isBoss?5:1);
+    // Win streak bonus
+    state.winStreak=(state.winStreak||0)+1;
+    let streakBonus=0;
+    if(state.winStreak>=5) streakBonus=Math.floor(state.winStreak/5)*20;
+    const g=100*state.currentArc*(bs.enemy.isBoss?5:1)+streakBonus;
     const cr=bs.enemy.isBoss?60:state.currentArc*6;
     state.gold+=g;state.crystals+=cr;
-    addLog(`🏆 Victoire! +${g}🪙 +${cr}💎`,'log-win');
+    addLog(`🏆 Victoire! +${g}🪙 +${cr}💎${streakBonus>0?` (🔥×${state.winStreak} streak +${streakBonus}🪙)`:''}`, 'log-win');
     const arc=ARCS.find(a=>a.id===state.currentArc);
     if(state.arcProgress[state.currentArc]>=arc.waves)addLog(`✅ Arc "${arc.name}" terminé!`,'log-win');
     if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;trackQuest('dailyBoss');}
@@ -1188,6 +1264,16 @@ const PASSIVES = {
   meliodas:  {name:'Full Counter',  desc:'Renvoie 60% des dégâts reçus à l\'ennemi',               fn:null, isFullCounter:true, counterAmt:.6},
   natsu:     {name:'Flamme Dévorante', desc:'Absorbe 10% des dégâts infligés en HP',               fn:null, isLifesteal:true, lifestealAmt:.1},
   todoroki:  {name:'Demi-Froid Demi-Chaud', desc:'Applique Gel à l\'ennemi (réduit son ATK de 20%)', fn:null, isFreeze:true},
+  // ★★★★★ Nouveaux
+  yoruichi:  {name:'Déesse de l\'Éclair',  desc:'40% de chance de frapper deux fois par tour',      fn:null, isDoubleHit:true, doubleChance:.4},
+  law:       {name:'Opération Coeur',      desc:'Si l\'ennemi est à +70% HP, échange 30% de ses HP contre les siens en début de combat', fn:null, isLawSwap:true},
+  beerus:    {name:'Dieu de la Destruction',desc:'15% de chance que chaque attaque normale détruise 15% des HP max ennemis (Hakai)', fn:null, isBeerusSmite:true},
+  eren_titan:{name:'Mémoires Ancestrales', desc:'Régénère 8% HP max/tour et retire automatiquement le poison', fn:(hero)=>{ hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(hero.maxHp*.08)); hero.statuses=(hero.statuses||[]).filter(s=>s!=='☠Poison'); }},
+  // ★★★★ Nouveaux
+  megumin:   {name:'Archwizard',           desc:'La spéciale ignore 60% de la DEF ennemie et est toujours critique', fn:null, isMegumin:true},
+  kaneki:    {name:'Ghoul RC',             desc:'Vole 20% des dégâts infligés en HP (lifesteal renforcé)', fn:null, isLifesteal:true, lifestealAmt:.2},
+  accelerator:{name:'Réflexion Vectorielle',desc:'Bloque complètement la 1ère attaque ennemie du combat', fn:null, isFirstBlock:true},
+  senku:     {name:'10 Milliards %',       desc:'Boost l\'ATK de toute l\'équipe de 8% chaque fois qu\'un allié utilise sa spéciale', fn:null, isSenkuBoost:true},
 };
 
 function getPassive(id){ return PASSIVES[id]||null; }
@@ -1202,6 +1288,25 @@ function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
   if(triggerType==='escanor'&&p.isEscanor){
     if(!hero._escanorStacks)hero._escanorStacks=0;
     if(hero._escanorStacks<10){ hero.atk=Math.round(hero.atk*1.05); hero._escanorStacks++; }
+  }
+  // Beerus Hakai — 15% chance on normal atk to smite 15% max HP
+  if(triggerType==='onNormalAtk'&&p.isBeerusSmite&&bs.enemy.currentHp>0&&Math.random()<.15){
+    const smite=Math.round(bs.enemy.maxHp*.15);
+    bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-smite);
+    addLog(`😼 Beerus: HAKAI! (−${smite} HP ennemi)`,'log-crit');
+  }
+  // Senku boost — on any special, boost team ATK 8%
+  if(triggerType==='onSpecial'&&p.isSenkuBoost){
+    bs.heroes.filter(h=>h.currentHp>0).forEach(h=>{h.atk=Math.round(h.atk*1.08);});
+    addLog(`🧪 Senku: Boost ATK équipe +8%!`,'log-special');
+  }
+  // Law swap — first turn only, if enemy HP > 70%
+  if(triggerType==='onBattleStart'&&p.isLawSwap&&!hero._lawUsed&&bs.enemy.currentHp/bs.enemy.maxHp>.7){
+    const stolen=Math.round(bs.enemy.maxHp*.3);
+    bs.enemy.currentHp=Math.max(1,bs.enemy.currentHp-stolen);
+    hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(stolen*.5));
+    hero._lawUsed=true;
+    addLog(`🔱 Law: SHAMBLES! Échange HP (−${stolen} ennemi)`,'log-special');
   }
   return dmg;
 }
@@ -1220,6 +1325,12 @@ function applyDefensivePassive(hero, dmg, bs){
     hero.currentHp=Math.min(hero.maxHp,hero.currentHp+heal);
     hero._lastStandUsed=true;
     addLog(`💙 ${hero.name} Oni Berserk! (+${heal} HP)`,'log-heal');
+  }
+  // Accelerator blocks first hit
+  if(p.isFirstBlock&&!hero._blockUsed){
+    hero._blockUsed=true;
+    addLog(`🌀 ${hero.name} Réflexion Vectorielle: attaque annulée!`,'log-special');
+    return 0;
   }
   return dmg;
 }
@@ -1532,12 +1643,19 @@ function doInfiniteAttack(mode){
   // Check end
   if(bs.enemy.currentHp<=0){
     bs.over=true;bs.won=true;
-    const gold=50*bs.wave*(bs.enemy.isBoss?3:1);
-    const cr=bs.wave*(bs.enemy.isBoss?15:3);
-    state.gold+=gold;state.crystals+=cr;
+    const isNewWave=bs.wave>(state.infiniteBest||0);
+    // Rewards ONLY if beating personal record, reduced amounts
+    const gold=isNewWave?Math.round(15*bs.wave*(bs.enemy.isBoss?2:1)):0;
+    const cr=isNewWave?Math.round(bs.wave*(bs.enemy.isBoss?8:1)):0;
+    if(gold>0){state.gold+=gold;state.crystals+=cr;}
     if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;}
-    if(bs.wave>(state.infiniteBest||0)){state.infiniteBest=bs.wave;showToast(`🎉 Nouveau record: Vague ${bs.wave}!`);}
-    addInfLog(`🏆 Vague ${bs.wave} terminée! +${gold}🪙 +${cr}💎`,'log-win');
+    if(isNewWave){
+      state.infiniteBest=bs.wave;
+      showToast(`🎉 Nouveau record: Vague ${bs.wave}!${gold>0?` +${gold}🪙 +${cr}💎`:''}`);
+      addInfLog(`🏆 Record! Vague ${bs.wave}!${gold>0?` +${gold}🪙 +${cr}💎`:''}`, 'log-win');
+    } else {
+      addInfLog(`✅ Vague ${bs.wave} — Aucune récompense (déjà atteinte)`, 'log-debuff');
+    }
     save();updateRes();checkAchievements();
   } else {
     const alive3=bs.heroes.filter(h=>h.currentHp>0);
@@ -1622,6 +1740,8 @@ const TERRAINS={
   3:{name:'Abysses Infernaux',emoji:'🔥',color:'rgba(255,100,0,.1)',borderColor:'rgba(255,100,0,.3)',effect:'Héros perdent 2% HP max chaque tour (brûlure)',fn:(bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0){const burn=Math.round(h.maxHp*.02);h.currentHp=Math.max(1,h.currentHp-burn);}});}},
   4:{name:'Royaume des Dieux',emoji:'⛩',color:'rgba(0,212,255,.08)',borderColor:'rgba(0,212,255,.25)',effect:'DEF de tous les ennemis +20%',fn:null},
   5:{name:'Fin du Multivers',emoji:'🌌',color:'rgba(180,79,255,.1)',borderColor:'rgba(180,79,255,.3)',effect:'Toutes les spéciales font −15% de dégâts (résistance cosmique)',fn:null},
+  6:{name:'Multivers Brisé',emoji:'💔',color:'rgba(230,57,70,.12)',borderColor:'rgba(230,57,70,.4)',effect:'L\'ennemi inflige des dégâts de retour (10% de tout dégât reçu)',fn:(bs)=>{ /* handled in attack logic */ }},
+  7:{name:'L\'Au-Delà',emoji:'🌠',color:'rgba(245,200,66,.08)',borderColor:'rgba(245,200,66,.3)',effect:'Tous les héros perdent 3% HP max/tour (brûlure divine)',fn:(bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0){const b=Math.round(h.maxHp*.03);h.currentHp=Math.max(1,h.currentHp-b);}});}},
 };
 
 // ═══════════════════════════════════════════
@@ -1643,7 +1763,7 @@ const SHOP_ITEMS=[
   {id:'crystals_small', name:'Sachet de Cristaux',  emoji:'💎', desc:'Obtenez 50 cristaux immédiatement.',         price:500,  currency:'gold', reward:()=>{state.crystals+=50;},  label:'+50 💎'},
   {id:'crystals_big',   name:'Coffre de Cristaux',  emoji:'💎', desc:'Obtenez 200 cristaux immédiatement.',        price:1800, currency:'gold', reward:()=>{state.crystals+=200;}, label:'+200 💎'},
   {id:'gold_pull',      name:'Invocation Garantie', emoji:'🎲', desc:'Une invocation gratuite (équivalent 50💎).', price:800,  currency:'gold', reward:()=>{const c=rollChar();showResults([c]);}, label:'×1 Pull'},
-  {id:'forge_kit',      name:'Kit de Forge',        emoji:'🔨', desc:'Améliore automatiquement 1 stat aléatoire de votre meilleur perso.', price:600, currency:'gold', reward:()=>applyForgeKit(), label:'Forge ×1'},
+  {id:'forge_kit',      name:'Kit de Forge',        emoji:'🔨', desc:'Améliore 1 stat aléatoire d\'un perso aléatoire possédé. Limité à 3 achats/jour.', price:2000, currency:'gold', reward:()=>applyForgeKit(), label:'Forge Aléatoire'},
   {id:'xp_boost',       name:'Parchemin d\'XP',     emoji:'📜', desc:'Gagnez 500 XP instantanément.',               price:400,  currency:'gold', reward:()=>{giveXp(500);}, label:'+500 XP'},
   {id:'hp_potion',      name:'Potion de Vie',        emoji:'🧪', desc:'Soigne toute votre équipe à 100% HP avant le prochain combat.', price:300, currency:'gold', reward:()=>{state.pendingHeal=true;}, label:'Soin complet'},
   {id:'crystal_pull10', name:'10 Invocations',       emoji:'🌀', desc:'10 invocations garanties (économie vs acheter des cristaux).',    price:4000, currency:'gold', reward:()=>{const r=[];for(let i=0;i<10;i++)r.push(rollChar());showResults(r);}, label:'×10 Pulls'},
@@ -1651,18 +1771,21 @@ const SHOP_ITEMS=[
 ];
 
 function applyForgeKit(){
-  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  // Daily limit of 3
+  const today=getTodayKey();
+  if(!state.forgeKitDaily||state.forgeKitDaily.date!==today) state.forgeKitDaily={date:today,count:0};
+  if(state.forgeKitDaily.count>=3){showToast('🔨 Kit de Forge : limite journalière (3/jour) atteinte !');return;}
+  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0);
   if(!owned.length)return;
-  const target=owned[0];
+  // Truly random char
+  const target=owned[Math.floor(Math.random()*owned.length)];
   if(!state.upgrades[target.id])state.upgrades[target.id]={atk:0,hp:0,def:0};
-  const stats=['atk','hp','def'];
-  const stat=stats[Math.floor(Math.random()*3)];
-  if(state.upgrades[target.id][stat]<10){
-    state.upgrades[target.id][stat]++;
-    showToast(`🔨 ${target.name} +${stat.toUpperCase()} (forge kit)!`);
-  } else {
-    showToast('🔨 Forge Kit: toutes les stats max sur ce perso!');
-  }
+  const stats=['atk','hp','def'].filter(s=>(state.upgrades[target.id][s]||0)<10);
+  if(!stats.length){showToast(`🔨 ${target.name} est déjà au max !`);return;}
+  const stat=stats[Math.floor(Math.random()*stats.length)];
+  state.upgrades[target.id][stat]++;
+  state.forgeKitDaily.count++;
+  showToast(`🔨 ${target.emoji} ${target.name} +${stat.toUpperCase()} ! (${state.forgeKitDaily.count}/3 aujourd'hui)`);
 }
 
 function renderShop(){
@@ -1670,15 +1793,22 @@ function renderShop(){
   if(!cont)return;
   cont.innerHTML=`
     <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span></div>
-    <div class="shop-grid">${SHOP_ITEMS.map(item=>`
-      <div class="shop-item gold-item">
+    <div class="shop-grid">${SHOP_ITEMS.map(item=>{
+      const isForgeKit=item.id==='forge_kit';
+      const today=getTodayKey();
+      const kitUsed=isForgeKit&&state.forgeKitDaily&&state.forgeKitDaily.date===today?state.forgeKitDaily.count:0;
+      const kitMaxed=isForgeKit&&kitUsed>=3;
+      const disabled=(state.gold||0)<item.price||kitMaxed;
+      const extraLabel=isForgeKit?` (${3-kitUsed} restants)` : '';
+      return `<div class="shop-item gold-item">
         <span class="shop-emoji">${item.emoji}</span>
         <div class="shop-name">${item.name}</div>
         <div class="shop-desc">${item.desc}</div>
-        <button class="shop-buy-btn" onclick="buyShopItem('${item.id}')" ${(state.gold||0)<item.price?'disabled':''}>
-          ${item.label} — ${item.price.toLocaleString()} 🪙
+        <button class="shop-buy-btn" onclick="buyShopItem('${item.id}')" ${disabled?'disabled':''}>
+          ${item.label}${extraLabel} — ${item.price.toLocaleString()} 🪙
         </button>
-      </div>`).join('')}
+      </div>`;
+    }).join('')}
     </div>`;
 }
 
@@ -1823,8 +1953,9 @@ function getTerrainHTML(arcId){
 // INIT
 buildStars();
 load();
-if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0};
-if(!state.pity)state.pity=0;
+if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0};
+if(state.arcProgress[6]===undefined)state.arcProgress[6]=0;
+if(state.arcProgress[7]===undefined)state.arcProgress[7]=0;
 if(!state.totalWins)state.totalWins=0;
 if(!state.upgrades)state.upgrades={};
 if(!state.fusionCount)state.fusionCount=0;
