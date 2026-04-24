@@ -239,7 +239,26 @@
   .char-modal-addteam:disabled{opacity:.4;cursor:not-allowed;}
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:linear-gradient(135deg,#1a1a00,#3a2e00);border:1px solid var(--gold);color:var(--gold);padding:10px 24px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;z-index:9999;transition:transform .4s ease;pointer-events:none;white-space:nowrap;}
   .toast.show{transform:translateX(-50%) translateY(0);}
-  /* ── ELEMENTS ── */
+  /* ── 6★ ULTRA-LÉGENDAIRE ── */
+  .r6{border-color:rgba(0,212,255,.6)!important;}
+  .coll-card.r6{background:linear-gradient(160deg,#001a2a,#002a40);border-color:rgba(0,212,255,.5);}
+  .result-card.r6{background:linear-gradient(160deg,#001a2a,#002240);border-color:#00d4ff;box-shadow:0 0 30px rgba(0,212,255,.7);}
+  .result-card.r6 .stars-row span{color:#00d4ff;}
+  @keyframes ultra-glow{0%,100%{box-shadow:0 0 20px rgba(0,212,255,.6),0 0 40px rgba(0,212,255,.2);}50%{box-shadow:0 0 35px rgba(0,212,255,.9),0 0 70px rgba(0,212,255,.4);}}
+  .team-slot.filled.r6{border-color:rgba(0,212,255,.7);background:linear-gradient(135deg,var(--card),rgba(0,212,255,.07));animation:ultra-glow 2s infinite;}
+  /* ── AWAKENED ── */
+  .awakened-badge{display:inline-block;background:linear-gradient(90deg,rgba(245,200,66,.2),rgba(255,100,0,.2));border:1px solid var(--gold2);border-radius:6px;padding:1px 7px;font-size:.6rem;color:var(--gold);font-weight:700;}
+  /* ── TEAM LINKS ── */
+  .link-banner{background:linear-gradient(135deg,rgba(180,79,255,.1),rgba(0,212,255,.08));border:1px solid rgba(180,79,255,.3);border-radius:10px;padding:10px 14px;margin-top:14px;}
+  .link-title{font-size:.72rem;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+  .link-item{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.78rem;}
+  .link-icon{font-size:1rem;}
+  .link-active{color:var(--green);font-weight:700;}
+  .link-inactive{color:var(--muted);}
+  /* ── FUSION AWAKENED ── */
+  .awaken-btn{background:linear-gradient(135deg,#2a1a00,#5a3500);border:1px solid var(--gold);color:var(--gold);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;transition:all .2s;white-space:nowrap;}
+  .awaken-btn:hover{box-shadow:0 0 15px rgba(245,200,66,.4);}
+  .awaken-btn:disabled{opacity:.3;cursor:not-allowed;}
   .elem-badge{display:inline-block;border-radius:5px;padding:1px 6px;font-size:.6rem;font-weight:700;margin-top:2px;}
   .elem-fire{background:rgba(255,80,0,.2);color:#ff8040;border:1px solid rgba(255,80,0,.4);}
   .elem-water{background:rgba(0,180,255,.15);color:#40c8ff;border:1px solid rgba(0,180,255,.35);}
@@ -402,6 +421,7 @@
     </div>
     <div class="rates-box">
       <h3>⭐ Taux d'invocation</h3>
+      <div class="rate-row"><div>⭐⭐⭐⭐⭐⭐</div><span style="color:var(--blue)">Ultra-Légendaire</span><span style="color:var(--blue)">0.3%</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐⭐</div><span style="color:var(--gold)">Légendaire</span><span style="color:var(--gold)">3% (garanti à 90)</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐</div><span style="color:var(--purple)">Épique</span><span style="color:var(--purple)">15%</span></div>
       <div class="rate-row"><div>⭐⭐⭐</div><span style="color:var(--blue)">Rare</span><span style="color:var(--blue)">35%</span></div>
@@ -429,6 +449,7 @@
       <button class="filter-btn active" onclick="filterColl('all',this)">Tous</button>
       <button class="filter-btn" onclick="filterColl('owned',this)">Possédés</button>
       <button class="filter-btn" onclick="filterColl('5',this)">★★★★★</button>
+      <button class="filter-btn" onclick="filterColl('6',this)">★★★★★★</button>
       <button class="filter-btn" onclick="filterColl('4',this)">★★★★</button>
       <button class="filter-btn" onclick="filterColl('3',this)">★★★</button>
       <button class="filter-btn" onclick="filterColl('2',this)">★★</button>
@@ -609,9 +630,16 @@ const ALL_CHARS=[
   {id:'shinra',name:'Shinra Kusakabe',anime:'Fire Force',emoji:'🔥',rarity:3,atk:295,hp:940,def:112,sp:'Rapid Fire',sDmg:465,type:'Attaquant'},
   {id:'darkness',name:'Lalatina Darkness',anime:'KonoSuba',emoji:'🛡',rarity:3,atk:190,hp:1100,def:200,sp:'Crusader Shield',sDmg:300,type:'Tank'},
   {id:'aqua',name:'Aqua',anime:'KonoSuba',emoji:'💧',rarity:3,atk:210,hp:980,def:110,sp:'Sacred Exorcism',sDmg:340,type:'Support'},
+  // ★★★★★★ ULTRA-LÉGENDAIRES (0.3% — très rares !)
+  {id:'goku_ultra',name:'Goku Ultra Instinct',anime:'Dragon Ball Super',emoji:'⚪',rarity:6,atk:950,hp:3800,def:420,sp:'Ultra Instinct Kamehameha',sDmg:2200,type:'Attaquant'},
+  {id:'naruto_baryon',name:'Naruto Mode Baryon',anime:'Naruto',emoji:'☀',rarity:6,atk:900,hp:3500,def:390,sp:'Baryon Rasenshuriken',sDmg:2100,type:'Attaquant'},
+  {id:'zeno',name:'Zeno-sama',anime:'Dragon Ball Super',emoji:'👼',rarity:6,atk:1200,hp:4000,def:500,sp:'Effacement Total',sDmg:3000,type:'Mage'},
+  {id:'muzan',name:'Muzan Kibutsuji',anime:'Demon Slayer',emoji:'🌹',rarity:6,atk:880,hp:3600,def:410,sp:'Sang Démoniaque',sDmg:2000,type:'Attaquant'},
+  {id:'sukuna_full',name:'Sukuna 20 Doigts',anime:'Jujutsu Kaisen',emoji:'🔱',rarity:6,atk:1050,hp:3700,def:430,sp:'Malevolent Shrine MAX',sDmg:2500,type:'Attaquant'},
+  {id:'all_might',name:'All Might Prime',anime:'My Hero Academia',emoji:'💪',rarity:6,atk:980,hp:3900,def:440,sp:'United States of SMASH',sDmg:2300,type:'Tank'},
 ];
 
-const ARCS=[
+const ARCS = [
   {id:1,name:'Forêt des Démons',emoji:'🌲',waves:5,unlockAt:0,
    enemies:[
     {name:'Gobelin Rouge',emoji:'👺',hp:300,atk:60,def:10,abilities:[]},
@@ -665,31 +693,31 @@ const ARCS=[
   ]},
   {id:6,name:'Multivers Brisé',emoji:'💔',waves:10,unlockAt:36,
    enemies:[
-    {name:'Écho Corrompu',emoji:'👤',hp:5000,atk:650,def:220,abilities:['counter','dodge']},
-    {name:'Spectre du Vide',emoji:'🕳',hp:5500,atk:680,def:235,abilities:['poison','regen']},
-    {name:'Paradoxe Vivant',emoji:'🔄',hp:6000,atk:700,def:245,abilities:['enrage','counter']},
-    {name:'Entité Miroir',emoji:'🪞',hp:6500,atk:720,def:250,abilities:['shield','dodge','poison']},
-    {name:'Démon Temporel',emoji:'⌛',hp:7000,atk:740,def:260,abilities:['regen','enrage','counter']},
-    {name:'Ange de l\'Apocalypse',emoji:'🕊',hp:7500,atk:760,def:270,abilities:['shield','counter','poison']},
-    {name:'Titan du Néant',emoji:'🗿',hp:8500,atk:780,def:280,abilities:['enrage','regen','dodge']},
-    {name:'Chasseur de Mondes',emoji:'🌍',hp:9000,atk:800,def:290,abilities:['shield','counter','enrage','poison']},
-    {name:'Éveillé Corrompu',emoji:'👁',hp:10000,atk:820,def:300,abilities:['regen','dodge','counter','enrage']},
-    {name:'⚠ BOSS: L\'Architecte du Chaos',emoji:'🏗',hp:40000,atk:980,def:380,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+    {name:'Écho Corrompu',emoji:'👤',hp:2800,atk:340,def:120,abilities:['counter']},
+    {name:'Spectre du Vide',emoji:'🕳',hp:3200,atk:360,def:130,abilities:['poison','regen']},
+    {name:'Paradoxe Vivant',emoji:'🔄',hp:3600,atk:380,def:140,abilities:['enrage','counter']},
+    {name:'Entité Miroir',emoji:'🪞',hp:4000,atk:400,def:150,abilities:['shield','dodge']},
+    {name:'Démon Temporel',emoji:'⌛',hp:4500,atk:420,def:160,abilities:['regen','enrage','counter']},
+    {name:'Ange de l\'Apocalypse',emoji:'🕊',hp:5000,atk:440,def:165,abilities:['shield','counter','poison']},
+    {name:'Titan du Néant',emoji:'🗿',hp:5500,atk:460,def:170,abilities:['enrage','regen','dodge']},
+    {name:'Chasseur de Mondes',emoji:'🌍',hp:6000,atk:480,def:175,abilities:['shield','counter','enrage']},
+    {name:'Éveillé Corrompu',emoji:'👁',hp:7000,atk:500,def:180,abilities:['regen','dodge','counter','enrage']},
+    {name:'⚠ BOSS: L\'Architecte du Chaos',emoji:'🏗',hp:18000,atk:580,def:220,abilities:['enrage','shield','counter','poison','regen'],isBoss:true},
   ]},
   {id:7,name:'L\'Au-Delà',emoji:'🌠',waves:12,unlockAt:46,
    enemies:[
-    {name:'Gardien Éternel I',emoji:'⚪',hp:8000,atk:850,def:300,abilities:['counter','shield']},
-    {name:'Gardien Éternel II',emoji:'⚫',hp:8500,atk:880,def:315,abilities:['enrage','poison']},
-    {name:'Séraphin Noir',emoji:'🖤',hp:9000,atk:900,def:325,abilities:['regen','dodge','counter']},
-    {name:'Démiurge Brisé',emoji:'⚡',hp:9500,atk:920,def:335,abilities:['shield','enrage','poison']},
-    {name:'Éon Muet',emoji:'🔇',hp:10000,atk:940,def:345,abilities:['regen','counter','dodge','enrage']},
-    {name:'Fantôme Originel',emoji:'👻',hp:10500,atk:960,def:355,abilities:['shield','poison','counter']},
-    {name:'Vortex Conscient',emoji:'🌪',hp:11000,atk:980,def:365,abilities:['enrage','regen','shield','dodge']},
-    {name:'Héraut du Silence',emoji:'🤐',hp:11500,atk:1000,def:375,abilities:['counter','poison','enrage','shield']},
-    {name:'Titan Ancestral',emoji:'🏔',hp:12000,atk:1020,def:385,abilities:['regen','dodge','counter','enrage','poison']},
-    {name:'Éclipse Incarnée',emoji:'🌑',hp:13000,atk:1050,def:400,abilities:['shield','counter','regen','enrage','dodge']},
-    {name:'Néant Conscient',emoji:'🕳',hp:15000,atk:1080,def:420,abilities:['enrage','shield','counter','poison','regen','dodge']},
-    {name:'⚠ BOSS ABSOLU: Dieu Originel',emoji:'✨',hp:80000,atk:1300,def:500,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+    {name:'Gardien Éternel I',emoji:'⚪',hp:4000,atk:460,def:160,abilities:['counter','shield']},
+    {name:'Gardien Éternel II',emoji:'⚫',hp:4500,atk:480,def:170,abilities:['enrage','poison']},
+    {name:'Séraphin Noir',emoji:'🖤',hp:5000,atk:500,def:175,abilities:['regen','dodge','counter']},
+    {name:'Démiurge Brisé',emoji:'⚡',hp:5500,atk:520,def:180,abilities:['shield','enrage','poison']},
+    {name:'Éon Muet',emoji:'🔇',hp:6000,atk:540,def:185,abilities:['regen','counter','dodge','enrage']},
+    {name:'Fantôme Originel',emoji:'👻',hp:6500,atk:560,def:190,abilities:['shield','poison','counter']},
+    {name:'Vortex Conscient',emoji:'🌪',hp:7000,atk:580,def:195,abilities:['enrage','regen','shield']},
+    {name:'Héraut du Silence',emoji:'🤐',hp:7500,atk:600,def:200,abilities:['counter','poison','enrage','shield']},
+    {name:'Titan Ancestral',emoji:'🏔',hp:8500,atk:620,def:210,abilities:['regen','dodge','counter','enrage']},
+    {name:'Éclipse Incarnée',emoji:'🌑',hp:9000,atk:640,def:215,abilities:['shield','counter','regen','enrage']},
+    {name:'Néant Conscient',emoji:'🕳',hp:10000,atk:660,def:220,abilities:['enrage','shield','counter','poison','regen']},
+    {name:'⚠ BOSS ABSOLU: Dieu Originel',emoji:'✨',hp:30000,atk:750,def:260,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
   ]},
 ];
 
@@ -734,20 +762,6 @@ function showTab(name,btn){
   if(name==='battle')renderBattleScreen();
 }
 
-function rollChar(){
-  state.pity=(state.pity||0)+1;
-  let rarity;
-  const r=Math.random()*100;
-  if(state.pity>=90){rarity=5;state.pity=0;}
-  else if(r<3){rarity=5;state.pity=0;}
-  else if(r<18)rarity=4;
-  else if(r<53)rarity=3;
-  else rarity=2;
-  const pool=ALL_CHARS.filter(c=>c.rarity===rarity);
-  const char=pool[Math.floor(Math.random()*pool.length)];
-  state.owned[char.id]=(state.owned[char.id]||0)+1;
-  return char;
-}
 
 // ═══════════════════════════════════════════
 //  POWER FORMULA — ATK + HP + DEF + upgrades
@@ -761,6 +775,12 @@ function getCharPower(id){
   const defFinal=c.def+Math.round(c.def*(u.def||0)*0.12);
   const equip=getItemBonus(id);
   return atkFinal+equip.atk + hpFinal+equip.hp + defFinal+equip.def;
+}
+
+function starDisplay(rarity){
+  const full='★'.repeat(Math.max(0,rarity));
+  const empty='☆'.repeat(Math.max(0,5-rarity));
+  return full+empty;
 }
 
 // ═══════════════════════════════════════════
@@ -790,7 +810,7 @@ function openCharModal(id){
           <div class="char-modal-name">${c.name}</div>
           <div class="char-modal-anime">${c.anime} · ${c.type}</div>
           <div style="margin-top:4px">${getElemBadge(c.id)}</div>
-          <div class="char-modal-stars" style="color:${col}">${'★'.repeat(c.rarity)}${'☆'.repeat(5-c.rarity)}</div>
+          <div class="char-modal-stars" style="color:${col}">${starDisplay(c.rarity)}</div>
         </div>
         <div class="char-modal-close" onclick="closeCharModal()">✕</div>
       </div>
@@ -838,7 +858,7 @@ function openCharModal(id){
         <div class="char-modal-title">
           <div class="char-modal-name" style="color:var(--muted)">???</div>
           <div class="char-modal-anime">${c.anime}</div>
-          <div class="char-modal-stars" style="color:${col}">${'★'.repeat(c.rarity)}${'☆'.repeat(5-c.rarity)}</div>
+          <div class="char-modal-stars" style="color:${col}">${starDisplay(c.rarity)}</div>
         </div>
         <div class="char-modal-close" onclick="closeCharModal()">✕</div>
       </div>
@@ -905,7 +925,7 @@ function renderCollection(filter){
   let all=[...ownedAll,...unowned];
   // Filter
   if(filter==='owned')all=ownedAll;
-  else if(['2','3','4','5'].includes(filter))all=all.filter(c=>String(c.rarity)===filter);
+  else if(['2','3','4','5','6'].includes(filter))all=all.filter(c=>String(c.rarity)===filter);
   // Search
   if(searchVal) all=all.filter(c=>c.name.toLowerCase().includes(searchVal)||c.anime.toLowerCase().includes(searchVal));
   // Sort
@@ -1005,12 +1025,13 @@ function initBattleState(){
     const hpBonus=Math.round(c.hp*(upg.hp||0)*0.12);
     const defBonus=Math.round(c.def*(upg.def||0)*0.12);
     const equip=getItemBonus(id);
-    const finalAtk=c.atk+atkBonus+equip.atk;
-    const finalHp=c.hp+hpBonus+equip.hp;
-    const finalDef=c.def+defBonus+equip.def;
-    const finalSDmg=Math.round(c.sDmg*(1+(upg.atk||0)*0.08))+equip.sDmg;
+    const awakenMult=getAwakenMultiplier(id);
+    const finalAtk=Math.round((c.atk+atkBonus+equip.atk)*awakenMult);
+    const finalHp=Math.round((c.hp+hpBonus+equip.hp)*awakenMult);
+    const finalDef=Math.round((c.def+defBonus+equip.def)*awakenMult);
+    const finalSDmg=Math.round((c.sDmg*(1+(upg.atk||0)*0.08)+equip.sDmg)*awakenMult);
     const finalCritChance=0.2+(equip.critBoost||0);
-    return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,critChance:finalCritChance,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3};
+    return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,critChance:finalCritChance,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3,_awakened:awakenMult>1};
   });
   // Apply shop bonuses
   if(state.pendingCdReset){chars.forEach(h=>{h.spCooldown=0;});state.pendingCdReset=false;save();}
@@ -1020,6 +1041,8 @@ function initBattleState(){
   const elemKeys=Object.keys(ELEMENTS).filter(e=>e!=='neutral');
   const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities],element:elemKeys[Math.floor(Math.random()*elemKeys.length)]};
   state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0,combo:0};
+  // Apply team links
+  applyTeamLinks(chars);
   // Fire battle-start passives (Law swap, Whitebeard ATK debuff)
   chars.forEach(h=>{
     applyPassiveTrigger(h,state.battleState,'onBattleStart');
@@ -1048,7 +1071,8 @@ function renderBattleUI(){
     const shB=h.shield>0?`<div class="shield-bar-wrap"><div class="shield-bar" style="width:${Math.min(100,h.shield/300*100)}%"></div></div><div class="hp-text" style="color:var(--blue)">🛡 ${h.shield}</div>`:'';
     const cd=h.spCooldown||0;const maxCd=h.spMaxCd||3;
     const spBar=`<div class="sp-bar-wrap"><div class="sp-bar" style="width:${cd===0?100:((maxCd-cd)/maxCd*100)}%"></div></div><div class="${cd===0?'sp-ready':'sp-cd'}">${cd===0?`✨ ${h.sp} PRÊTE`:`✨ CD: ${cd} tour${cd>1?'s':''}`}</div>`;
-    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-type">${h.type}</div><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpClass}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${shB}${spBar}${si}</div></div>`;
+    const awakenBadge=h._awakened?`<span class="awakened-badge">⭐ÉVEILLÉ</span>`:'';
+    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-type">${h.type} ${awakenBadge}</div><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpClass}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${shB}${spBar}${si}</div></div>`;
   }).join('');
 
   const e=bs.enemy;
@@ -1086,6 +1110,7 @@ function renderBattleUI(){
       <div style="font-size:.75rem;color:var(--muted);text-align:right">Difficulté<br><span style="color:var(--red)">${'🔥'.repeat(Math.min(state.currentArc+Math.floor(wd/2),9))}</span></div>
     </div>
     ${getTerrainHTML(state.currentArc)}
+    ${renderTeamLinks(state.team.filter(Boolean))}
     ${bossHTML}
     <div class="combatants">
       <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
@@ -1182,9 +1207,15 @@ function doAttack(mode){
       addLog(`🔄 ${bs.enemy.name} contre! (${cd} dmg)`,'log-debuff');
     }
     if(bs.enemy.shield>0){const ab=Math.min(bs.enemy.shield,dmg);bs.enemy.shield=Math.max(0,bs.enemy.shield-ab);dmg-=ab;if(ab>0)addLog(`🛡 Bouclier absorbe ${ab}`,'log-debuff');}
-    // Megumin ignores 60% DEF
+    // Megumin ignores 60% DEF; Zeno ignores ALL DEF
     const hpassive=getPassive(hero.id);
-    const defReduction=hpassive&&hpassive.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def;
+    const isZeno=hpassive&&hpassive.isZeno;
+    const defReduction=isZeno?0:(hpassive&&hpassive.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def);
+    if(isZeno&&bs.enemy.shield>0){bs.enemy.shield=0;addLog(`👼 Zeno annule le bouclier!`,'log-special');}
+    // Sukuna full: double special dmg if enemy < 50% HP
+    if(hpassive&&hpassive.isSukunaFull&&mode==='special'&&bs.enemy.currentHp/bs.enemy.maxHp<.5){
+      dmg=dmg*2; logText+=' [×2 SUKUNA!]';
+    }
     dmg=Math.max(1,dmg-defReduction);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
     // Queue enemy-hit animation + damage float
@@ -1455,6 +1486,12 @@ function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-smite);
     addLog(`😼 Beerus: HAKAI! (−${smite} HP ennemi)`,'log-crit');
   }
+  // Baryon drain — each normal attack drains 8% enemy max HP
+  if(triggerType==='onNormalAtk'&&p.isBaryonDrain&&bs.enemy.currentHp>0){
+    const drain=Math.round(bs.enemy.maxHp*.08);
+    bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-drain);
+    addLog(`☀ Baryon Mode: drain ${drain} HP ennemi!`,'log-special');
+  }
   // Senku boost — on any special, boost team ATK 8%
   if(triggerType==='onSpecial'&&p.isSenkuBoost){
     bs.heroes.filter(h=>h.currentHp>0).forEach(h=>{h.atk=Math.round(h.atk*1.08);});
@@ -1523,24 +1560,29 @@ function renderFusion(){
   grid.innerHTML=fuseable.map(c=>{
     const count=state.owned[c.id]||0;
     const is5star=c.rarity===5;
-    const canFuse=count>=3&&!is5star;
-    const canConvert=count>=3&&is5star;
-    const result=is5star?null:ALL_CHARS.filter(x=>x.rarity===c.rarity+1);
+    const is6star=c.rarity===6;
+    const alreadyAwakened=isAwakened(c.id);
+    const canAwakenNow=canAwaken(c.id);
+    const canFuse=count>=3&&!is5star&&!is6star;
+    const canConvert=(count>=3&&is6star)||(count>=3&&is5star&&alreadyAwakened);
     const passive=getPassive(c.id);
     return `<div class="fusion-card r${c.rarity}">
       <div class="fusion-count">×${count}</div>
       <div class="fusion-info">
-        <div class="fusion-name">${c.emoji} ${c.name} ${'★'.repeat(c.rarity)}</div>
+        <div class="fusion-name">${c.emoji} ${c.name} ${'★'.repeat(Math.min(c.rarity,5))}${c.rarity===6?'★':''}</div>
         <div class="fusion-sub">${c.anime} · ${c.type}</div>
+        ${alreadyAwakened?`<div style="color:var(--gold);font-size:.7rem;margin-top:3px">⭐ ÉVEILLÉ — Stats ×1.5</div>`:''}
         ${passive?`<div class="passive-tag">⚡ Passif: ${passive.name}</div>`:''}
-        ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px;">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
-        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">★★★★★ → 30 💎 cristaux</div>`:''}
-        ${!canFuse&&!canConvert?`<div class="fusion-sub" style="margin-top:4px;">Besoin de ${3-count} doublon(s) de plus</div>`:''}
+        ${canAwakenNow?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px">3× ${c.name} → ÉVEILLÉ (stats ×1.5 + passif amélioré)</div>`:''}
+        ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
+        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px">→ 30 💎 cristaux</div>`:''}
+        ${!canFuse&&!canConvert&&!canAwakenNow?`<div class="fusion-sub" style="margin-top:4px">Besoin de ${3-count} doublon(s) de plus</div>`:''}
       </div>
-      <div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${canAwakenNow?`<button class="awaken-btn" onclick="doAwaken('${c.id}')">⭐ ÉVEILLER<span style="font-size:.65rem;display:block;color:var(--gold2)">3× ${c.name}</span></button>`:''}
         ${canFuse?`<button class="fusion-btn" onclick="doFusion('${c.id}')">FUSIONNER<span class="sub">3× ${c.name}</span></button>`:''}
         ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">→ 30 💎</span></button>`:''}
-        ${!canFuse&&!canConvert?`<button class="fusion-btn" disabled>FUSIONNER<span class="sub">${3-count} manquant(s)</span></button>`:''}
+        ${!canFuse&&!canConvert&&!canAwakenNow?`<button class="fusion-btn" disabled>FUSIONNER<span class="sub">${3-count} manquant(s)</span></button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -2400,6 +2442,119 @@ function dropMaterials(arcId){
     if(amt>0){state.materials[mat]=(state.materials[mat]||0)+amt;gained.push(`${MATERIAL_NAMES[mat]} ×${amt}`);}
   });
   if(gained.length) addLog(`🎒 Matériaux: ${gained.join(', ')}`,'log-heal');
+}
+
+// ═══════════════════════════════════════════
+//  6★ PASSIVES
+// ═══════════════════════════════════════════
+const PASSIVES_6={
+  goku_ultra:   {name:'Ultra Instinct',   desc:'Esquive automatiquement 40% des attaques ennemies + critiques x3',    isDodge:true,dodgeChance:.4,isCritBoost:true},
+  naruto_baryon:{name:'Mode Baryon',      desc:'Chaque attaque draine 8% HP max ennemi + lifesteal 25%',               isBaryonDrain:true,isLifesteal:true,lifestealAmt:.25},
+  zeno:         {name:'Roi de Tout',      desc:'Annule 100% des boucliers ennemis + ignore la DEF',                   isZeno:true},
+  muzan:        {name:'Démon Primordial', desc:'Se régénère 10% HP/tour + immunité poison + counter 40%',              fn:(hero)=>{hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(hero.maxHp*.1));hero.statuses=(hero.statuses||[]).filter(s=>s!=='☠Poison');},isFullCounter:true,counterAmt:.4},
+  sukuna_full:  {name:'Roi des Fléaux COMPLET',desc:'Spéciale fait toujours x2 dégâts sur ennemis <50% HP',           isSukunaFull:true},
+  all_might:    {name:'Symbol of Peace',  desc:'L\'équipe entière récupère 5% HP max/tour tant qu\'il est vivant',     fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.05));});}},
+};
+// Merge into PASSIVES
+Object.assign(PASSIVES,PASSIVES_6);
+
+// ═══════════════════════════════════════════
+//  TEAM LINKS
+// ═══════════════════════════════════════════
+const TEAM_LINKS=[
+  {id:'naruto_team',   name:'Équipe Naruto',   animes:['Naruto','Naruto Shippuden'],required:2,bonus:{atk:0.20},desc:'+20% ATK'},
+  {id:'op_team',       name:'Équipe One Piece', animes:['One Piece'],              required:2,bonus:{atk:0.15,hp:0.10},desc:'+15% ATK +10% HP'},
+  {id:'db_team',       name:'Équipe Dragon Ball',animes:['Dragon Ball Z','Dragon Ball Super','Dragon Ball GT'],required:2,bonus:{atk:0.25},desc:'+25% ATK'},
+  {id:'jjk_team',      name:'Équipe JJK',       animes:['Jujutsu Kaisen'],         required:2,bonus:{sDmg:0.30},desc:'+30% Spéciale'},
+  {id:'ds_team',       name:'Tueurs de Démons', animes:['Demon Slayer'],            required:2,bonus:{atk:0.18,def:0.15},desc:'+18% ATK +15% DEF'},
+  {id:'bleach_team',   name:'Équipe Bleach',    animes:['Bleach'],                  required:2,bonus:{atk:0.20,hp:0.15},desc:'+20% ATK +15% HP'},
+  {id:'full_link',     name:'Multivers Uni',    animes:null,required:3,uniqueAnimes:3,bonus:{atk:0.10,hp:0.10,def:0.10},desc:'+10% tout (3 animes différents)'},
+];
+
+function getActiveLinks(teamIds){
+  const active=[];
+  const chars=teamIds.filter(Boolean).map(id=>ALL_CHARS.find(c=>c.id===id)).filter(Boolean);
+  TEAM_LINKS.forEach(link=>{
+    if(link.uniqueAnimes){
+      const animes=new Set(chars.map(c=>c.anime));
+      if(animes.size>=link.uniqueAnimes) active.push(link);
+    } else if(link.animes){
+      const count=chars.filter(c=>link.animes.some(a=>c.anime.includes(a))).length;
+      if(count>=link.required) active.push(link);
+    }
+  });
+  return active;
+}
+
+function applyTeamLinks(heroes){
+  const ids=heroes.map(h=>h.id);
+  const links=getActiveLinks(ids);
+  links.forEach(link=>{
+    heroes.forEach(h=>{
+      if(link.bonus.atk) h.atk=Math.round(h.atk*(1+link.bonus.atk));
+      if(link.bonus.hp){h.hp=Math.round(h.hp*(1+link.bonus.hp));h.currentHp=h.hp;h.maxHp=h.hp;}
+      if(link.bonus.def) h.def=Math.round(h.def*(1+link.bonus.def));
+      if(link.bonus.sDmg) h.sDmg=Math.round(h.sDmg*(1+link.bonus.sDmg));
+    });
+    addLog(`🔗 Lien actif: ${link.name}! ${link.desc}`,'log-special');
+  });
+  return links;
+}
+
+function renderTeamLinks(teamIds){
+  const links=getActiveLinks(teamIds);
+  if(!links.length) return '';
+  return `<div class="link-banner">
+    <div class="link-title">🔗 Liens Actifs</div>
+    ${links.map(l=>`<div class="link-item"><span class="link-icon">✅</span><span class="link-active">${l.name} — ${l.desc}</span></div>`).join('')}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+//  AWAKENED SYSTEM
+// ═══════════════════════════════════════════
+function getAwakenedId(id){ return id+'_awaken'; }
+function isAwakened(id){ return !!(state.awakened&&state.awakened[id]); }
+
+function canAwaken(id){
+  const c=ALL_CHARS.find(x=>x.id===id);
+  if(!c||c.rarity!==5) return false;
+  return (state.owned[id]||0)>=3 && !isAwakened(id);
+}
+
+function doAwaken(id){
+  if(!canAwaken(id)) return;
+  state.owned[id]-=3;
+  if(state.owned[id]<=0) delete state.owned[id];
+  if(!state.awakened) state.awakened={};
+  state.awakened[id]=true;
+  save(); renderFusion();
+  const c=ALL_CHARS.find(x=>x.id===id);
+  showToast(`⭐ ${c.emoji} ${c.name} est ÉVEILLÉ! Stats +50%!`);
+  checkAchievements();
+}
+
+function getAwakenMultiplier(id){
+  return isAwakened(id)?1.5:1.0;
+}
+
+// ═══════════════════════════════════════════
+//  UPDATED GACHA — include 6★
+// ═══════════════════════════════════════════
+function rollChar(){
+  state.pity=(state.pity||0)+1;
+  let rarity;
+  const r=Math.random()*100;
+  if(state.pity>=90){rarity=5;state.pity=0;}
+  else if(r<0.3) rarity=6;        // 0.3% — ultra-rare
+  else if(r<3.3){rarity=5;state.pity=Math.max(0,state.pity-30);}  // ~3%
+  else if(r<18.3) rarity=4;
+  else if(r<53.3) rarity=3;
+  else rarity=2;
+  const pool=ALL_CHARS.filter(c=>c.rarity===rarity);
+  const char=pool[Math.floor(Math.random()*pool.length)];
+  state.owned[char.id]=(state.owned[char.id]||0)+1;
+  return char;
 }
 
 // INIT
