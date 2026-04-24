@@ -759,7 +759,8 @@ function getCharPower(id){
   const atkFinal=c.atk+Math.round(c.atk*(u.atk||0)*0.12);
   const hpFinal =c.hp +Math.round(c.hp *(u.hp ||0)*0.12);
   const defFinal=c.def+Math.round(c.def*(u.def||0)*0.12);
-  return atkFinal + hpFinal + defFinal;
+  const equip=getItemBonus(id);
+  return atkFinal+equip.atk + hpFinal+equip.hp + defFinal+equip.def;
 }
 
 // ═══════════════════════════════════════════
@@ -788,6 +789,7 @@ function openCharModal(id){
         <div class="char-modal-title">
           <div class="char-modal-name">${c.name}</div>
           <div class="char-modal-anime">${c.anime} · ${c.type}</div>
+          <div style="margin-top:4px">${getElemBadge(c.id)}</div>
           <div class="char-modal-stars" style="color:${col}">${'★'.repeat(c.rarity)}${'☆'.repeat(5-c.rarity)}</div>
         </div>
         <div class="char-modal-close" onclick="closeCharModal()">✕</div>
@@ -887,25 +889,48 @@ function showResults(chars){
 }
 function closeResult(){document.getElementById('gacha-result').classList.remove('show');}
 
-function filterColl(f,btn){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderCollection(f);}
+function filterColl(f,btn){
+  currentCollFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderCollection(f);
+}
 function renderCollection(filter){
-  const grid=document.getElementById('coll-grid');grid.innerHTML='';
+  currentCollFilter=filter||'all';
+  const grid=document.getElementById('coll-grid');if(!grid)return;grid.innerHTML='';
+  const searchVal=(document.getElementById('coll-search-input')?.value||'').toLowerCase();
+  const sortVal=document.getElementById('coll-sort-select')?.value||'rarity';
   const ownedAll=ALL_CHARS.filter(c=>state.owned[c.id]>0);
   const unowned=ALL_CHARS.filter(c=>!state.owned[c.id]);
-  let all=[...ownedAll.sort((a,b)=>b.rarity-a.rarity),...unowned.sort((a,b)=>b.rarity-a.rarity)];
+  let all=[...ownedAll,...unowned];
+  // Filter
   if(filter==='owned')all=ownedAll;
   else if(['2','3','4','5'].includes(filter))all=all.filter(c=>String(c.rarity)===filter);
+  // Search
+  if(searchVal) all=all.filter(c=>c.name.toLowerCase().includes(searchVal)||c.anime.toLowerCase().includes(searchVal));
+  // Sort
+  all.sort((a,b)=>{
+    const ao=state.owned[a.id]>0?1:0, bo=state.owned[b.id]>0?1:0;
+    if(ao!==bo)return bo-ao; // owned first always
+    if(sortVal==='rarity')return b.rarity-a.rarity;
+    if(sortVal==='power')return getCharPower(b.id)-getCharPower(a.id);
+    if(sortVal==='atk')return b.atk-a.atk;
+    if(sortVal==='name')return a.name.localeCompare(b.name);
+    return b.rarity-a.rarity;
+  });
   document.getElementById('owned-count').textContent=ownedAll.length;
   document.getElementById('total-count').textContent=ALL_CHARS.length;
   document.getElementById('legend-count').textContent=ownedAll.filter(c=>c.rarity===5).length;
   document.getElementById('epic-count').textContent=ownedAll.filter(c=>c.rarity===4).length;
-  if(!all.length){grid.innerHTML='<div class="empty-coll">Aucun personnage ici.</div>';return;}
+  if(!all.length){grid.innerHTML='<div class="empty-coll">Aucun personnage trouvé.</div>';return;}
   all.forEach(c=>{
     const isOwned=!!state.owned[c.id];
     const div=document.createElement('div');
     div.className=`coll-card r${c.rarity} ${isOwned?'':'locked'}`;
     div.onclick=()=>openCharModal(c.id);
-    div.innerHTML=`${isOwned&&state.owned[c.id]>1?`<div class="char-count">×${state.owned[c.id]}</div>`:''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div style="text-align:center;font-size:.68rem;margin-top:3px;">${'★'.repeat(c.rarity)}</div>${isOwned?`<div class="coll-stats">⚡ ${getCharPower(c.id).toLocaleString()}</div>${getPassive(c.id)?`<div class="passive-tag">⚡${getPassive(c.id).name}</div>`:''}` :'<div class="coll-stats">???</div>'}`;    grid.appendChild(div);
+    const elemBadge=isOwned?getElemBadge(c.id):'';
+    div.innerHTML=`${isOwned&&state.owned[c.id]>1?`<div class="char-count">×${state.owned[c.id]}</div>`:''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div style="text-align:center;font-size:.68rem;margin-top:3px;">${'★'.repeat(c.rarity)}</div>${isOwned?`<div class="coll-stats">⚡ ${getCharPower(c.id).toLocaleString()}</div>${elemBadge}${getPassive(c.id)?`<div class="passive-tag">⚡${getPassive(c.id).name}</div>`:''}` :'<div class="coll-stats">???</div>'}`;
+    grid.appendChild(div);
   });
 }
 
@@ -979,18 +1004,21 @@ function initBattleState(){
     const atkBonus=Math.round(c.atk*(upg.atk||0)*0.12);
     const hpBonus=Math.round(c.hp*(upg.hp||0)*0.12);
     const defBonus=Math.round(c.def*(upg.def||0)*0.12);
-    const finalAtk=c.atk+atkBonus;
-    const finalHp=c.hp+hpBonus;
-    const finalDef=c.def+defBonus;
-    const finalSDmg=Math.round(c.sDmg*(1+(upg.atk||0)*0.08));
-    return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3};
+    const equip=getItemBonus(id);
+    const finalAtk=c.atk+atkBonus+equip.atk;
+    const finalHp=c.hp+hpBonus+equip.hp;
+    const finalDef=c.def+defBonus+equip.def;
+    const finalSDmg=Math.round(c.sDmg*(1+(upg.atk||0)*0.08))+equip.sDmg;
+    const finalCritChance=0.2+(equip.critBoost||0);
+    return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,critChance:finalCritChance,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3};
   });
   // Apply shop bonuses
   if(state.pendingCdReset){chars.forEach(h=>{h.spCooldown=0;});state.pendingCdReset=false;save();}
   if(state.pendingHeal){/* already at full HP from initiation */state.pendingHeal=false;save();}
   const enemyData=getEnemyForCurrentWave();
   const scaleFactor=1+(state.currentArc-1)*0.3+((state.arcProgress[state.currentArc]||0)*0.05);
-  const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities]};
+  const elemKeys=Object.keys(ELEMENTS).filter(e=>e!=='neutral');
+  const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities],element:elemKeys[Math.floor(Math.random()*elemKeys.length)]};
   state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0,combo:0};
   // Fire battle-start passives (Law swap, Whitebeard ATK debuff)
   chars.forEach(h=>{
@@ -1063,7 +1091,7 @@ function renderBattleUI(){
       <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
       <div class="vs-divider"><div class="vs-text">VS</div></div>
       <div class="fighter-group"><div class="fighter-group-title">💀 Ennemi</div>
-        <div class="fighter ${e.currentHp<=0?'dead':''}" id="enemy-fighter"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}${e.enraged?'<span style="color:var(--red);margin-left:4px">🔥ENRAGÉ</span>':''}</div><div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div>${eshB}${esi}</div></div>
+        <div class="fighter ${e.currentHp<=0?'dead':''}" id="enemy-fighter"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}${e.enraged?'<span style="color:var(--red);margin-left:4px">🔥ENRAGÉ</span>':''}</div>${e.element?`<div style="margin-top:2px"><span class="elem-badge ${ELEMENTS[e.element].cls}">${ELEMENTS[e.element].emoji} ${ELEMENTS[e.element].name}</span></div>`:''}<div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div>${eshB}${esi}</div></div>
       </div>
     </div>
     <div class="battle-log">${logHTML}</div>
@@ -1092,7 +1120,7 @@ function doAttack(mode){
       dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);
       applyPassiveTrigger(hero,bs,'escanor');
       applyPassiveTrigger(hero,bs,'onNormalAtk');
-      const isCrit=Math.random()<.2;
+      const isCrit=Math.random()<(hero.critChance||0.2);
       const critMult=getPassive(hero.id)&&getPassive(hero.id).isCritBoost?2.5:1.8;
       if(isCrit){dmg=Math.round(dmg*critMult);logType='log-crit';logText=`💥 CRITIQUE! ${hero.name} frappe (${dmg} dmg)`;}
       else logText=`⚔ ${hero.name} attaque (${dmg} dmg)`;
@@ -1140,6 +1168,13 @@ function doAttack(mode){
     // Combo multiplier bonus
     const combo=bs.combo||0;
     if(combo>=3){ const mult=1+(combo*0.05); dmg=Math.round(dmg*mult); }
+    // Element multiplier
+    const heroElem=CHAR_ELEMENTS[hero.id]||'neutral';
+    const enemyElem=bs.enemy.element||'neutral';
+    const elemMult=getElemMult(heroElem,enemyElem);
+    if(elemMult>1) addLog(`${ELEMENTS[heroElem].emoji} Avantage élémentaire! ×${elemMult}`,'log-special');
+    else if(elemMult<1) addLog(`${ELEMENTS[heroElem].emoji} Désavantage élémentaire ×${elemMult}`,'log-debuff');
+    dmg=Math.round(dmg*elemMult);
     if(bs.enemy.abilities.includes('counter')&&Math.random()<.2&&bs.enemy.currentHp>0){
       const cd=Math.round(dmg*.35);
       const t=alive[Math.floor(Math.random()*alive.length)];
@@ -1265,6 +1300,7 @@ function checkBattleEnd(){
     if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;trackQuest('dailyBoss');}
     giveXp(30+state.currentArc*10);
     trackQuest('dailyWins');
+    dropMaterials(state.currentArc);
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
   } else {
@@ -2176,17 +2212,6 @@ function getElemBadge(id){
 }
 
 // ═══════════════════════════════════════════
-//  COLLECTION — search/sort state
-// ═══════════════════════════════════════════
-let currentCollFilter='all';
-function filterColl(f,btn){
-  currentCollFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  renderCollection(f);
-}
-
-// ═══════════════════════════════════════════
 //  EQUIPMENT SYSTEM
 // ═══════════════════════════════════════════
 const ITEM_DEFS=[
@@ -2391,6 +2416,9 @@ if(!state.achDone)state.achDone={};
 if(!state.infiniteBest)state.infiniteBest=0;
 if(!state.winStreak)state.winStreak=0;
 if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
+if(!state.equipment)state.equipment={};
+if(!state.materials)state.materials={};
+if(!state.items)state.items={};
 if(!state.xp)state.xp=0;
 if(!state.playerLevel)state.playerLevel=1;
 if(!state.pullHistory)state.pullHistory=[];
