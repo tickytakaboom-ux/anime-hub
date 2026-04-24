@@ -239,7 +239,59 @@
   .char-modal-addteam:disabled{opacity:.4;cursor:not-allowed;}
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:linear-gradient(135deg,#1a1a00,#3a2e00);border:1px solid var(--gold);color:var(--gold);padding:10px 24px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;z-index:9999;transition:transform .4s ease;pointer-events:none;white-space:nowrap;}
   .toast.show{transform:translateX(-50%) translateY(0);}
-  /* ── DAMAGE FLOATS ── */
+  /* ── ELEMENTS ── */
+  .elem-badge{display:inline-block;border-radius:5px;padding:1px 6px;font-size:.6rem;font-weight:700;margin-top:2px;}
+  .elem-fire{background:rgba(255,80,0,.2);color:#ff8040;border:1px solid rgba(255,80,0,.4);}
+  .elem-water{background:rgba(0,180,255,.15);color:#40c8ff;border:1px solid rgba(0,180,255,.35);}
+  .elem-thunder{background:rgba(255,220,0,.15);color:#ffe040;border:1px solid rgba(255,220,0,.35);}
+  .elem-dark{background:rgba(160,0,255,.15);color:#c080ff;border:1px solid rgba(160,0,255,.35);}
+  .elem-light{background:rgba(255,255,180,.15);color:#ffff88;border:1px solid rgba(255,255,180,.35);}
+  .elem-neutral{background:rgba(150,150,150,.12);color:#aaa;border:1px solid rgba(150,150,150,.25);}
+  /* ── SORT/SEARCH ── */
+  .coll-search-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .coll-search{flex:1;min-width:150px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;outline:none;}
+  .coll-search:focus{border-color:var(--blue);}
+  .coll-search::placeholder{color:var(--muted);}
+  .sort-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.85rem;outline:none;cursor:pointer;}
+  .sort-select:focus{border-color:var(--blue);}
+  /* ── EQUIPMENT ── */
+  .equip-screen{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:580px){.equip-screen{grid-template-columns:1fr;}}
+  .equip-roster{max-height:500px;overflow-y:auto;}
+  .equip-char-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;}
+  .equip-char-card:hover,.equip-char-card.selected{border-color:var(--gold);background:linear-gradient(135deg,var(--card),rgba(245,200,66,.05));}
+  .equip-char-emoji{font-size:1.8rem;}
+  .equip-char-info{flex:1;}
+  .equip-char-name{font-weight:700;font-size:.85rem;}
+  .equip-char-sub{font-size:.65rem;color:var(--muted);}
+  .equip-slots-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .equip-slots-title{font-size:.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+  .equip-slot{background:var(--card);border:1px dashed var(--border);border-radius:9px;padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:10px;min-height:56px;}
+  .equip-slot.filled{border-style:solid;border-color:rgba(245,200,66,.35);}
+  .equip-slot-icon{font-size:1.5rem;width:30px;text-align:center;}
+  .equip-slot-info{flex:1;}
+  .equip-slot-name{font-size:.8rem;font-weight:700;}
+  .equip-slot-stat{font-size:.65rem;color:var(--green);}
+  .equip-slot-empty{font-size:.78rem;color:var(--muted);}
+  .equip-unequip{color:var(--red);cursor:pointer;font-size:1rem;opacity:.6;transition:opacity .15s;}
+  .equip-unequip:hover{opacity:1;}
+  .items-inventory{margin-top:14px;}
+  .items-inv-title{font-size:.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+  .item-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;}
+  .item-card:hover{border-color:var(--blue);transform:translateX(3px);}
+  .item-card.equipped-elsewhere{opacity:.4;cursor:not-allowed;}
+  .item-icon{font-size:1.5rem;width:28px;text-align:center;}
+  .item-info{flex:1;}
+  .item-name{font-size:.82rem;font-weight:700;}
+  .item-stats{font-size:.65rem;color:var(--green);margin-top:1px;}
+  .item-type{font-size:.62rem;color:var(--purple);}
+  .item-count{font-size:.7rem;color:var(--gold);font-weight:700;}
+  .craft-section{margin-top:16px;}
+  .craft-title{font-size:.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+  .craft-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;}
+  .craft-btn{background:linear-gradient(135deg,#0a1a2a,#102040);border:1px solid var(--blue);color:var(--text);padding:6px 12px;border-radius:7px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+  .craft-btn:hover{box-shadow:0 0 10px rgba(0,212,255,.25);}
+  .craft-btn:disabled{opacity:.35;cursor:not-allowed;}
   .dmg-float{position:fixed;pointer-events:none;z-index:9999;font-family:'Cinzel Decorative',serif;font-weight:900;animation:dmg-rise .9s ease-out forwards;}
   @keyframes dmg-rise{0%{opacity:1;transform:translateY(0) scale(1.1);}80%{opacity:.9;}100%{opacity:0;transform:translateY(-62px) scale(.75);}}
   /* ── FIGHTER ANIMATIONS ── */
@@ -324,6 +376,7 @@
     <button class="tab-btn" onclick="showTab('team',this)">⚔ Équipe</button>
     <button class="tab-btn" onclick="showTab('forge',this)">🔨 Forge</button>
     <button class="tab-btn" onclick="showTab('fusion',this)">🔮 Fusion</button>
+    <button class="tab-btn" onclick="showTab('equipment',this)">⚙ Équipement</button>
     <button class="tab-btn" onclick="showTab('shop',this)">🛒 Boutique</button>
     <button class="tab-btn" onclick="showTab('quests',this)">📋 Quêtes</button>
     <button class="tab-btn" onclick="showTab('battle',this)">🔥 Combat</button>
@@ -362,6 +415,15 @@
       <div class="coll-stat">Obtenus: <span id="owned-count">0</span>/<span id="total-count">0</span></div>
       <div class="coll-stat">★★★★★: <span id="legend-count">0</span></div>
       <div class="coll-stat">★★★★: <span id="epic-count">0</span></div>
+    </div>
+    <div class="coll-search-row">
+      <input class="coll-search" id="coll-search-input" type="text" placeholder="🔍 Rechercher par nom ou anime..." oninput="renderCollection(currentCollFilter)">
+      <select class="sort-select" id="coll-sort-select" onchange="renderCollection(currentCollFilter)">
+        <option value="rarity">Rareté ↓</option>
+        <option value="power">Force ↓</option>
+        <option value="atk">ATK ↓</option>
+        <option value="name">Nom A→Z</option>
+      </select>
     </div>
     <div class="coll-filter">
       <button class="filter-btn active" onclick="filterColl('all',this)">Tous</button>
@@ -413,6 +475,23 @@
   <div id="achievements" class="screen">
     <div class="section-title">🏆 SUCCÈS</div>
     <div id="achievements-grid"></div>
+  </div>
+
+  <div id="equipment" class="screen">
+    <div class="section-title">⚙ ÉQUIPEMENT</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:14px;text-align:center;">Craftez et équipez des items sur vos guerriers pour booster leurs stats. Les matériaux sont gagnés en combat.</div>
+    <div class="equip-screen">
+      <div class="equip-roster" id="equip-roster"></div>
+      <div>
+        <div class="equip-slots-panel" id="equip-slots-panel">
+          <div class="equip-slots-title">⚔ Sélectionnez un personnage</div>
+        </div>
+        <div class="craft-section">
+          <div class="craft-title">🔧 Crafting</div>
+          <div id="craft-list"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="shop" class="screen">
@@ -651,6 +730,7 @@ function showTab(name,btn){
   if(name==='shop')renderShop();
   if(name==='quests')renderQuests();
   if(name==='history')renderHistory();
+  if(name==='equipment')renderEquipment();
   if(name==='battle')renderBattleScreen();
 }
 
@@ -1593,7 +1673,7 @@ function renderInfiniteUI(){
     const hpC=pct>60?'high':pct>25?'mid':'low';
     const cd=h.spCooldown||0;const mcd=h.spMaxCd||3;
     const spBar=`<div class="sp-bar-wrap"><div class="sp-bar" style="width:${cd===0?100:((mcd-cd)/mcd*100)}%"></div></div><div class="${cd===0?'sp-ready':'sp-cd'}">${cd===0?`✨ PRÊTE`:`CD:${cd}`}</div>`;
-    return `<div class="fighter ${h.currentHp<=0?'dead':''}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpC}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${spBar}</div></div>`;
+    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="inf-hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpC}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${spBar}</div></div>`;
   }).join('');
   const e=bs.enemy;
   const epct=Math.max(0,e.currentHp/e.maxHp*100);
@@ -1619,7 +1699,7 @@ function renderInfiniteUI(){
       <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
       <div class="vs-divider"><div class="vs-text">VS</div></div>
       <div class="fighter-group"><div class="fighter-group-title">💀 Ennemi</div>
-        <div class="fighter ${e.currentHp<=0?'dead':''}"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div></div></div>
+        <div class="fighter ${e.currentHp<=0?'dead':''}" id="inf-enemy"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div></div></div>
       </div>
     </div>
     <div class="battle-log">${logHTML}</div>${actHTML}`;
@@ -1630,11 +1710,13 @@ function doInfiniteAttack(mode){
   if(mode==='burst'&&(bs.burstCharge||0)<3)return;
   const alive=bs.heroes.filter(h=>h.currentHp>0);
   if(!alive.length)return;
+  if(!bs._pendingFloats)bs._pendingFloats=[];
   // Tick passives on turn start
   alive.forEach(h=>applyPassiveTrigger(h,bs,'onTurnStart'));
-  alive.forEach(hero=>{
+  alive.forEach((hero,heroIdx)=>{
     if(bs.enemy.currentHp<=0)return;
     let dmg=0,logText='',logType='log-hit';
+    bs._pendingFloats.push({id:`inf-hero-${heroIdx}`,cls:'anim-attack',delay:heroIdx*100,float:null});
     if(mode==='normal'){
       dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
       dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);
@@ -1645,31 +1727,50 @@ function doInfiniteAttack(mode){
       if(crit){dmg=Math.round(dmg*critMult);logType='log-crit';logText=`💥 CRIT! ${hero.name} (${dmg})`;}
       else logText=`⚔ ${hero.name} (${dmg})`;
       if((hero.spCooldown||0)>0)hero.spCooldown=Math.max(0,hero.spCooldown-1);
-      // Double hit passive
       if(getPassive(hero.id)&&getPassive(hero.id).isDoubleHit&&Math.random()<getPassive(hero.id).doubleChance){
         const d2=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
         bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-Math.max(1,d2-bs.enemy.def));
         logText+=` + double (${d2})`;
       }
     } else if(mode==='special'){
-      if((hero.spCooldown||0)>0){dmg=hero.atk;logText=`⚔ ${hero.name} attaque (CD)`;hero.spCooldown=Math.max(0,hero.spCooldown-1);}
-      else{dmg=hero.sDmg+randInt(-Math.round(hero.sDmg*.1),Math.round(hero.sDmg*.1));logText=`✨ ${hero.name}: ${hero.sp}! (${dmg})`;logType='log-special';hero.spCooldown=hero.spMaxCd||3;}
+      if((hero.spCooldown||0)>0){dmg=hero.atk;logText=`⚔ ${hero.name} (CD)`;hero.spCooldown=Math.max(0,hero.spCooldown-1);}
+      else{
+        const p=getPassive(hero.id);
+        dmg=hero.sDmg+randInt(-Math.round(hero.sDmg*.1),Math.round(hero.sDmg*.1));
+        if(p&&p.isMegumin){dmg=Math.round(hero.sDmg*1.8);logType='log-crit';logText=`💥✨ ${hero.name}: ${hero.sp}! CRIT! (${dmg})`;}
+        else{logText=`✨ ${hero.name}: ${hero.sp}! (${dmg})`;logType='log-special';}
+        hero.spCooldown=hero.spMaxCd||3;
+        applyPassiveTrigger(hero,bs,'onSpecial');
+        if(hero.type==='Support'){
+          const heal=Math.round(hero.atk*1.5);
+          const t=alive[Math.floor(Math.random()*alive.length)];
+          t.currentHp=Math.min(t.maxHp,t.currentHp+heal);
+          const tIdx=bs.heroes.indexOf(t);
+          bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-attack',delay:220,float:'+'+heal,floatId:`inf-hero-${tIdx}`,color:'#39ff14'});
+          addInfLog(`💚 ${hero.name} soigne ${t.name} (+${heal})`,'log-heal');
+        }
+      }
     } else {
       dmg=Math.round(hero.sDmg*2.8)+randInt(-100,100);logText=`💥 BURST! ${hero.name} (${dmg})`;logType='log-crit';hero.spCooldown=hero.spMaxCd||3;
     }
+    const combo=bs.combo||0;
+    if(combo>=3){dmg=Math.round(dmg*(1+combo*0.05));}
     applyPassiveTrigger(hero,bs,'lifesteal',dmg);
-    if(getPassive(hero.id)&&getPassive(hero.id).isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);bs.infiniteBattle&&addInfLog(`❄ ${hero.name} gèle l'ennemi! ATK -20%`,'log-special');}
+    if(getPassive(hero.id)&&getPassive(hero.id).isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);addInfLog(`❄ Gel! ATK ennemi -20%`,'log-special');}
     if(getPassive(hero.id)&&getPassive(hero.id).isAntiRegen) bs.enemy._antiRegen=true;
-    dmg=Math.max(1,dmg-bs.enemy.def);
+    const defR=getPassive(hero.id)&&getPassive(hero.id).isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def;
+    dmg=Math.max(1,dmg-defR);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
+    const isCritDmg=(logType==='log-crit');
+    bs._pendingFloats.push({id:'inf-enemy',cls:isCritDmg?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'inf-enemy',color:isCritDmg?'#ff4400':'#ff6666'});
     addInfLog(logText,logType);
   });
   if(mode==='burst')bs.burstCharge=0;
   else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
   if(bs.enemy.currentHp>0){
     const e=bs.enemy;
-    if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.6);addInfLog(`😡 ${e.name} ENRAGE!`,'log-crit');}
-    if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.15){e.shield=Math.round(e.maxHp*.08);addInfLog(`🛡 Bouclier ennemi!`,'log-debuff');}
+    if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.6);addInfLog(`😡 ENRAGE! ATK ×1.6`,'log-crit');}
+    if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.15){e.shield=Math.round(e.maxHp*.08);addInfLog(`🛡 Bouclier!`,'log-debuff');}
     if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.2){const rg=Math.round(e.maxHp*.04);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addInfLog(`💚 Regen +${rg}`,'log-heal');}
     const alive2=bs.heroes.filter(h=>h.currentHp>0);
     if(alive2.length){
@@ -1677,44 +1778,53 @@ function doInfiniteAttack(mode){
       for(let k=0;k<attacks;k++){
         const t=alive2[Math.floor(Math.random()*alive2.length)];
         if(t.currentHp<=0)continue;
-        const p=getPassive(t.id);
-        if(p&&p.isDodge&&Math.random()<p.dodgeChance){addInfLog(`💨 ${t.name} esquive!`,'log-heal');continue;}
+        const tp=getPassive(t.id);
+        if(tp&&tp.isDodge&&Math.random()<tp.dodgeChance){addInfLog(`💨 ${t.name} esquive!`,'log-heal');continue;}
         if(e.abilities.includes('dodge')&&Math.random()<.12){addInfLog(`💨 Ennemi esquive!`,'log-debuff');continue;}
         let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));
         ed=applyDefensivePassive(t,ed,bs);
-        if(p&&p.isDmgReduce)ed=Math.round(ed*(1-p.reduceAmt));
+        if(tp&&tp.isDmgReduce)ed=Math.round(ed*(1-tp.reduceAmt));
         ed=Math.max(1,ed-t.def);
         t.currentHp=Math.max(0,t.currentHp-ed);
+        const tIdx=bs.heroes.indexOf(t);
+        bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`inf-hero-${tIdx}`,color:'#ff9966'});
         addInfLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');
       }
     }
   }
+  // Combo tracking
+  const aliveNow=bs.heroes.filter(h=>h.currentHp>0);
+  const hpNow=aliveNow.reduce((s,h)=>s+h.currentHp,0);
+  if(hpNow<(bs._lastHp||hpNow+1))bs.combo=0;
+  else{bs.combo=(bs.combo||0)+1;}
+  bs._lastHp=hpNow;
   // Check end
   if(bs.enemy.currentHp<=0){
     bs.over=true;bs.won=true;
     const isNewWave=bs.wave>(state.infiniteBest||0);
-    // Rewards ONLY if beating personal record, reduced amounts
     const gold=isNewWave?Math.round(15*bs.wave*(bs.enemy.isBoss?2:1)):0;
     const cr=isNewWave?Math.round(bs.wave*(bs.enemy.isBoss?8:1)):0;
     if(gold>0){state.gold+=gold;state.crystals+=cr;}
-    if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;}
-    if(isNewWave){
-      state.infiniteBest=bs.wave;
-      showToast(`🎉 Nouveau record: Vague ${bs.wave}!${gold>0?` +${gold}🪙 +${cr}💎`:''}`);
-      addInfLog(`🏆 Record! Vague ${bs.wave}!${gold>0?` +${gold}🪙 +${cr}💎`:''}`, 'log-win');
-    } else {
-      addInfLog(`✅ Vague ${bs.wave} — Aucune récompense (déjà atteinte)`, 'log-debuff');
-    }
+    if(bs.enemy.isBoss)state.bossKills=(state.bossKills||0)+1;
+    if(isNewWave){state.infiniteBest=bs.wave;showToast(`🎉 Record: Vague ${bs.wave}!${gold>0?` +${gold}🪙 +${cr}💎`:''}`);}
+    else addInfLog(`✅ Vague ${bs.wave} — déjà atteinte, pas de récompense`,'log-debuff');
+    if(isNewWave) addInfLog(`🏆 Nouveau record! +${gold}🪙 +${cr}💎`,'log-win');
     save();updateRes();checkAchievements();
   } else {
     const alive3=bs.heroes.filter(h=>h.currentHp>0);
-    if(!alive3.length){
-      bs.over=true;bs.won=false;
-      addInfLog(`💔 Défaite à la vague ${bs.wave}`,'log-crit');
-      save();updateRes();checkAchievements();
-    }
+    if(!alive3.length){bs.over=true;bs.won=false;addInfLog(`💔 Défaite vague ${bs.wave}`,'log-crit');save();updateRes();checkAchievements();}
   }
   renderInfiniteUI();
+  // Fire animations after DOM rebuild
+  const pending=[...bs._pendingFloats];
+  bs._pendingFloats=[];
+  pending.forEach(f=>{
+    setTimeout(()=>{
+      const el=document.getElementById(f.id);
+      if(el){el.classList.remove('anim-attack','anim-hit','anim-crit');void el.offsetWidth;el.classList.add(f.cls);setTimeout(()=>el.classList.remove(f.cls),450);}
+      if(f.float!=null){const rel=document.getElementById(f.floatId);if(rel){const rect=rel.getBoundingClientRect();spawnDmgFloatAt(f.float,f.color,rect.left+rect.width/2-24,rect.top+10);}}
+    },f.delay);
+  });
   document.getElementById('infinite-best').innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Meilleur record</div><div style="font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold)">Vague ${state.infiniteBest||0}</div>`;
 }
 
@@ -2012,6 +2122,259 @@ function getTerrainHTML(arcId){
     <span style="font-size:1.2rem">${t.emoji}</span>
     <div><b style="font-size:.78rem">${t.name}</b><br><span style="font-size:.68rem;color:var(--muted)">${t.effect}</span></div>
   </div>`;
+}
+
+// ═══════════════════════════════════════════
+//  ELEMENT SYSTEM
+// ═══════════════════════════════════════════
+const ELEMENTS={
+  fire:   {name:'Feu',    emoji:'🔥', color:'#ff8040', cls:'elem-fire'},
+  water:  {name:'Eau',    emoji:'💧', color:'#40c8ff', cls:'elem-water'},
+  thunder:{name:'Foudre', emoji:'⚡', color:'#ffe040', cls:'elem-thunder'},
+  dark:   {name:'Ténèbres',emoji:'🌑',color:'#c080ff', cls:'elem-dark'},
+  light:  {name:'Lumière',emoji:'✨', color:'#ffff88', cls:'elem-light'},
+  neutral:{name:'Neutre', emoji:'⚪', color:'#aaaaaa', cls:'elem-neutral'},
+};
+// Advantage: +30% dmg, Disadvantage: -20% dmg
+const ELEMENT_CHART={
+  fire:   {strong:'thunder', weak:'water'},
+  water:  {strong:'fire',    weak:'thunder'},
+  thunder:{strong:'water',   weak:'fire'},
+  dark:   {strong:'light',   weak:'light'},
+  light:  {strong:'dark',    weak:'dark'},
+  neutral:{strong:null,      weak:null},
+};
+// Assign elements to characters
+const CHAR_ELEMENTS={
+  goku_ssj:'fire',naruto_s:'thunder',saitama:'neutral',zoro_km:'dark',levi:'neutral',
+  itachi:'dark',gojo:'light',sukuna:'dark',aizen:'dark',madara:'dark',
+  escanor:'light',luffy_g5:'fire',rimuru:'neutral',ainz:'dark',whitebeard:'water',
+  sasuke:'thunder',luffy_g4:'fire',ichigo:'neutral',todoroki:'fire',mikasa:'neutral',
+  rem:'water',killua:'thunder',meliodas:'fire',zero_two:'fire',erza:'light',
+  natsu:'fire',jotaro:'neutral',giorno:'light',tanjiro:'water',inosuke:'neutral',
+  nobara:'neutral',hinata:'water',yoruichi:'thunder',law:'water',beerus:'light',
+  eren_titan:'dark',senku:'thunder',kaneki:'dark',megumin:'fire',accelerator:'neutral',
+  kenshin:'neutral',gon:'neutral',edward:'neutral',spike:'neutral',yusuke:'thunder',
+  inuyasha:'neutral',gohan:'fire',vegeta:'fire',rukia:'water',asuna:'thunder',
+  kirito:'neutral',mob:'dark',reigen:'neutral',yugi:'dark',sesshomaru:'dark',
+  nami:'water',ryuk:'dark',osamu:'dark',shinra:'fire',darkness:'light',aqua:'water',
+  krillin:'neutral',sanji:'fire',rock_lee:'neutral',mineta:'neutral',usopp:'neutral',
+  choji:'neutral',chopper:'neutral',ochako:'neutral',zenitsu:'thunder',
+};
+function getElemMult(attackerElem, defenderElem){
+  if(!attackerElem||!defenderElem)return 1;
+  const chart=ELEMENT_CHART[attackerElem];
+  if(!chart)return 1;
+  if(chart.strong===defenderElem)return 1.3;
+  if(chart.weak===defenderElem)return 0.8;
+  return 1;
+}
+function getElemBadge(id){
+  const elem=CHAR_ELEMENTS[id]||'neutral';
+  const e=ELEMENTS[elem];
+  return `<span class="elem-badge ${e.cls}">${e.emoji} ${e.name}</span>`;
+}
+
+// ═══════════════════════════════════════════
+//  COLLECTION — search/sort state
+// ═══════════════════════════════════════════
+let currentCollFilter='all';
+function filterColl(f,btn){
+  currentCollFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderCollection(f);
+}
+
+// ═══════════════════════════════════════════
+//  EQUIPMENT SYSTEM
+// ═══════════════════════════════════════════
+const ITEM_DEFS=[
+  {id:'iron_sword',   name:'Épée de Fer',     emoji:'⚔', type:'weapon',  slot:'weapon',  stats:{atk:50},           desc:'+50 ATK'},
+  {id:'steel_sword',  name:'Épée d\'Acier',   emoji:'🗡', type:'weapon',  slot:'weapon',  stats:{atk:120},          desc:'+120 ATK'},
+  {id:'divine_blade', name:'Lame Divine',     emoji:'✨', type:'weapon',  slot:'weapon',  stats:{atk:250,sDmg:100}, desc:'+250 ATK +100 Spéciale'},
+  {id:'leather_armor',name:'Armure de Cuir',  emoji:'🥋', type:'armor',   slot:'armor',   stats:{def:40,hp:200},    desc:'+40 DEF +200 HP'},
+  {id:'iron_armor',   name:'Armure de Fer',   emoji:'🛡', type:'armor',   slot:'armor',   stats:{def:100,hp:500},   desc:'+100 DEF +500 HP'},
+  {id:'divine_armor', name:'Armure Divine',   emoji:'👑', type:'armor',   slot:'armor',   stats:{def:200,hp:1000},  desc:'+200 DEF +1000 HP'},
+  {id:'speed_ring',   name:'Anneau de Vitesse',emoji:'💍',type:'accessory',slot:'accessory',stats:{atk:30,def:30},  desc:'+30 ATK +30 DEF'},
+  {id:'crit_ring',    name:'Anneau Critique',  emoji:'🔮',type:'accessory',slot:'accessory',stats:{critBoost:0.1},   desc:'+10% taux critique'},
+  {id:'life_amulet',  name:'Amulette de Vie',  emoji:'❤', type:'accessory',slot:'accessory',stats:{hp:800,def:50},  desc:'+800 HP +50 DEF'},
+];
+const CRAFT_RECIPES=[
+  {result:'iron_sword',   cost:{iron:3,gold_ore:0},   goldCost:200,  label:'3 Fer + 200🪙'},
+  {result:'steel_sword',  cost:{iron:5,magic_shard:2}, goldCost:500,  label:'5 Fer + 2 Éclats + 500🪙'},
+  {result:'divine_blade', cost:{iron:10,magic_shard:5,rare_crystal:1},goldCost:2000,label:'10 Fer + 5 Éclats + 1 Cristal Rare + 2000🪙'},
+  {result:'leather_armor',cost:{cloth:3},              goldCost:150,  label:'3 Tissu + 150🪙'},
+  {result:'iron_armor',   cost:{cloth:3,iron:3},       goldCost:400,  label:'3 Tissu + 3 Fer + 400🪙'},
+  {result:'divine_armor', cost:{cloth:5,iron:8,magic_shard:3},goldCost:1800,label:'5 Tissu + 8 Fer + 3 Éclats + 1800🪙'},
+  {result:'speed_ring',   cost:{iron:2,cloth:2},       goldCost:300,  label:'2 Fer + 2 Tissu + 300🪙'},
+  {result:'crit_ring',    cost:{magic_shard:3,rare_crystal:1},goldCost:1200,label:'3 Éclats + 1 Cristal Rare + 1200🪙'},
+  {result:'life_amulet',  cost:{cloth:4,magic_shard:2},goldCost:800,  label:'4 Tissu + 2 Éclats + 800🪙'},
+];
+const MATERIAL_NAMES={iron:'⚒ Fer',cloth:'🧵 Tissu',magic_shard:'💎 Éclat Magique',rare_crystal:'🔮 Cristal Rare'};
+
+let selectedEquipChar=null;
+
+function getCharEquip(id){
+  if(!state.equipment)state.equipment={};
+  if(!state.equipment[id])state.equipment[id]={weapon:null,armor:null,accessory:null};
+  return state.equipment[id];
+}
+function getItemBonus(id){
+  const equip=getCharEquip(id);
+  const bonus={atk:0,hp:0,def:0,sDmg:0,critBoost:0};
+  ['weapon','armor','accessory'].forEach(slot=>{
+    const itemId=equip[slot];
+    if(!itemId)return;
+    const item=ITEM_DEFS.find(x=>x.id===itemId);
+    if(!item)return;
+    Object.entries(item.stats).forEach(([k,v])=>{if(bonus[k]!==undefined)bonus[k]+=v;});
+  });
+  return bonus;
+}
+
+function renderEquipment(){
+  const roster=document.getElementById('equip-roster');
+  if(!roster)return;
+  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  roster.innerHTML=`<div style="font-size:.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">✦ Guerriers</div>`+
+    owned.map(c=>`<div class="equip-char-card ${selectedEquipChar===c.id?'selected':''}" onclick="selectEquipChar('${c.id}')">
+      <div class="equip-char-emoji">${c.emoji}</div>
+      <div class="equip-char-info">
+        <div class="equip-char-name">${c.name}</div>
+        <div class="equip-char-sub">${'★'.repeat(c.rarity)} · ${getElemBadge(c.id)}</div>
+      </div>
+    </div>`).join('');
+  renderEquipSlots();
+  renderCraftList();
+}
+
+function selectEquipChar(id){
+  selectedEquipChar=id;
+  renderEquipment();
+}
+
+function renderEquipSlots(){
+  const panel=document.getElementById('equip-slots-panel');
+  if(!panel)return;
+  if(!selectedEquipChar){panel.innerHTML=`<div class="equip-slots-title">⚔ Sélectionnez un personnage</div>`;return;}
+  const c=ALL_CHARS.find(x=>x.id===selectedEquipChar);
+  const equip=getCharEquip(selectedEquipChar);
+  const bonus=getItemBonus(selectedEquipChar);
+  const slots=['weapon','armor','accessory'];
+  const slotIcons={weapon:'⚔',armor:'🛡',accessory:'💍'};
+  const slotNames={weapon:'Arme',armor:'Armure',accessory:'Accessoire'};
+  panel.innerHTML=`<div class="equip-slots-title">${c.emoji} ${c.name} — Équipement</div>
+    <div style="font-size:.7rem;color:var(--green);margin-bottom:10px;">Bonus total: +${bonus.atk} ATK / +${bonus.hp} HP / +${bonus.def} DEF${bonus.sDmg>0?` / +${bonus.sDmg} SP`:''}${bonus.critBoost>0?` / +${Math.round(bonus.critBoost*100)}% Crit`:''}</div>
+    ${slots.map(slot=>{
+      const itemId=equip[slot];
+      const item=itemId?ITEM_DEFS.find(x=>x.id===itemId):null;
+      return `<div class="equip-slot ${item?'filled':''}">
+        <div class="equip-slot-icon">${item?item.emoji:slotIcons[slot]}</div>
+        <div class="equip-slot-info">
+          ${item?`<div class="equip-slot-name">${item.name}</div><div class="equip-slot-stat">${item.desc}</div>`
+                :`<div class="equip-slot-empty">[ ${slotNames[slot]} vide ]</div>`}
+        </div>
+        ${item?`<div class="equip-unequip" onclick="unequipItem('${selectedEquipChar}','${slot}')">✕</div>`:''}
+      </div>`;
+    }).join('')}
+    <div class="items-inventory">
+      <div class="items-inv-title">🎒 Inventaire</div>
+      ${getOwnedItems().length===0?'<div style="color:var(--muted);font-size:.78rem">Aucun item — craftez-en ci-dessous !</div>':
+        getOwnedItems().map(({item,count})=>{
+          const alreadyEquipped=isItemEquippedElsewhere(item.id,selectedEquipChar,item.slot);
+          const isOnThis=equip[item.slot]===item.id;
+          return `<div class="item-card ${alreadyEquipped&&!isOnThis?'equipped-elsewhere':''}" onclick="${alreadyEquipped&&!isOnThis?'':isOnThis?`unequipItem('${selectedEquipChar}','${item.slot}')`:`equipItem('${selectedEquipChar}','${item.id}')`}">
+            <div class="item-icon">${item.emoji}</div>
+            <div class="item-info">
+              <div class="item-name">${item.name}</div>
+              <div class="item-stats">${item.desc}</div>
+              <div class="item-type">${item.slot==='weapon'?'⚔ Arme':item.slot==='armor'?'🛡 Armure':'💍 Accessoire'}</div>
+            </div>
+            <div class="item-count">×${count} ${isOnThis?'<span style="color:var(--green)">✓ Équipé</span>':''}</div>
+          </div>`;
+        }).join('')}
+    </div>`;
+}
+
+function renderCraftList(){
+  const list=document.getElementById('craft-list');
+  if(!list)return;
+  const mats=state.materials||{};
+  list.innerHTML=CRAFT_RECIPES.map(r=>{
+    const item=ITEM_DEFS.find(x=>x.id===r.result);
+    const canCraft=Object.entries(r.cost).every(([k,v])=>(mats[k]||0)>=v)&&(state.gold||0)>=r.goldCost;
+    const matDisplay=Object.entries(r.cost).map(([k,v])=>`<span style="color:${(mats[k]||0)>=v?'var(--green)':'var(--red)'}">${MATERIAL_NAMES[k]||k}: ${mats[k]||0}/${v}</span>`).join(' · ');
+    return `<div class="craft-card">
+      <div style="font-size:1.6rem">${item.emoji}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.82rem">${item.name}</div>
+        <div style="font-size:.65rem;color:var(--green);margin:2px 0">${item.desc}</div>
+        <div style="font-size:.62rem">${matDisplay} · <span style="color:${(state.gold||0)>=r.goldCost?'var(--gold)':'var(--red)'}">🪙${r.goldCost}</span></div>
+      </div>
+      <button class="craft-btn" onclick="craftItem('${r.result}')" ${canCraft?'':'disabled'}>Crafter</button>
+    </div>`;
+  }).join('');
+  // Show materials
+  const matHTML=Object.entries(mats).filter(([,v])=>v>0).map(([k,v])=>`<span style="font-size:.75rem;color:var(--muted)">${MATERIAL_NAMES[k]||k}: <b style="color:var(--gold)">${v}</b></span>`).join(' · ');
+  list.insertAdjacentHTML('afterbegin',`<div style="margin-bottom:10px;font-size:.72rem;color:var(--muted)">🎒 Matériaux: ${matHTML||'Aucun — gagnez des combats pour en obtenir!'}</div>`);
+}
+
+function getOwnedItems(){
+  if(!state.items)return[];
+  return Object.entries(state.items).filter(([,v])=>v>0).map(([id,count])=>({item:ITEM_DEFS.find(x=>x.id===id),count})).filter(x=>x.item);
+}
+function isItemEquippedElsewhere(itemId,excludeId,slot){
+  if(!state.equipment)return false;
+  return Object.entries(state.equipment).some(([cId,eq])=>cId!==excludeId&&eq[slot]===itemId);
+}
+function equipItem(charId,itemId){
+  const item=ITEM_DEFS.find(x=>x.id===itemId);
+  if(!item)return;
+  if(!state.equipment)state.equipment={};
+  if(!state.equipment[charId])state.equipment[charId]={weapon:null,armor:null,accessory:null};
+  state.equipment[charId][item.slot]=itemId;
+  save();renderEquipSlots();showToast(`⚔ ${item.name} équipé sur ${ALL_CHARS.find(c=>c.id===charId)?.name}!`);
+}
+function unequipItem(charId,slot){
+  if(!state.equipment||!state.equipment[charId])return;
+  state.equipment[charId][slot]=null;
+  save();renderEquipSlots();
+}
+function craftItem(recipeResult){
+  const recipe=CRAFT_RECIPES.find(r=>r.result===recipeResult);
+  if(!recipe)return;
+  if(!state.materials)state.materials={};
+  if(!state.items)state.items={};
+  const canCraft=Object.entries(recipe.cost).every(([k,v])=>(state.materials[k]||0)>=v)&&(state.gold||0)>=recipe.goldCost;
+  if(!canCraft){showToast('❌ Matériaux insuffisants!');return;}
+  Object.entries(recipe.cost).forEach(([k,v])=>{state.materials[k]=(state.materials[k]||0)-v;});
+  state.gold-=recipe.goldCost;
+  state.items[recipeResult]=(state.items[recipeResult]||0)+1;
+  const item=ITEM_DEFS.find(x=>x.id===recipeResult);
+  save();updateRes();renderEquipment();
+  showToast(`🔧 ${item.emoji} ${item.name} crafté!`);
+}
+
+// Drop materials on battle win
+function dropMaterials(arcId){
+  if(!state.materials)state.materials={};
+  const dropTable={
+    1:{iron:[1,3],cloth:[1,2]},
+    2:{iron:[2,4],cloth:[1,3],magic_shard:[0,1]},
+    3:{iron:[2,5],cloth:[2,4],magic_shard:[1,2]},
+    4:{iron:[3,6],cloth:[2,5],magic_shard:[1,3],rare_crystal:[0,1]},
+    5:{iron:[3,7],cloth:[3,6],magic_shard:[2,4],rare_crystal:[0,1]},
+    6:{iron:[4,8],cloth:[3,7],magic_shard:[2,5],rare_crystal:[1,2]},
+    7:{iron:[5,10],cloth:[4,8],magic_shard:[3,6],rare_crystal:[1,3]},
+  };
+  const drops=dropTable[Math.min(arcId,7)]||dropTable[7];
+  const gained=[];
+  Object.entries(drops).forEach(([mat,[min,max]])=>{
+    const amt=randInt(min,max);
+    if(amt>0){state.materials[mat]=(state.materials[mat]||0)+amt;gained.push(`${MATERIAL_NAMES[mat]} ×${amt}`);}
+  });
+  if(gained.length) addLog(`🎒 Matériaux: ${gained.join(', ')}`,'log-heal');
 }
 
 // INIT
