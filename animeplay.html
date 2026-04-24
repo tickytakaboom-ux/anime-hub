@@ -1001,9 +1001,12 @@ function doAttack(mode){
   if(!alive.length){checkBattleEnd();return;}
   tickStatuses(bs);
 
-  alive.forEach(hero=>{
+  if(!bs._pendingFloats) bs._pendingFloats=[];
+  alive.forEach((hero, heroIdx)=>{
     if(bs.enemy.currentHp<=0)return;
     let dmg=0,logText='',logType='log-hit';
+    // Queue hero attack animation
+    bs._pendingFloats.push({id:`hero-${heroIdx}`,cls:'anim-attack',delay:heroIdx*100,float:null});
     if(mode==='normal'){
       dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
       dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);
@@ -1040,7 +1043,14 @@ function doAttack(mode){
         hero.spCooldown=hero.spMaxCd||3;
         trackQuest('dailySp');
         applyPassiveTrigger(hero,bs,'onSpecial');
-        if(hero.type==='Support'){const heal=Math.round(hero.atk*1.5);const t=alive[Math.floor(Math.random()*alive.length)];t.currentHp=Math.min(t.maxHp,t.currentHp+heal);addLog(`💚 ${hero.name} soigne ${t.name} (+${heal} HP)`,'log-heal');}
+        if(hero.type==='Support'){
+          const heal=Math.round(hero.atk*1.5);
+          const t=alive[Math.floor(Math.random()*alive.length)];
+          t.currentHp=Math.min(t.maxHp,t.currentHp+heal);
+          const tIdx=bs.heroes.indexOf(t);
+          bs._pendingFloats.push({id:`hero-${tIdx}`,cls:'anim-attack',delay:200,float:'+'+heal,floatId:`hero-${tIdx}`,color:'#39ff14'});
+          addLog(`💚 ${hero.name} soigne ${t.name} (+${heal} HP)`,'log-heal');
+        }
       }
     } else if(mode==='burst'){
       dmg=Math.round(hero.sDmg*2.8)+randInt(-100,100);
@@ -1062,6 +1072,9 @@ function doAttack(mode){
     const defReduction=hpassive&&hpassive.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def;
     dmg=Math.max(1,dmg-defReduction);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
+    // Queue enemy-hit animation + damage float
+    const isCritDmg=(logType==='log-crit');
+    bs._pendingFloats.push({id:'enemy-fighter',cls:isCritDmg?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'enemy-fighter',color:isCritDmg?'#ff4400':'#ff6666'});
     applyPassiveTrigger(hero,bs,'lifesteal',dmg);
     // Arc 6 terrain: 10% of damage dealt reflected back to attacker
     if(state.currentArc===6&&bs.enemy.currentHp>0){
@@ -1104,18 +1117,42 @@ function doAttack(mode){
         if(e.abilities.includes('poison')&&Math.random()<.25){if(!t.statuses.includes('☠Poison')){t.statuses.push('☠Poison');addLog(`☠ ${t.name} est empoisonné!`,'log-debuff');}}
         ed=Math.max(1,ed-t.def);
         t.currentHp=Math.max(0,t.currentHp-ed);
+        // Queue hero-hit anim + float
+        const tIdx=bs.heroes.indexOf(t);
+        bs._pendingFloats.push({id:`hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`hero-${tIdx}`,color:'#ff9966'});
         addLog(`💀 ${e.name} frappe ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');
       }
     }
   }
   bs.turn++;
+  // Capture element positions BEFORE DOM rebuild for floats
+  const enemyRect=document.getElementById('enemy-fighter')?.getBoundingClientRect();
+  const heroRects=bs.heroes.map((_,i)=>document.getElementById(`hero-${i}`)?.getBoundingClientRect());
   // Combo: track if heroes took damage this turn
   const aliveNow=bs.heroes.filter(h=>h.currentHp>0);
   const hpNow=aliveNow.reduce((s,h)=>s+h.currentHp,0);
   if(hpNow<(bs._lastHp||hpNow+1)){bs.combo=0;}
   else{bs.combo=(bs.combo||0)+1;if(bs.combo>0&&bs.combo%3===0)addLog(`🔥 COMBO x${bs.combo}! ATK +${bs.combo*5}% ce tour`,'log-special');}
   bs._lastHp=hpNow;
-  checkBattleEnd();renderBattleUI();
+  checkBattleEnd();
+  renderBattleUI();
+  // Fire floats and animations AFTER DOM rebuild (elements have fresh positions)
+  bs._pendingFloats&&bs._pendingFloats.forEach(f=>{
+    setTimeout(()=>{
+      const el=document.getElementById(f.id);
+      if(el){
+        el.classList.remove('anim-attack','anim-hit','anim-crit');
+        void el.offsetWidth;
+        el.classList.add(f.cls);
+        setTimeout(()=>el.classList.remove(f.cls),450);
+      }
+      if(f.float!=null){
+        const rect=document.getElementById(f.floatId)?.getBoundingClientRect();
+        if(rect) spawnDmgFloatAt(f.float,f.color,rect.left+rect.width/2-24,rect.top+10);
+      }
+    },f.delay);
+  });
+  bs._pendingFloats=[];
 }
 function tickStatuses(bs){
   bs.heroes.forEach(h=>{
@@ -1732,15 +1769,30 @@ function updateXpBar(){
 // ═══════════════════════════════════════════
 //  DAMAGE FLOAT NUMBERS
 // ═══════════════════════════════════════════
-function spawnDmgFloat(text,color,targetEl){
-  if(!targetEl)return;
-  const rect=targetEl.getBoundingClientRect();
+function spawnDmgFloat(text, color, targetEl){
+  // Get position now (before DOM rebuild), or use center fallback
+  let x = window.innerWidth/2 - 20;
+  let y = window.innerHeight/2;
+  if(targetEl){
+    const rect=targetEl.getBoundingClientRect();
+    x=rect.left+rect.width/2-24;
+    y=rect.top+10;
+  }
   const el=document.createElement('div');
   el.className='dmg-float';
-  el.style.cssText=`left:${rect.left+rect.width/2-20}px;top:${rect.top+rect.height/4}px;color:${color};font-size:${text.toString().length>4?'1.1rem':'1.4rem'};text-shadow:0 2px 8px #000a;`;
+  el.style.cssText=`left:${x}px;top:${y}px;color:${color};font-size:${String(text).length>4?'1rem':'1.3rem'};text-shadow:0 2px 8px #000c;`;
   el.textContent=text;
   document.body.appendChild(el);
-  setTimeout(()=>el.remove(),920);
+  setTimeout(()=>el&&el.remove(),950);
+}
+
+function spawnDmgFloatAt(text, color, x, y){
+  const el=document.createElement('div');
+  el.className='dmg-float';
+  el.style.cssText=`left:${x}px;top:${y}px;color:${color};font-size:${String(text).length>4?'1rem':'1.3rem'};text-shadow:0 2px 8px #000c;`;
+  el.textContent=text;
+  document.body.appendChild(el);
+  setTimeout(()=>el&&el.remove(),950);
 }
 
 // ═══════════════════════════════════════════
