@@ -971,6 +971,10 @@ function renderBattleUI(){
   cont.innerHTML=`
     <div class="battle-header">
       <div class="wave-info">${arc.emoji} ${arc.name}<br><span class="wave-num">Vague ${wd+1}/${arc.waves}</span></div>
+      <div style="text-align:center;font-size:.72rem;">
+        ${(state.winStreak||0)>=2?`<div style="color:var(--gold)">🔥 Série: ${state.winStreak}</div>`:''}
+        ${(bs.combo||0)>=3?`<div style="color:var(--purple)">⚡ Combo x${bs.combo} (+${bs.combo*5}% dmg)</div>`:''}
+      </div>
       <div style="font-size:.75rem;color:var(--muted);text-align:right">Difficulté<br><span style="color:var(--red)">${'🔥'.repeat(Math.min(state.currentArc+Math.floor(wd/2),9))}</span></div>
     </div>
     ${getTerrainHTML(state.currentArc)}
@@ -1043,6 +1047,9 @@ function doAttack(mode){
       logText=`💥 BURST ULTIME! ${hero.name}: ${hero.sp}! (${dmg} dmg)`;logType='log-crit';
       hero.spCooldown=hero.spMaxCd||3;
     }
+    // Combo multiplier bonus
+    const combo=bs.combo||0;
+    if(combo>=3){ const mult=1+(combo*0.05); dmg=Math.round(dmg*mult); }
     if(bs.enemy.abilities.includes('counter')&&Math.random()<.2&&bs.enemy.currentHp>0){
       const cd=Math.round(dmg*.35);
       const t=alive[Math.floor(Math.random()*alive.length)];
@@ -1145,7 +1152,7 @@ function checkBattleEnd(){
     if(state.autoMode)toggleAuto();
   } else {
     const alive=bs.heroes.filter(h=>h.currentHp>0);
-    if(!alive.length){bs.over=true;bs.won=false;addLog('💔 Défaite... Renforcez votre équipe!','log-crit');if(state.autoMode)toggleAuto();}
+    if(!alive.length){bs.over=true;bs.won=false;addLog('💔 Défaite... Renforcez votre équipe!','log-crit');state.winStreak=0;save();if(state.autoMode)toggleAuto();}
   }
 }
 
@@ -1430,6 +1437,11 @@ const ACHIEVEMENTS=[
   {id:'infinite20',   icon:'♾', name:'Infini',              desc:'Atteignez la vague 20 en mode infini',        reward:'💎×200', rewardFn:()=>{state.crystals+=200;}, check:()=>(state.infiniteBest||0)>=20, progress:()=>Math.min(20,state.infiniteBest||0), max:20},
   {id:'boss1',        icon:'💀',name:'Tueur de Boss',        desc:'Vainquez votre premier boss',                reward:'💎×50',  rewardFn:()=>{state.crystals+=50;},  check:()=>(state.bossKills||0)>=1, progress:()=>Math.min(1,state.bossKills||0), max:1},
   {id:'boss5',        icon:'🔱',name:'Chasseur de Titans',   desc:'Vainquez 5 boss',                            reward:'💎×150', rewardFn:()=>{state.crystals+=150;}, check:()=>(state.bossKills||0)>=5, progress:()=>Math.min(5,state.bossKills||0), max:5},
+  {id:'streak5',      icon:'🔥',name:'En Feu',               desc:'Enchaînez 5 victoires consécutives',          reward:'💎×80',  rewardFn:()=>{state.crystals+=80;},  check:()=>(state.winStreak||0)>=5, progress:()=>Math.min(5,state.winStreak||0), max:5},
+  {id:'streak10',     icon:'🌋',name:'Inarrêtable',          desc:'Enchaînez 10 victoires consécutives',         reward:'💎×200', rewardFn:()=>{state.crystals+=200;}, check:()=>(state.winStreak||0)>=10,progress:()=>Math.min(10,state.winStreak||0),max:10},
+  {id:'arc6done',     icon:'💔',name:'Voyageur du Multivers',desc:'Terminez l\'Arc 6',                           reward:'💎×300', rewardFn:()=>{state.crystals+=300;}, check:()=>(state.arcProgress&&state.arcProgress[6]||0)>=10,progress:()=>Math.min(10,(state.arcProgress&&state.arcProgress[6])||0),max:10},
+  {id:'arc7done',     icon:'🌠',name:'Maître de l\'Au-Delà', desc:'Terminez l\'Arc 7 — le jeu est vaincu !',     reward:'💎×1000',rewardFn:()=>{state.crystals+=1000;},check:()=>(state.arcProgress&&state.arcProgress[7]||0)>=12,progress:()=>Math.min(12,(state.arcProgress&&state.arcProgress[7])||0),max:12},
+  {id:'collect_all5', icon:'👑',name:'Complétiste Légendaire',desc:'Possédez tous les personnages ★★★★★',        reward:'💎×500', rewardFn:()=>{state.crystals+=500;}, check:()=>ALL_CHARS.filter(c=>c.rarity===5).every(c=>(state.owned[c.id]||0)>0),progress:()=>ALL_CHARS.filter(c=>c.rarity===5&&(state.owned[c.id]||0)>0).length,max:ALL_CHARS.filter(c=>c.rarity===5).length},
 ];
 
 function getTotalForgeLevel(){
@@ -1962,6 +1974,8 @@ if(!state.fusionCount)state.fusionCount=0;
 if(!state.bossKills)state.bossKills=0;
 if(!state.achDone)state.achDone={};
 if(!state.infiniteBest)state.infiniteBest=0;
+if(!state.winStreak)state.winStreak=0;
+if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
 if(!state.xp)state.xp=0;
 if(!state.playerLevel)state.playerLevel=1;
 if(!state.pullHistory)state.pullHistory=[];
