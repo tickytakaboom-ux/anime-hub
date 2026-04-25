@@ -83,6 +83,7 @@
   .coll-card:hover{transform:translateY(-3px);border-color:var(--blue);}
   .coll-card.locked{opacity:.3;filter:grayscale(1);}
   .coll-card.r5{border-color:rgba(245,200,66,.4);}
+  .coll-card.awakened-entity{border-color:var(--gold)!important;background:linear-gradient(160deg,#2a1a00,#3a2400);box-shadow:0 0 16px rgba(245,200,66,.35);}
   .coll-card.r4{border-color:rgba(180,79,255,.3);}
   .coll-card .char-emoji{font-size:2.2rem;display:block;margin-bottom:5px;}
   .coll-card .char-name{font-size:.77rem;font-weight:700;line-height:1.2;}
@@ -481,8 +482,9 @@
 
   <div id="forge" class="screen">
     <div class="section-title">🔨 FORGE — Améliorer les Personnages <span class="hint-dot" onclick="toggleHint('hint-forge')">?</span></div>
-    <div class="hint-text" id="hint-forge">Chaque niveau de Forge booste une stat (ATK/HP/DEF). Les coûts montent avec le niveau et la rareté du perso.</div>
+    <div class="hint-text" id="hint-forge">Chaque niveau de Forge booste une stat (ATK/HP/DEF). Les coûts montent avec le niveau et la rareté. Les unités éveillées demandent aussi des Larmes d'Éveil 💫.</div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Dépensez vos 🪙 pièces d'or pour améliorer ATK, HP et DEF de vos guerriers.</div>
+	<div id="forge-tears-counter" style="text-align:center;margin:-4px 0 14px;font-size:.82rem;color:var(--muted)">💫 Larmes d'Éveil: <span style="color:var(--gold);font-weight:700">0</span></div>
     <div id="forge-grid"></div>
   </div>
 
@@ -777,7 +779,7 @@ function showTab(name,btn){
 //  POWER FORMULA — ATK + HP + DEF + upgrades
 // ═══════════════════════════════════════════
 function getCharPower(id){
-  const c=ALL_CHARS.find(ch=>ch.id===id);
+  const c=getCharById(id);
   if(!c)return 0;
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
   const atkFinal=c.atk+Math.round(c.atk*(u.atk||0)*0.12);
@@ -785,13 +787,33 @@ function getCharPower(id){
   const defFinal=c.def+Math.round(c.def*(u.def||0)*0.12);
   if(!state.equipment)state.equipment={};
   const equip=getItemBonus(id);
-  return atkFinal+equip.atk + hpFinal+equip.hp + defFinal+equip.def;
+  const awakenMult=isAwakenedId(id)?1.5:1;
+  return Math.round((atkFinal+equip.atk + hpFinal+equip.hp + defFinal+equip.def)*awakenMult);
 }
 
 function getAwakenedCount(id){return (state.awakenedOwned&&state.awakenedOwned[id])||0;}
 function getNormalCount(id){return (state.owned&&state.owned[id])||0;}
 function getOwnedTotal(id){return getNormalCount(id)+getAwakenedCount(id);}
 function isOwnedAny(id){return getOwnedTotal(id)>0;}
+function isAwakenedId(id){return String(id).endsWith('_aw');}
+function getBaseId(id){return isAwakenedId(id)?String(id).slice(0,-3):id;}
+function makeAwakenedChar(baseId){
+  const base=ALL_CHARS.find(ch=>ch.id===baseId);
+  if(!base)return null;
+  return {...base,id:baseId+'_aw',name:base.name+' (Éveillé)',_awakenedVariant:true};
+}
+function getCharById(id){
+  if(isAwakenedId(id)) return makeAwakenedChar(getBaseId(id));
+  return ALL_CHARS.find(ch=>ch.id===id)||null;
+}
+function getOwnedCountById(id){
+  return isAwakenedId(id)?getAwakenedCount(getBaseId(id)):getNormalCount(id);
+}
+function getOwnedRoster(){
+  const normals=ALL_CHARS.filter(c=>getNormalCount(c.id)>0);
+  const awakened=ALL_CHARS.filter(c=>c.rarity===5&&getAwakenedCount(c.id)>0).map(c=>makeAwakenedChar(c.id)).filter(Boolean);
+  return [...normals,...awakened];
+}
 
 function starDisplay(rarity){
   const full='★'.repeat(Math.max(0,rarity));
@@ -803,16 +825,23 @@ function starDisplay(rarity){
 //  CHARACTER DETAIL MODAL
 // ═══════════════════════════════════════════
 function openCharModal(id){
-  const c=ALL_CHARS.find(ch=>ch.id===id);
+  const c=getCharById(id);
   if(!c)return;
-  const isOwned=isOwnedAny(id);
-  const normalCount=getNormalCount(id);
-  const awakenedCount=getAwakenedCount(id);
+  const baseId=getBaseId(id);
+  const isAwEntity=isAwakenedId(id);
+  const isOwned=isAwEntity?getAwakenedCount(baseId)>0:isOwnedAny(baseId);
+  const normalCount=getNormalCount(baseId);
+  const awakenedCount=getAwakenedCount(baseId);
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
   const atkBonus=Math.round(c.atk*(u.atk||0)*0.12);
   const hpBonus =Math.round(c.hp *(u.hp ||0)*0.12);
   const defBonus=Math.round(c.def*(u.def||0)*0.12);
   const sDmgBonus=Math.round(c.sDmg*(u.atk||0)*0.08);
+  const awakenMult=getAwakenMultiplier(id);
+  const finalAtk=Math.round((c.atk+atkBonus)*awakenMult);
+  const finalHp=Math.round((c.hp+hpBonus)*awakenMult);
+  const finalDef=Math.round((c.def+defBonus)*awakenMult);
+  const finalSDmg=Math.round((c.sDmg+sDmgBonus)*awakenMult);
   const power=getCharPower(id);
   const passive=getPassive(id);
   const inTeam=state.team.includes(id);
@@ -835,29 +864,29 @@ function openCharModal(id){
       <div class="char-modal-body">
         <div class="char-modal-power">
           <div><div class="cmp-label">Force Totale</div><div class="cmp-value">${power.toLocaleString()}</div></div>
-          <div style="text-align:right;font-size:.72rem;color:var(--muted)">Possédé<br><span style="color:var(--gold);font-weight:700">×${normalCount+awakenedCount}</span><br><span style="color:var(--muted)">N:${normalCount} · É:${awakenedCount}</span></div>
+          <div style="text-align:right;font-size:.72rem;color:var(--muted)">Inventaire<br><span style="color:var(--muted)">N:${normalCount} · É:${awakenedCount}</span></div>
         </div>
         <div class="char-modal-stats">
           <div class="cms">
             <div class="cms-label">⚔ ATK</div>
-            <div class="cms-val" style="color:var(--red)">${c.atk+atkBonus}</div>
-            ${atkBonus>0?`<div class="cms-bonus">+${atkBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
+            <div class="cms-val" style="color:var(--red)">${finalAtk}</div>
+            ${isAwEntity?`<div class="cms-bonus" style="color:var(--gold)">×1.5 éveil appliqué</div>`:atkBonus>0?`<div class="cms-bonus">+${atkBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
           </div>
           <div class="cms">
             <div class="cms-label">❤ HP</div>
-            <div class="cms-val" style="color:var(--green)">${c.hp+hpBonus}</div>
-            ${hpBonus>0?`<div class="cms-bonus">+${hpBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
+            <div class="cms-val" style="color:var(--green)">${finalHp}</div>
+            ${isAwEntity?`<div class="cms-bonus" style="color:var(--gold)">×1.5 éveil appliqué</div>`:hpBonus>0?`<div class="cms-bonus">+${hpBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
           </div>
           <div class="cms">
             <div class="cms-label">🛡 DEF</div>
-            <div class="cms-val" style="color:var(--blue)">${c.def+defBonus}</div>
-            ${defBonus>0?`<div class="cms-bonus">+${defBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
+            <div class="cms-val" style="color:var(--blue)">${finalDef}</div>
+            ${isAwEntity?`<div class="cms-bonus" style="color:var(--gold)">×1.5 éveil appliqué</div>`:defBonus>0?`<div class="cms-bonus">+${defBonus} forge</div>`:`<div class="cms-bonus" style="color:var(--muted)">base</div>`}
           </div>
         </div>
         <div class="char-modal-sp">
           <div class="csp-title">✨ Attaque Spéciale</div>
           <div class="csp-name">${c.sp}</div>
-          <div class="csp-dmg">Dégâts : <b>${c.sDmg+sDmgBonus}</b>${sDmgBonus>0?` <span style="color:var(--green)">(+${sDmgBonus} forge)</span>`:''}</div>
+          <div class="csp-dmg">Dégâts : <b>${finalSDmg}</b>${isAwEntity?` <span style="color:var(--gold)">(×1.5 éveil)</span>`:sDmgBonus>0?` <span style="color:var(--green)">(+${sDmgBonus} forge)</span>`:''}</div>
           <div class="csp-cd">Cooldown : 3 tours · BURST : ×2.8 dégâts</div>
         </div>
         ${passive?`<div class="char-modal-passive">
@@ -896,11 +925,10 @@ function closeCharModal(e){
   if(e&&e.target!==document.getElementById('char-modal-overlay'))return;
   document.getElementById('char-modal-overlay').classList.remove('show');
 }
-
 function addToTeamFromModal(id){
   addToTeam(id);
   document.getElementById('char-modal-overlay').classList.remove('show');
-  showToast(`✅ ${ALL_CHARS.find(c=>c.id===id).name} ajouté à l'équipe !`);
+  showToast(`✅ ${getCharById(id)?.name||id} ajouté à l'équipe !`);
 }
 
 function doGacha(n){
@@ -938,8 +966,9 @@ function renderCollection(filter){
   const grid=document.getElementById('coll-grid');if(!grid)return;grid.innerHTML='';
   const searchVal=(document.getElementById('coll-search-input')?.value||'').toLowerCase();
   const sortVal=document.getElementById('coll-sort-select')?.value||'rarity';
-  const ownedAll=ALL_CHARS.filter(c=>isOwnedAny(c.id));
-  const unowned=ALL_CHARS.filter(c=>!isOwnedAny(c.id));
+  const awakenedCards=ALL_CHARS.filter(c=>c.rarity===5&&getAwakenedCount(c.id)>0).map(c=>makeAwakenedChar(c.id)).filter(Boolean);
+  const ownedAll=[...ALL_CHARS.filter(c=>getNormalCount(c.id)>0),...awakenedCards];
+  const unowned=ALL_CHARS.filter(c=>getNormalCount(c.id)===0);
   let all=[...ownedAll,...unowned];
   // Filter
   if(filter==='owned')all=ownedAll;
@@ -948,7 +977,7 @@ function renderCollection(filter){
   if(searchVal) all=all.filter(c=>c.name.toLowerCase().includes(searchVal)||c.anime.toLowerCase().includes(searchVal));
   // Sort
   all.sort((a,b)=>{
-    const ao=isOwnedAny(a.id)?1:0, bo=isOwnedAny(b.id)?1:0;
+    const ao=getOwnedCountById(a.id)>0?1:0, bo=getOwnedCountById(b.id)>0?1:0;
     if(ao!==bo)return bo-ao; // owned first always
     if(sortVal==='rarity')return b.rarity-a.rarity;
     if(sortVal==='power')return getCharPower(b.id)-getCharPower(a.id);
@@ -958,18 +987,20 @@ function renderCollection(filter){
   });
   document.getElementById('owned-count').textContent=ownedAll.length;
   document.getElementById('total-count').textContent=ALL_CHARS.length;
-  document.getElementById('legend-count').textContent=ownedAll.filter(c=>c.rarity===5).length;
+  document.getElementById('legend-count').textContent=ownedAll.filter(c=>c.rarity===5&&!isAwakenedId(c.id)).length;
   document.getElementById('epic-count').textContent=ownedAll.filter(c=>c.rarity===4).length;
   if(!all.length){grid.innerHTML='<div class="empty-coll">Aucun personnage trouvé.</div>';return;}
   all.forEach(c=>{
-    const isOwned=isOwnedAny(c.id);
-    const normalCount=getNormalCount(c.id);
-    const awakenedCount=getAwakenedCount(c.id);
+    const isOwned=getOwnedCountById(c.id)>0;
+    const baseId=getBaseId(c.id);
+    const normalCount=getNormalCount(baseId);
+    const awakenedCount=getAwakenedCount(baseId);
+    const awClass=isAwakenedId(c.id)?'awakened-entity':'';
     const div=document.createElement('div');
-    div.className=`coll-card r${c.rarity} ${isOwned?'':'locked'}`;
+    div.className=`coll-card r${c.rarity} ${awClass} ${isOwned?'':'locked'}`;
     div.onclick=()=>openCharModal(c.id);
     const elemBadge=isOwned?getElemBadge(c.id):'';
-    div.innerHTML=`${isOwned&&normalCount>1?`<div class="char-count">×${normalCount}</div>`:''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div style="text-align:center;font-size:.68rem;margin-top:3px;">${'★'.repeat(c.rarity)}</div>${isOwned?`<div class="coll-stats">⚡ ${getCharPower(c.id).toLocaleString()}</div>${elemBadge}${awakenedCount>0?`<div class="awakened-badge" style="margin-top:4px">⭐ ÉVEILLÉ ×${awakenedCount}</div>`:''}${getPassive(c.id)?`<div class="passive-tag">⚡${getPassive(c.id).name}</div>`:''}` :'<div class="coll-stats">???</div>'}`;
+    div.innerHTML=`<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div style="text-align:center;font-size:.68rem;margin-top:3px;">${'★'.repeat(c.rarity)}</div>${isOwned?`<div class="coll-stats">⚡ ${getCharPower(c.id).toLocaleString()} ${isAwakenedId(c.id)?'<span style="color:var(--gold)">×1.5</span>':''}</div>${elemBadge}${isAwakenedId(c.id)?`<div class="awakened-badge" style="margin-top:4px">⭐ ÉVEILLÉ</div>`:''}${getPassive(c.id)?`<div class="passive-tag">⚡${getPassive(c.id).name}</div>`:''}` :'<div class="coll-stats">???</div>'}`;
     grid.appendChild(div);
   });
 }
@@ -977,7 +1008,7 @@ function renderCollection(filter){
 function renderTeam(){
   for(let i=0;i<3;i++){
     const slot=document.getElementById(`team-slot-${i}`);
-    const char=state.team[i]?ALL_CHARS.find(c=>c.id===state.team[i]):null;
+    const char=state.team[i]?getCharById(state.team[i]):null;
     if(char){
       slot.className=`team-slot filled r${char.rarity}`;
       slot.innerHTML=`<div class="slot-emoji">${char.emoji}</div><div class="slot-info"><div class="slot-name">${char.name}</div><div class="slot-anime">${char.anime}·${'★'.repeat(char.rarity)}·${char.type}</div><div class="slot-power">⚡ ${getCharPower(char.id).toLocaleString()}</div>${getPassive(char.id)?`<div class="passive-tag">⚡ ${getPassive(char.id).name}</div>`:''}</div><div class="slot-remove" onclick="removeFromTeam(${i},event)">✕</div>`;
@@ -986,7 +1017,7 @@ function renderTeam(){
     }
   }
   const bench=document.getElementById('bench-grid');bench.innerHTML='';
-  const owned=ALL_CHARS.filter(c=>isOwnedAny(c.id)).sort((a,b)=>b.rarity-a.rarity);
+  const owned=getOwnedRoster().sort((a,b)=>b.rarity-a.rarity);
   document.getElementById('roster-count').textContent=owned.length;
   owned.forEach(c=>{
     const inTeam=state.team.includes(c.id);
@@ -1038,7 +1069,8 @@ function getEnemyForCurrentWave(){
 
 function initBattleState(){
   const chars=state.team.filter(Boolean).map(id=>{
-    const c=ALL_CHARS.find(ch=>ch.id===id);
+    const c=getCharById(id);
+    if(!c)return null;
     const upg=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
     const lvl=getCharLevel(id);
     const atkBonus=Math.round(c.atk*(upg.atk||0)*0.12);
@@ -1049,10 +1081,10 @@ function initBattleState(){
     const finalAtk=Math.round((c.atk+atkBonus+equip.atk)*awakenMult);
     const finalHp=Math.round((c.hp+hpBonus+equip.hp)*awakenMult);
     const finalDef=Math.round((c.def+defBonus+equip.def)*awakenMult);
-    const finalSDmg=Math.round((c.sDmg*(1+(upg.atk||0)*0.08)+equip.sDmg)*awakenMult);
+    const finalSDmg=Math.round((Math.round(c.sDmg*(1+(upg.atk||0)*0.08))+equip.sDmg)*awakenMult);
     const finalCritChance=0.2+(equip.critBoost||0);
-    return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,critChance:finalCritChance,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3,_awakened:awakenMult>1};
-  });
+    return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,critChance:finalCritChance,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3,_awakened:isAwakenedId(id)};
+  }).filter(Boolean);
   // Apply shop bonuses
   if(state.pendingCdReset){chars.forEach(h=>{h.spCooldown=0;});state.pendingCdReset=false;save();}
   if(state.pendingHeal){/* already at full HP from initiation */state.pendingHeal=false;save();}
@@ -1351,7 +1383,7 @@ function checkBattleEnd(){
     if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;trackQuest('dailyBoss');}
     giveXp(30+state.currentArc*10);
     trackQuest('dailyWins');
-    dropMaterials(state.currentArc);
+    dropMaterials(state.currentArc,bs.enemy.isBoss);
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
   } else {
@@ -1396,10 +1428,17 @@ function getCharLevel(id){
   return 1+((u.atk||0)+(u.hp||0)+(u.def||0));
 }
 
-function getUpgradeCost(id,stat){
+function getUpgradeCost(id,stat){  
+  const baseId=getBaseId(id);
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
   const currentLevel=(u[stat]||0);
-  return UPGRADE_COST_BASE*(currentLevel+1)*Math.ceil(ALL_CHARS.find(c=>c.id===id).rarity/2);
+  return UPGRADE_COST_BASE*(currentLevel+1)*Math.ceil((ALL_CHARS.find(c=>c.id===baseId)||{rarity:5}).rarity/2);
+}
+function getAwakenTearsCost(id,stat){
+  if(!isAwakenedId(id))return 0;
+  const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+  const lvl=(u[stat]||0);
+  return Math.min(8,3+Math.floor(lvl/2));
 }
 
 function doUpgrade(id,stat){
@@ -1408,8 +1447,14 @@ function doUpgrade(id,stat){
   const u=state.upgrades[id];
   if((u[stat]||0)>=MAX_UPGRADE)return;
   const cost=getUpgradeCost(id,stat);
+  const tearsCost=getAwakenTearsCost(id,stat);
   if(state.gold<cost){alert(`Pas assez d'or ! Il vous faut ${cost} 🪙`);return;}
+  if(tearsCost>0){
+    if(!state.materials)state.materials={};
+    if((state.materials.awakening_tears||0)<tearsCost){alert(`Pas assez de Larmes d'Éveil ! Il vous faut ${tearsCost} 💫`);return;}
+  }
   state.gold-=cost;
+  if(tearsCost>0)state.materials.awakening_tears-=tearsCost;
   u[stat]=(u[stat]||0)+1;
   trackQuest('dailyForge');
   save();updateRes();renderForge();
@@ -1418,36 +1463,52 @@ function doUpgrade(id,stat){
 function renderForge(){
   const grid=document.getElementById('forge-grid');
   if(!grid)return;
-  const owned=ALL_CHARS.filter(c=>isOwnedAny(c.id)).sort((a,b)=>b.rarity-a.rarity);
+  const tearsEl=document.getElementById('forge-tears-counter');
+  if(tearsEl){
+    const tears=(state.materials&&state.materials.awakening_tears)||0;
+    tearsEl.innerHTML=`💫 Larmes d'Éveil: <span style="color:var(--gold);font-weight:700">${tears.toLocaleString()}</span>`;
+  }
+  const owned=getOwnedRoster().sort((a,b)=>{
+    const awDiff=Number(isAwakenedId(b.id))-Number(isAwakenedId(a.id));
+    if(awDiff!==0)return awDiff;
+    return b.rarity-a.rarity;
+  });
   if(!owned.length){grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">Invoquez des personnages pour les améliorer !</div>';return;}
   grid.innerHTML=owned.map(c=>{
     const u=state.upgrades&&state.upgrades[c.id]||{atk:0,hp:0,def:0};
+    const awakenMult=getAwakenMultiplier(c.id);
     const lvl=getCharLevel(c.id);
-    const atkBonus=Math.round(c.atk*(u.atk||0)*0.12);
-    const hpBonus=Math.round(c.hp*(u.hp||0)*0.12);
-    const defBonus=Math.round(c.def*(u.def||0)*0.12);
+    const baseAtk=Math.round(c.atk*awakenMult);
+    const baseHp=Math.round(c.hp*awakenMult);
+    const baseDef=Math.round(c.def*awakenMult);
+    const atkBonus=Math.round(baseAtk*(u.atk||0)*0.12);
+    const hpBonus=Math.round(baseHp*(u.hp||0)*0.12);
+    const defBonus=Math.round(baseDef*(u.def||0)*0.12);
     const atkCost=getUpgradeCost(c.id,'atk');
     const hpCost=getUpgradeCost(c.id,'hp');
     const defCost=getUpgradeCost(c.id,'def');
+    const atkTears=getAwakenTearsCost(c.id,'atk');
+    const hpTears=getAwakenTearsCost(c.id,'hp');
+    const defTears=getAwakenTearsCost(c.id,'def');
     const maxAtk=(u.atk||0)>=MAX_UPGRADE;
     const maxHp=(u.hp||0)>=MAX_UPGRADE;
     const maxDef=(u.def||0)>=MAX_UPGRADE;
     return `<div class="forge-card r${c.rarity}">
       <div class="forge-emoji">${c.emoji}</div>
       <div class="forge-info">
-        <div class="forge-name">${c.name} ${'★'.repeat(c.rarity)}</div>
+        <div class="forge-name">${c.name} ${'★'.repeat(c.rarity)} ${isAwakenedId(c.id)?'<span class="awakened-badge">⭐ ÉVEILLÉ</span>':''}</div>
         <div class="forge-anime">${c.anime} · ${c.type}</div>
         <div class="forge-lvl">Niveau Forge: ${lvl} · Force: ⚡${getCharPower(c.id).toLocaleString()}</div>
         <div class="forge-stats">
-          <div class="forge-stat">⚔ ATK <span>${c.atk}${atkBonus>0?'+'+atkBonus:''}</span> (niv.${u.atk||0})</div>
-          <div class="forge-stat">❤ HP <span>${c.hp}${hpBonus>0?'+'+hpBonus:''}</span> (niv.${u.hp||0})</div>
-          <div class="forge-stat">🛡 DEF <span>${c.def}${defBonus>0?'+'+defBonus:''}</span> (niv.${u.def||0})</div>
+          <div class="forge-stat">⚔ ATK <span>${baseAtk}${atkBonus>0?'+'+atkBonus:''}</span> (niv.${u.atk||0})</div>
+          <div class="forge-stat">❤ HP <span>${baseHp}${hpBonus>0?'+'+hpBonus:''}</span> (niv.${u.hp||0})</div>
+          <div class="forge-stat">🛡 DEF <span>${baseDef}${defBonus>0?'+'+defBonus:''}</span> (niv.${u.def||0})</div>
         </div>
       </div>
       <div class="forge-actions">
-        ${maxAtk?`<span class="max-badge">ATK MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','atk')">+ATK<span class="cost">${atkCost}🪙</span></button>`}
-        ${maxHp?`<span class="max-badge">HP MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','hp')">+HP<span class="cost">${hpCost}🪙</span></button>`}
-        ${maxDef?`<span class="max-badge">DEF MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','def')">+DEF<span class="cost">${defCost}🪙</span></button>`}
+        ${maxAtk?`<span class="max-badge">ATK MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','atk')">+ATK<span class="cost">${atkCost}🪙${atkTears?` + ${atkTears}💫`:''}</span></button>`}
+        ${maxHp?`<span class="max-badge">HP MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','hp')">+HP<span class="cost">${hpCost}🪙${hpTears?` + ${hpTears}💫`:''}</span></button>`}
+        ${maxDef?`<span class="max-badge">DEF MAX</span>`:`<button class="upgrade-btn" onclick="doUpgrade('${c.id}','def')">+DEF<span class="cost">${defCost}🪙${defTears?` + ${defTears}💫`:''}</span></button>`}
       </div>
     </div>`;
   }).join('');
@@ -1487,7 +1548,7 @@ const PASSIVES = {
   senku:     {name:'10 Milliards %',       desc:'Boost l\'ATK de toute l\'équipe de 8% chaque fois qu\'un allié utilise sa spéciale', fn:null, isSenkuBoost:true},
 };
 
-function getPassive(id){ return PASSIVES[id]||null; }
+function getPassive(id){ return PASSIVES[getBaseId(id)]||null; }
 
 function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
   const p=getPassive(hero.id);
@@ -1608,13 +1669,13 @@ function renderFusion(){
         ${passive?`<div class="passive-tag">⚡ Passif: ${passive.name}</div>`:''}
 		${canAwakenNow?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">3× ${c.name} → ÉVEILLÉ (stats ×1.5)</div>`:''}
         ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px;">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
-        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">→ 100 💎 cristaux</div>`:''}
+        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">${is5star?'→ 12 💫 Larmes d\'Éveil':'→ 100 💎 cristaux'}</div>`:''}
         ${!canFuse&&!canConvert&&!canAwakenNow?`<div class="fusion-sub" style="margin-top:4px;">Besoin de ${Math.max(0,3-count)} doublon(s) de plus</div>`:''}
       </div>
       <div>
 	    ${canAwakenNow?`<button class="awaken-btn" onclick="doAwaken('${c.id}')">⭐ ÉVEILLER<span style="font-size:.65rem;display:block;color:var(--gold2)">3× ${c.name}</span></button>`:''}
         ${canFuse?`<button class="fusion-btn" onclick="doFusion('${c.id}')">FUSIONNER<span class="sub">3× ${c.name}</span></button>`:''}
-        ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">→ 100 💎</span></button>`:''}
+        ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">${is5star?'→ 12 💫':'→ 100 💎'}</span></button>`:''}
         ${!canFuse&&!canConvert&&!canAwakenNow?`<button class="fusion-btn" disabled>FUSIONNER<span class="sub">${Math.max(0,3-count)} manquant(s)</span></button>`:''}
       </div>
     </div>`;
@@ -1649,6 +1710,13 @@ function doConvert(id){
     state.awakenedOwned[id]-=3;
     if(state.awakenedOwned[id]<=0)delete state.awakenedOwned[id];
   } else return;
+  if(c.rarity===5){
+    if(!state.materials)state.materials={};
+    state.materials.awakening_tears=(state.materials.awakening_tears||0)+12;
+    save(); updateRes(); renderFusion();
+    showToast('💫 +12 Larmes d\'Éveil obtenues par conversion !');
+    return;
+  }
   state.crystals+=100;
   save(); updateRes(); renderFusion();
   showToast('💎 +100 cristaux obtenus par conversion !');
@@ -1746,13 +1814,15 @@ function renderInfiniteIdle(){
 function startInfinite(){
   if(state.team.filter(Boolean).length===0)return;
   const chars=state.team.filter(Boolean).map(id=>{
-    const c=ALL_CHARS.find(ch=>ch.id===id);
+    const c=getCharById(id);
+    if(!c)return null;
     const upg=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
     const atkB=Math.round(c.atk*(upg.atk||0)*0.12);
     const hpB=Math.round(c.hp*(upg.hp||0)*0.12);
     const defB=Math.round(c.def*(upg.def||0)*0.12);
-    return {...c,atk:c.atk+atkB,hp:c.hp+hpB,def:c.def+defB,sDmg:Math.round(c.sDmg*(1+(upg.atk||0)*0.08)),currentHp:c.hp+hpB,maxHp:c.hp+hpB,shield:0,statuses:[],spCooldown:0,spMaxCd:3};
-  });
+    const awakenMult=getAwakenMultiplier(id);
+    return {...c,atk:Math.round((c.atk+atkB)*awakenMult),hp:Math.round((c.hp+hpB)*awakenMult),def:Math.round((c.def+defB)*awakenMult),sDmg:Math.round(Math.round(c.sDmg*(1+(upg.atk||0)*0.08))*awakenMult),currentHp:Math.round((c.hp+hpB)*awakenMult),maxHp:Math.round((c.hp+hpB)*awakenMult),shield:0,statuses:[],spCooldown:0,spMaxCd:3,_awakened:isAwakenedId(id)};
+  }).filter(Boolean);
   state.infiniteBattle={wave:1,heroes:chars,enemy:makeInfiniteEnemy(1),log:[],over:false,won:false,burstCharge:0};
   renderInfiniteUI();
 }
@@ -1924,7 +1994,13 @@ function doInfiniteAttack(mode){
     const gold=isNewWave?Math.round(15*bs.wave*(bs.enemy.isBoss?2:1)):0;
     const cr=isNewWave?Math.round(bs.wave*(bs.enemy.isBoss?8:1)):0;
     if(gold>0){state.gold+=gold;state.crystals+=cr;}
-    if(bs.enemy.isBoss)state.bossKills=(state.bossKills||0)+1;
+    if(bs.enemy.isBoss){
+      state.bossKills=(state.bossKills||0)+1;
+      if(!state.materials)state.materials={};
+      const tears=randInt(2,Math.min(8,2+Math.floor(bs.wave/5)));
+      state.materials.awakening_tears=(state.materials.awakening_tears||0)+tears;
+      addInfLog(`💫 Boss vaincu: +${tears} Larmes d'Éveil`,'log-special');
+    }
     if(isNewWave){state.infiniteBest=bs.wave;showToast(`🎉 Record: Vague ${bs.wave}!${gold>0?` +${gold}🪙 +${cr}💎`:''}`);}
     else addInfLog(`✅ Vague ${bs.wave} — déjà atteinte, pas de récompense`,'log-debuff');
     if(isNewWave) addInfLog(`🏆 Nouveau record! +${gold}🪙 +${cr}💎`,'log-win');
@@ -2068,7 +2144,7 @@ function applyForgeKit(){
   const today=getTodayKey();
   if(!state.forgeKitDaily||state.forgeKitDaily.date!==today) state.forgeKitDaily={date:today,count:0};
   if(state.forgeKitDaily.count>=3){showToast('🔨 Kit de Forge : limite journalière (3/jour) atteinte !');return;}
-  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0);
+  const owned=getOwnedRoster();
   if(!owned.length)return;
   // Truly random char
   const target=owned[Math.floor(Math.random()*owned.length)];
@@ -2289,7 +2365,7 @@ function getElemMult(attackerElem, defenderElem){
   return 1;
 }
 function getElemBadge(id){
-  const elem=CHAR_ELEMENTS[id]||'neutral';
+  const elem=CHAR_ELEMENTS[getBaseId(id)]||'neutral';
   const e=ELEMENTS[elem];
   return `<span class="elem-badge ${e.cls}">${e.emoji} ${e.name}</span>`;
 }
@@ -2319,7 +2395,7 @@ const CRAFT_RECIPES=[
   {result:'crit_ring',    cost:{magic_shard:3,rare_crystal:1},goldCost:1200,label:'3 Éclats + 1 Cristal Rare + 1200🪙'},
   {result:'life_amulet',  cost:{cloth:4,magic_shard:2},goldCost:800,  label:'4 Tissu + 2 Éclats + 800🪙'},
 ];
-const MATERIAL_NAMES={iron:'⚒ Fer',cloth:'🧵 Tissu',magic_shard:'💎 Éclat Magique',rare_crystal:'🔮 Cristal Rare'};
+const MATERIAL_NAMES={iron:'⚒ Fer',cloth:'🧵 Tissu',magic_shard:'💎 Éclat Magique',rare_crystal:'🔮 Cristal Rare',awakening_tears:'💫 Larmes d\'Éveil'};
 
 let selectedEquipChar=null;
 
@@ -2466,7 +2542,7 @@ function craftItem(recipeResult){
 }
 
 // Drop materials on battle win
-function dropMaterials(arcId){
+function dropMaterials(arcId,isBoss=false){
   if(!state.materials)state.materials={};
   const dropTable={
     1:{iron:[1,3],cloth:[1,2]},
@@ -2483,6 +2559,11 @@ function dropMaterials(arcId){
     const amt=randInt(min,max);
     if(amt>0){state.materials[mat]=(state.materials[mat]||0)+amt;gained.push(`${MATERIAL_NAMES[mat]} ×${amt}`);}
   });
+  if(isBoss&&arcId>=4){
+    const tears=randInt(2,Math.min(6,2+(arcId-4)));
+    state.materials.awakening_tears=(state.materials.awakening_tears||0)+tears;
+    gained.push(`${MATERIAL_NAMES.awakening_tears} ×${tears}`);
+  }
   if(gained.length) addLog(`🎒 Matériaux: ${gained.join(', ')}`,'log-heal');
 }
 
@@ -2499,7 +2580,7 @@ function giveAllForTesting(){
   ALL_CHARS.forEach(c=>{state.owned[c.id]=(state.owned[c.id]||0)+3;});
   state.crystals=Math.max(state.crystals||0,999999);
   state.gold=Math.max(state.gold||0,9999999);
-  state.materials={iron:999,cloth:999,magic_shard:999,rare_crystal:999};
+  state.materials={iron:999,cloth:999,magic_shard:999,rare_crystal:999,awakening_tears:999};
   state.items={};
   ITEM_DEFS.forEach(i=>{state.items[i.id]=9;});
   state.playerLevel=20;
@@ -2623,7 +2704,7 @@ const TEAM_LINKS=[
 
 function getActiveLinks(teamIds){
   const active=[];
-  const chars=teamIds.filter(Boolean).map(id=>ALL_CHARS.find(c=>c.id===id)).filter(Boolean);
+  const chars=teamIds.filter(Boolean).map(id=>getCharById(id)).filter(Boolean);
   TEAM_LINKS.forEach(link=>{
     if(link.uniqueAnimes){
       const animes=new Set(chars.map(c=>c.anime));
@@ -2680,13 +2761,15 @@ function doAwaken(id){
   if(!state.awakenedOwned) state.awakenedOwned={};
   state.awakenedOwned[id]=(state.awakenedOwned[id]||0)+1;
   save(); renderFusion();
+  renderCollection(currentCollFilter||'all');
+  renderTeam();
   const c=ALL_CHARS.find(x=>x.id===id);
   showToast(`⭐ ${c.emoji} ${c.name} éveillé ! (Normal: ${getNormalCount(id)} · Éveillé: ${getAwakenedCount(id)})`);
   checkAchievements();
 }
 
 function getAwakenMultiplier(id){
-  return isAwakened(id)?1.5:1.0;
+  return isAwakenedId(id)?1.5:1.0;
 }
 
 // ═══════════════════════════════════════════
