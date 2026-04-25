@@ -783,6 +783,7 @@ function getCharPower(id){
   const atkFinal=c.atk+Math.round(c.atk*(u.atk||0)*0.12);
   const hpFinal =c.hp +Math.round(c.hp *(u.hp ||0)*0.12);
   const defFinal=c.def+Math.round(c.def*(u.def||0)*0.12);
+  if(!state.equipment)state.equipment={};
   const equip=getItemBonus(id);
   return atkFinal+equip.atk + hpFinal+equip.hp + defFinal+equip.def;
 }
@@ -1577,7 +1578,12 @@ function renderFusion(){
   const fuseable=ALL_CHARS.filter(c=>{
     const normalCount=getNormalCount(c.id);
     const awakenedCount=getAwakenedCount(c.id);
-    return normalCount>=3||awakenedCount>=3||(normalCount>=1&&c.rarity===5)||(awakenedCount>=1&&c.rarity===5);
+    const canFuseNormal=normalCount>=3&&c.rarity<5;
+    const canAwaken5=c.rarity===5&&normalCount>=3;
+    const canShow5Awakened=c.rarity===5&&awakenedCount>=3; // 5★ éveillés convertibles
+    const canShow5Owned=c.rarity===5&&(normalCount>=1||awakenedCount>=1);
+    const canConvert6=c.rarity===6&&normalCount>=3;
+    return canFuseNormal||canAwaken5||canShow5Awakened||canShow5Owned||canConvert6;
   }).sort((a,b)=>b.rarity-a.rarity);
   if(!fuseable.length){
     grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">Aucun personnage fusionnable.<br><small>Il vous faut 3 doublons du même personnage.</small></div>';
@@ -1602,7 +1608,7 @@ function renderFusion(){
         ${passive?`<div class="passive-tag">⚡ Passif: ${passive.name}</div>`:''}
 		${canAwakenNow?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">3× ${c.name} → ÉVEILLÉ (stats ×1.5)</div>`:''}
         ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px;">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
-        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">→ 30 💎 cristaux</div>`:''}
+        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">→ 100 💎 cristaux</div>`:''}
         ${!canFuse&&!canConvert&&!canAwakenNow?`<div class="fusion-sub" style="margin-top:4px;">Besoin de ${Math.max(0,3-count)} doublon(s) de plus</div>`:''}
       </div>
       <div>
@@ -2323,6 +2329,7 @@ function getCharEquip(id){
   return state.equipment[id];
 }
 function getItemBonus(id){
+  if(!state.equipment)state.equipment={};
   const equip=getCharEquip(id);
   const bonus={atk:0,hp:0,def:0,sDmg:0,critBoost:0};
   ['weapon','armor','accessory'].forEach(slot=>{
@@ -2544,7 +2551,6 @@ function resetForTesting(){
     pullHistory:[],
     pendingHeal:false,
     pendingCdReset:false,
-    awakened:{},
 	awakenedOwned:{},
   };
   localStorage.removeItem('isekai2');
@@ -2659,7 +2665,7 @@ function renderTeamLinks(teamIds){
 //  AWAKENED SYSTEM
 // ═══════════════════════════════════════════
 function getAwakenedId(id){ return id+'_awaken'; }
-function isAwakened(id){ return getAwakenedCount(id)>0 || !!(state.awakened&&state.awakened[id]); }
+function isAwakened(id){ return getAwakenedCount(id)>0; }
 
 function canAwaken(id){
   const c=ALL_CHARS.find(x=>x.id===id);
@@ -2723,6 +2729,7 @@ if(!state.awakenedOwned)state.awakenedOwned={};
 if(state.awakened&&Object.keys(state.awakenedOwned).length===0){
   Object.entries(state.awakened).forEach(([id,v])=>{ if(v) state.awakenedOwned[id]=(state.awakenedOwned[id]||0)+1; });
 }
+if(state.awakened)delete state.awakened;
 if(!state.xp)state.xp=0;
 if(!state.playerLevel)state.playerLevel=1;
 if(!state.pullHistory)state.pullHistory=[];
