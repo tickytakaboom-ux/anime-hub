@@ -27,6 +27,9 @@
   .screen{display:none;}.screen.active{display:block;animation:fadeIn .3s ease;}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
   .section-title{font-family:'Cinzel Decorative',serif;font-size:.95rem;color:var(--gold);margin-bottom:14px;padding-bottom:7px;border-bottom:1px solid var(--border);letter-spacing:1px;}
+  .hint-dot{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);font-size:.65rem;font-weight:700;cursor:pointer;margin-left:6px;vertical-align:middle;user-select:none;}
+  .hint-text{display:none;margin-top:6px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);border-radius:8px;padding:7px 10px;font-size:.72rem;color:var(--muted);line-height:1.4;}
+  .hint-text.show{display:block;}
   /* GACHA */
   .gacha-banner{background:linear-gradient(135deg,var(--bg3),#1a1040);border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;}
   .gacha-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(180,79,255,.08));pointer-events:none;}
@@ -415,17 +418,19 @@
         <button class="gacha-btn" onclick="doGacha(10)">INVOQUER ×10<span class="cost">💎 450 cristaux (−10%)</span></button>
       </div>
       <div class="pity-bar">
-        <div class="pity-label">Pitié ★★★★★ — <span id="pity-count">0</span>/90 invocations</div>
+        <div class="pity-label">Pitié ★★★★★ — <span id="pity-count">0</span>/90 invocations <span class="hint-dot" onclick="toggleHint('hint-pity')">?</span></div>
+        <div class="hint-text" id="hint-pity">À 90 invocations sans 5★ ou plus, le prochain tirage garantit un 5★ minimum (pas forcément 6★).</div>
         <div class="pity-track"><div class="pity-fill" id="pity-fill" style="width:0%"></div></div>
       </div>
     </div>
     <div class="rates-box">
-      <h3>⭐ Taux d'invocation</h3>
+      <h3>⭐ Taux d'invocation <span class="hint-dot" onclick="toggleHint('hint-rates')">?</span></h3>
+      <div class="hint-text" id="hint-rates">Les taux sont par invocation. Le 6★ est ultra-rare (0.3%). Le mode ×10 ne change pas les taux, il réduit juste le coût.</div>
       <div class="rate-row"><div>⭐⭐⭐⭐⭐⭐</div><span style="color:var(--blue)">Ultra-Légendaire</span><span style="color:var(--blue)">0.3%</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐⭐</div><span style="color:var(--gold)">Légendaire</span><span style="color:var(--gold)">3% (garanti à 90)</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐</div><span style="color:var(--purple)">Épique</span><span style="color:var(--purple)">15%</span></div>
       <div class="rate-row"><div>⭐⭐⭐</div><span style="color:var(--blue)">Rare</span><span style="color:var(--blue)">35%</span></div>
-      <div class="rate-row"><div>⭐⭐</div><span style="color:#888">Commun</span><span style="color:#888">47%</span></div>
+      <div class="rate-row"><div>⭐⭐</div><span style="color:#888">Commun</span><span style="color:#888">46.7%</span></div>
     </div>
   </div>
 
@@ -475,19 +480,22 @@
   </div>
 
   <div id="forge" class="screen">
-    <div class="section-title">🔨 FORGE — Améliorer les Personnages</div>
+    <div class="section-title">🔨 FORGE — Améliorer les Personnages <span class="hint-dot" onclick="toggleHint('hint-forge')">?</span></div>
+    <div class="hint-text" id="hint-forge">Chaque niveau de Forge booste une stat (ATK/HP/DEF). Les coûts montent avec le niveau et la rareté du perso.</div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Dépensez vos 🪙 pièces d'or pour améliorer ATK, HP et DEF de vos guerriers.</div>
     <div id="forge-grid"></div>
   </div>
 
   <div id="fusion" class="screen">
-    <div class="section-title">🔮 FUSION — Sacrifier des doublons</div>
+    <div class="section-title">🔮 FUSION — Sacrifier des doublons <span class="hint-dot" onclick="toggleHint('hint-fusion')">?</span></div>
+    <div class="hint-text" id="hint-fusion">3 doublons d'un 5★ permettent l'Éveil (stats ×1.5). Les doublons 6★ (ou 5★ déjà éveillés) peuvent être convertis en cristaux.</div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Fusionnez <b>3 doublons</b> du même personnage pour obtenir une version <b>+1 étoile</b> (max ★★★★★).<br>Les personnages déjà ★★★★★ peuvent être fusionnés pour des <b>cristaux</b>.</div>
     <div id="fusion-grid"></div>
   </div>
 
   <div id="infinite" class="screen">
-    <div class="section-title">♾ MODE INFINI</div>
+    <div class="section-title">♾ MODE INFINI <span class="hint-dot" onclick="toggleHint('hint-infinite')">?</span></div>
+    <div class="hint-text" id="hint-infinite">Chaque vague augmente les stats ennemies. Boss toutes les 5 vagues. Les récompenses tombent surtout quand tu bats ton record.</div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px;text-align:center;">Affrontez des vagues sans fin. Chaque vague est plus dure. Battez votre record !</div>
     <div id="infinite-best" style="text-align:center;margin-bottom:16px;"></div>
     <div class="battle-area"><div id="infinite-content"></div></div>
@@ -499,7 +507,8 @@
   </div>
 
   <div id="equipment" class="screen">
-    <div class="section-title">⚙ ÉQUIPEMENT</div>
+    <div class="section-title">⚙ ÉQUIPEMENT <span class="hint-dot" onclick="toggleHint('hint-equip')">?</span></div>
+    <div class="hint-text" id="hint-equip">Un perso peut porter 1 arme + 1 armure + 1 accessoire. Les bonus s'ajoutent aux stats de base et à la Forge.</div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:14px;text-align:center;">Craftez et équipez des items sur vos guerriers pour booster leurs stats. Les matériaux sont gagnés en combat.</div>
     <div class="equip-screen">
       <div class="equip-roster" id="equip-roster"></div>
@@ -534,7 +543,8 @@
   </div>
 
   <div id="battle" class="screen">
-    <div class="section-title">🔥 COMBAT</div>
+    <div class="section-title">🔥 COMBAT <span class="hint-dot" onclick="toggleHint('hint-elements')">?</span></div>
+    <div class="hint-text" id="hint-elements">Éléments : Feu > Foudre, Foudre > Eau, Eau > Feu (+30%). Désavantage : −20%. Lumière/Ténèbres se contrent mutuellement.</div>
     <div id="arc-selector-container"></div>
     <div class="battle-area"><div id="battle-content"></div></div>
   </div>
@@ -777,6 +787,11 @@ function getCharPower(id){
   return atkFinal+equip.atk + hpFinal+equip.hp + defFinal+equip.def;
 }
 
+function getAwakenedCount(id){return (state.awakenedOwned&&state.awakenedOwned[id])||0;}
+function getNormalCount(id){return (state.owned&&state.owned[id])||0;}
+function getOwnedTotal(id){return getNormalCount(id)+getAwakenedCount(id);}
+function isOwnedAny(id){return getOwnedTotal(id)>0;}
+
 function starDisplay(rarity){
   const full='★'.repeat(Math.max(0,rarity));
   const empty='☆'.repeat(Math.max(0,5-rarity));
@@ -789,7 +804,9 @@ function starDisplay(rarity){
 function openCharModal(id){
   const c=ALL_CHARS.find(ch=>ch.id===id);
   if(!c)return;
-  const isOwned=!!(state.owned[id]);
+  const isOwned=isOwnedAny(id);
+  const normalCount=getNormalCount(id);
+  const awakenedCount=getAwakenedCount(id);
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
   const atkBonus=Math.round(c.atk*(u.atk||0)*0.12);
   const hpBonus =Math.round(c.hp *(u.hp ||0)*0.12);
@@ -817,7 +834,7 @@ function openCharModal(id){
       <div class="char-modal-body">
         <div class="char-modal-power">
           <div><div class="cmp-label">Force Totale</div><div class="cmp-value">${power.toLocaleString()}</div></div>
-          <div style="text-align:right;font-size:.72rem;color:var(--muted)">Possédé<br><span style="color:var(--gold);font-weight:700">×${state.owned[id]}</span></div>
+          <div style="text-align:right;font-size:.72rem;color:var(--muted)">Possédé<br><span style="color:var(--gold);font-weight:700">×${normalCount+awakenedCount}</span><br><span style="color:var(--muted)">N:${normalCount} · É:${awakenedCount}</span></div>
         </div>
         <div class="char-modal-stats">
           <div class="cms">
@@ -920,8 +937,8 @@ function renderCollection(filter){
   const grid=document.getElementById('coll-grid');if(!grid)return;grid.innerHTML='';
   const searchVal=(document.getElementById('coll-search-input')?.value||'').toLowerCase();
   const sortVal=document.getElementById('coll-sort-select')?.value||'rarity';
-  const ownedAll=ALL_CHARS.filter(c=>state.owned[c.id]>0);
-  const unowned=ALL_CHARS.filter(c=>!state.owned[c.id]);
+  const ownedAll=ALL_CHARS.filter(c=>isOwnedAny(c.id));
+  const unowned=ALL_CHARS.filter(c=>!isOwnedAny(c.id));
   let all=[...ownedAll,...unowned];
   // Filter
   if(filter==='owned')all=ownedAll;
@@ -930,7 +947,7 @@ function renderCollection(filter){
   if(searchVal) all=all.filter(c=>c.name.toLowerCase().includes(searchVal)||c.anime.toLowerCase().includes(searchVal));
   // Sort
   all.sort((a,b)=>{
-    const ao=state.owned[a.id]>0?1:0, bo=state.owned[b.id]>0?1:0;
+    const ao=isOwnedAny(a.id)?1:0, bo=isOwnedAny(b.id)?1:0;
     if(ao!==bo)return bo-ao; // owned first always
     if(sortVal==='rarity')return b.rarity-a.rarity;
     if(sortVal==='power')return getCharPower(b.id)-getCharPower(a.id);
@@ -944,12 +961,14 @@ function renderCollection(filter){
   document.getElementById('epic-count').textContent=ownedAll.filter(c=>c.rarity===4).length;
   if(!all.length){grid.innerHTML='<div class="empty-coll">Aucun personnage trouvé.</div>';return;}
   all.forEach(c=>{
-    const isOwned=!!state.owned[c.id];
+    const isOwned=isOwnedAny(c.id);
+    const normalCount=getNormalCount(c.id);
+    const awakenedCount=getAwakenedCount(c.id);
     const div=document.createElement('div');
     div.className=`coll-card r${c.rarity} ${isOwned?'':'locked'}`;
     div.onclick=()=>openCharModal(c.id);
     const elemBadge=isOwned?getElemBadge(c.id):'';
-    div.innerHTML=`${isOwned&&state.owned[c.id]>1?`<div class="char-count">×${state.owned[c.id]}</div>`:''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div style="text-align:center;font-size:.68rem;margin-top:3px;">${'★'.repeat(c.rarity)}</div>${isOwned?`<div class="coll-stats">⚡ ${getCharPower(c.id).toLocaleString()}</div>${elemBadge}${getPassive(c.id)?`<div class="passive-tag">⚡${getPassive(c.id).name}</div>`:''}` :'<div class="coll-stats">???</div>'}`;
+    div.innerHTML=`${isOwned&&normalCount>1?`<div class="char-count">×${normalCount}</div>`:''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div style="text-align:center;font-size:.68rem;margin-top:3px;">${'★'.repeat(c.rarity)}</div>${isOwned?`<div class="coll-stats">⚡ ${getCharPower(c.id).toLocaleString()}</div>${elemBadge}${awakenedCount>0?`<div class="awakened-badge" style="margin-top:4px">⭐ ÉVEILLÉ ×${awakenedCount}</div>`:''}${getPassive(c.id)?`<div class="passive-tag">⚡${getPassive(c.id).name}</div>`:''}` :'<div class="coll-stats">???</div>'}`;
     grid.appendChild(div);
   });
 }
@@ -966,7 +985,7 @@ function renderTeam(){
     }
   }
   const bench=document.getElementById('bench-grid');bench.innerHTML='';
-  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  const owned=ALL_CHARS.filter(c=>isOwnedAny(c.id)).sort((a,b)=>b.rarity-a.rarity);
   document.getElementById('roster-count').textContent=owned.length;
   owned.forEach(c=>{
     const inTeam=state.team.includes(c.id);
@@ -986,7 +1005,7 @@ function removeFromTeam(i,e){e.stopPropagation();state.team[i]=null;save();rende
 function getTotalWavesDone(){return ARCS.reduce((sum,a)=>sum+(state.arcProgress[a.id]||0),0);}
 
 function renderBattleScreen(){
-  if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0};
+  if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0};
   const cont=document.getElementById('arc-selector-container');
   const totalDone=getTotalWavesDone();
   cont.innerHTML=`<div class="arc-selector">${ARCS.map(a=>{
@@ -1315,7 +1334,7 @@ function checkBattleEnd(){
   const bs=state.battleState;
   if(bs.enemy.currentHp<=0){
     bs.over=true;bs.won=true;
-    if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0};
+    if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0};
     state.arcProgress[state.currentArc]=(state.arcProgress[state.currentArc]||0)+1;
     state.totalWins=(state.totalWins||0)+1;
     // Win streak bonus
@@ -1398,7 +1417,7 @@ function doUpgrade(id,stat){
 function renderForge(){
   const grid=document.getElementById('forge-grid');
   if(!grid)return;
-  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  const owned=ALL_CHARS.filter(c=>isOwnedAny(c.id)).sort((a,b)=>b.rarity-a.rarity);
   if(!owned.length){grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">Invoquez des personnages pour les améliorer !</div>';return;}
   grid.innerHTML=owned.map(c=>{
     const u=state.upgrades&&state.upgrades[c.id]||{atk:0,hp:0,def:0};
@@ -1543,6 +1562,12 @@ function showToast(msg){
   toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
+function toggleHint(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.toggle('show');
+}
+
 // ═══════════════════════════════════════════
 //  FUSION
 // ═══════════════════════════════════════════
@@ -1550,39 +1575,41 @@ function renderFusion(){
   const grid=document.getElementById('fusion-grid');
   if(!grid)return;
   const fuseable=ALL_CHARS.filter(c=>{
-    const count=state.owned[c.id]||0;
-    return count>=3||(count>=1&&c.rarity===5);
+    const normalCount=getNormalCount(c.id);
+    const awakenedCount=getAwakenedCount(c.id);
+    return normalCount>=3||awakenedCount>=3||(normalCount>=1&&c.rarity===5)||(awakenedCount>=1&&c.rarity===5);
   }).sort((a,b)=>b.rarity-a.rarity);
   if(!fuseable.length){
     grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">Aucun personnage fusionnable.<br><small>Il vous faut 3 doublons du même personnage.</small></div>';
     return;
-  }
+    }
   grid.innerHTML=fuseable.map(c=>{
-    const count=state.owned[c.id]||0;
+    const count=getNormalCount(c.id);
+    const awakenedCount=getAwakenedCount(c.id);
     const is5star=c.rarity===5;
     const is6star=c.rarity===6;
-    const alreadyAwakened=isAwakened(c.id);
     const canAwakenNow=canAwaken(c.id);
     const canFuse=count>=3&&!is5star&&!is6star;
-    const canConvert=(count>=3&&is6star)||(count>=3&&is5star&&alreadyAwakened);
+    const canConvert=(is6star&&count>=3)||(is5star&&awakenedCount>=3);
+    const result=is5star?null:ALL_CHARS.filter(x=>x.rarity===c.rarity+1);
     const passive=getPassive(c.id);
     return `<div class="fusion-card r${c.rarity}">
       <div class="fusion-count">×${count}</div>
       <div class="fusion-info">
-        <div class="fusion-name">${c.emoji} ${c.name} ${'★'.repeat(Math.min(c.rarity,5))}${c.rarity===6?'★':''}</div>
+        <div class="fusion-name">${c.emoji} ${c.name} ${'★'.repeat(c.rarity)}</div>
         <div class="fusion-sub">${c.anime} · ${c.type}</div>
-        ${alreadyAwakened?`<div style="color:var(--gold);font-size:.7rem;margin-top:3px">⭐ ÉVEILLÉ — Stats ×1.5</div>`:''}
+        ${awakenedCount>0?`<div style="color:var(--gold);font-size:.7rem;margin-top:3px">⭐ ÉVEILLÉ ×${awakenedCount}</div>`:''}
         ${passive?`<div class="passive-tag">⚡ Passif: ${passive.name}</div>`:''}
-        ${canAwakenNow?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px">3× ${c.name} → ÉVEILLÉ (stats ×1.5 + passif amélioré)</div>`:''}
-        ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
-        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px">→ 30 💎 cristaux</div>`:''}
-        ${!canFuse&&!canConvert&&!canAwakenNow?`<div class="fusion-sub" style="margin-top:4px">Besoin de ${3-count} doublon(s) de plus</div>`:''}
+		${canAwakenNow?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">3× ${c.name} → ÉVEILLÉ (stats ×1.5)</div>`:''}
+        ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px;">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
+        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">→ 30 💎 cristaux</div>`:''}
+        ${!canFuse&&!canConvert&&!canAwakenNow?`<div class="fusion-sub" style="margin-top:4px;">Besoin de ${Math.max(0,3-count)} doublon(s) de plus</div>`:''}
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        ${canAwakenNow?`<button class="awaken-btn" onclick="doAwaken('${c.id}')">⭐ ÉVEILLER<span style="font-size:.65rem;display:block;color:var(--gold2)">3× ${c.name}</span></button>`:''}
+      <div>
+	    ${canAwakenNow?`<button class="awaken-btn" onclick="doAwaken('${c.id}')">⭐ ÉVEILLER<span style="font-size:.65rem;display:block;color:var(--gold2)">3× ${c.name}</span></button>`:''}
         ${canFuse?`<button class="fusion-btn" onclick="doFusion('${c.id}')">FUSIONNER<span class="sub">3× ${c.name}</span></button>`:''}
-        ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">→ 30 💎</span></button>`:''}
-        ${!canFuse&&!canConvert&&!canAwakenNow?`<button class="fusion-btn" disabled>FUSIONNER<span class="sub">${3-count} manquant(s)</span></button>`:''}
+        ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">→ 100 💎</span></button>`:''}
+        ${!canFuse&&!canConvert&&!canAwakenNow?`<button class="fusion-btn" disabled>FUSIONNER<span class="sub">${Math.max(0,3-count)} manquant(s)</span></button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1605,12 +1632,20 @@ function doFusion(id){
 }
 
 function doConvert(id){
-  if((state.owned[id]||0)<3)return;
-  state.owned[id]-=3;
-  if(state.owned[id]<=0)delete state.owned[id];
-  state.crystals+=30;
+  const c=ALL_CHARS.find(x=>x.id===id);
+  if(!c)return;
+  const normalCount=getNormalCount(id);
+  const awakenedCount=getAwakenedCount(id);
+  if(c.rarity===6&&normalCount>=3){
+    state.owned[id]-=3;
+    if(state.owned[id]<=0)delete state.owned[id];
+  } else if(c.rarity===5&&awakenedCount>=3){
+    state.awakenedOwned[id]-=3;
+    if(state.awakenedOwned[id]<=0)delete state.awakenedOwned[id];
+  } else return;
+  state.crystals+=100;
   save(); updateRes(); renderFusion();
-  showToast('💎 +30 cristaux obtenus par conversion !');
+  showToast('💎 +100 cristaux obtenus par conversion !');
 }
 
 // ═══════════════════════════════════════════
@@ -2445,6 +2480,115 @@ function dropMaterials(arcId){
 }
 
 // ═══════════════════════════════════════════
+//  BETA / CHEAT COMMANDS (local testing)
+// ═══════════════════════════════════════════
+function isLocalEnv(){
+  const h=(window.location&&window.location.hostname)||'';
+  return h==='localhost'||h==='127.0.0.1'||h==='0.0.0.0'||h===''||window.location.protocol==='file:';
+}
+
+function giveAllForTesting(){
+  if(!state.owned)state.owned={};
+  ALL_CHARS.forEach(c=>{state.owned[c.id]=(state.owned[c.id]||0)+3;});
+  state.crystals=Math.max(state.crystals||0,999999);
+  state.gold=Math.max(state.gold||0,9999999);
+  state.materials={iron:999,cloth:999,magic_shard:999,rare_crystal:999};
+  state.items={};
+  ITEM_DEFS.forEach(i=>{state.items[i.id]=9;});
+  state.playerLevel=20;
+  state.xp=0;
+  state.totalWins=Math.max(state.totalWins||0,250);
+  state.bossKills=Math.max(state.bossKills||0,50);
+  state.infiniteBest=Math.max(state.infiniteBest||0,35);
+  state.arcProgress={1:5,2:6,3:7,4:8,5:10,6:10,7:12};
+  if(!state.upgrades)state.upgrades={};
+  ALL_CHARS.forEach(c=>{state.upgrades[c.id]={atk:10,hp:10,def:10};});
+  state.awakenedOwned={};
+  ALL_CHARS.filter(c=>c.rarity===5).forEach(c=>{state.awakenedOwned[c.id]=1;});
+  if(!state.team||state.team.length!==3)state.team=[null,null,null];
+  state.team[0]='goku_ultra';state.team[1]='zeno';state.team[2]='naruto_baryon';
+  initQuests();
+  if(state.quests&&state.quests.active)state.quests.active.forEach(q=>{q.progress=q.target;q.claimed=false;});
+  save();updateRes();
+  renderCollection(currentCollFilter||'all');
+  renderTeam();renderForge();renderFusion();renderAchievements();renderShop();renderQuests();renderEquipment();renderHistory();renderBattleScreen();
+  showToast('🧪 BETA: compte de test boosté (ressources + persos + upgrades) !');
+}
+
+function resetForTesting(){
+  state={
+    crystals:500,
+    gold:1200,
+    totalWins:0,
+    owned:{gon:1,krillin:1,rock_lee:1},
+    team:['gon','krillin','rock_lee'],
+    currentArc:1,
+    arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0},
+    pity:0,
+    battleState:null,
+    autoMode:false,
+    autoInterval:null,
+    selectedSlot:null,
+    upgrades:{},
+    fusionCount:0,
+    bossKills:0,
+    achDone:{},
+    infiniteBest:0,
+    winStreak:0,
+    forgeKitDaily:{date:'',count:0},
+    equipment:{},
+    materials:{},
+    items:{},
+    xp:0,
+    playerLevel:1,
+    pullHistory:[],
+    pendingHeal:false,
+    pendingCdReset:false,
+    awakened:{},
+	awakenedOwned:{},
+  };
+  localStorage.removeItem('isekai2');
+  initQuests();
+  save();
+  updateRes();
+  renderCollection(currentCollFilter||'all');
+  renderTeam();renderForge();renderFusion();renderAchievements();renderShop();renderQuests();renderEquipment();renderHistory();renderBattleScreen();renderInfiniteScreen();
+  showToast('♻️ Compte réinitialisé (progression à 0).');
+}
+
+function runCheatCommand(cmd){
+  if(!isLocalEnv()){showToast('⚠ Cheats désactivés hors local.');return;}
+  const c=String(cmd||'').trim().toLowerCase();
+  if(!c||c==='help'){
+    console.info('[ISEKAI CLASH] Cheats: all | reset | crystals <n> | gold <n> | wins <n> | pity <n> | questready');
+    showToast('🧪 Cheats: all / reset / crystals n / gold n / wins n / pity n');
+    return;
+  }
+  const parts=c.split(/\s+/);
+  const v=parseInt(parts[1],10);
+  if(parts[0]==='all'){giveAllForTesting();return;}
+  if(parts[0]==='reset'){resetForTesting();return;}
+  if(parts[0]==='crystals'&&!Number.isNaN(v)){state.crystals=Math.max(0,v);save();updateRes();showToast(`💎 Cristaux = ${state.crystals}`);return;}
+  if(parts[0]==='gold'&&!Number.isNaN(v)){state.gold=Math.max(0,v);save();updateRes();showToast(`🪙 Or = ${state.gold}`);return;}
+  if(parts[0]==='wins'&&!Number.isNaN(v)){state.totalWins=Math.max(0,v);save();updateRes();showToast(`🏅 Victoires = ${state.totalWins}`);return;}
+  if(parts[0]==='pity'&&!Number.isNaN(v)){state.pity=Math.max(0,Math.min(90,v));save();updateRes();showToast(`⭐ Pitié = ${state.pity}`);return;}
+  if(parts[0]==='questready'){
+    initQuests();
+    if(state.quests&&state.quests.active){state.quests.active.forEach(q=>{q.progress=q.target;q.claimed=false;});save();renderQuests();showToast('📋 Quêtes prêtes à réclamer !');}
+    return;
+  }
+  showToast('❓ Commande inconnue. Tape "help".');
+}
+
+window.isekaiCheat=runCheatCommand;
+window.isekaiGiveAll=giveAllForTesting;
+window.isekaiReset=resetForTesting;
+if(isLocalEnv()){
+  console.info('[ISEKAI CLASH] Beta cheats enabled.');
+  console.info('Use isekaiCheat(\"all\"), isekaiCheat(\"reset\"), isekaiGiveAll() or isekaiReset() in DevTools console.');
+}
+
+// ═══════════════════════════════════════════
 //  6★ PASSIVES
 // ═══════════════════════════════════════════
 const PASSIVES_6={
@@ -2505,7 +2649,8 @@ function renderTeamLinks(teamIds){
   const links=getActiveLinks(teamIds);
   if(!links.length) return '';
   return `<div class="link-banner">
-    <div class="link-title">🔗 Liens Actifs</div>
+    <div class="link-title">🔗 Liens Actifs <span class="hint-dot" onclick="toggleHint('hint-links')">?</span></div>
+    <div class="hint-text" id="hint-links">Un lien s'active quand ta team respecte la condition (même anime ou 3 animes différents). Les bonus s'appliquent à toute l'équipe.</div>
     ${links.map(l=>`<div class="link-item"><span class="link-icon">✅</span><span class="link-active">${l.name} — ${l.desc}</span></div>`).join('')}
   </div>`;
 }
@@ -2514,23 +2659,23 @@ function renderTeamLinks(teamIds){
 //  AWAKENED SYSTEM
 // ═══════════════════════════════════════════
 function getAwakenedId(id){ return id+'_awaken'; }
-function isAwakened(id){ return !!(state.awakened&&state.awakened[id]); }
+function isAwakened(id){ return getAwakenedCount(id)>0 || !!(state.awakened&&state.awakened[id]); }
 
 function canAwaken(id){
   const c=ALL_CHARS.find(x=>x.id===id);
   if(!c||c.rarity!==5) return false;
-  return (state.owned[id]||0)>=3 && !isAwakened(id);
+  return getNormalCount(id)>=3;
 }
 
 function doAwaken(id){
   if(!canAwaken(id)) return;
   state.owned[id]-=3;
   if(state.owned[id]<=0) delete state.owned[id];
-  if(!state.awakened) state.awakened={};
-  state.awakened[id]=true;
+  if(!state.awakenedOwned) state.awakenedOwned={};
+  state.awakenedOwned[id]=(state.awakenedOwned[id]||0)+1;
   save(); renderFusion();
   const c=ALL_CHARS.find(x=>x.id===id);
-  showToast(`⭐ ${c.emoji} ${c.name} est ÉVEILLÉ! Stats +50%!`);
+  showToast(`⭐ ${c.emoji} ${c.name} éveillé ! (Normal: ${getNormalCount(id)} · Éveillé: ${getAwakenedCount(id)})`);
   checkAchievements();
 }
 
@@ -2574,6 +2719,10 @@ if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
 if(!state.equipment)state.equipment={};
 if(!state.materials)state.materials={};
 if(!state.items)state.items={};
+if(!state.awakenedOwned)state.awakenedOwned={};
+if(state.awakened&&Object.keys(state.awakenedOwned).length===0){
+  Object.entries(state.awakened).forEach(([id,v])=>{ if(v) state.awakenedOwned[id]=(state.awakenedOwned[id]||0)+1; });
+}
 if(!state.xp)state.xp=0;
 if(!state.playerLevel)state.playerLevel=1;
 if(!state.pullHistory)state.pullHistory=[];
