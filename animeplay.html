@@ -642,6 +642,12 @@ const ALL_CHARS=[
   {id:'shinra',name:'Shinra Kusakabe',anime:'Fire Force',emoji:'🔥',rarity:3,atk:295,hp:940,def:112,sp:'Rapid Fire',sDmg:465,type:'Attaquant'},
   {id:'darkness',name:'Lalatina Darkness',anime:'KonoSuba',emoji:'🛡',rarity:3,atk:190,hp:1100,def:200,sp:'Crusader Shield',sDmg:300,type:'Tank'},
   {id:'aqua',name:'Aqua',anime:'KonoSuba',emoji:'💧',rarity:3,atk:210,hp:980,def:110,sp:'Sacred Exorcism',sDmg:340,type:'Support'},
+  // ★★★★★ / ★★★★★★ EXTENSION ENDGAME
+  {id:'cid_shadow',name:'Cid Kagenou (Shadow)',anime:'The Eminence in Shadow',emoji:'🕶',rarity:5,atk:640,hp:1980,def:240,sp:'I Am Atomic',sDmg:1360,type:'Mage'},
+  {id:'jinwoo',name:'Sung Jin-Woo',anime:'Solo Leveling',emoji:'🗡',rarity:5,atk:660,hp:2100,def:230,sp:'Monarch Domain',sDmg:1420,type:'Attaquant'},
+  {id:'anos',name:'Anos Voldigoad',anime:'Misfit of Demon King Academy',emoji:'👑',rarity:6,atk:1360,hp:3100,def:900,sp:'Venuzdonoa',sDmg:2350,type:'Mage'},
+  {id:'gilgamesh',name:'Gilgamesh',anime:'Fate',emoji:'🏹',rarity:6,atk:1380,hp:2950,def:880,sp:'Enuma Elish',sDmg:2420,type:'Attaquant'},
+  {id:'frieren',name:'Frieren',anime:'Frieren',emoji:'🪄',rarity:4,atk:470,hp:1500,def:190,sp:'Zoltraak',sDmg:790,type:'Mage'},
   // ★★★★★★ ULTRA-LÉGENDAIRES (0.3% — très rares !)
   {id:'goku_ultra',name:'Goku Ultra Instinct',anime:'Dragon Ball Super',emoji:'⚪',rarity:6,atk:950,hp:3800,def:420,sp:'Ultra Instinct Kamehameha',sDmg:2200,type:'Attaquant'},
   {id:'naruto_baryon',name:'Naruto Mode Baryon',anime:'Naruto',emoji:'☀',rarity:6,atk:900,hp:3500,def:390,sp:'Baryon Rasenshuriken',sDmg:2100,type:'Attaquant'},
@@ -729,11 +735,43 @@ const ARCS = [
     {name:'Titan Ancestral',emoji:'🏔',hp:8500,atk:620,def:210,abilities:['regen','dodge','counter','enrage']},
     {name:'Éclipse Incarnée',emoji:'🌑',hp:9000,atk:640,def:215,abilities:['shield','counter','regen','enrage']},
     {name:'Néant Conscient',emoji:'🕳',hp:10000,atk:660,def:220,abilities:['enrage','shield','counter','poison','regen']},
-    {name:'⚠ BOSS ABSOLU: Dieu Originel',emoji:'✨',hp:30000,atk:750,def:260,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+    {name:'⚠ BOSS ABSOLU: Dieu Originel',emoji:'✨',hp:80000,atk:1300,def:500,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
+  {id:8,name:'Trône du Néant',emoji:'🪐',waves:12,unlockAt:58,
+   enemies:[
+    {name:'Avatar Null I',emoji:'◼',hp:14000,atk:1120,def:430,abilities:['counter','shield','regen']},
+    {name:'Avatar Null II',emoji:'◻',hp:15000,atk:1160,def:445,abilities:['poison','enrage','dodge']},
+    {name:'Draconide Astral',emoji:'🐲',hp:17000,atk:1200,def:460,abilities:['shield','counter','regen','enrage']},
+    {name:'Oracle du Vide',emoji:'🔮',hp:16000,atk:1230,def:470,abilities:['poison','dodge','counter']},
+    {name:'Béhémoth Quantique',emoji:'🧬',hp:19000,atk:1260,def:485,abilities:['enrage','regen','shield','counter']},
+    {name:'Exécuteur Céleste',emoji:'⚔',hp:18500,atk:1290,def:495,abilities:['counter','poison','dodge','enrage']},
+    {name:'Tisseur d\'Entropie',emoji:'🕸',hp:20000,atk:1320,def:510,abilities:['regen','shield','poison','counter']},
+    {name:'Colosse du Silence',emoji:'🗿',hp:22000,atk:1350,def:530,abilities:['enrage','shield','counter','regen','dodge']},
+    {name:'Jugement Cosmique',emoji:'☄',hp:23000,atk:1380,def:545,abilities:['poison','counter','shield','regen']},
+    {name:'Maréchal Éclipse',emoji:'🌘',hp:24500,atk:1420,def:560,abilities:['enrage','dodge','counter','poison','regen']},
+    {name:'Faille Absolue',emoji:'🕳',hp:26000,atk:1450,def:580,abilities:['shield','counter','regen','enrage','dodge']},
+    {name:'⚠ BOSS: Empereur du Néant',emoji:'👁',hp:120000,atk:1750,def:700,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
+  {id:9,name:'Singularité Originelle',emoji:'🌀',waves:14,unlockAt:70,
+   enemies:[
+    {name:'Précurseur Alpha',emoji:'🅰',hp:22000,atk:1450,def:560,abilities:['counter','shield','regen']},
+    {name:'Précurseur Omega',emoji:'🅾',hp:23000,atk:1490,def:575,abilities:['enrage','poison','dodge']},
+    {name:'Archange Ruiné',emoji:'😇',hp:24000,atk:1530,def:590,abilities:['shield','counter','regen','poison']},
+    {name:'Roi Inverse',emoji:'♟',hp:25000,atk:1570,def:605,abilities:['enrage','counter','dodge','regen']},
+    {name:'Sérum d\'Annihilation',emoji:'🧪',hp:26000,atk:1610,def:620,abilities:['poison','shield','counter','regen']},
+    {name:'Pèlerin du Vide',emoji:'🚪',hp:27000,atk:1650,def:640,abilities:['enrage','counter','dodge','poison']},
+    {name:'Chronos Brisé',emoji:'⏱',hp:28500,atk:1690,def:660,abilities:['regen','shield','counter','enrage']},
+    {name:'Souverain Nébulaire',emoji:'🌌',hp:30000,atk:1730,def:680,abilities:['dodge','poison','counter','shield']},
+    {name:'Arbitre du Zéro',emoji:'0️⃣',hp:32000,atk:1770,def:705,abilities:['enrage','regen','shield','counter','dodge']},
+    {name:'Messie Obscur',emoji:'🕯',hp:34000,atk:1810,def:730,abilities:['poison','counter','shield','regen']},
+    {name:'Créateur Déchu',emoji:'🛐',hp:36000,atk:1850,def:750,abilities:['enrage','dodge','counter','poison','regen']},
+    {name:'Rupture Primordiale',emoji:'💥',hp:39000,atk:1900,def:780,abilities:['shield','counter','regen','enrage','dodge']},
+    {name:'Nexus Vivant',emoji:'🔺',hp:43000,atk:1960,def:820,abilities:['enrage','shield','counter','poison','regen','dodge']},
+    {name:'⚠ BOSS FINAL+: Entité Oméga',emoji:'🌟',hp:180000,atk:2200,def:900,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
   ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function save(){try{localStorage.setItem('isekai2',JSON.stringify(state));}catch(e){}}
@@ -1037,7 +1075,7 @@ function removeFromTeam(i,e){e.stopPropagation();state.team[i]=null;save();rende
 function getTotalWavesDone(){return ARCS.reduce((sum,a)=>sum+(state.arcProgress[a.id]||0),0);}
 
 function renderBattleScreen(){
-  if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0};
+  if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
   const cont=document.getElementById('arc-selector-container');
   const totalDone=getTotalWavesDone();
   cont.innerHTML=`<div class="arc-selector">${ARCS.map(a=>{
@@ -1367,7 +1405,7 @@ function checkBattleEnd(){
   const bs=state.battleState;
   if(bs.enemy.currentHp<=0){
     bs.over=true;bs.won=true;
-    if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0};
+    if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
     state.arcProgress[state.currentArc]=(state.arcProgress[state.currentArc]||0)+1;
     state.totalWins=(state.totalWins||0)+1;
     // Win streak bonus
@@ -1421,6 +1459,12 @@ function toggleAuto(){
 // ═══════════════════════════════════════════
 const MAX_UPGRADE=10;
 const UPGRADE_COST_BASE=200; // gold per level per stat
+const AWAKEN_BALANCE={
+  tearsCostByLevel:[3,3,4,4,5,5,6,6,7,8], // lvl 0..9
+  awakenedGoldMult:1.2,
+  convertAwakenedBatchTears:10,
+  arcBossTears:{4:[1,2],5:[2,3],6:[3,4],7:[4,5],8:[5,6],9:[6,7]},
+};
 
 function getCharLevel(id){
   if(!state.upgrades||!state.upgrades[id])return 1;
@@ -1432,13 +1476,14 @@ function getUpgradeCost(id,stat){
   const baseId=getBaseId(id);
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
   const currentLevel=(u[stat]||0);
-  return UPGRADE_COST_BASE*(currentLevel+1)*Math.ceil((ALL_CHARS.find(c=>c.id===baseId)||{rarity:5}).rarity/2);
+  const rarityCost=UPGRADE_COST_BASE*(currentLevel+1)*Math.ceil((ALL_CHARS.find(c=>c.id===baseId)||{rarity:5}).rarity/2);
+  return isAwakenedId(id)?Math.round(rarityCost*AWAKEN_BALANCE.awakenedGoldMult):rarityCost;
 }
 function getAwakenTearsCost(id,stat){
   if(!isAwakenedId(id))return 0;
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
   const lvl=(u[stat]||0);
-  return Math.min(8,3+Math.floor(lvl/2));
+  return AWAKEN_BALANCE.tearsCostByLevel[Math.min(AWAKEN_BALANCE.tearsCostByLevel.length-1,lvl)]||8;
 }
 
 function doUpgrade(id,stat){
@@ -1669,13 +1714,13 @@ function renderFusion(){
         ${passive?`<div class="passive-tag">⚡ Passif: ${passive.name}</div>`:''}
 		${canAwakenNow?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">3× ${c.name} → ÉVEILLÉ (stats ×1.5)</div>`:''}
         ${canFuse?`<div class="fusion-sub" style="color:var(--blue);margin-top:4px;">Fusion → ★×${c.rarity+1} aléatoire</div>`:''}
-        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">${is5star?'→ 12 💫 Larmes d\'Éveil':'→ 100 💎 cristaux'}</div>`:''}
+        ${canConvert?`<div class="fusion-sub" style="color:var(--gold);margin-top:4px;">${is5star?`→ ${AWAKEN_BALANCE.convertAwakenedBatchTears} 💫 Larmes d'Éveil`:'→ 100 💎 cristaux'}</div>`:''}
         ${!canFuse&&!canConvert&&!canAwakenNow?`<div class="fusion-sub" style="margin-top:4px;">Besoin de ${Math.max(0,3-count)} doublon(s) de plus</div>`:''}
       </div>
       <div>
 	    ${canAwakenNow?`<button class="awaken-btn" onclick="doAwaken('${c.id}')">⭐ ÉVEILLER<span style="font-size:.65rem;display:block;color:var(--gold2)">3× ${c.name}</span></button>`:''}
         ${canFuse?`<button class="fusion-btn" onclick="doFusion('${c.id}')">FUSIONNER<span class="sub">3× ${c.name}</span></button>`:''}
-        ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">${is5star?'→ 12 💫':'→ 100 💎'}</span></button>`:''}
+        ${canConvert?`<button class="fusion-btn" onclick="doConvert('${c.id}')">CONVERTIR<span class="sub">${is5star?`→ ${AWAKEN_BALANCE.convertAwakenedBatchTears} 💫`:'→ 100 💎'}</span></button>`:''}
         ${!canFuse&&!canConvert&&!canAwakenNow?`<button class="fusion-btn" disabled>FUSIONNER<span class="sub">${Math.max(0,3-count)} manquant(s)</span></button>`:''}
       </div>
     </div>`;
@@ -1712,9 +1757,9 @@ function doConvert(id){
   } else return;
   if(c.rarity===5){
     if(!state.materials)state.materials={};
-    state.materials.awakening_tears=(state.materials.awakening_tears||0)+12;
+    state.materials.awakening_tears=(state.materials.awakening_tears||0)+AWAKEN_BALANCE.convertAwakenedBatchTears;
     save(); updateRes(); renderFusion();
-    showToast('💫 +12 Larmes d\'Éveil obtenues par conversion !');
+    showToast(`💫 +${AWAKEN_BALANCE.convertAwakenedBatchTears} Larmes d'Éveil obtenues par conversion !`);
     return;
   }
   state.crystals+=100;
@@ -1745,6 +1790,8 @@ const ACHIEVEMENTS=[
   {id:'streak10',     icon:'🌋',name:'Inarrêtable',          desc:'Enchaînez 10 victoires consécutives',         reward:'💎×200', rewardFn:()=>{state.crystals+=200;}, check:()=>(state.winStreak||0)>=10,progress:()=>Math.min(10,state.winStreak||0),max:10},
   {id:'arc6done',     icon:'💔',name:'Voyageur du Multivers',desc:'Terminez l\'Arc 6',                           reward:'💎×300', rewardFn:()=>{state.crystals+=300;}, check:()=>(state.arcProgress&&state.arcProgress[6]||0)>=10,progress:()=>Math.min(10,(state.arcProgress&&state.arcProgress[6])||0),max:10},
   {id:'arc7done',     icon:'🌠',name:'Maître de l\'Au-Delà', desc:'Terminez l\'Arc 7 — le jeu est vaincu !',     reward:'💎×1000',rewardFn:()=>{state.crystals+=1000;},check:()=>(state.arcProgress&&state.arcProgress[7]||0)>=12,progress:()=>Math.min(12,(state.arcProgress&&state.arcProgress[7])||0),max:12},
+  {id:'arc8done',     icon:'🪐',name:'Régent du Néant',      desc:'Terminez l\'Arc 8',                             reward:'💎×1200',rewardFn:()=>{state.crystals+=1200;},check:()=>(state.arcProgress&&state.arcProgress[8]||0)>=12,progress:()=>Math.min(12,(state.arcProgress&&state.arcProgress[8])||0),max:12},
+  {id:'arc9done',     icon:'🌟',name:'Briseur de Singularité',desc:'Terminez l\'Arc 9 (endgame+)',                 reward:'💎×1800',rewardFn:()=>{state.crystals+=1800;},check:()=>(state.arcProgress&&state.arcProgress[9]||0)>=14,progress:()=>Math.min(14,(state.arcProgress&&state.arcProgress[9])||0),max:14},
   {id:'collect_all5', icon:'👑',name:'Complétiste Légendaire',desc:'Possédez tous les personnages ★★★★★',        reward:'💎×500', rewardFn:()=>{state.crystals+=500;}, check:()=>ALL_CHARS.filter(c=>c.rarity===5).every(c=>(state.owned[c.id]||0)>0),progress:()=>ALL_CHARS.filter(c=>c.rarity===5&&(state.owned[c.id]||0)>0).length,max:ALL_CHARS.filter(c=>c.rarity===5).length},
 ];
 
@@ -1997,7 +2044,8 @@ function doInfiniteAttack(mode){
     if(bs.enemy.isBoss){
       state.bossKills=(state.bossKills||0)+1;
       if(!state.materials)state.materials={};
-      const tears=randInt(2,Math.min(8,2+Math.floor(bs.wave/5)));
+      const bonus=Math.min(3,Math.floor(bs.wave/10)); // +1 / 10 waves, cap +3
+      const tears=randInt(2+bonus,4+bonus);
       state.materials.awakening_tears=(state.materials.awakening_tears||0)+tears;
       addInfLog(`💫 Boss vaincu: +${tears} Larmes d'Éveil`,'log-special');
     }
@@ -2552,15 +2600,18 @@ function dropMaterials(arcId,isBoss=false){
     5:{iron:[3,7],cloth:[3,6],magic_shard:[2,4],rare_crystal:[0,1]},
     6:{iron:[4,8],cloth:[3,7],magic_shard:[2,5],rare_crystal:[1,2]},
     7:{iron:[5,10],cloth:[4,8],magic_shard:[3,6],rare_crystal:[1,3]},
+    8:{iron:[6,11],cloth:[5,9],magic_shard:[4,7],rare_crystal:[2,4]},
+    9:{iron:[7,13],cloth:[6,10],magic_shard:[5,8],rare_crystal:[3,5]},
   };
-  const drops=dropTable[Math.min(arcId,7)]||dropTable[7];
+  const drops=dropTable[Math.min(arcId,9)]||dropTable[9];
   const gained=[];
   Object.entries(drops).forEach(([mat,[min,max]])=>{
     const amt=randInt(min,max);
     if(amt>0){state.materials[mat]=(state.materials[mat]||0)+amt;gained.push(`${MATERIAL_NAMES[mat]} ×${amt}`);}
   });
   if(isBoss&&arcId>=4){
-    const tears=randInt(2,Math.min(6,2+(arcId-4)));
+    const [minT,maxT]=AWAKEN_BALANCE.arcBossTears[Math.min(9,arcId)]||[6,7];
+    const tears=randInt(minT,maxT);
     state.materials.awakening_tears=(state.materials.awakening_tears||0)+tears;
     gained.push(`${MATERIAL_NAMES.awakening_tears} ×${tears}`);
   }
@@ -2588,7 +2639,7 @@ function giveAllForTesting(){
   state.totalWins=Math.max(state.totalWins||0,250);
   state.bossKills=Math.max(state.bossKills||0,50);
   state.infiniteBest=Math.max(state.infiniteBest||0,35);
-  state.arcProgress={1:5,2:6,3:7,4:8,5:10,6:10,7:12};
+  state.arcProgress={1:5,2:6,3:7,4:8,5:10,6:10,7:12,8:12,9:14};
   if(!state.upgrades)state.upgrades={};
   ALL_CHARS.forEach(c=>{state.upgrades[c.id]={atk:10,hp:10,def:10};});
   state.awakenedOwned={};
@@ -2611,7 +2662,7 @@ function resetForTesting(){
     owned:{gon:1,krillin:1,rock_lee:1},
     team:['gon','krillin','rock_lee'],
     currentArc:1,
-    arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0},
+    arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},
     pity:0,
     battleState:null,
     autoMode:false,
@@ -2794,9 +2845,11 @@ function rollChar(){
 // INIT
 buildStars();
 load();
-if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0};
+if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
 if(state.arcProgress[6]===undefined)state.arcProgress[6]=0;
 if(state.arcProgress[7]===undefined)state.arcProgress[7]=0;
+if(state.arcProgress[8]===undefined)state.arcProgress[8]=0;
+if(state.arcProgress[9]===undefined)state.arcProgress[9]=0;
 if(!state.totalWins)state.totalWins=0;
 if(!state.upgrades)state.upgrades={};
 if(!state.fusionCount)state.fusionCount=0;
