@@ -2645,7 +2645,7 @@ function giveAllForTesting(){
   state.awakenedOwned={};
   ALL_CHARS.filter(c=>c.rarity===5).forEach(c=>{state.awakenedOwned[c.id]=1;});
   if(!state.team||state.team.length!==3)state.team=[null,null,null];
-  state.team[0]='goku_ultra';state.team[1]='zeno';state.team[2]='naruto_baryon';
+  state.team[0]='goku_ssj';state.team[1]='sukuna';state.team[2]='jinwoo';
   initQuests();
   if(state.quests&&state.quests.active)state.quests.active.forEach(q=>{q.progress=q.target;q.claimed=false;});
   save();updateRes();
@@ -2696,20 +2696,40 @@ function resetForTesting(){
 
 function runCheatCommand(cmd){
   if(!isLocalEnv()){showToast('⚠ Cheats désactivés hors local.');return;}
-  const c=String(cmd||'').trim().toLowerCase();
+  const raw=String(cmd||'').trim();
+  const c=raw.toLowerCase();
   if(!c||c==='help'){
-    console.info('[ISEKAI CLASH] Cheats: all | reset | crystals <n> | gold <n> | wins <n> | pity <n> | questready');
-    showToast('🧪 Cheats: all / reset / crystals n / gold n / wins n / pity n');
+    console.info('[ISEKAI CLASH] Cheats: all | reset | crystals <n> | addcrystals <n> | gold <n> | wins <n> | pity <n> | give <char_id> [n] | giveaw <char_id> [n] | questready');
+    showToast('🧪 Cheats: give <id> n / giveaw <id> n / addcrystals n');
     return;
   }
   const parts=c.split(/\s+/);
   const v=parseInt(parts[1],10);
   if(parts[0]==='all'){giveAllForTesting();return;}
   if(parts[0]==='reset'){resetForTesting();return;}
+  if(parts[0]==='addcrystals'&&!Number.isNaN(v)){state.crystals=Math.max(0,(state.crystals||0)+v);save();updateRes();showToast(`💎 Cristaux +${v} (total ${state.crystals})`);return;}
   if(parts[0]==='crystals'&&!Number.isNaN(v)){state.crystals=Math.max(0,v);save();updateRes();showToast(`💎 Cristaux = ${state.crystals}`);return;}
   if(parts[0]==='gold'&&!Number.isNaN(v)){state.gold=Math.max(0,v);save();updateRes();showToast(`🪙 Or = ${state.gold}`);return;}
   if(parts[0]==='wins'&&!Number.isNaN(v)){state.totalWins=Math.max(0,v);save();updateRes();showToast(`🏅 Victoires = ${state.totalWins}`);return;}
   if(parts[0]==='pity'&&!Number.isNaN(v)){state.pity=Math.max(0,Math.min(90,v));save();updateRes();showToast(`⭐ Pitié = ${state.pity}`);return;}
+  if(parts[0]==='give'||parts[0]==='giveaw'){
+    const id=parts[1];
+    const qty=Math.max(1,parseInt(parts[2],10)||1);
+    const char=ALL_CHARS.find(ch=>ch.id===id);
+    if(!char){showToast(`❌ Perso introuvable: ${id}`);return;}
+    if(parts[0]==='giveaw'){
+      if(char.rarity!==5){showToast('⚠ giveaw fonctionne seulement pour les persos 5★.');return;}
+      if(!state.awakenedOwned)state.awakenedOwned={};
+      state.awakenedOwned[id]=(state.awakenedOwned[id]||0)+qty;
+      showToast(`⭐ ${char.name} éveillé +${qty}`);
+    } else {
+      if(!state.owned)state.owned={};
+      state.owned[id]=(state.owned[id]||0)+qty;
+      showToast(`🎁 ${char.name} +${qty}`);
+    }
+    save();updateRes();renderCollection(currentCollFilter||'all');renderTeam();renderForge();renderFusion();
+    return;
+  }
   if(parts[0]==='questready'){
     initQuests();
     if(state.quests&&state.quests.active){state.quests.active.forEach(q=>{q.progress=q.target;q.claimed=false;});save();renderQuests();showToast('📋 Quêtes prêtes à réclamer !');}
@@ -2718,12 +2738,28 @@ function runCheatCommand(cmd){
   showToast('❓ Commande inconnue. Tape "help".');
 }
 
+function setupLocalCheatFab(){
+  if(!isLocalEnv())return;
+  if(document.getElementById('cheat-fab'))return;
+  const btn=document.createElement('button');
+  btn.id='cheat-fab';
+  btn.type='button';
+  btn.textContent='🧪';
+  btn.title='Cheat local mobile';
+  btn.style.cssText='position:fixed;right:12px;bottom:14px;width:46px;height:46px;border-radius:50%;border:1px solid var(--border);background:linear-gradient(135deg,#1b2236,#2a3558);color:#fff;font-size:1.2rem;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer;';
+  btn.onclick=()=>{
+    const cmd=prompt('Cheat local (mobile):\\n- give <id> [n]\\n- giveaw <id> [n]\\n- addcrystals <n>\\n\\nExemple: give jinwoo 1');
+    if(cmd&&cmd.trim())runCheatCommand(cmd.trim());
+  };
+  document.body.appendChild(btn);
+}
+
 window.isekaiCheat=runCheatCommand;
 window.isekaiGiveAll=giveAllForTesting;
 window.isekaiReset=resetForTesting;
 if(isLocalEnv()){
   console.info('[ISEKAI CLASH] Beta cheats enabled.');
-  console.info('Use isekaiCheat(\"all\"), isekaiCheat(\"reset\"), isekaiGiveAll() or isekaiReset() in DevTools console.');
+  console.info('Use isekaiCheat(\"all\"), isekaiCheat(\"reset\"), isekaiGiveAll() or isekaiReset() in DevTools console, or tap 🧪 on mobile.');
 }
 
 // ═══════════════════════════════════════════
@@ -2879,6 +2915,7 @@ if(!state.owned||Object.keys(state.owned).length===0){
 }
 updateRes();
 checkAchievements();
+setupLocalCheatFab();
 </script>
 </body>
 </html>
