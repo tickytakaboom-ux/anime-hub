@@ -2185,21 +2185,7 @@ const SHOP_ITEMS=[
   {id:'hp_potion',      name:'Potion de Vie',        emoji:'🧪', desc:'Soigne toute votre équipe à 100% HP avant le prochain combat.', price:300, currency:'gold', reward:()=>{state.pendingHeal=true;}, label:'Soin complet'},
   {id:'crystal_pull10', name:'10 Invocations',       emoji:'🌀', desc:'10 invocations garanties (économie vs acheter des cristaux).',    price:4000, currency:'gold', reward:()=>{const r=[];for(let i=0;i<10;i++)r.push(rollChar());showResults(r);}, label:'×10 Pulls'},
   {id:'reset_cd',       name:'Réinitialisation CD',  emoji:'⚡', desc:'Remet à zéro tous les cooldowns de spéciale de votre équipe.',   price:350,  currency:'gold', reward:()=>{state.pendingCdReset=true;showToast('⚡ CD spéciales réinitialisés au prochain combat!');}, label:'Reset CD'},
-  {id:'event_aw_ainz',    name:'Ainz Éveillé (EVENT)',    emoji:'💀', desc:'Offre temporaire: Ainz Éveillé gratuit (1 fois).',    price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('ainz',1), label:'GRATUIT'},
-  {id:'event_aw_zoro',    name:'Zoro Éveillé (EVENT)',    emoji:'⚔', desc:'Offre temporaire: Zoro Éveillé gratuit (1 fois).',    price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('zoro_km',1), label:'GRATUIT'},
-  {id:'event_aw_gojo',    name:'Gojo Éveillé (EVENT)',    emoji:'🌌', desc:'Offre temporaire: Gojo Éveillé gratuit (1 fois).',    price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('gojo',1), label:'GRATUIT'},
-  {id:'event_aw_escanor', name:'Escanor Éveillé (EVENT)', emoji:'☀', desc:'Offre temporaire: Escanor Éveillé gratuit (1 fois).', price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('escanor',1), label:'GRATUIT'},
 ];
-
-function grantAwakenedShop(baseId,qty=1){
-  const c=ALL_CHARS.find(x=>x.id===baseId);
-  if(!c||c.rarity!==5)return;
-  if(!state.awakenedOwned)state.awakenedOwned={};
-  state.awakenedOwned[baseId]=(state.awakenedOwned[baseId]||0)+qty;
-  showToast(`⭐ ${c.name} Éveillé +${qty}`);
-  renderCollection(currentCollFilter||'all');
-  renderTeam();renderForge();renderFusion();
-}
 
 function applyForgeKit(){
   // Daily limit of 3
@@ -2231,16 +2217,14 @@ function renderShop(){
       const today=getTodayKey();
       const kitUsed=isForgeKit&&state.forgeKitDaily&&state.forgeKitDaily.date===today?state.forgeKitDaily.count:0;
       const kitMaxed=isForgeKit&&kitUsed>=3;
-      if(!state.shopClaimed)state.shopClaimed={};
-      const alreadyClaimed=item.oneTime&&state.shopClaimed[item.id];
-      const disabled=(state.gold||0)<item.price||kitMaxed||alreadyClaimed;
+      const disabled=(state.gold||0)<item.price||kitMaxed;
       const extraLabel=isForgeKit?` (${3-kitUsed} restants)` : '';
       return `<div class="shop-item gold-item">
         <span class="shop-emoji">${item.emoji}</span>
         <div class="shop-name">${item.name}</div>
         <div class="shop-desc">${item.desc}</div>
         <button class="shop-buy-btn" onclick="buyShopItem('${item.id}')" ${disabled?'disabled':''}>
-          ${item.label}${extraLabel}${alreadyClaimed?' · pris':''} — ${item.price.toLocaleString()} 🪙
+          ${item.label}${extraLabel} — ${item.price.toLocaleString()} 🪙
         </button>
       </div>`;
     }).join('')}
@@ -2250,12 +2234,9 @@ function renderShop(){
 function buyShopItem(id){
   const item=SHOP_ITEMS.find(x=>x.id===id);
   if(!item)return;
-  if(!state.shopClaimed)state.shopClaimed={};
-  if(item.oneTime&&state.shopClaimed[id])return;
   if(state.gold<item.price)return;
   state.gold-=item.price;
   item.reward();
-  if(item.oneTime)state.shopClaimed[id]=true;
   save();updateRes();renderShop();
   showToast(`✅ ${item.name} acheté !`);
   checkAchievements();
@@ -2700,7 +2681,6 @@ function resetForTesting(){
     equipment:{},
     materials:{},
     items:{},
-	shopClaimed:{},
     xp:0,
     playerLevel:1,
     pullHistory:[],
@@ -2922,7 +2902,6 @@ if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
 if(!state.equipment)state.equipment={};
 if(!state.materials)state.materials={};
 if(!state.items)state.items={};
-if(!state.shopClaimed)state.shopClaimed={};
 if(!state.awakenedOwned)state.awakenedOwned={};
 if(state.awakened&&Object.keys(state.awakenedOwned).length===0){
   Object.entries(state.awakened).forEach(([id,v])=>{ if(v) state.awakenedOwned[id]=(state.awakenedOwned[id]||0)+1; });
