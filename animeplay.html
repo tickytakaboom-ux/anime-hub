@@ -867,7 +867,7 @@ function openCharModal(id){
   if(!c)return;
   const baseId=getBaseId(id);
   const isAwEntity=isAwakenedId(id);
-  const isOwned=isAwEntity?getAwakenedCount(baseId)>0:isOwnedAny(baseId);
+  const isOwned=isAwEntity?getAwakenedCount(baseId)>0:getNormalCount(baseId)>0;
   const normalCount=getNormalCount(baseId);
   const awakenedCount=getAwakenedCount(baseId);
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
@@ -1006,7 +1006,7 @@ function renderCollection(filter){
   const sortVal=document.getElementById('coll-sort-select')?.value||'rarity';
   const awakenedCards=ALL_CHARS.filter(c=>c.rarity===5&&getAwakenedCount(c.id)>0).map(c=>makeAwakenedChar(c.id)).filter(Boolean);
   const ownedAll=[...ALL_CHARS.filter(c=>getNormalCount(c.id)>0),...awakenedCards];
-  const unowned=ALL_CHARS.filter(c=>getNormalCount(c.id)===0);
+  const unowned=ALL_CHARS.filter(c=>getNormalCount(c.id)===0&&getAwakenedCount(c.id)===0);
   let all=[...ownedAll,...unowned];
   // Filter
   if(filter==='owned')all=ownedAll;
@@ -2185,7 +2185,21 @@ const SHOP_ITEMS=[
   {id:'hp_potion',      name:'Potion de Vie',        emoji:'🧪', desc:'Soigne toute votre équipe à 100% HP avant le prochain combat.', price:300, currency:'gold', reward:()=>{state.pendingHeal=true;}, label:'Soin complet'},
   {id:'crystal_pull10', name:'10 Invocations',       emoji:'🌀', desc:'10 invocations garanties (économie vs acheter des cristaux).',    price:4000, currency:'gold', reward:()=>{const r=[];for(let i=0;i<10;i++)r.push(rollChar());showResults(r);}, label:'×10 Pulls'},
   {id:'reset_cd',       name:'Réinitialisation CD',  emoji:'⚡', desc:'Remet à zéro tous les cooldowns de spéciale de votre équipe.',   price:350,  currency:'gold', reward:()=>{state.pendingCdReset=true;showToast('⚡ CD spéciales réinitialisés au prochain combat!');}, label:'Reset CD'},
+  {id:'event_aw_ainz',    name:'Ainz Éveillé (EVENT)',    emoji:'💀', desc:'Offre temporaire: Ainz Éveillé gratuit (1 fois).',    price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('ainz',1), label:'GRATUIT'},
+  {id:'event_aw_zoro',    name:'Zoro Éveillé (EVENT)',    emoji:'⚔', desc:'Offre temporaire: Zoro Éveillé gratuit (1 fois).',    price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('zoro_km',1), label:'GRATUIT'},
+  {id:'event_aw_gojo',    name:'Gojo Éveillé (EVENT)',    emoji:'🌌', desc:'Offre temporaire: Gojo Éveillé gratuit (1 fois).',    price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('gojo',1), label:'GRATUIT'},
+  {id:'event_aw_escanor', name:'Escanor Éveillé (EVENT)', emoji:'☀', desc:'Offre temporaire: Escanor Éveillé gratuit (1 fois).', price:0, currency:'gold', oneTime:true, reward:()=>grantAwakenedShop('escanor',1), label:'GRATUIT'},
 ];
+
+function grantAwakenedShop(baseId,qty=1){
+  const c=ALL_CHARS.find(x=>x.id===baseId);
+  if(!c||c.rarity!==5)return;
+  if(!state.awakenedOwned)state.awakenedOwned={};
+  state.awakenedOwned[baseId]=(state.awakenedOwned[baseId]||0)+qty;
+  showToast(`⭐ ${c.name} Éveillé +${qty}`);
+  renderCollection(currentCollFilter||'all');
+  renderTeam();renderForge();renderFusion();
+}
 
 function applyForgeKit(){
   // Daily limit of 3
@@ -2209,20 +2223,24 @@ function renderShop(){
   const cont=document.getElementById('shop-content');
   if(!cont)return;
   cont.innerHTML=`
-    <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span></div>
+    <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">
+      Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span>
+    </div>
     <div class="shop-grid">${SHOP_ITEMS.map(item=>{
       const isForgeKit=item.id==='forge_kit';
       const today=getTodayKey();
       const kitUsed=isForgeKit&&state.forgeKitDaily&&state.forgeKitDaily.date===today?state.forgeKitDaily.count:0;
       const kitMaxed=isForgeKit&&kitUsed>=3;
-      const disabled=(state.gold||0)<item.price||kitMaxed;
+      if(!state.shopClaimed)state.shopClaimed={};
+      const alreadyClaimed=item.oneTime&&state.shopClaimed[item.id];
+      const disabled=(state.gold||0)<item.price||kitMaxed||alreadyClaimed;
       const extraLabel=isForgeKit?` (${3-kitUsed} restants)` : '';
       return `<div class="shop-item gold-item">
         <span class="shop-emoji">${item.emoji}</span>
         <div class="shop-name">${item.name}</div>
         <div class="shop-desc">${item.desc}</div>
         <button class="shop-buy-btn" onclick="buyShopItem('${item.id}')" ${disabled?'disabled':''}>
-          ${item.label}${extraLabel} — ${item.price.toLocaleString()} 🪙
+          ${item.label}${extraLabel}${alreadyClaimed?' · pris':''} — ${item.price.toLocaleString()} 🪙
         </button>
       </div>`;
     }).join('')}
@@ -2231,9 +2249,13 @@ function renderShop(){
 
 function buyShopItem(id){
   const item=SHOP_ITEMS.find(x=>x.id===id);
-  if(!item||state.gold<item.price)return;
+  if(!item)return;
+  if(!state.shopClaimed)state.shopClaimed={};
+  if(item.oneTime&&state.shopClaimed[id])return;
+  if(state.gold<item.price)return;
   state.gold-=item.price;
   item.reward();
+  if(item.oneTime)state.shopClaimed[id]=true;
   save();updateRes();renderShop();
   showToast(`✅ ${item.name} acheté !`);
   checkAchievements();
@@ -2678,6 +2700,7 @@ function resetForTesting(){
     equipment:{},
     materials:{},
     items:{},
+	shopClaimed:{},
     xp:0,
     playerLevel:1,
     pullHistory:[],
@@ -2772,6 +2795,8 @@ const PASSIVES_6={
   muzan:        {name:'Démon Primordial', desc:'Se régénère 10% HP/tour + immunité poison + counter 40%',              fn:(hero)=>{hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(hero.maxHp*.1));hero.statuses=(hero.statuses||[]).filter(s=>s!=='☠Poison');},isFullCounter:true,counterAmt:.4},
   sukuna_full:  {name:'Roi des Fléaux COMPLET',desc:'Spéciale fait toujours x2 dégâts sur ennemis <50% HP',           isSukunaFull:true},
   all_might:    {name:'Symbol of Peace',  desc:'L\'équipe entière récupère 5% HP max/tour tant qu\'il est vivant',     fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.05));});}},
+  anos:         {name:'Roi Démon Absolu', desc:'Ignore 30% DEF ennemie et réduit les dégâts reçus de 20%',            isDmgReduce:true,reduceAmt:.2},
+  gilgamesh:    {name:'Porte de Babylone',desc:'30% de chance de doubler les dégâts de spéciale',                      isDmgMult:true,fn:(hero,bs)=>Math.random()<.3?2:1},
 };
 // Merge into PASSIVES
 Object.assign(PASSIVES,PASSIVES_6);
@@ -2832,8 +2857,8 @@ function renderTeamLinks(teamIds){
 // ═══════════════════════════════════════════
 //  AWAKENED SYSTEM
 // ═══════════════════════════════════════════
-function getAwakenedId(id){ return id+'_awaken'; }
-function isAwakened(id){ return getAwakenedCount(id)>0; }
+function getAwakenedId(id){ return id+'_aw'; }
+function isAwakened(id){ return isAwakenedId(id); }
 
 function canAwaken(id){
   const c=ALL_CHARS.find(x=>x.id===id);
@@ -2897,6 +2922,7 @@ if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
 if(!state.equipment)state.equipment={};
 if(!state.materials)state.materials={};
 if(!state.items)state.items={};
+if(!state.shopClaimed)state.shopClaimed={};
 if(!state.awakenedOwned)state.awakenedOwned={};
 if(state.awakened&&Object.keys(state.awakenedOwned).length===0){
   Object.entries(state.awakened).forEach(([id,v])=>{ if(v) state.awakenedOwned[id]=(state.awakenedOwned[id]||0)+1; });
