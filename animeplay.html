@@ -1107,6 +1107,7 @@ function getEnemyForCurrentWave(){
 }
 
 function initBattleState(){
+  const endgameAssist=state.currentArc>=8?1.22:1; // extra help for Arcs 8-9
   const chars=state.team.filter(Boolean).map(id=>{
     const c=getCharById(id);
     if(!c)return null;
@@ -1117,10 +1118,10 @@ function initBattleState(){
     const defBonus=Math.round(c.def*(upg.def||0)*0.12);
     const equip=getItemBonus(id);
     const awakenMult=getAwakenMultiplier(id);
-    const finalAtk=Math.round((c.atk+atkBonus+equip.atk)*awakenMult);
-    const finalHp=Math.round((c.hp+hpBonus+equip.hp)*awakenMult);
-    const finalDef=Math.round((c.def+defBonus+equip.def)*awakenMult);
-    const finalSDmg=Math.round((Math.round(c.sDmg*(1+(upg.atk||0)*0.08))+equip.sDmg)*awakenMult);
+    const finalAtk=Math.round((c.atk+atkBonus+equip.atk)*awakenMult*endgameAssist);
+    const finalHp=Math.round((c.hp+hpBonus+equip.hp)*awakenMult*endgameAssist);
+    const finalDef=Math.round((c.def+defBonus+equip.def)*awakenMult*endgameAssist);
+    const finalSDmg=Math.round((Math.round(c.sDmg*(1+(upg.atk||0)*0.08))+equip.sDmg)*awakenMult*endgameAssist);
     const finalCritChance=0.2+(equip.critBoost||0);
     return {...c,atk:finalAtk,hp:finalHp,def:finalDef,sDmg:finalSDmg,critChance:finalCritChance,currentHp:finalHp,maxHp:finalHp,shield:0,statuses:[],spCooldown:0,spMaxCd:3,_awakened:isAwakenedId(id)};
   }).filter(Boolean);
@@ -1131,7 +1132,8 @@ function initBattleState(){
   const waveProgress=(state.arcProgress[state.currentArc]||0);
   const mobScale=1+(state.currentArc-1)*0.2+(waveProgress*0.03);      // Option A: softer global scaling
   const bossScale=1+(state.currentArc-1)*0.16+(waveProgress*0.024);    // Option C: bosses scale softer than mobs
-  const scaleFactor=enemyData.isBoss?bossScale:mobScale;
+  const arcNerf=state.currentArc>=9?0.55:state.currentArc===8?0.65:1;   // extra rebalance for hardest arcs
+  const scaleFactor=(enemyData.isBoss?bossScale:mobScale)*arcNerf;
   const elemKeys=Object.keys(ELEMENTS).filter(e=>e!=='neutral');
   const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities],element:elemKeys[Math.floor(Math.random()*elemKeys.length)]};
   state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0,combo:0};
