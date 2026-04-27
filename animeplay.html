@@ -348,7 +348,9 @@
   .quest-claim-btn:disabled{opacity:.35;cursor:not-allowed;color:var(--muted);border-color:var(--border);}
   .quest-reset{font-size:.72rem;color:var(--muted);text-align:center;margin-bottom:14px;}
   /* ── SHOP ── */
-  .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+  .shop-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+  @media(max-width:980px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media(max-width:560px){.shop-grid{grid-template-columns:1fr;}}
   .shop-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;transition:all .2s;}
   .shop-item:hover{transform:translateY(-2px);}
   .shop-item.gold-item{border-color:rgba(245,200,66,.3);}
@@ -816,7 +818,7 @@ const ARCS = [
   ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,updateGiftDaily:{date:'',claimed:false}};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -1829,6 +1831,15 @@ function doConvert(id){
 // ═══════════════════════════════════════════
 //  ACHIEVEMENTS
 // ═══════════════════════════════════════════
+function getClaimedQuestCount(type){
+  if(!state.quests)return 0;
+  const key=type==='weekly'?'weeklyActive':type==='monthly'?'monthlyActive':'dailyActive';
+  return (state.quests[key]||[]).filter(q=>q.claimed).length;
+}
+function getTotalOwnedItemsCount(){
+  if(!state.items)return 0;
+  return Object.values(state.items).reduce((s,v)=>s+(v||0),0);
+}
 const ACHIEVEMENTS=[
   {id:'first_win',    icon:'⚔',name:'Premier Sang',      desc:'Remportez votre premier combat',              reward:'💎×20',  rewardFn:()=>{state.crystals+=20;},  check:()=>(state.totalWins||0)>=1,         progress:()=>Math.min(1,state.totalWins||0), max:1},
   {id:'wins10',       icon:'🏆',name:'Guerrier',           desc:'Remportez 10 combats',                        reward:'💎×50',  rewardFn:()=>{state.crystals+=50;},  check:()=>(state.totalWins||0)>=10,        progress:()=>Math.min(10,state.totalWins||0), max:10},
@@ -1853,6 +1864,10 @@ const ACHIEVEMENTS=[
   {id:'arc9done',     icon:'🌟',name:'Briseur de Singularité',desc:'Terminez l\'Arc 9 (endgame+)',                 reward:'💎×1800',rewardFn:()=>{state.crystals+=1800;},check:()=>(state.arcProgress&&state.arcProgress[9]||0)>=14,progress:()=>Math.min(14,(state.arcProgress&&state.arcProgress[9])||0),max:14},
   {id:'arc10done',    icon:'🧿',name:'Conquérant Paradoxal',  desc:'Terminez l\'Arc 10',                            reward:'💎×2200',rewardFn:()=>{state.crystals+=2200;},check:()=>(state.arcProgress&&state.arcProgress[10]||0)>=14,progress:()=>Math.min(14,(state.arcProgress&&state.arcProgress[10])||0),max:14},
   {id:'arc11done',    icon:'🜂',name:'Souverain des Origines',desc:'Terminez l\'Arc 11 (ultra endgame)',            reward:'💎×3000',rewardFn:()=>{state.crystals+=3000;},check:()=>(state.arcProgress&&state.arcProgress[11]||0)>=16,progress:()=>Math.min(16,(state.arcProgress&&state.arcProgress[11])||0),max:16},
+  {id:'weekly4clear', icon:'🗓️',name:'Routine Hebdo',         desc:'Réclamez les 4 quêtes hebdomadaires',            reward:'💎×350', rewardFn:()=>{state.crystals+=350;}, check:()=>getClaimedQuestCount('weekly')>=4,progress:()=>Math.min(4,getClaimedQuestCount('weekly')),max:4},
+  {id:'monthly5clear',icon:'📆',name:'Légende du Mois',       desc:'Réclamez les 5 quêtes mensuelles',               reward:'💎×900', rewardFn:()=>{state.crystals+=900;}, check:()=>getClaimedQuestCount('monthly')>=5,progress:()=>Math.min(5,getClaimedQuestCount('monthly')),max:5},
+  {id:'forge50',      icon:'🛠️',name:'Maître Artisan',        desc:'Atteignez 50 niveaux totaux en Forge',            reward:'💎×300', rewardFn:()=>{state.crystals+=300;}, check:()=>getTotalForgeLevel()>=50,progress:()=>Math.min(50,getTotalForgeLevel()),max:50},
+  {id:'item20',       icon:'🎒',name:'Intendant',             desc:'Possédez 20 équipements au total',               reward:'🪙×2500',rewardFn:()=>{state.gold+=2500;},   check:()=>getTotalOwnedItemsCount()>=20,progress:()=>Math.min(20,getTotalOwnedItemsCount()),max:20},
   {id:'collect_all5', icon:'👑',name:'Complétiste Légendaire',desc:'Possédez tous les personnages ★★★★★',        reward:'💎×500', rewardFn:()=>{state.crystals+=500;}, check:()=>ALL_CHARS.filter(c=>c.rarity===5).every(c=>(state.owned[c.id]||0)>0),progress:()=>ALL_CHARS.filter(c=>c.rarity===5&&(state.owned[c.id]||0)>0).length,max:ALL_CHARS.filter(c=>c.rarity===5).length},
 ];
 
@@ -2246,6 +2261,11 @@ const SHOP_ITEMS=[
   {id:'hp_potion',      name:'Potion de Vie',        emoji:'🧪', desc:'Soigne toute votre équipe à 100% HP avant le prochain combat.', price:300, currency:'gold', reward:()=>{state.pendingHeal=true;}, label:'Soin complet'},
   {id:'crystal_pull10', name:'10 Invocations',       emoji:'🌀', desc:'10 invocations garanties (économie vs acheter des cristaux).',    price:4000, currency:'gold', reward:()=>{const r=[];for(let i=0;i<10;i++)r.push(rollChar());showResults(r);}, label:'×10 Pulls'},
   {id:'reset_cd',       name:'Réinitialisation CD',  emoji:'⚡', desc:'Remet à zéro tous les cooldowns de spéciale de votre équipe.',   price:350,  currency:'gold', reward:()=>{state.pendingCdReset=true;showToast('⚡ CD spéciales réinitialisés au prochain combat!');}, label:'Reset CD'},
+  {id:'equip_pack',     name:'Pack Forgeron',        emoji:'🧰', desc:'Matériaux de craft: +20 Fer, +15 Tissu, +10 Éclats, +3 Cristaux rares.', price:2500, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.materials.iron=(state.materials.iron||0)+20;state.materials.cloth=(state.materials.cloth||0)+15;state.materials.magic_shard=(state.materials.magic_shard||0)+10;state.materials.rare_crystal=(state.materials.rare_crystal||0)+3;}, label:'Pack Matériaux'},
+  {id:'tears_cache',    name:'Cache d\'Éveil',       emoji:'💫', desc:'Ajoute 8 Larmes d\'Éveil pour les crafts endgame.', price:3200, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+8;}, label:'+8 Larmes'},
+  {id:'starter_gear',   name:'Kit Équipement',       emoji:'🎒', desc:'Donne 1 Épée d\'Acier, 1 Armure de Fer et 1 Anneau de Vitesse.', price:2800, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.steel_sword=(state.items.steel_sword||0)+1;state.items.iron_armor=(state.items.iron_armor||0)+1;state.items.speed_ring=(state.items.speed_ring||0)+1;}, label:'Lot x3 items'},
+  {id:'legend_gear',    name:'Offre Légendaire',     emoji:'🛍️', desc:'Donne 1 Katana du Néant, 1 Armure Phénix et 1 Emblème Chrono.', price:7800, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.void_katana=(state.items.void_katana||0)+1;state.items.phoenix_mail=(state.items.phoenix_mail||0)+1;state.items.chrono_emblem=(state.items.chrono_emblem||0)+1;}, label:'Lot légendaire'},
+  {id:'update_daily_free',name:'Bonus Maj (Gratuit)', emoji:'🎁', desc:'1 fois par jour: +120 💎, +1200 🪙 et +2 Larmes d\'Éveil.', price:0, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.crystals+=120;state.gold+=1200;state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;}, label:'CLAIMER'},
 ];
 
 function applyForgeKit(){
@@ -2269,23 +2289,24 @@ function applyForgeKit(){
 function renderShop(){
   const cont=document.getElementById('shop-content');
   if(!cont)return;
+  const today=getTodayKey();
+  if(!state.updateGiftDaily)state.updateGiftDaily={date:'',claimed:false};
+  const freeClaimedToday=state.updateGiftDaily.date===today&&state.updateGiftDaily.claimed;
   cont.innerHTML=`
-    <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">
-      Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span>
-    </div>
+    <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span></div>
     <div class="shop-grid">${SHOP_ITEMS.map(item=>{
       const isForgeKit=item.id==='forge_kit';
-      const today=getTodayKey();
       const kitUsed=isForgeKit&&state.forgeKitDaily&&state.forgeKitDaily.date===today?state.forgeKitDaily.count:0;
       const kitMaxed=isForgeKit&&kitUsed>=3;
-      const disabled=(state.gold||0)<item.price||kitMaxed;
-      const extraLabel=isForgeKit?` (${3-kitUsed} restants)` : '';
+      const isFreeDaily=item.id==='update_daily_free';
+      const disabled=(!isFreeDaily&&(state.gold||0)<item.price)||kitMaxed||(isFreeDaily&&freeClaimedToday);
+      const extraLabel=isForgeKit?` (${3-kitUsed} restants)` : isFreeDaily?(freeClaimedToday?' (déjà pris)':' (1/jour)') : '';
       return `<div class="shop-item gold-item">
         <span class="shop-emoji">${item.emoji}</span>
         <div class="shop-name">${item.name}</div>
         <div class="shop-desc">${item.desc}</div>
         <button class="shop-buy-btn" onclick="buyShopItem('${item.id}')" ${disabled?'disabled':''}>
-          ${item.label}${extraLabel} — ${item.price.toLocaleString()} 🪙
+          ${item.label}${extraLabel} — ${item.price>0?`${item.price.toLocaleString()} 🪙`:'GRATUIT'}
         </button>
       </div>`;
     }).join('')}
@@ -2295,8 +2316,15 @@ function renderShop(){
 function buyShopItem(id){
   const item=SHOP_ITEMS.find(x=>x.id===id);
   if(!item)return;
-  if(state.gold<item.price)return;
-  state.gold-=item.price;
+  const today=getTodayKey();
+  if(id==='update_daily_free'){
+    if(!state.updateGiftDaily)state.updateGiftDaily={date:'',claimed:false};
+    if(state.updateGiftDaily.date===today&&state.updateGiftDaily.claimed)return;
+    state.updateGiftDaily={date:today,claimed:true};
+  }else{
+    if(state.gold<item.price)return;
+    state.gold-=item.price;
+  }
   item.reward();
   save();updateRes();renderShop();
   showToast(`✅ ${item.name} acheté !`);
@@ -2304,45 +2332,122 @@ function buyShopItem(id){
 }
 
 // ═══════════════════════════════════════════
-//  DAILY QUESTS
+//  QUESTS (DAILY / WEEKLY / MONTHLY)
 // ═══════════════════════════════════════════
-const QUEST_DEFS=[
+const DAILY_QUEST_DEFS=[
   {id:'q_win3',    icon:'⚔', name:'Guerrier du jour',   desc:'Remporter 3 combats',                   target:3,  trackKey:'dailyWins',   reward:{crystals:20,gold:0},   rewardLabel:'+20 💎'},
   {id:'q_sp5',     icon:'✨', name:'Maître des Spéciales',desc:'Utiliser 5 attaques spéciales',          target:5,  trackKey:'dailySp',     reward:{crystals:0,gold:300},  rewardLabel:'+300 🪙'},
   {id:'q_gacha3',  icon:'🎲', name:'Chasseur d\'étoiles', desc:'Effectuer 3 invocations',               target:3,  trackKey:'dailyGacha',  reward:{crystals:15,gold:0},   rewardLabel:'+15 💎'},
   {id:'q_boss',    icon:'💀', name:'Tueur de Boss',       desc:'Vaincre 1 boss',                        target:1,  trackKey:'dailyBoss',   reward:{crystals:30,gold:200}, rewardLabel:'+30 💎 +200 🪙'},
   {id:'q_forge',   icon:'🔨', name:'Forgeron du jour',    desc:'Effectuer 2 améliorations en Forge',    target:2,  trackKey:'dailyForge',  reward:{crystals:0,gold:400},  rewardLabel:'+400 🪙'},
 ];
+const WEEKLY_QUEST_DEFS=[
+  {id:'w_win30',   icon:'🛡️',name:'Briseur de Semaine',    desc:'Remporter 30 combats cette semaine',            target:30, trackKey:'weeklyWins',  reward:{crystals:200,gold:2500}, rewardLabel:'+200 💎 +2500 🪙'},
+  {id:'w_boss8',   icon:'👑', name:'Élite Hebdo',           desc:'Vaincre 8 boss cette semaine',                  target:8,  trackKey:'weeklyBoss',  reward:{crystals:250,gold:1800}, rewardLabel:'+250 💎 +1800 🪙'},
+  {id:'w_forge15', icon:'🧰', name:'Atelier Intensif',      desc:'Effectuer 15 améliorations Forge cette semaine',target:15, trackKey:'weeklyForge', reward:{crystals:150,gold:3200}, rewardLabel:'+150 💎 +3200 🪙'},
+  {id:'w_gacha25', icon:'🎯', name:'Collectionneur Hebdo',  desc:'Effectuer 25 invocations cette semaine',        target:25, trackKey:'weeklyGacha', reward:{crystals:220,gold:1200}, rewardLabel:'+220 💎 +1200 🪙'},
+];
+const MONTHLY_QUEST_DEFS=[
+  {id:'m_win140',   icon:'🏆',name:'Marathonier',         desc:'Remporter 140 combats ce mois-ci',             target:140,trackKey:'monthlyWins',  reward:{crystals:900,gold:8000},  rewardLabel:'+900 💎 +8000 🪙'},
+  {id:'m_boss35',   icon:'💀',name:'Dominateur de Boss',  desc:'Vaincre 35 boss ce mois-ci',                   target:35, trackKey:'monthlyBoss',  reward:{crystals:1000,gold:6000}, rewardLabel:'+1000 💎 +6000 🪙'},
+  {id:'m_forge60',  icon:'🔨',name:'Maître Forgeron',     desc:'Effectuer 60 améliorations Forge ce mois-ci',  target:60, trackKey:'monthlyForge', reward:{crystals:700,gold:9000},  rewardLabel:'+700 💎 +9000 🪙'},
+  {id:'m_gacha120', icon:'🎲',name:'Invocation Cosmique', desc:'Effectuer 120 invocations ce mois-ci',          target:120,trackKey:'monthlyGacha', reward:{crystals:1100,gold:4500}, rewardLabel:'+1100 💎 +4500 🪙'},
+  {id:'m_sp120',    icon:'✨',name:'Arcaniste Ultime',    desc:'Utiliser 120 attaques spéciales ce mois-ci',   target:120,trackKey:'monthlySp',    reward:{crystals:800,gold:7000},  rewardLabel:'+800 💎 +7000 🪙'},
+];
 
 function getTodayKey(){return new Date().toISOString().slice(0,10);}
+function getMonthKey(){const d=new Date();return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`;}
+function getWeekKey(){
+  const d=new Date();
+  const utc=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
+  const day=utc.getUTCDay()||7;
+  utc.setUTCDate(utc.getUTCDate()+4-day);
+  const yearStart=new Date(Date.UTC(utc.getUTCFullYear(),0,1));
+  const week=Math.ceil((((utc-yearStart)/86400000)+1)/7);
+  return `${utc.getUTCFullYear()}-W${String(week).padStart(2,'0')}`;
+}
+function makeQuestEntries(defs,pickCount=defs.length){
+  const source=pickCount<defs.length?[...defs].sort(()=>Math.random()-.5).slice(0,pickCount):defs;
+  return source.map(q=>({...q,progress:0,claimed:false}));
+}
+function listByType(type){
+  if(type==='daily')return state.quests.dailyActive;
+  if(type==='weekly')return state.quests.weeklyActive;
+  if(type==='monthly')return state.quests.monthlyActive;
+  return [];
+}
+function syncQuestProgress(trackKey){
+  ['dailyActive','weeklyActive','monthlyActive'].forEach(k=>{
+    (state.quests[k]||[]).forEach(q=>{
+      if(q.trackKey===trackKey) q.progress=Math.min(q.target,state.quests[trackKey]||0);
+    });
+  });
+}
 
 function initQuests(){
   const today=getTodayKey();
-  if(!state.quests||state.quests.date!==today){
-    // Pick 3 random quests for today
-    const shuffled=[...QUEST_DEFS].sort(()=>Math.random()-.5).slice(0,3);
+  const weekKey=getWeekKey();
+  const monthKey=getMonthKey();
+  if(!state.quests){
     state.quests={
-      date:today,
-      active:shuffled.map(q=>({...q,progress:0,claimed:false})),
+      date:today,weekKey,monthKey,
+      dailyActive:makeQuestEntries(DAILY_QUEST_DEFS,3),
+      weeklyActive:makeQuestEntries(WEEKLY_QUEST_DEFS),
+      monthlyActive:makeQuestEntries(MONTHLY_QUEST_DEFS),
       dailyWins:0,dailySp:0,dailyGacha:0,dailyBoss:0,dailyForge:0,
+      weeklyWins:0,weeklySp:0,weeklyGacha:0,weeklyBoss:0,weeklyForge:0,
+      monthlyWins:0,monthlySp:0,monthlyGacha:0,monthlyBoss:0,monthlyForge:0,
     };
-    save();
+    save();return;
   }
+  let changed=false;
+  if(!state.quests.dailyActive){state.quests.dailyActive=makeQuestEntries(DAILY_QUEST_DEFS,3);changed=true;}
+  if(!state.quests.weeklyActive){state.quests.weeklyActive=makeQuestEntries(WEEKLY_QUEST_DEFS);changed=true;}
+  if(!state.quests.monthlyActive){state.quests.monthlyActive=makeQuestEntries(MONTHLY_QUEST_DEFS);changed=true;}
+  if(state.quests.date!==today){
+    state.quests.date=today;
+    state.quests.dailyActive=makeQuestEntries(DAILY_QUEST_DEFS,3);
+    state.quests.dailyWins=0;state.quests.dailySp=0;state.quests.dailyGacha=0;state.quests.dailyBoss=0;state.quests.dailyForge=0;
+    changed=true;
+  }
+  if(state.quests.weekKey!==weekKey){
+    state.quests.weekKey=weekKey;
+    state.quests.weeklyActive=makeQuestEntries(WEEKLY_QUEST_DEFS);
+    state.quests.weeklyWins=0;state.quests.weeklySp=0;state.quests.weeklyGacha=0;state.quests.weeklyBoss=0;state.quests.weeklyForge=0;
+    changed=true;
+  }
+  if(state.quests.monthKey!==monthKey){
+    state.quests.monthKey=monthKey;
+    state.quests.monthlyActive=makeQuestEntries(MONTHLY_QUEST_DEFS);
+    state.quests.monthlyWins=0;state.quests.monthlySp=0;state.quests.monthlyGacha=0;state.quests.monthlyBoss=0;state.quests.monthlyForge=0;
+    changed=true;
+  }
+  if(changed)save();
 }
 
 function trackQuest(key,amount=1){
   initQuests();
   if(!state.quests)return;
   state.quests[key]=(state.quests[key]||0)+amount;
-  state.quests.active.forEach(q=>{
-    if(q.trackKey===key) q.progress=Math.min(q.target,state.quests[key]||0);
+  syncQuestProgress(key);
+  const mirrorMap={
+    dailyWins:['weeklyWins','monthlyWins'],
+    dailySp:['weeklySp','monthlySp'],
+    dailyGacha:['weeklyGacha','monthlyGacha'],
+    dailyBoss:['weeklyBoss','monthlyBoss'],
+    dailyForge:['weeklyForge','monthlyForge'],
+  };
+  (mirrorMap[key]||[]).forEach(mk=>{
+    state.quests[mk]=(state.quests[mk]||0)+amount;
+    syncQuestProgress(mk);
   });
   save();
 }
 
-function claimQuest(idx){
+function claimQuest(type,idx){
   initQuests();
-  const q=state.quests.active[idx];
+  const list=listByType(type);
+  const q=list[idx];
   if(!q||q.claimed||q.progress<q.target)return;
   q.claimed=true;
   state.crystals+=(q.reward.crystals||0);
@@ -2358,13 +2463,10 @@ function renderQuests(){
   const cont=document.getElementById('quests-content');
   const info=document.getElementById('quest-reset-info');
   if(!cont)return;
-  const now=new Date();
-  const tomorrow=new Date(now);
-  tomorrow.setDate(tomorrow.getDate()+1);
-  tomorrow.setHours(0,0,0,0);
-  const diffH=Math.ceil((tomorrow-now)/3600000);
-  if(info)info.textContent=`Nouvelles quêtes dans ${diffH}h · ${getTodayKey()}`;
-  cont.innerHTML=state.quests.active.map((q,i)=>{
+  if(info)info.textContent=`Reset: Jour ${state.quests.date} · Semaine ${state.quests.weekKey} · Mois ${state.quests.monthKey}`;
+  const renderQuestList=(title,type,list)=>`<div style="margin-bottom:14px">
+    <div style="font-size:.78rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin:8px 0 6px">${title}</div>
+    ${list.map((q,i)=>{
     const pct=Math.round(q.progress/q.target*100);
     const done=q.progress>=q.target;
     return `<div class="quest-card ${q.claimed?'done':''}">
@@ -2375,11 +2477,15 @@ function renderQuests(){
         <div class="quest-reward">${q.rewardLabel}</div>
         <div class="quest-prog-wrap"><div class="quest-prog-fill" style="width:${pct}%"></div></div>
       </div>
-      <button class="quest-claim-btn" onclick="claimQuest(${i})" ${(!done||q.claimed)?'disabled':''}>
+      <button class="quest-claim-btn" onclick="claimQuest('${type}',${i})" ${(!done||q.claimed)?'disabled':''}>
         ${q.claimed?'✅':'Réclamer'}
       </button>
     </div>`;
-  }).join('');
+  }).join('')}</div>`;
+  cont.innerHTML=
+    renderQuestList('📅 Quêtes quotidiennes', 'daily', state.quests.dailyActive||[])+
+    renderQuestList('🗓️ Quêtes hebdomadaires', 'weekly', state.quests.weeklyActive||[])+
+    renderQuestList('📆 Quêtes mensuelles', 'monthly', state.quests.monthlyActive||[]);
 }
 
 // ═══════════════════════════════════════════
@@ -2489,12 +2595,18 @@ const ITEM_DEFS=[
   {id:'iron_sword',   name:'Épée de Fer',     emoji:'⚔', type:'weapon',  slot:'weapon',  stats:{atk:50},           desc:'+50 ATK'},
   {id:'steel_sword',  name:'Épée d\'Acier',   emoji:'🗡', type:'weapon',  slot:'weapon',  stats:{atk:120},          desc:'+120 ATK'},
   {id:'divine_blade', name:'Lame Divine',     emoji:'✨', type:'weapon',  slot:'weapon',  stats:{atk:250,sDmg:100}, desc:'+250 ATK +100 Spéciale'},
+  {id:'void_katana',  name:'Katana du Néant', emoji:'🗡️', type:'weapon',  slot:'weapon',  stats:{atk:340,sDmg:160,critBoost:0.08}, desc:'+340 ATK +160 Spéciale +8% Crit'},
+  {id:'origin_scythe',name:'Faux des Origines',emoji:'☄️',type:'weapon',  slot:'weapon',  stats:{atk:420,sDmg:240,critBoost:0.12}, desc:'+420 ATK +240 Spéciale +12% Crit'},
   {id:'leather_armor',name:'Armure de Cuir',  emoji:'🥋', type:'armor',   slot:'armor',   stats:{def:40,hp:200},    desc:'+40 DEF +200 HP'},
   {id:'iron_armor',   name:'Armure de Fer',   emoji:'🛡', type:'armor',   slot:'armor',   stats:{def:100,hp:500},   desc:'+100 DEF +500 HP'},
   {id:'divine_armor', name:'Armure Divine',   emoji:'👑', type:'armor',   slot:'armor',   stats:{def:200,hp:1000},  desc:'+200 DEF +1000 HP'},
+  {id:'phoenix_mail', name:'Armure Phénix',   emoji:'🔥', type:'armor',   slot:'armor',   stats:{def:280,hp:1500},  desc:'+280 DEF +1500 HP'},
+  {id:'astral_plate', name:'Plastron Astral', emoji:'🌌', type:'armor',   slot:'armor',   stats:{def:360,hp:2100},  desc:'+360 DEF +2100 HP'},
   {id:'speed_ring',   name:'Anneau de Vitesse',emoji:'💍',type:'accessory',slot:'accessory',stats:{atk:30,def:30},  desc:'+30 ATK +30 DEF'},
   {id:'crit_ring',    name:'Anneau Critique',  emoji:'🔮',type:'accessory',slot:'accessory',stats:{critBoost:0.1},   desc:'+10% taux critique'},
   {id:'life_amulet',  name:'Amulette de Vie',  emoji:'❤', type:'accessory',slot:'accessory',stats:{hp:800,def:50},  desc:'+800 HP +50 DEF'},
+  {id:'chrono_emblem',name:'Emblème Chrono',   emoji:'⏱️',type:'accessory',slot:'accessory',stats:{atk:90,sDmg:140,critBoost:0.05},desc:'+90 ATK +140 Spéciale +5% Crit'},
+  {id:'crown_of_void',name:'Couronne du Vide', emoji:'🜂',type:'accessory',slot:'accessory',stats:{hp:1200,def:140,critBoost:0.1},desc:'+1200 HP +140 DEF +10% Crit'},
 ];
 const CRAFT_RECIPES=[
   {result:'iron_sword',   cost:{iron:3,gold_ore:0},   goldCost:200,  label:'3 Fer + 200🪙'},
@@ -2506,6 +2618,12 @@ const CRAFT_RECIPES=[
   {result:'speed_ring',   cost:{iron:2,cloth:2},       goldCost:300,  label:'2 Fer + 2 Tissu + 300🪙'},
   {result:'crit_ring',    cost:{magic_shard:3,rare_crystal:1},goldCost:1200,label:'3 Éclats + 1 Cristal Rare + 1200🪙'},
   {result:'life_amulet',  cost:{cloth:4,magic_shard:2},goldCost:800,  label:'4 Tissu + 2 Éclats + 800🪙'},
+  {result:'void_katana',  cost:{iron:14,magic_shard:8,rare_crystal:3},goldCost:4200,label:'14 Fer + 8 Éclats + 3 Cristaux rares + 4200🪙'},
+  {result:'origin_scythe',cost:{iron:18,magic_shard:12,rare_crystal:6,awakening_tears:4},goldCost:7600,label:'18 Fer + 12 Éclats + 6 Cristaux rares + 4 Larmes + 7600🪙'},
+  {result:'phoenix_mail', cost:{cloth:14,iron:10,rare_crystal:4},goldCost:4600,label:'14 Tissu + 10 Fer + 4 Cristaux rares + 4600🪙'},
+  {result:'astral_plate', cost:{cloth:18,iron:14,magic_shard:10,awakening_tears:4},goldCost:7800,label:'18 Tissu + 14 Fer + 10 Éclats + 4 Larmes + 7800🪙'},
+  {result:'chrono_emblem',cost:{magic_shard:10,rare_crystal:5,awakening_tears:2},goldCost:5200,label:'10 Éclats + 5 Cristaux rares + 2 Larmes + 5200🪙'},
+  {result:'crown_of_void',cost:{rare_crystal:8,magic_shard:12,awakening_tears:5},goldCost:8600,label:'8 Cristaux rares + 12 Éclats + 5 Larmes + 8600🪙'},
 ];
 const MATERIAL_NAMES={iron:'⚒ Fer',cloth:'🧵 Tissu',magic_shard:'💎 Éclat Magique',rare_crystal:'🔮 Cristal Rare',awakening_tears:'💫 Larmes d\'Éveil'};
 
@@ -2730,7 +2848,11 @@ function giveAllForTesting(){
   if(!state.team||state.team.length!==3)state.team=[null,null,null];
   state.team[0]='goku_ssj';state.team[1]='sukuna';state.team[2]='jinwoo';
   initQuests();
-  if(state.quests&&state.quests.active)state.quests.active.forEach(q=>{q.progress=q.target;q.claimed=false;});
+  if(state.quests){
+    ['dailyActive','weeklyActive','monthlyActive'].forEach(k=>{
+      (state.quests[k]||[]).forEach(q=>{q.progress=q.target;q.claimed=false;});
+    });
+  }
   save();updateRes();
   renderCollection(currentCollFilter||'all');
   renderTeam();renderForge();renderFusion();renderAchievements();renderShop();renderQuests();renderEquipment();renderHistory();renderBattleScreen();
@@ -2758,6 +2880,7 @@ function resetForTesting(){
     infiniteBest:0,
     winStreak:0,
     forgeKitDaily:{date:'',count:0},
+	updateGiftDaily:{date:'',claimed:false},
     equipment:{},
     materials:{},
     items:{},
@@ -2815,7 +2938,12 @@ function runCheatCommand(cmd){
   }
   if(parts[0]==='questready'){
     initQuests();
-    if(state.quests&&state.quests.active){state.quests.active.forEach(q=>{q.progress=q.target;q.claimed=false;});save();renderQuests();showToast('📋 Quêtes prêtes à réclamer !');}
+    if(state.quests){
+      ['dailyActive','weeklyActive','monthlyActive'].forEach(k=>{
+        (state.quests[k]||[]).forEach(q=>{q.progress=q.target;q.claimed=false;});
+      });
+      save();renderQuests();showToast('📋 Quêtes prêtes à réclamer !');
+    }
     return;
   }
   showToast('❓ Commande inconnue. Tape "help".');
@@ -2983,6 +3111,7 @@ if(!state.achDone)state.achDone={};
 if(!state.infiniteBest)state.infiniteBest=0;
 if(!state.winStreak)state.winStreak=0;
 if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
+if(!state.updateGiftDaily)state.updateGiftDaily={date:'',claimed:false};
 if(!state.equipment)state.equipment={};
 if(!state.materials)state.materials={};
 if(!state.items)state.items={};
