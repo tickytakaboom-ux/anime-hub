@@ -1128,7 +1128,10 @@ function initBattleState(){
   if(state.pendingCdReset){chars.forEach(h=>{h.spCooldown=0;});state.pendingCdReset=false;save();}
   if(state.pendingHeal){/* already at full HP from initiation */state.pendingHeal=false;save();}
   const enemyData=getEnemyForCurrentWave();
-  const scaleFactor=1+(state.currentArc-1)*0.3+((state.arcProgress[state.currentArc]||0)*0.05);
+  const waveProgress=(state.arcProgress[state.currentArc]||0);
+  const mobScale=1+(state.currentArc-1)*0.2+(waveProgress*0.03);      // Option A: softer global scaling
+  const bossScale=1+(state.currentArc-1)*0.16+(waveProgress*0.024);    // Option C: bosses scale softer than mobs
+  const scaleFactor=enemyData.isBoss?bossScale:mobScale;
   const elemKeys=Object.keys(ELEMENTS).filter(e=>e!=='neutral');
   const enemy={...enemyData,currentHp:Math.round(enemyData.hp*scaleFactor),maxHp:Math.round(enemyData.hp*scaleFactor),atk:Math.round(enemyData.atk*scaleFactor),def:Math.round(enemyData.def*scaleFactor),shield:0,enraged:false,statuses:[],currentAbilities:[...enemyData.abilities],element:elemKeys[Math.floor(Math.random()*elemKeys.length)]};
   state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0,combo:0};
@@ -1458,7 +1461,7 @@ function toggleAuto(){
 // ═══════════════════════════════════════════
 //  FORGE
 // ═══════════════════════════════════════════
-const MAX_UPGRADE=10;
+const MAX_UPGRADE=15;
 const UPGRADE_COST_BASE=200; // gold per level per stat
 const AWAKEN_BALANCE={
   tearsCostByLevel:[3,3,4,4,5,5,6,6,7,8], // lvl 0..9
@@ -2198,7 +2201,7 @@ function applyForgeKit(){
   // Truly random char
   const target=owned[Math.floor(Math.random()*owned.length)];
   if(!state.upgrades[target.id])state.upgrades[target.id]={atk:0,hp:0,def:0};
-  const stats=['atk','hp','def'].filter(s=>(state.upgrades[target.id][s]||0)<10);
+  const stats=['atk','hp','def'].filter(s=>(state.upgrades[target.id][s]||0)<MAX_UPGRADE);
   if(!stats.length){showToast(`🔨 ${target.name} est déjà au max !`);return;}
   const stat=stats[Math.floor(Math.random()*stats.length)];
   state.upgrades[target.id][stat]++;
