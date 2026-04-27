@@ -772,6 +772,7 @@ const ARCS = [
 ];
 
 let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
+let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function save(){try{localStorage.setItem('isekai2',JSON.stringify(state));}catch(e){}}
@@ -2472,7 +2473,12 @@ function getItemBonus(id){
 function renderEquipment(){
   const roster=document.getElementById('equip-roster');
   if(!roster)return;
-  const owned=ALL_CHARS.filter(c=>state.owned[c.id]>0).sort((a,b)=>b.rarity-a.rarity);
+  const owned=getOwnedRoster().sort((a,b)=>{
+    const awDiff=Number(isAwakenedId(b.id))-Number(isAwakenedId(a.id));
+    if(awDiff!==0)return awDiff;
+    return b.rarity-a.rarity;
+  });
+  if(selectedEquipChar&&!owned.some(c=>c.id===selectedEquipChar))selectedEquipChar=null;
   roster.innerHTML=`<div style="font-size:.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">✦ Guerriers</div>`+
     owned.map(c=>`<div class="equip-char-card ${selectedEquipChar===c.id?'selected':''}" onclick="selectEquipChar('${c.id}')">
       <div class="equip-char-emoji">${c.emoji}</div>
@@ -2494,7 +2500,8 @@ function renderEquipSlots(){
   const panel=document.getElementById('equip-slots-panel');
   if(!panel)return;
   if(!selectedEquipChar){panel.innerHTML=`<div class="equip-slots-title">⚔ Sélectionnez un personnage</div>`;return;}
-  const c=ALL_CHARS.find(x=>x.id===selectedEquipChar);
+  const c=getCharById(selectedEquipChar);
+  if(!c){panel.innerHTML=`<div class="equip-slots-title">⚔ Sélectionnez un personnage</div>`;return;}
   const equip=getCharEquip(selectedEquipChar);
   const bonus=getItemBonus(selectedEquipChar);
   const slots=['weapon','armor','accessory'];
@@ -2518,16 +2525,17 @@ function renderEquipSlots(){
       <div class="items-inv-title">🎒 Inventaire</div>
       ${getOwnedItems().length===0?'<div style="color:var(--muted);font-size:.78rem">Aucun item — craftez-en ci-dessous !</div>':
         getOwnedItems().map(({item,count})=>{
-          const alreadyEquipped=isItemEquippedElsewhere(item.id,selectedEquipChar,item.slot);
           const isOnThis=equip[item.slot]===item.id;
-          return `<div class="item-card ${alreadyEquipped&&!isOnThis?'equipped-elsewhere':''}" onclick="${alreadyEquipped&&!isOnThis?'':isOnThis?`unequipItem('${selectedEquipChar}','${item.slot}')`:`equipItem('${selectedEquipChar}','${item.id}')`}">
+          const availableCount=Math.max(0,count-getEquippedItemCount(item.id,selectedEquipChar));
+          const noFreeCopy=!isOnThis&&availableCount<=0;
+          return `<div class="item-card ${noFreeCopy?'equipped-elsewhere':''}" onclick="${noFreeCopy?'':isOnThis?`unequipItem('${selectedEquipChar}','${item.slot}')`:`equipItem('${selectedEquipChar}','${item.id}')`}">
             <div class="item-icon">${item.emoji}</div>
             <div class="item-info">
               <div class="item-name">${item.name}</div>
               <div class="item-stats">${item.desc}</div>
               <div class="item-type">${item.slot==='weapon'?'⚔ Arme':item.slot==='armor'?'🛡 Armure':'💍 Accessoire'}</div>
             </div>
-            <div class="item-count">×${count} ${isOnThis?'<span style="color:var(--green)">✓ Équipé</span>':''}</div>
+            <div class="item-count">×${count} · libres ${availableCount} ${isOnThis?'<span style="color:var(--green)">✓ Équipé</span>':noFreeCopy?'<span style="color:var(--red)">⛔ Tout équipé</span>':''}</div>
           </div>`;
         }).join('')}
     </div>`;
@@ -2560,13 +2568,23 @@ function getOwnedItems(){
   if(!state.items)return[];
   return Object.entries(state.items).filter(([,v])=>v>0).map(([id,count])=>({item:ITEM_DEFS.find(x=>x.id===id),count})).filter(x=>x.item);
 }
-function isItemEquippedElsewhere(itemId,excludeId,slot){
-  if(!state.equipment)return false;
-  return Object.entries(state.equipment).some(([cId,eq])=>cId!==excludeId&&eq[slot]===itemId);
+function getEquippedItemCount(itemId,excludeCharId=null){
+  if(!state.equipment)return 0;
+  let n=0;
+  Object.entries(state.equipment).forEach(([cId,eq])=>{
+    if(excludeCharId&&cId===excludeCharId)return;
+    if(eq.weapon===itemId)n++;
+    if(eq.armor===itemId)n++;
+    if(eq.accessory===itemId)n++;
+  });
+  return n;
 }
 function equipItem(charId,itemId){
   const item=ITEM_DEFS.find(x=>x.id===itemId);
   if(!item)return;
+  const ownedCount=(state.items&&state.items[itemId])||0;
+  const usedElsewhere=getEquippedItemCount(itemId,charId);
+  if(usedElsewhere>=ownedCount){showToast(`❌ Plus de copie libre pour ${item.name}`);return;}
   if(!state.equipment)state.equipment={};
   if(!state.equipment[charId])state.equipment[charId]={weapon:null,armor:null,accessory:null};
   state.equipment[charId][item.slot]=itemId;
