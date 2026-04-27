@@ -645,9 +645,18 @@ const ALL_CHARS=[
   // ★★★★★ / ★★★★★★ EXTENSION ENDGAME
   {id:'cid_shadow',name:'Cid Kagenou (Shadow)',anime:'The Eminence in Shadow',emoji:'🕶',rarity:5,atk:640,hp:1980,def:240,sp:'I Am Atomic',sDmg:1360,type:'Mage'},
   {id:'jinwoo',name:'Sung Jin-Woo',anime:'Solo Leveling',emoji:'🗡',rarity:5,atk:660,hp:2100,def:230,sp:'Monarch Domain',sDmg:1420,type:'Attaquant'},
+  {id:'kaido',name:'Kaido',anime:'One Piece',emoji:'🐲',rarity:5,atk:650,hp:2550,def:320,sp:'Thunder Bagua',sDmg:1320,type:'Tank'},
+  {id:'makima',name:'Makima',anime:'Chainsaw Man',emoji:'🐾',rarity:5,atk:620,hp:1900,def:220,sp:'Control Chain',sDmg:1340,type:'Mage'},
+  {id:'asta_du',name:'Asta Union',anime:'Black Clover',emoji:'🗡',rarity:5,atk:670,hp:2050,def:210,sp:'Demon-Slasher',sDmg:1460,type:'Attaquant'},
   {id:'anos',name:'Anos Voldigoad',anime:'Misfit of Demon King Academy',emoji:'👑',rarity:6,atk:1360,hp:3100,def:900,sp:'Venuzdonoa',sDmg:2350,type:'Mage'},
   {id:'gilgamesh',name:'Gilgamesh',anime:'Fate',emoji:'🏹',rarity:6,atk:1380,hp:2950,def:880,sp:'Enuma Elish',sDmg:2420,type:'Attaquant'},
+  {id:'yamamoto',name:'Genryusai Yamamoto',anime:'Bleach',emoji:'🔥',rarity:6,atk:1250,hp:3250,def:515,sp:'Zanka no Tachi',sDmg:2330,type:'Mage'},
+  {id:'rimuru_td',name:'Rimuru True Dragon',anime:'Tensei Slime',emoji:'🩵',rarity:6,atk:1070,hp:3350,def:490,sp:'Void God Azathoth',sDmg:2080,type:'Support'},
   {id:'frieren',name:'Frieren',anime:'Frieren',emoji:'🪄',rarity:4,atk:470,hp:1500,def:190,sp:'Zoltraak',sDmg:790,type:'Mage'},
+  {id:'power',name:'Power',anime:'Chainsaw Man',emoji:'🩸',rarity:4,atk:455,hp:1380,def:155,sp:'Blood Hammer',sDmg:755,type:'Attaquant'},
+  {id:'mash',name:'Mash Burnedead',anime:'Mashle',emoji:'💪',rarity:4,atk:445,hp:1620,def:190,sp:'Muscle Magic',sDmg:740,type:'Tank'},
+  {id:'violet',name:'Violet Evergarden',anime:'Violet Evergarden',emoji:'✉️',rarity:3,atk:245,hp:980,def:130,sp:'Auto Memory Shot',sDmg:390,type:'Support'},
+  {id:'gabimaru',name:'Gabimaru',anime:'Hell\'s Paradise',emoji:'🌺',rarity:3,atk:305,hp:950,def:116,sp:'Ninpo: Blaze',sDmg:475,type:'Attaquant'},
   // ★★★★★★ ULTRA-LÉGENDAIRES (0.3% — très rares !)
   {id:'goku_ultra',name:'Goku Ultra Instinct',anime:'Dragon Ball Super',emoji:'⚪',rarity:6,atk:950,hp:3800,def:420,sp:'Ultra Instinct Kamehameha',sDmg:2200,type:'Attaquant'},
   {id:'naruto_baryon',name:'Naruto Mode Baryon',anime:'Naruto',emoji:'☀',rarity:6,atk:900,hp:3500,def:390,sp:'Baryon Rasenshuriken',sDmg:2100,type:'Attaquant'},
@@ -769,9 +778,45 @@ const ARCS = [
     {name:'Nexus Vivant',emoji:'🔺',hp:43000,atk:1960,def:820,abilities:['enrage','shield','counter','poison','regen','dodge']},
     {name:'⚠ BOSS FINAL+: Entité Oméga',emoji:'🌟',hp:180000,atk:2200,def:900,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
   ]},
+  {id:10,name:'Abîme Paradoxal',emoji:'🧿',waves:14,unlockAt:84,
+   enemies:[
+    {name:'Éclaireur du Néant',emoji:'🗡',hp:42000,atk:2050,def:820,abilities:['counter','dodge','poison']},
+    {name:'Sentinelle Binaire',emoji:'🤖',hp:45000,atk:2100,def:850,abilities:['shield','regen','counter']},
+    {name:'Dragon Sigma',emoji:'🐉',hp:48000,atk:2160,def:880,abilities:['enrage','shield','counter','poison']},
+    {name:'Oracle Rupturé',emoji:'🔮',hp:50000,atk:2200,def:900,abilities:['dodge','regen','counter']},
+    {name:'Titan Gravitationnel',emoji:'🪨',hp:53000,atk:2260,def:940,abilities:['shield','counter','regen','enrage']},
+    {name:'Phantom 0xFF',emoji:'👤',hp:56000,atk:2320,def:980,abilities:['poison','dodge','counter','enrage']},
+    {name:'Annihilateur Céleste',emoji:'☄',hp:60000,atk:2380,def:1020,abilities:['shield','counter','regen','poison']},
+    {name:'Colosse Delta',emoji:'🗿',hp:64000,atk:2440,def:1060,abilities:['enrage','shield','counter','regen','dodge']},
+    {name:'Héraut de Ruine',emoji:'⚠',hp:68000,atk:2500,def:1100,abilities:['poison','counter','enrage','shield']},
+    {name:'Avatar du Vide',emoji:'🌑',hp:72000,atk:2560,def:1140,abilities:['regen','dodge','counter','enrage']},
+    {name:'Cœur de Singularité',emoji:'💠',hp:76000,atk:2620,def:1180,abilities:['shield','counter','regen','poison','dodge']},
+    {name:'Lame du Jugement',emoji:'🗡',hp:80000,atk:2680,def:1220,abilities:['enrage','counter','shield','regen']},
+    {name:'Régent d\'Oblivion',emoji:'👑',hp:86000,atk:2750,def:1270,abilities:['poison','dodge','counter','shield','regen']},
+    {name:'⚠ BOSS: Empereur Paradoxal',emoji:'🧠',hp:260000,atk:3000,def:1400,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
+  {id:11,name:'Trône des Origines',emoji:'👁‍🗨',waves:16,unlockAt:98,
+   enemies:[
+    {name:'Gardien Primordial I',emoji:'⚔',hp:70000,atk:2700,def:1150,abilities:['counter','shield','regen']},
+    {name:'Gardien Primordial II',emoji:'🛡',hp:74000,atk:2760,def:1200,abilities:['enrage','poison','counter']},
+    {name:'Archonte du Zéro',emoji:'0️⃣',hp:78000,atk:2820,def:1250,abilities:['dodge','counter','regen']},
+    {name:'Démon Axiome',emoji:'😈',hp:82000,atk:2880,def:1300,abilities:['shield','counter','poison','enrage']},
+    {name:'Séraphin Inversé',emoji:'😇',hp:86000,atk:2940,def:1350,abilities:['regen','dodge','counter','shield']},
+    {name:'Nœud Quantique',emoji:'🧬',hp:90000,atk:3000,def:1400,abilities:['enrage','counter','shield','poison']},
+    {name:'Marteau Cosmique',emoji:'🔨',hp:96000,atk:3070,def:1460,abilities:['shield','regen','counter','dodge']},
+    {name:'Éclipse Totale',emoji:'🌘',hp:102000,atk:3140,def:1520,abilities:['poison','counter','enrage','shield','regen']},
+    {name:'Faille Omnisciente',emoji:'🕳',hp:108000,atk:3210,def:1580,abilities:['dodge','counter','regen','enrage']},
+    {name:'Exécuteur Cardinal',emoji:'✴',hp:114000,atk:3280,def:1640,abilities:['shield','counter','poison','regen']},
+    {name:'Titan Ultime',emoji:'🏔',hp:122000,atk:3360,def:1710,abilities:['enrage','shield','counter','poison','regen']},
+    {name:'Couronne du Néant',emoji:'♛',hp:130000,atk:3440,def:1780,abilities:['dodge','counter','regen','shield','enrage']},
+    {name:'Loi du Chaos',emoji:'📜',hp:140000,atk:3520,def:1860,abilities:['poison','counter','shield','regen','dodge']},
+    {name:'Œil Absolu',emoji:'👁',hp:150000,atk:3600,def:1940,abilities:['enrage','counter','shield','poison','regen']},
+    {name:'Porte Finale',emoji:'🚪',hp:165000,atk:3700,def:2040,abilities:['dodge','counter','regen','shield','enrage']},
+    {name:'⚠ BOSS ULTIME+: Souverain des Origines',emoji:'🜂',hp:400000,atk:4200,def:2400,abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true},
+  ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -1076,7 +1121,7 @@ function removeFromTeam(i,e){e.stopPropagation();state.team[i]=null;save();rende
 function getTotalWavesDone(){return ARCS.reduce((sum,a)=>sum+(state.arcProgress[a.id]||0),0);}
 
 function renderBattleScreen(){
-  if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+  if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0};
   const cont=document.getElementById('arc-selector-container');
   const totalDone=getTotalWavesDone();
   cont.innerHTML=`<div class="arc-selector">${ARCS.map(a=>{
@@ -1411,7 +1456,7 @@ function checkBattleEnd(){
   const bs=state.battleState;
   if(bs.enemy.currentHp<=0){
     bs.over=true;bs.won=true;
-    if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+    if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0};
     state.arcProgress[state.currentArc]=(state.arcProgress[state.currentArc]||0)+1;
     state.totalWins=(state.totalWins||0)+1;
     // Win streak bonus
@@ -1469,7 +1514,7 @@ const AWAKEN_BALANCE={
   tearsCostByLevel:[3,3,4,4,5,5,6,6,7,8], // lvl 0..9
   awakenedGoldMult:1.2,
   convertAwakenedBatchTears:10,
-  arcBossTears:{4:[1,2],5:[2,3],6:[3,4],7:[4,5],8:[5,6],9:[6,7]},
+  arcBossTears:{4:[1,2],5:[2,3],6:[3,4],7:[4,5],8:[5,6],9:[6,7],10:[7,8],11:[8,10]},
 };
 
 function getCharLevel(id){
@@ -1597,6 +1642,14 @@ const PASSIVES = {
   kaneki:    {name:'Ghoul RC',             desc:'Vole 20% des dégâts infligés en HP (lifesteal renforcé)', fn:null, isLifesteal:true, lifestealAmt:.2},
   accelerator:{name:'Réflexion Vectorielle',desc:'Bloque complètement la 1ère attaque ennemie du combat', fn:null, isFirstBlock:true},
   senku:     {name:'10 Milliards %',       desc:'Boost l\'ATK de toute l\'équipe de 8% chaque fois qu\'un allié utilise sa spéciale', fn:null, isSenkuBoost:true},
+  // Nouveaux ajouts chill
+  kaido:     {name:'Écailles du Dragon',   desc:'Réduit les dégâts reçus de 15%', fn:null, isDmgReduce:true, reduceAmt:.15},
+  makima:    {name:'Contrat de Contrôle',  desc:'10% de chance de refléter 50% des dégâts reçus', fn:null, isReflect:true, reflectChance:.1},
+  asta_du:   {name:'Anti-Magie',           desc:'20% de chance de doubler les dégâts d\'attaque normale', fn:(hero,bs)=>Math.random()<.2?2:1, isDmgMult:true},
+  power:     {name:'Furie Sanguine',       desc:'Vole 12% des dégâts infligés en HP', fn:null, isLifesteal:true, lifestealAmt:.12},
+  mash:      {name:'Corps Inébranlable',   desc:'Réduit les dégâts reçus de 18%', fn:null, isDmgReduce:true, reduceAmt:.18},
+  violet:    {name:'Sang-Froid',           desc:'25% de chance d\'esquiver les attaques ennemies', fn:null, isDodge:true, dodgeChance:.25},
+  gabimaru:  {name:'Ninja Immortel',       desc:'30% de chance d\'attaquer 2 fois par tour', fn:null, isDoubleHit:true, doubleChance:.3},
 };
 
 function getPassive(id){ return PASSIVES[getBaseId(id)]||null; }
@@ -1798,6 +1851,8 @@ const ACHIEVEMENTS=[
   {id:'arc7done',     icon:'🌠',name:'Maître de l\'Au-Delà', desc:'Terminez l\'Arc 7 — le jeu est vaincu !',     reward:'💎×1000',rewardFn:()=>{state.crystals+=1000;},check:()=>(state.arcProgress&&state.arcProgress[7]||0)>=12,progress:()=>Math.min(12,(state.arcProgress&&state.arcProgress[7])||0),max:12},
   {id:'arc8done',     icon:'🪐',name:'Régent du Néant',      desc:'Terminez l\'Arc 8',                             reward:'💎×1200',rewardFn:()=>{state.crystals+=1200;},check:()=>(state.arcProgress&&state.arcProgress[8]||0)>=12,progress:()=>Math.min(12,(state.arcProgress&&state.arcProgress[8])||0),max:12},
   {id:'arc9done',     icon:'🌟',name:'Briseur de Singularité',desc:'Terminez l\'Arc 9 (endgame+)',                 reward:'💎×1800',rewardFn:()=>{state.crystals+=1800;},check:()=>(state.arcProgress&&state.arcProgress[9]||0)>=14,progress:()=>Math.min(14,(state.arcProgress&&state.arcProgress[9])||0),max:14},
+  {id:'arc10done',    icon:'🧿',name:'Conquérant Paradoxal',  desc:'Terminez l\'Arc 10',                            reward:'💎×2200',rewardFn:()=>{state.crystals+=2200;},check:()=>(state.arcProgress&&state.arcProgress[10]||0)>=14,progress:()=>Math.min(14,(state.arcProgress&&state.arcProgress[10])||0),max:14},
+  {id:'arc11done',    icon:'🜂',name:'Souverain des Origines',desc:'Terminez l\'Arc 11 (ultra endgame)',            reward:'💎×3000',rewardFn:()=>{state.crystals+=3000;},check:()=>(state.arcProgress&&state.arcProgress[11]||0)>=16,progress:()=>Math.min(16,(state.arcProgress&&state.arcProgress[11])||0),max:16},
   {id:'collect_all5', icon:'👑',name:'Complétiste Légendaire',desc:'Possédez tous les personnages ★★★★★',        reward:'💎×500', rewardFn:()=>{state.crystals+=500;}, check:()=>ALL_CHARS.filter(c=>c.rarity===5).every(c=>(state.owned[c.id]||0)>0),progress:()=>ALL_CHARS.filter(c=>c.rarity===5&&(state.owned[c.id]||0)>0).length,max:ALL_CHARS.filter(c=>c.rarity===5).length},
 ];
 
@@ -2628,15 +2683,17 @@ function dropMaterials(arcId,isBoss=false){
     7:{iron:[5,10],cloth:[4,8],magic_shard:[3,6],rare_crystal:[1,3]},
     8:{iron:[6,11],cloth:[5,9],magic_shard:[4,7],rare_crystal:[2,4]},
     9:{iron:[7,13],cloth:[6,10],magic_shard:[5,8],rare_crystal:[3,5]},
+	10:{iron:[8,14],cloth:[7,11],magic_shard:[6,9],rare_crystal:[4,6]},
+    11:{iron:[9,16],cloth:[8,12],magic_shard:[7,10],rare_crystal:[5,7]},
   };
-  const drops=dropTable[Math.min(arcId,9)]||dropTable[9];
+  const drops=dropTable[Math.min(arcId,11)]||dropTable[11];
   const gained=[];
   Object.entries(drops).forEach(([mat,[min,max]])=>{
     const amt=randInt(min,max);
     if(amt>0){state.materials[mat]=(state.materials[mat]||0)+amt;gained.push(`${MATERIAL_NAMES[mat]} ×${amt}`);}
   });
   if(isBoss&&arcId>=4){
-    const [minT,maxT]=AWAKEN_BALANCE.arcBossTears[Math.min(9,arcId)]||[6,7];
+    const [minT,maxT]=AWAKEN_BALANCE.arcBossTears[Math.min(11,arcId)]||[8,10];
     const tears=randInt(minT,maxT);
     state.materials.awakening_tears=(state.materials.awakening_tears||0)+tears;
     gained.push(`${MATERIAL_NAMES.awakening_tears} ×${tears}`);
@@ -2665,7 +2722,7 @@ function giveAllForTesting(){
   state.totalWins=Math.max(state.totalWins||0,250);
   state.bossKills=Math.max(state.bossKills||0,50);
   state.infiniteBest=Math.max(state.infiniteBest||0,35);
-  state.arcProgress={1:5,2:6,3:7,4:8,5:10,6:10,7:12,8:12,9:14};
+  state.arcProgress={1:5,2:6,3:7,4:8,5:10,6:10,7:12,8:12,9:14,10:14,11:16};
   if(!state.upgrades)state.upgrades={};
   ALL_CHARS.forEach(c=>{state.upgrades[c.id]={atk:10,hp:10,def:10};});
   state.awakenedOwned={};
@@ -2688,7 +2745,7 @@ function resetForTesting(){
     owned:{gon:1,krillin:1,rock_lee:1},
     team:['gon','krillin','rock_lee'],
     currentArc:1,
-    arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0},
+    arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},
     pity:0,
     battleState:null,
     autoMode:false,
@@ -2800,6 +2857,8 @@ const PASSIVES_6={
   all_might:    {name:'Symbol of Peace',  desc:'L\'équipe entière récupère 5% HP max/tour tant qu\'il est vivant',     fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.05));});}},
   anos:         {name:'Roi Démon Absolu', desc:'Ignore 30% DEF ennemie et réduit les dégâts reçus de 20%',            isDmgReduce:true,reduceAmt:.2},
   gilgamesh:    {name:'Porte de Babylone',desc:'30% de chance de doubler les dégâts de spéciale',                      isDmgMult:true,fn:(hero,bs)=>Math.random()<.3?2:1},
+  yamamoto:     {name:'Flammes Primordiales',desc:'Inflige +35% dégâts critiques et réduit dégâts reçus de 15%',       isDmgReduce:true,reduceAmt:.15,isCritBoost:true},
+  rimuru_td:    {name:'Noyau Azathoth',   desc:'Soigne 6% HP max de toute l\'équipe à chaque début de tour',           fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.06));});}},
 };
 // Merge into PASSIVES
 Object.assign(PASSIVES,PASSIVES_6);
@@ -2909,11 +2968,13 @@ function rollChar(){
 // INIT
 buildStars();
 load();
-if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0};
 if(state.arcProgress[6]===undefined)state.arcProgress[6]=0;
 if(state.arcProgress[7]===undefined)state.arcProgress[7]=0;
 if(state.arcProgress[8]===undefined)state.arcProgress[8]=0;
 if(state.arcProgress[9]===undefined)state.arcProgress[9]=0;
+if(state.arcProgress[10]===undefined)state.arcProgress[10]=0;
+if(state.arcProgress[11]===undefined)state.arcProgress[11]=0;
 if(!state.totalWins)state.totalWins=0;
 if(!state.upgrades)state.upgrades={};
 if(!state.fusionCount)state.fusionCount=0;
