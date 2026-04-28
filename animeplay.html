@@ -347,6 +347,17 @@
   .quest-claim-btn:hover{box-shadow:0 0 10px rgba(57,255,20,.3);}
   .quest-claim-btn:disabled{opacity:.35;cursor:not-allowed;color:var(--muted);border-color:var(--border);}
   .quest-reset{font-size:.72rem;color:var(--muted);text-align:center;margin-bottom:14px;}
+  .profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;}
+  .profile-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+  .profile-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .profile-val{font-size:1.05rem;color:var(--gold);font-weight:700;margin-top:4px;}
+  .chart-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;}
+  .chart-title{font-size:.75rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+  .hbar-row{display:flex;align-items:center;gap:8px;margin:6px 0;}
+  .hbar-label{width:140px;font-size:.72rem;color:var(--muted);}
+  .hbar-track{flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
+  .hbar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));}
+  .hbar-val{width:86px;text-align:right;font-size:.7rem;color:var(--gold);}
   /* ── SHOP ── */
   .shop-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
   @media(max-width:980px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
@@ -404,6 +415,7 @@
     <button class="tab-btn" onclick="showTab('equipment',this)">⚙ Équipement</button>
     <button class="tab-btn" onclick="showTab('shop',this)">🛒 Boutique</button>
     <button class="tab-btn" onclick="showTab('quests',this)">📋 Quêtes</button>
+    <button class="tab-btn" onclick="showTab('profile',this)">👤 Profil</button>
     <button class="tab-btn" onclick="showTab('battle',this)">🔥 Combat</button>
     <button class="tab-btn" onclick="showTab('infinite',this)">♾ Infini</button>
     <button class="tab-btn" onclick="showTab('achievements',this)">🏆 Succès</button>
@@ -538,6 +550,12 @@
     <div class="section-title">📋 QUÊTES JOURNALIÈRES</div>
     <div class="quest-reset" id="quest-reset-info"></div>
     <div id="quests-content"></div>
+  </div>
+
+  <div id="profile" class="screen">
+    <div class="section-title">👤 STATISTIQUES JOUEUR</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px;text-align:center;">Suivi global de tes combats : dégâts, critiques, ratios et performances.</div>
+    <div id="profile-content"></div>
   </div>
 
   <div id="history" class="screen">
@@ -818,7 +836,7 @@ const ARCS = [
   ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,updateGiftDaily:{date:'',claimed:false}};
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,updateGiftDaily:{date:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -855,6 +873,7 @@ function showTab(name,btn){
   if(name==='infinite')renderInfiniteScreen();
   if(name==='shop')renderShop();
   if(name==='quests')renderQuests();
+  if(name==='profile')renderProfile();
   if(name==='history')renderHistory();
   if(name==='equipment')renderEquipment();
   if(name==='battle')renderBattleScreen();
@@ -1271,8 +1290,8 @@ function addLog(text,type=''){state.battleState.log.push({text,type});}
 
 function doAttack(mode){
   const bs=state.battleState;if(!bs||bs.over)return;
+  if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
   if(mode==='burst'&&(bs.burstCharge||0)<3)return;
-  if(mode==='special'&&!bs.heroes.filter(h=>h.currentHp>0).some(h=>(h.spCooldown||0)===0))return;
   const alive=bs.heroes.filter(h=>h.currentHp>0);
   if(!alive.length){checkBattleEnd();return;}
   tickStatuses(bs);
@@ -1292,6 +1311,7 @@ function doAttack(mode){
       const critMult=getPassive(hero.id)&&getPassive(hero.id).isCritBoost?2.5:1.8;
       if(isCrit){dmg=Math.round(dmg*critMult);logType='log-crit';logText=`💥 CRITIQUE! ${hero.name} frappe (${dmg} dmg)`;}
       else logText=`⚔ ${hero.name} attaque (${dmg} dmg)`;
+      if(isCrit)state.playerStats.critHits=(state.playerStats.critHits||0)+1;
       // Double hit passive
       if(getPassive(hero.id)&&getPassive(hero.id).isDoubleHit&&Math.random()<getPassive(hero.id).doubleChance){
         const d2=Math.max(1,hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15))-bs.enemy.def);
@@ -1317,12 +1337,14 @@ function doAttack(mode){
           logText=`✨ ${hero.name}: ${hero.sp}! (${dmg} dmg)`;logType='log-special';
         }
         hero.spCooldown=hero.spMaxCd||3;
+        state.playerStats.specialCasts=(state.playerStats.specialCasts||0)+1;
         trackQuest('dailySp');
         applyPassiveTrigger(hero,bs,'onSpecial');
         if(hero.type==='Support'){
           const heal=Math.round(hero.atk*1.5);
           const t=alive[Math.floor(Math.random()*alive.length)];
           t.currentHp=Math.min(t.maxHp,t.currentHp+heal);
+          state.playerStats.healingDone=(state.playerStats.healingDone||0)+heal;
           const tIdx=bs.heroes.indexOf(t);
           bs._pendingFloats.push({id:`hero-${tIdx}`,cls:'anim-attack',delay:200,float:'+'+heal,floatId:`hero-${tIdx}`,color:'#39ff14'});
           addLog(`💚 ${hero.name} soigne ${t.name} (+${heal} HP)`,'log-heal');
@@ -1360,6 +1382,9 @@ function doAttack(mode){
       dmg=dmg*2; logText+=' [×2 SUKUNA!]';
     }
     dmg=Math.max(1,dmg-defReduction);
+    state.playerStats.totalHits=(state.playerStats.totalHits||0)+1;
+    state.playerStats.totalDamage=(state.playerStats.totalDamage||0)+dmg;
+    if(dmg>(state.playerStats.maxHit||0))state.playerStats.maxHit=dmg;
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
     // Queue enemy-hit animation + damage float
     const isCritDmg=(logType==='log-crit');
@@ -1457,6 +1482,7 @@ function tickStatuses(bs){
 function checkBattleEnd(){
   const bs=state.battleState;
   if(bs.enemy.currentHp<=0){
+    if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
     bs.over=true;bs.won=true;
     if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0};
     state.arcProgress[state.currentArc]=(state.arcProgress[state.currentArc]||0)+1;
@@ -1474,12 +1500,16 @@ function checkBattleEnd(){
     if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;trackQuest('dailyBoss');}
     giveXp(30+state.currentArc*10);
     trackQuest('dailyWins');
+    state.playerStats.battlesWon=(state.playerStats.battlesWon||0)+1;
     dropMaterials(state.currentArc,bs.enemy.isBoss);
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
   } else {
     const alive=bs.heroes.filter(h=>h.currentHp>0);
-    if(!alive.length){bs.over=true;bs.won=false;addLog('💔 Défaite... Renforcez votre équipe!','log-crit');state.winStreak=0;save();if(state.autoMode)toggleAuto();}
+    if(!alive.length){
+      if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
+      bs.over=true;bs.won=false;addLog('💔 Défaite... Renforcez votre équipe!','log-crit');state.winStreak=0;state.playerStats.battlesLost=(state.playerStats.battlesLost||0)+1;save();if(state.autoMode)toggleAuto();
+    }
   }
 }
 
@@ -2487,6 +2517,38 @@ function renderQuests(){
     renderQuestList('🗓️ Quêtes hebdomadaires', 'weekly', state.quests.weeklyActive||[])+
     renderQuestList('📆 Quêtes mensuelles', 'monthly', state.quests.monthlyActive||[]);
 }
+function renderProfile(){
+  const cont=document.getElementById('profile-content');
+  if(!cont)return;
+  if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
+  const ps=state.playerStats;
+  const critRate=ps.totalHits>0?Math.round(ps.critHits/ps.totalHits*100):0;
+  const winTotal=(ps.battlesWon||0)+(ps.battlesLost||0);
+  const winRate=winTotal>0?Math.round(ps.battlesWon/winTotal*100):0;
+  const avgHit=ps.totalHits>0?Math.round(ps.totalDamage/ps.totalHits):0;
+  const chartMax=Math.max(1,ps.totalDamage,ps.healingDone,ps.maxHit,avgHit);
+  const bars=[
+    {label:'Dégâts totaux',value:ps.totalDamage,color:'linear-gradient(90deg,#ff5d5d,#ff9966)'},
+    {label:'Soin total',value:ps.healingDone,color:'linear-gradient(90deg,#39ff14,#00c853)'},
+    {label:'Coup max',value:ps.maxHit,color:'linear-gradient(90deg,#ffd54f,#ffb300)'},
+    {label:'Dégât moyen/coup',value:avgHit,color:'linear-gradient(90deg,#00d4ff,#7c4dff)'},
+  ];
+  cont.innerHTML=`
+    <div class="profile-grid">
+      <div class="profile-card"><div class="profile-label">⚔ Dégâts infligés</div><div class="profile-val">${(ps.totalDamage||0).toLocaleString()}</div></div>
+      <div class="profile-card"><div class="profile-label">💥 Taux critique</div><div class="profile-val">${critRate}%</div></div>
+      <div class="profile-card"><div class="profile-label">🏆 Taux de victoire</div><div class="profile-val">${winRate}%</div></div>
+      <div class="profile-card"><div class="profile-label">✨ Spéciales lancées</div><div class="profile-val">${(ps.specialCasts||0).toLocaleString()}</div></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-title">Graphiques de performance</div>
+      ${bars.map(b=>`<div class="hbar-row">
+        <div class="hbar-label">${b.label}</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:${Math.max(2,Math.round((b.value/chartMax)*100))}%;background:${b.color}"></div></div>
+        <div class="hbar-val">${(b.value||0).toLocaleString()}</div>
+      </div>`).join('')}
+    </div>`;
+}
 
 // ═══════════════════════════════════════════
 //  PULL HISTORY
@@ -2881,6 +2943,7 @@ function resetForTesting(){
     winStreak:0,
     forgeKitDaily:{date:'',count:0},
 	updateGiftDaily:{date:'',claimed:false},
+	playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0},
     equipment:{},
     materials:{},
     items:{},
@@ -3112,6 +3175,7 @@ if(!state.infiniteBest)state.infiniteBest=0;
 if(!state.winStreak)state.winStreak=0;
 if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
 if(!state.updateGiftDaily)state.updateGiftDaily={date:'',claimed:false};
+if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
 if(!state.equipment)state.equipment={};
 if(!state.materials)state.materials={};
 if(!state.items)state.items={};
