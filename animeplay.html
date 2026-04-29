@@ -358,6 +358,11 @@
   .hbar-track{flex:1;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
   .hbar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));}
   .hbar-val{width:86px;text-align:right;font-size:.7rem;color:var(--gold);}
+  .weekly-event-box{margin:10px 0 12px;padding:10px 12px;background:linear-gradient(135deg,rgba(230,57,70,.12),rgba(180,79,255,.12));border:1px solid rgba(230,57,70,.45);border-radius:10px;}
+  .weekly-event-title{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--red);letter-spacing:1px;}
+  .weekly-event-desc{font-size:.72rem;color:var(--muted);margin-top:4px;}
+  .weekly-event-btn{margin-top:8px;background:linear-gradient(135deg,#3a0d12,#5e1520);border:1px solid var(--red);color:#ffd6da;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;}
+  .weekly-event-btn:disabled{opacity:.45;cursor:not-allowed;}
   /* ── SHOP ── */
   .shop-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
   @media(max-width:980px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
@@ -836,7 +841,7 @@ const ARCS = [
   ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,updateGiftDaily:{date:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -1145,7 +1150,15 @@ function renderBattleScreen(){
   if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0};
   const cont=document.getElementById('arc-selector-container');
   const totalDone=getTotalWavesDone();
-  cont.innerHTML=`<div class="arc-selector">${ARCS.map(a=>{
+  const wk=getWeekKey();
+  if(!state.weeklyEvent)state.weeklyEvent={weekKey:'',claimed:false};
+  if(state.weeklyEvent.weekKey!==wk)state.weeklyEvent={weekKey:wk,claimed:false};
+  const eventClaimed=!!state.weeklyEvent.claimed;
+  cont.innerHTML=`<div class="weekly-event-box">
+    <div class="weekly-event-title">☠ ÉVÉNEMENT HEBDO — Boss Spécial Ultra-Dur</div>
+    <div class="weekly-event-desc">Affrontez "Nihilax, Tyran Hebdomadaire". Récompense unique (1 fois/semaine): 🎟 Sigil du Néant + 💎900 + 🪙9000 + 💫12.</div>
+    <button class="weekly-event-btn" onclick="startWeeklyEventBattle()" ${eventClaimed?'disabled':''}>${eventClaimed?'✅ Déjà terminé cette semaine':'🔥 Lancer le Boss Hebdo'}</button>
+  </div><div class="arc-selector">${ARCS.map(a=>{
     const unlocked=totalDone>=(a.unlockAt||0)||a.id===1;
     const wd=state.arcProgress[a.id]||0;
     const done=wd>=a.waves;
@@ -1163,6 +1176,30 @@ function selectArc(id){
   if(totalDone<(arc.unlockAt||0)&&id!==1)return;
   state.currentArc=id;state.battleState=null;
   save();updateRes();renderBattleScreen();
+}
+
+function startWeeklyEventBattle(){
+  const wk=getWeekKey();
+  if(!state.weeklyEvent)state.weeklyEvent={weekKey:wk,claimed:false};
+  if(state.weeklyEvent.weekKey!==wk)state.weeklyEvent={weekKey:wk,claimed:false};
+  if(state.weeklyEvent.claimed){showToast('✅ Boss hebdo déjà vaincu cette semaine.');return;}
+  const chars=state.team.map(id=>id?{...getCharById(id)}:null).filter(Boolean);
+  if(chars.length===0){showToast('❌ Équipe vide !');return;}
+  chars.forEach(c=>{
+    const up=state.upgrades[c.id]||{atk:0,hp:0,def:0};
+    const equip=getItemBonus(c.id);
+    const aw=getAwakenMultiplier(c.id);
+    c.atk=Math.round((Math.round(c.atk*(1+up.atk*0.08))+equip.atk)*aw);
+    c.hp=Math.round((Math.round(c.hp*(1+up.hp*0.12))+equip.hp)*aw);
+    c.def=Math.round((Math.round(c.def*(1+up.def*0.07))+equip.def)*aw);
+    c.sDmg=Math.round((Math.round(c.sDmg*(1+up.atk*0.08))+equip.sDmg)*aw);
+    c.critChance=0.2+(equip.critBoost||0);
+    c.maxHp=c.hp;c.currentHp=c.hp;c.statuses=[];c.shield=0;c.spCooldown=0;c.spMaxCd=3;
+  });
+  const enemy={name:'☠ Nihilax, Tyran Hebdomadaire',emoji:'🜏',hp:520000,maxHp:520000,currentHp:520000,atk:5200,def:2400,shield:0,enraged:false,statuses:[],currentAbilities:['enrage','shield','counter','poison','regen','dodge'],abilities:['enrage','shield','counter','poison','regen','dodge'],isBoss:true,element:'dark'};
+  state.battleState={heroes:chars,enemy,log:[{text:'⚠ Boss Hebdo actif: mode ultra-dur !',type:'log-crit'}],turn:0,over:false,won:false,burstCharge:0,combo:0,isWeeklyEvent:true};
+  chars.forEach(h=>applyPassiveTrigger(h,state.battleState,'onBattleStart'));
+  save();renderBattleUI();
 }
 
 function getEnemyForCurrentWave(){
@@ -1498,6 +1535,19 @@ function checkBattleEnd(){
     const arc=ARCS.find(a=>a.id===state.currentArc);
     if(state.arcProgress[state.currentArc]>=arc.waves)addLog(`✅ Arc "${arc.name}" terminé!`,'log-win');
     if(bs.enemy.isBoss){state.bossKills=(state.bossKills||0)+1;trackQuest('dailyBoss');}
+    if(bs.isWeeklyEvent){
+      const wk=getWeekKey();
+      if(!state.weeklyEvent||state.weeklyEvent.weekKey!==wk)state.weeklyEvent={weekKey:wk,claimed:false};
+      if(!state.weeklyEvent.claimed){
+        if(!state.items)state.items={};
+        if(!state.materials)state.materials={};
+        state.weeklyEvent.claimed=true;
+        state.items.void_katana=(state.items.void_katana||0)+1;
+        state.crystals+=900;state.gold+=9000;
+        state.materials.awakening_tears=(state.materials.awakening_tears||0)+12;
+        addLog('🎟 Récompense unique hebdo: Katana du Néant +900💎 +9000🪙 +12💫','log-win');
+      }
+    }
     giveXp(30+state.currentArc*10);
     trackQuest('dailyWins');
     state.playerStats.battlesWon=(state.playerStats.battlesWon||0)+1;
@@ -2943,6 +2993,7 @@ function resetForTesting(){
     winStreak:0,
     forgeKitDaily:{date:'',count:0},
 	updateGiftDaily:{date:'',claimed:false},
+	weeklyEvent:{weekKey:'',claimed:false},
 	playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0},
     equipment:{},
     materials:{},
@@ -3175,6 +3226,7 @@ if(!state.infiniteBest)state.infiniteBest=0;
 if(!state.winStreak)state.winStreak=0;
 if(!state.forgeKitDaily)state.forgeKitDaily={date:'',count:0};
 if(!state.updateGiftDaily)state.updateGiftDaily={date:'',claimed:false};
+if(!state.weeklyEvent)state.weeklyEvent={weekKey:'',claimed:false};
 if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
 if(!state.equipment)state.equipment={};
 if(!state.materials)state.materials={};
