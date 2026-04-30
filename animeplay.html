@@ -2743,12 +2743,14 @@ let selectedEquipChar=null;
 
 function getCharEquip(id){
   if(!state.equipment)state.equipment={};
-  if(!state.equipment[id])state.equipment[id]={weapon:null,armor:null,accessory:null};
-  return state.equipment[id];
+  const baseId=getBaseId(id);
+  if(!state.equipment[baseId])state.equipment[baseId]={weapon:null,armor:null,accessory:null};
+  return state.equipment[baseId];
 }
 function getItemBonus(id){
   if(!state.equipment)state.equipment={};
-  const equip=getCharEquip(id);
+  const baseId=getBaseId(id);
+  const equip=getCharEquip(baseId);
   const bonus={atk:0,hp:0,def:0,sDmg:0,critBoost:0};
   ['weapon','armor','accessory'].forEach(slot=>{
     const itemId=equip[slot];
