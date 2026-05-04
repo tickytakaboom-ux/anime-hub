@@ -389,6 +389,23 @@
   .hist-stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;justify-content:center;}
   .hist-stat{font-size:.8rem;color:var(--muted);}
   .hist-stat span{color:var(--gold);font-weight:700;}
+  
+  .temp-event-fab{position:fixed;top:14px;right:14px;z-index:9998;background:linear-gradient(135deg,#2a0c3f,#4b1f73);border:1px solid rgba(180,79,255,.6);color:#f2e8ff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 18px rgba(180,79,255,.35);backdrop-filter:blur(4px);transition:transform .2s ease,box-shadow .2s ease;animation:event-fab-pulse 2.2s ease-in-out infinite;padding:0;line-height:1.1;text-align:center;}
+  .temp-event-fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,.4),0 0 28px rgba(180,79,255,.55);}
+  .temp-event-fab.hidden{display:none;}
+  .temp-event-modal{position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(180,79,255,.2),transparent 45%),rgba(0,0,0,.76);display:none;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity .25s ease;}
+  .temp-event-modal.show{display:flex;opacity:1;}
+  .temp-event-box{width:min(92vw,720px);background:linear-gradient(180deg,#0e1220,#131a2b);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 26px rgba(0,212,255,.16);position:relative;overflow:hidden;animation:event-modal-in .25s ease;}
+  .temp-event-box::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%);transform:translateX(-100%);animation:event-shimmer 4s linear infinite;pointer-events:none;}
+  .temp-event-track{height:18px;background:rgba(255,255,255,.08);border-radius:12px;overflow:hidden;margin:10px 0;border:1px solid rgba(255,255,255,.08);}
+  .temp-event-fill{height:100%;background:linear-gradient(90deg,#00d4ff,#7e6dff,#b44fff);background-size:180% 180%;animation:event-fill-flow 2.8s ease-in-out infinite;}
+  .temp-step{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px 10px;margin:7px 0;background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.01));transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;}
+  .temp-step:hover{transform:translateY(-1px);border-color:rgba(0,212,255,.4);box-shadow:0 6px 14px rgba(0,0,0,.25);}
+  @keyframes event-fab-pulse{0%,100%{box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 16px rgba(180,79,255,.3);}50%{box-shadow:0 10px 24px rgba(0,0,0,.45),0 0 26px rgba(180,79,255,.6);}}
+  @keyframes event-fill-flow{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+  @keyframes event-modal-in{from{transform:translateY(8px) scale(.98);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+  @keyframes event-shimmer{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+  
 </style>
 </head>
 <body>
@@ -577,6 +594,15 @@
   </div>
 </div>
 
+<button id="temp-event-fab" class="temp-event-fab hidden" onclick="openTempEventModal()" title="Événement 7 jours">🎯</button>
+<div id="temp-event-modal" class="temp-event-modal" onclick="closeTempEventModal(event)">
+  <div class="temp-event-box">
+    <div class="section-title">🎯 Quête Temporaire — Ascension par Fragments (7 jours)</div>
+    <div id="temp-event-content"></div>
+    <div style="text-align:right;margin-top:10px"><button class="battle-btn btn-special" onclick="closeTempEventModal()">Fermer</button></div>
+  </div>
+</div>
+
 <div class="gacha-result" id="gacha-result">
   <div style="font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--gold);margin-bottom:6px;">✦ INVOCATION ✦</div>
   <div class="result-cards" id="result-cards"></div>
@@ -689,6 +715,12 @@ const ALL_CHARS=[
   {id:'muzan',name:'Muzan Kibutsuji',anime:'Demon Slayer',emoji:'🌹',rarity:6,atk:880,hp:3600,def:410,sp:'Sang Démoniaque',sDmg:2000,type:'Attaquant'},
   {id:'sukuna_full',name:'Sukuna 20 Doigts',anime:'Jujutsu Kaisen',emoji:'🔱',rarity:6,atk:1050,hp:3700,def:430,sp:'Malevolent Shrine MAX',sDmg:2500,type:'Attaquant'},
   {id:'all_might',name:'All Might Prime',anime:'My Hero Academia',emoji:'💪',rarity:6,atk:980,hp:3900,def:440,sp:'United States of SMASH',sDmg:2300,type:'Tank'},
+  // ✨ EVENT 7J — nouveaux persos (1 par rareté)
+  {id:'takemichi',name:'Takemichi Hanagaki',anime:'Tokyo Revengers',emoji:'🥊',rarity:2,atk:185,hp:700,def:95,sp:'Never Give Up',sDmg:280,type:'Tank'},
+  {id:'denji',name:'Denji',anime:'Chainsaw Man',emoji:'🪚',rarity:3,atk:330,hp:980,def:116,sp:'Chainsaw Rush',sDmg:505,type:'Attaquant'},
+  {id:'rengoku',name:'Kyojuro Rengoku',anime:'Demon Slayer',emoji:'🔥',rarity:4,atk:480,hp:1480,def:178,sp:'Flamme du Purgatoire',sDmg:820,type:'Attaquant'},
+  {id:'obito',name:'Obito Uchiha',anime:'Naruto Shippuden',emoji:'🌀',rarity:5,atk:700,hp:2220,def:245,sp:'Kamui Tempête',sDmg:1500,type:'Mage'},
+  {id:'madoka_goddess',name:'Madoka Kaname Déesse',anime:'Madoka Magica',emoji:'🏹',rarity:6,atk:1410,hp:3650,def:530,sp:'Arrow of Salvation',sDmg:2500,type:'Support'},
 ];
 
 const ARCS = [
@@ -841,7 +873,7 @@ const ARCS = [
   ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
+let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,tempEvent:{startDate:'',fragments:0,claimed:{}},updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -882,8 +914,24 @@ function showTab(name,btn){
   if(name==='history')renderHistory();
   if(name==='equipment')renderEquipment();
   if(name==='battle')renderBattleScreen();
+  updateTempEventFabVisibility(name);
 }
 
+const TEMP_EVENT_STEPS=[
+  {need:220,reward:'takemichi',label:'Palier 1 — Takemichi (★★)'},
+  {need:620,reward:'denji',label:'Palier 2 — Denji (★★★)'},
+  {need:1120,reward:'rengoku',label:'Palier 3 — Rengoku (★★★★)'},
+  {need:1820,reward:'obito',label:'Palier 4 — Obito (★★★★★)'},
+  {need:2700,reward:'madoka_goddess',label:'Palier 5 — Madoka Déesse (★★★★★★)'},
+];
+function initTempEvent(){const t=getTodayKey();if(!state.tempEvent)state.tempEvent={startDate:t,fragments:0,claimed:{}};if(!state.tempEvent.startDate)state.tempEvent.startDate=t;}
+function isTempEventActive(){initTempEvent();const s=new Date(state.tempEvent.startDate+'T00:00:00Z');const diff=Math.floor((Date.now()-s.getTime())/86400000);return diff>=0&&diff<7;}
+function addTempEventFragments(n){initTempEvent();if(isTempEventActive())state.tempEvent.fragments=(state.tempEvent.fragments||0)+n;}
+function updateTempEventFabVisibility(tabName){const fab=document.getElementById('temp-event-fab');if(!fab)return;const allowed=['gacha','collection','team','forge','shop','quests'];const show=allowed.includes(tabName||'gacha');fab.classList.toggle('hidden',!show);const active=isTempEventActive();fab.textContent=active?'🎯':'✅';fab.title=active?'Événement 7 jours':'Événement terminé';}
+function openTempEventModal(){if(!isTempEventActive()){showToast('✅ Événement 7j terminé.');return;}renderTempEventModal();document.getElementById('temp-event-modal').classList.add('show');}
+function closeTempEventModal(e){if(e&&e.target&&e.target.id!=='temp-event-modal')return;document.getElementById('temp-event-modal').classList.remove('show');}
+function claimTempEventStep(idx){const st=TEMP_EVENT_STEPS[idx];if(!st)return;initTempEvent();if((state.tempEvent.claimed||{})[st.reward])return;if((state.tempEvent.fragments||0)<st.need)return;state.owned[st.reward]=(state.owned[st.reward]||0)+1;state.tempEvent.claimed[st.reward]=true;save();updateRes();renderTempEventModal();renderCollection(currentCollFilter||'all');renderTeam();showToast('🎁 Récompense event obtenue !');}
+function renderTempEventModal(){initTempEvent();const c=document.getElementById('temp-event-content');if(!c)return;const frag=state.tempEvent.fragments||0;const max=TEMP_EVENT_STEPS[TEMP_EVENT_STEPS.length-1].need;const pct=Math.min(100,Math.round(frag/max*100));const start=new Date(state.tempEvent.startDate+'T00:00:00Z');const end=new Date(start);end.setUTCDate(end.getUTCDate()+7);const left=Math.max(0,Math.ceil((end-new Date())/86400000));c.innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Temps restant: <b style="color:var(--gold)">${left} jour(s)</b> · Fragments: <b style="color:var(--blue)">${frag}</b></div><div class="temp-event-track"><div class="temp-event-fill" style="width:${pct}%"></div></div>${TEMP_EVENT_STEPS.map((s,i)=>{const done=!!(state.tempEvent.claimed||{})[s.reward];const ok=frag>=s.need;return `<div class="temp-step"><div><div style="font-weight:700;font-size:.8rem">${s.label}</div><div style="font-size:.68rem;color:var(--muted)">Objectif: ${s.need} fragments</div></div><button class="battle-btn btn-attack" onclick="claimTempEventStep(${i})" ${(!ok||done)?'disabled':''}>${done?'✅ Pris':'Réclamer'}</button></div>`;}).join('')}`;}
 
 // ═══════════════════════════════════════════
 //  POWER FORMULA — ATK + HP + DEF + upgrades
@@ -891,7 +939,7 @@ function showTab(name,btn){
 function getCharPower(id){
   const c=getCharById(id);
   if(!c)return 0;
-  const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+  const u=state.upgrades&&(state.upgrades[id]||state.upgrades[getBaseId(id)])||{atk:0,hp:0,def:0};
   const atkFinal=c.atk+Math.round(c.atk*(u.atk||0)*0.12);
   const hpFinal =c.hp +Math.round(c.hp *(u.hp ||0)*0.12);
   const defFinal=c.def+Math.round(c.def*(u.def||0)*0.12);
@@ -942,7 +990,7 @@ function openCharModal(id){
   const isOwned=isAwEntity?getAwakenedCount(baseId)>0:getNormalCount(baseId)>0;
   const normalCount=getNormalCount(baseId);
   const awakenedCount=getAwakenedCount(baseId);
-  const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
+  const u=state.upgrades&&(state.upgrades[id]||state.upgrades[getBaseId(id)])||{atk:0,hp:0,def:0};
   const atkBonus=Math.round(c.atk*(u.atk||0)*0.12);
   const hpBonus =Math.round(c.hp *(u.hp ||0)*0.12);
   const defBonus=Math.round(c.def*(u.def||0)*0.12);
@@ -1412,7 +1460,8 @@ function doAttack(mode){
     // Megumin ignores 60% DEF; Zeno ignores ALL DEF
     const hpassive=getPassive(hero.id);
     const isZeno=hpassive&&hpassive.isZeno;
-    const defReduction=isZeno?0:(hpassive&&hpassive.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def);
+    const isAnos=hpassive&&hpassive.isAnosDef;
+    const defReduction=isZeno?0:isAnos?Math.round(bs.enemy.def*.7):(hpassive&&hpassive.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def);
     if(isZeno&&bs.enemy.shield>0){bs.enemy.shield=0;addLog(`👼 Zeno annule le bouclier!`,'log-special');}
     // Sukuna full: double special dmg if enemy < 50% HP
     if(hpassive&&hpassive.isSukunaFull&&mode==='special'&&bs.enemy.currentHp/bs.enemy.maxHp<.5){
@@ -1531,6 +1580,7 @@ function checkBattleEnd(){
     const g=100*state.currentArc*(bs.enemy.isBoss?5:1)+streakBonus;
     const cr=bs.enemy.isBoss?60:state.currentArc*6;
     state.gold+=g;state.crystals+=cr;
+	if(bs.heroes.every(h=>h.currentHp>=h.maxHp)) state.noHitWin=true;
     addLog(`🏆 Victoire! +${g}🪙 +${cr}💎${streakBonus>0?` (🔥×${state.winStreak} streak +${streakBonus}🪙)`:''}`, 'log-win');
     const arc=ARCS.find(a=>a.id===state.currentArc);
     if(state.arcProgress[state.currentArc]>=arc.waves)addLog(`✅ Arc "${arc.name}" terminé!`,'log-win');
@@ -1551,6 +1601,9 @@ function checkBattleEnd(){
     giveXp(30+state.currentArc*10);
     trackQuest('dailyWins');
     state.playerStats.battlesWon=(state.playerStats.battlesWon||0)+1;
+	const evFrag=bs.enemy.isBoss?randInt(22,42):randInt(9,17);
+    addTempEventFragments(evFrag);
+    if(isTempEventActive())addLog(`🎯 Event 7J: +${evFrag} fragments`,'log-special');
     dropMaterials(state.currentArc,bs.enemy.isBoss);
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
@@ -1949,6 +2002,8 @@ const ACHIEVEMENTS=[
   {id:'forge50',      icon:'🛠️',name:'Maître Artisan',        desc:'Atteignez 50 niveaux totaux en Forge',            reward:'💎×300', rewardFn:()=>{state.crystals+=300;}, check:()=>getTotalForgeLevel()>=50,progress:()=>Math.min(50,getTotalForgeLevel()),max:50},
   {id:'item20',       icon:'🎒',name:'Intendant',             desc:'Possédez 20 équipements au total',               reward:'🪙×2500',rewardFn:()=>{state.gold+=2500;},   check:()=>getTotalOwnedItemsCount()>=20,progress:()=>Math.min(20,getTotalOwnedItemsCount()),max:20},
   {id:'collect_all5', icon:'👑',name:'Complétiste Légendaire',desc:'Possédez tous les personnages ★★★★★',        reward:'💎×500', rewardFn:()=>{state.crystals+=500;}, check:()=>ALL_CHARS.filter(c=>c.rarity===5).every(c=>(state.owned[c.id]||0)>0),progress:()=>ALL_CHARS.filter(c=>c.rarity===5&&(state.owned[c.id]||0)>0).length,max:ALL_CHARS.filter(c=>c.rarity===5).length},
+  {id:'secret_6star', icon:'🕵️',name:'Par-delà les Étoiles',desc:'Obtenir au moins 1 personnage ★★★★★★', reward:'💎×400', rewardFn:()=>{state.crystals+=400;}, check:()=>ALL_CHARS.filter(c=>c.rarity===6).some(c=>(state.owned&&state.owned[c.id]||0)>0), progress:()=>Math.min(1,ALL_CHARS.filter(c=>c.rarity===6).reduce((n,c)=>n+((state.owned&&state.owned[c.id])||0),0)), max:1, secret:true, hiddenName:'Succès Secret', hiddenDesc:'Condition inconnue.'},
+  {id:'secret_nohit', icon:'🫥',name:'Fantôme du Champ de Bataille',desc:'Gagner un combat sans subir de dégâts', reward:'🪙×5000', rewardFn:()=>{state.gold+=5000;}, check:()=>!!state.noHitWin, progress:()=>state.noHitWin?1:0, max:1, secret:true, hiddenName:'Succès Secret', hiddenDesc:'Condition inconnue.'},
 ];
 
 function getTotalForgeLevel(){
@@ -1964,7 +2019,7 @@ function checkAchievements(){
       state.achDone[a.id]=true;
       a.rewardFn();
       newUnlocked=true;
-      showToast(`🏆 Succès débloqué: ${a.name}! ${a.reward}`);
+      showToast(`${a.secret?'🕵️ Succès secret révélé':'🏆 Succès débloqué'}: ${a.name}! ${a.reward}`);
     }
   });
   if(newUnlocked){save();updateRes();}
@@ -1978,13 +2033,14 @@ function renderAchievements(){
   grid.innerHTML=`<div style="text-align:center;margin-bottom:14px;font-size:.85rem;color:var(--muted)">Complétés: <span style="color:var(--gold);font-weight:700">${done}/${ACHIEVEMENTS.length}</span></div><div class="ach-grid">${ACHIEVEMENTS.map(a=>{
     const isDone=state.achDone&&state.achDone[a.id];
     const prog=a.progress();const max=a.max;const pct=Math.round(prog/max*100);
+	const isSecretLocked=!!a.secret&&!isDone;
     return `<div class="ach-card ${isDone?'done':'locked'}">
-      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-icon">${isSecretLocked?'❔':a.icon}</div>
       <div class="ach-info">
-        <div class="ach-name">${a.name}</div>
-        <div class="ach-desc">${a.desc}</div>
-        <div class="ach-reward">${isDone?'✅ Obtenu':a.reward}</div>
-        ${!isDone?`<div class="ach-progress"><div class="ach-prog-fill" style="width:${pct}%"></div></div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">${prog}/${max}</div>`:''}
+        <div class="ach-name">${isSecretLocked?(a.hiddenName||'Succès Secret'):a.name}</div>
+        <div class="ach-desc">${isSecretLocked?(a.hiddenDesc||'Condition inconnue.'):a.desc}</div>
+        <div class="ach-reward">${isDone?'✅ Obtenu':(isSecretLocked?'🎁 ???':a.reward)}</div>
+        ${!isDone&&!isSecretLocked?`<div class="ach-progress"><div class="ach-prog-fill" style="width:${pct}%"></div></div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">${prog}/${max}</div>`:''}
       </div>
       ${isDone?`<div class="ach-check">✓</div>`:''}
     </div>`;
@@ -2150,7 +2206,8 @@ function doInfiniteAttack(mode){
     applyPassiveTrigger(hero,bs,'lifesteal',dmg);
     if(getPassive(hero.id)&&getPassive(hero.id).isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);addInfLog(`❄ Gel! ATK ennemi -20%`,'log-special');}
     if(getPassive(hero.id)&&getPassive(hero.id).isAntiRegen) bs.enemy._antiRegen=true;
-    const defR=getPassive(hero.id)&&getPassive(hero.id).isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def;
+    const p2=getPassive(hero.id);
+    const defR=(p2&&p2.isZeno)?0:(p2&&p2.isAnosDef)?Math.round(bs.enemy.def*.7):(p2&&p2.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def);
     dmg=Math.max(1,dmg-defR);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
     const isCritDmg=(logType==='log-crit');
@@ -2685,6 +2742,11 @@ const CHAR_ELEMENTS={
   nami:'water',ryuk:'dark',osamu:'dark',shinra:'fire',darkness:'light',aqua:'water',
   krillin:'neutral',sanji:'fire',rock_lee:'neutral',mineta:'neutral',usopp:'neutral',
   choji:'neutral',chopper:'neutral',ochako:'neutral',zenitsu:'thunder',
+  cid_shadow:'dark',jinwoo:'dark',kaido:'water',makima:'dark',
+  asta_du:'light',frieren:'light',power:'dark',mash:'neutral',
+  violet:'light',gabimaru:'fire',
+  anos:'dark',gilgamesh:'light',yamamoto:'fire',rimuru_td:'water',
+  takemichi:'neutral',denji:'dark',rengoku:'fire',obito:'dark',madoka_goddess:'light',
 };
 function getElemMult(attackerElem, defenderElem){
   if(!attackerElem||!defenderElem)return 1;
@@ -2862,9 +2924,10 @@ function getOwnedItems(){
 }
 function getEquippedItemCount(itemId,excludeCharId=null){
   if(!state.equipment)return 0;
+  const excludeBaseId=excludeCharId?getBaseId(excludeCharId):null;
   let n=0;
   Object.entries(state.equipment).forEach(([cId,eq])=>{
-    if(excludeCharId&&cId===excludeCharId)return;
+    if(excludeBaseId&&cId===excludeBaseId)return;
     if(eq.weapon===itemId)n++;
     if(eq.armor===itemId)n++;
     if(eq.accessory===itemId)n++;
@@ -2874,17 +2937,18 @@ function getEquippedItemCount(itemId,excludeCharId=null){
 function equipItem(charId,itemId){
   const item=ITEM_DEFS.find(x=>x.id===itemId);
   if(!item)return;
+  const baseId=getBaseId(charId);
   const ownedCount=(state.items&&state.items[itemId])||0;
-  const usedElsewhere=getEquippedItemCount(itemId,charId);
+  const usedElsewhere=getEquippedItemCount(itemId,baseId);
   if(usedElsewhere>=ownedCount){showToast(`❌ Plus de copie libre pour ${item.name}`);return;}
-  if(!state.equipment)state.equipment={};
-  if(!state.equipment[charId])state.equipment[charId]={weapon:null,armor:null,accessory:null};
-  state.equipment[charId][item.slot]=itemId;
-  save();renderEquipSlots();showToast(`⚔ ${item.name} équipé sur ${ALL_CHARS.find(c=>c.id===charId)?.name}!`);
+  const equip=getCharEquip(baseId);
+  equip[item.slot]=itemId;
+  save();renderEquipSlots();showToast(`⚔ ${item.name} équipé sur ${getCharById(charId)?.name||getCharById(baseId)?.name||baseId}!`);
 }
 function unequipItem(charId,slot){
-  if(!state.equipment||!state.equipment[charId])return;
-  state.equipment[charId][slot]=null;
+  const equip=getCharEquip(baseId);
+  equip[item.slot]=itemId;
+  save();renderEquipSlots();showToast(`⚔ ${item.name} équipé sur ${getCharById(charId)?.name||getCharById(baseId)?.name||baseId}!`);
   save();renderEquipSlots();
 }
 function craftItem(recipeResult){
@@ -3099,7 +3163,7 @@ const PASSIVES_6={
   muzan:        {name:'Démon Primordial', desc:'Se régénère 10% HP/tour + immunité poison + counter 40%',              fn:(hero)=>{hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(hero.maxHp*.1));hero.statuses=(hero.statuses||[]).filter(s=>s!=='☠Poison');},isFullCounter:true,counterAmt:.4},
   sukuna_full:  {name:'Roi des Fléaux COMPLET',desc:'Spéciale fait toujours x2 dégâts sur ennemis <50% HP',           isSukunaFull:true},
   all_might:    {name:'Symbol of Peace',  desc:'L\'équipe entière récupère 5% HP max/tour tant qu\'il est vivant',     fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.05));});}},
-  anos:         {name:'Roi Démon Absolu', desc:'Ignore 30% DEF ennemie et réduit les dégâts reçus de 20%',            isDmgReduce:true,reduceAmt:.2},
+  anos:         {name:'Roi Démon Absolu', desc:'Ignore 30% DEF ennemie et réduit les dégâts reçus de 20%',            isDmgReduce:true,reduceAmt:.2,isAnosDef:true},
   gilgamesh:    {name:'Porte de Babylone',desc:'30% de chance de doubler les dégâts de spéciale',                      isDmgMult:true,fn:(hero,bs)=>Math.random()<.3?2:1},
   yamamoto:     {name:'Flammes Primordiales',desc:'Inflige +35% dégâts critiques et réduit dégâts reçus de 15%',       isDmgReduce:true,reduceAmt:.15,isCritBoost:true},
   rimuru_td:    {name:'Noyau Azathoth',   desc:'Soigne 6% HP max de toute l\'équipe à chaque début de tour',           fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.06));});}},
@@ -3251,6 +3315,8 @@ if(!state.owned||Object.keys(state.owned).length===0){
 }
 updateRes();
 checkAchievements();
+updateTempEventFabVisibility('gacha');
+renderTempEventModal();
 setupLocalCheatFab();
 </script>
 </body>
