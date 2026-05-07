@@ -2310,6 +2310,9 @@ function stopInfinite(){state.infiniteBattle=null;renderInfiniteScreen();}
 //  MODE TOURNOI
 // ═══════════════════════════════════════════
 const TOURNAMENT_ROUNDS=3;
+function getTournamentDaily(){const today=getTodayKey();if(!state.tournamentDaily||state.tournamentDaily.date!==today)state.tournamentDaily={date:today,rewardClaimed:false};return state.tournamentDaily;}
+function canClaimTournamentReward(){return !getTournamentDaily().rewardClaimed;}
+function markTournamentRewardClaimed(){const d=getTournamentDaily();d.rewardClaimed=true;}
 function renderTournamentScreen(){
   const best=state.tournamentBest||0;
   const bestEl=document.getElementById('tournament-best');
@@ -2322,7 +2325,8 @@ function renderTournamentIdle(){
   if(state.team.filter(Boolean).length===0){cont.innerHTML=`<div class="no-team-msg"><div class="big">🏟</div><div>Pas d'équipe ! Allez dans <b>Équipe</b>.</div></div>`;return;}
   cont.innerHTML=`<div style="text-align:center;padding:40px 20px;">
     <div style="font-size:3rem;margin-bottom:12px;">🏟</div>
-    <div style="font-size:.9rem;color:var(--muted);margin-bottom:20px;">3 combats consécutifs avec une équipe verrouillée.<br><b style="color:var(--gold)">Pas de récupération HP</b> entre les rounds.</div>
+    <div style="font-size:.9rem;color:var(--muted);margin-bottom:12px;">3 combats consécutifs avec une équipe verrouillée.<br><b style="color:var(--gold)">Pas de récupération HP</b> entre les rounds.</div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:20px;">Récompense quotidienne: ${canClaimTournamentReward()?'<span style="color:var(--green)">disponible</span>':'<span style="color:var(--red)">déjà réclamée</span>'}</div>
     <button class="battle-btn btn-attack" onclick="startTournament()">🚩 LANCER LE TOURNOI</button>
   </div>`;
 }
@@ -2344,19 +2348,20 @@ function buildTournamentHeroes(){
 }
 function makeTournamentEnemy(round){
   const data=[
-    {name:'Challenger du Portail',emoji:'🛡',hp:1800,atk:260,def:95,abilities:['enrage']},
-    {name:'Duo Maudit',emoji:'🎭',hp:3200,atk:360,def:135,abilities:['enrage','shield','poison']},
-    {name:'⚠ Champion du Tournoi',emoji:'🏆',hp:6200,atk:520,def:210,abilities:['enrage','shield','counter','regen'],isBoss:true},
+    {name:'Challenger du Portail',emoji:'🛡',hp:3200,atk:430,def:170,abilities:['enrage','counter']},
+    {name:'Duo Maudit',emoji:'🎭',hp:6200,atk:620,def:240,abilities:['enrage','shield','poison','counter']},
+    {name:'⚠ Champion du Tournoi',emoji:'🏆',hp:12500,atk:860,def:360,abilities:['enrage','shield','counter','regen','dodge'],isBoss:true},
   ][Math.max(0,Math.min(round-1,2))];
   const totalPower=state.team.reduce((s,id)=>s+(id?getCharPower(id):0),0);
-  const scale=Math.max(1,Math.min(3.2,totalPower/6500));
+  const roundMult=[1,1.25,1.65][Math.max(0,Math.min(round-1,2))];
+  const scale=Math.max(1.2,Math.min(5.5,totalPower/4200))*roundMult;
   const elemKeys=Object.keys(ELEMENTS).filter(e=>e!=='neutral');
   return {...data,currentHp:Math.round(data.hp*scale),maxHp:Math.round(data.hp*scale),atk:Math.round(data.atk*scale),def:Math.round(data.def*scale),shield:0,enraged:false,statuses:[],element:elemKeys[Math.floor(Math.random()*elemKeys.length)]};
 }
 function startTournament(){
   const heroes=buildTournamentHeroes();
   if(!heroes.length){showToast('❌ Équipe vide !');return;}
-  state.tournament={active:true,finished:false,round:1,maxRounds:TOURNAMENT_ROUNDS,teamSnapshot:[...state.team],heroes,enemy:makeTournamentEnemy(1),log:[{text:'🏟 Tournoi lancé ! Équipe verrouillée.',type:'log-special'}],over:false,won:false,burstCharge:0,combo:0,wins:0};
+  state.tournament={active:true,finished:false,round:1,maxRounds:TOURNAMENT_ROUNDS,teamSnapshot:[...state.team],heroes,enemy:makeTournamentEnemy(1),log:[{text:canClaimTournamentReward()?'🏟 Tournoi lancé ! Récompense quotidienne disponible.':'🏟 Tournoi lancé ! Récompense quotidienne déjà prise.',type:'log-special'}],over:false,won:false,burstCharge:0,combo:0,wins:0,rewardEligible:canClaimTournamentReward()};
   const links=getActiveLinks(state.tournament.teamSnapshot);
   links.forEach(link=>{heroes.forEach(h=>{if(link.bonus.atk)h.atk=Math.round(h.atk*(1+link.bonus.atk));if(link.bonus.hp){h.hp=Math.round(h.hp*(1+link.bonus.hp));h.currentHp=h.hp;h.maxHp=h.hp;}if(link.bonus.def)h.def=Math.round(h.def*(1+link.bonus.def));if(link.bonus.sDmg)h.sDmg=Math.round(h.sDmg*(1+link.bonus.sDmg));});addTourLog(`🔗 Lien actif: ${link.name}! ${link.desc}`,'log-special');});
   save();renderTournamentUI();
@@ -2385,13 +2390,13 @@ function doTournamentAttack(mode){
   });
   if(mode==='burst')bs.burstCharge=0;else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
   if(bs.enemy.currentHp>0){const e=bs.enemy;if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.55);addTourLog('😡 ENRAGE! ATK ×1.55','log-crit');}if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.12){e.shield=Math.round(e.maxHp*.06);addTourLog('🛡 Bouclier!','log-debuff');}if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.18){const rg=Math.round(e.maxHp*.035);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addTourLog(`💚 Regen +${rg}`,'log-heal');}const alive2=bs.heroes.filter(h=>h.currentHp>0);const attacks=e.isBoss?2:1;for(let k=0;k<attacks&&alive2.length;k++){const t=alive2[Math.floor(Math.random()*alive2.length)];let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));ed=applyDefensivePassive(t,ed,bs);ed=Math.max(1,ed-t.def);t.currentHp=Math.max(0,t.currentHp-ed);const ti=bs.heroes.indexOf(t);bs._pendingFloats.push({id:`tour-hero-${ti}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`tour-hero-${ti}`,color:'#ff9966'});addTourLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');}}
-  if(bs.enemy.currentHp<=0){bs.over=true;bs.won=true;bs.wins=(bs.wins||0)+1;const gold=700*bs.round;const cr=40*bs.round;state.gold+=gold;state.crystals+=cr;addTourLog(`🏆 Round ${bs.round} gagné! +${gold}🪙 +${cr}💎`,'log-win');if(bs.round>=bs.maxRounds){state.tournamentClears=(state.tournamentClears||0)+1;state.gold+=3500;state.crystals+=250;if(!state.materials)state.materials={};state.materials.rare_crystal=(state.materials.rare_crystal||0)+3;addTourLog('👑 Tournoi remporté! Bonus final +3500🪙 +250💎 +3🔮','log-win');}}
+  if(bs.enemy.currentHp<=0){bs.over=true;bs.won=true;bs.wins=(bs.wins||0)+1;addTourLog(`🏆 Round ${bs.round} gagné!`,'log-win');if(bs.round>=bs.maxRounds){state.tournamentClears=(state.tournamentClears||0)+1;if(bs.rewardEligible&&canClaimTournamentReward()){state.gold+=2500;state.crystals+=180;if(!state.materials)state.materials={};state.materials.rare_crystal=(state.materials.rare_crystal||0)+2;state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;markTournamentRewardClaimed();addTourLog('👑 Tournoi remporté! Récompense quotidienne +2500🪙 +180💎 +2🔮 +2💫','log-win');}else addTourLog('✅ Tournoi remporté, mais la récompense quotidienne est déjà prise.','log-debuff');}}
   else if(!bs.heroes.some(h=>h.currentHp>0)){bs.over=true;bs.won=false;addTourLog(`💔 Tournoi perdu au round ${bs.round}.`,'log-crit');}
   state.tournamentBest=Math.max(state.tournamentBest||0,bs.wins||0);save();updateRes();renderTournamentUI();const pending=[...(bs._pendingFloats||[])];bs._pendingFloats=[];pending.forEach(f=>{setTimeout(()=>{const el=document.getElementById(f.id);if(el){el.classList.remove('anim-attack','anim-hit','anim-crit');void el.offsetWidth;el.classList.add(f.cls);setTimeout(()=>el.classList.remove(f.cls),450);}if(f.float!=null){const rel=document.getElementById(f.floatId);if(rel){const r=rel.getBoundingClientRect();spawnDmgFloatAt(f.float,f.color,r.left+r.width/2-24,r.top+10);}}},f.delay);});
 }
 function addTourLog(text,type=''){if(state.tournament)state.tournament.log.push({text,type});}
 function nextTournamentRound(){const bs=state.tournament;if(!bs)return;bs.round++;bs.enemy=makeTournamentEnemy(bs.round);bs.heroes.forEach(h=>{h.shield=0;h.statuses=[];});bs.log=[{text:`🚩 Round ${bs.round}: aucun soin reçu.`,type:'log-special'}];bs.over=false;bs.won=false;bs.combo=0;save();renderTournamentUI();}
-function finishTournament(){if(state.tournament)state.tournament.finished=true;save();renderTournamentScreen();showToast('🏟 Tournoi terminé ! Récompenses ajoutées.');checkAchievements();}
+function finishTournament(){if(state.tournament)state.tournament.finished=true;save();renderTournamentScreen();showToast(canClaimTournamentReward()?'🏟 Tournoi terminé !':'🏟 Tournoi terminé — récompense quotidienne déjà prise.');checkAchievements();}
 function stopTournament(){state.tournament=null;save();renderTournamentScreen();}
 
 // ═══════════════════════════════════════════
