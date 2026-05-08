@@ -1338,6 +1338,7 @@ function renderBattleUI(){
   const eshB=e.shield>0?`<div class="shield-bar-wrap"><div class="shield-bar" style="width:${Math.min(100,e.shield/1000*100)}%"></div></div><div class="hp-text" style="color:var(--blue)">🛡 ${e.shield}</div>`:'';
   const bossHTML=e.isBoss?`<div class="boss-banner"><div class="boss-title">⚠ BOSS ⚠</div><div class="enemy-abilities">Capacités: ${e.abilities.join(' · ')}</div></div>`:'';
   const logHTML=bs.log.slice(-6).map(l=>`<p class="${l.type}">${l.text}</p>`).join('');
+  const rewardMaterialsHTML=bs.won&&bs.rewardMaterials&&bs.rewardMaterials.length?`<div style="background:linear-gradient(135deg,rgba(57,255,20,.08),rgba(0,212,255,.05));border:1px solid rgba(57,255,20,.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;"><div style="font-size:.72rem;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;">🎒 Matériaux obtenus</div><div style="display:flex;gap:6px;flex-wrap:wrap;">${bs.rewardMaterials.map(m=>`<span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:3px 9px;font-size:.74rem;color:var(--text);">${m}</span>`).join('')}</div></div>`:'';
   const aliveForBtn=bs.heroes.filter(h=>h.currentHp>0);
   const anySpReady=aliveForBtn.some(h=>(h.spCooldown||0)===0);
   const bc=bs.burstCharge||0;
@@ -1376,6 +1377,7 @@ function renderBattleUI(){
       </div>
     </div>
     <div class="battle-log">${logHTML}</div>
+	${rewardMaterialsHTML}
     ${actHTML}
   `;
 }
@@ -1613,7 +1615,7 @@ function checkBattleEnd(){
 	const evFrag=bs.enemy.isBoss?randInt(22,42):randInt(9,17);
     addTempEventFragments(evFrag);
     if(isTempEventActive())addLog(`🎯 Event 7J: +${evFrag} fragments`,'log-special');
-    dropMaterials(state.currentArc,bs.enemy.isBoss);
+	bs.rewardMaterials=dropMaterials(state.currentArc,bs.enemy.isBoss);
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
   } else {
@@ -3097,6 +3099,7 @@ function dropMaterials(arcId,isBoss=false){
     gained.push(`${MATERIAL_NAMES.awakening_tears} ×${tears}`);
   }
   if(gained.length) addLog(`🎒 Matériaux: ${gained.join(', ')}`,'log-heal');
+  return gained;
 }
 
 // ═══════════════════════════════════════════
