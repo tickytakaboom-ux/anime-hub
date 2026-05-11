@@ -2997,6 +2997,7 @@ function renderEquipSlots(){
           ${item?`<div class="equip-slot-name">${item.name}</div><div class="equip-slot-stat">${item.desc}</div>`
                 :`<div class="equip-slot-empty">[ ${slotNames[slot]} vide ]</div>`}
         </div>
+		<button class="craft-btn" style="padding:5px 8px;font-size:.68rem" onclick="equipBestItem('${selectedEquipChar}','${slot}')">⭐ Meilleur</button>
         ${item?`<div class="equip-unequip" onclick="unequipItem('${selectedEquipChar}','${slot}')">✕</div>`:''}
       </div>`;
     }).join('')}
@@ -3059,6 +3060,34 @@ function getEquippedItemCount(itemId,excludeCharId=null){
   });
   return n;
 }
+
+function getItemScoreForChar(item,charId){
+  const c=getCharById(charId)||{type:'Attaquant'};
+  const st=item.stats||{};
+  const weights={atk:1,hp:.2,def:1,sDmg:.8,critBoost:900};
+  if(c.type==='Attaquant'){weights.atk=1.25;weights.sDmg=.95;weights.hp=.15;weights.def=.7;weights.critBoost=1150;}
+  else if(c.type==='Tank'){weights.atk=.75;weights.sDmg=.5;weights.hp=.35;weights.def=1.55;weights.critBoost=650;}
+  else if(c.type==='Support'){weights.atk=.7;weights.sDmg=.9;weights.hp=.3;weights.def=1;weights.critBoost=750;}
+  else if(c.type==='Mage'){weights.atk=.9;weights.sDmg=1.15;weights.hp=.2;weights.def=.8;weights.critBoost=950;}
+  return (st.atk||0)*weights.atk+(st.hp||0)*weights.hp+(st.def||0)*weights.def+(st.sDmg||0)*weights.sDmg+(st.critBoost||0)*weights.critBoost;
+}
+function getBestItemForSlot(charId,slot){
+  const equip=getCharEquip(charId);
+  return getOwnedItems().filter(({item,count})=>{
+    if(item.slot!==slot)return false;
+    const isOnThis=equip[slot]===item.id;
+    return isOnThis||count>getEquippedItemCount(item.id,charId);
+  }).map(({item})=>({item,score:getItemScoreForChar(item,charId)})).sort((a,b)=>b.score-a.score)[0]?.item||null;
+}
+function equipBestItem(charId,slot){
+  const best=getBestItemForSlot(charId,slot);
+  if(!best){showToast('❌ Aucun équipement disponible pour ce slot.');return;}
+  const equip=getCharEquip(charId);
+  if(equip[slot]===best.id){showToast(`✅ ${best.name} est déjà le meilleur choix.`);return;}
+  equipItem(charId,best.id);
+  showToast(`⭐ Meilleur ${slot==='weapon'?'arme':slot==='armor'?'armure':'accessoire'} équipé: ${best.name}`);
+}
+
 function equipItem(charId,itemId){
   const item=ITEM_DEFS.find(x=>x.id===itemId);
   if(!item)return;
