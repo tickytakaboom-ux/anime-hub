@@ -1527,6 +1527,7 @@ function doAttack(mode){
         ed=applyDefensivePassive(t,ed,bs);
         if(e.abilities.includes('poison')&&Math.random()<.25){if(!t.statuses.includes('☠Poison')){t.statuses.push('☠Poison');addLog(`☠ ${t.name} est empoisonné!`,'log-debuff');}}
         ed=Math.max(1,ed-t.def);
+		if((t.shield||0)>0){const absorbed=Math.min(t.shield,ed);t.shield-=absorbed;ed-=absorbed;if(absorbed>0)addInfLog(`🛡 Bouclier absorbe ${absorbed}`,'log-heal');}
         t.currentHp=Math.max(0,t.currentHp-ed);
         // Queue hero-hit anim + float
         const tIdx=bs.heroes.indexOf(t);
@@ -1800,11 +1801,29 @@ const PASSIVES = {
 
 function getPassive(id){ return PASSIVES[getBaseId(id)]||null; }
 
+function passiveLog(bs,text,type='log-special'){
+  if(bs===state.infiniteBattle) addInfLog(text,type);
+  else if(bs===state.battleState) addLog(text,type);
+  else if(bs===state.tournament) addTourLog(text,type);
+}
+
 function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
   const p=getPassive(hero.id);
   if(!p)return dmg;
   if(triggerType==='onNormalAtk'&&p.fn) p.fn(hero,bs);
   if(triggerType==='onTurnStart'&&p.fn) p.fn(hero,bs);
+  if(triggerType==='onTurnStart'&&bs===state.infiniteBattle&&p.isInfiniteBurn&&bs.enemy&&bs.enemy.currentHp>0){
+    const burn=Math.min(2500,Math.round(bs.enemy.maxHp*.025));
+    bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-burn);
+    passiveLog(bs,`🔥 ${hero.name}: Zanka no Tachi brûle l'ennemi (-${burn})`,'log-special');
+  }
+  if(triggerType==='onTurnStart'&&bs===state.infiniteBattle&&p.isInfiniteShield){
+    bs.heroes.filter(h=>h.currentHp>0).forEach(h=>{
+      const shield=Math.min(600,Math.round(h.maxHp*.05));
+      h.shield=Math.min(1200,(h.shield||0)+shield);
+    });
+    passiveLog(bs,`🩵 ${hero.name}: Barrière Azathoth (+bouclier équipe)`,'log-heal');
+  }
   if(triggerType==='dmgMult'&&p.isDmgMult) return dmg*p.fn(hero,bs);
   if(triggerType==='lifesteal'&&p.isLifesteal){ hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(dmg*p.lifestealAmt)); }
   if(triggerType==='escanor'&&p.isEscanor){
@@ -2132,7 +2151,8 @@ function renderInfiniteUI(){
     const hpC=pct>60?'high':pct>25?'mid':'low';
     const cd=h.spCooldown||0;const mcd=h.spMaxCd||3;
     const spBar=`<div class="sp-bar-wrap"><div class="sp-bar" style="width:${cd===0?100:((mcd-cd)/mcd*100)}%"></div></div><div class="${cd===0?'sp-ready':'sp-cd'}">${cd===0?`✨ PRÊTE`:`CD:${cd}`}</div>`;
-    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="inf-hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpC}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${spBar}</div></div>`;
+    const shB=h.shield>0?`<div class="shield-bar-wrap"><div class="shield-bar" style="width:${Math.min(100,h.shield/1200*100)}%"></div></div><div class="hp-text" style="color:var(--blue)">🛡 ${h.shield}</div>`:'';
+    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="inf-hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpC}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${shB}${spBar}</div></div>`;
   }).join('');
   const e=bs.enemy;
   const epct=Math.max(0,e.currentHp/e.maxHp*100);
@@ -2245,6 +2265,7 @@ function doInfiniteAttack(mode){
         ed=applyDefensivePassive(t,ed,bs);
         if(tp&&tp.isDmgReduce)ed=Math.round(ed*(1-tp.reduceAmt));
         ed=Math.max(1,ed-t.def);
+		if((t.shield||0)>0){const absorbed=Math.min(t.shield,ed);t.shield-=absorbed;ed-=absorbed;if(absorbed>0)addInfLog(`🛡 Bouclier absorbe ${absorbed}`,'log-heal');}
         t.currentHp=Math.max(0,t.currentHp-ed);
         const tIdx=bs.heroes.indexOf(t);
         bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`inf-hero-${tIdx}`,color:'#ff9966'});
@@ -3270,8 +3291,8 @@ const PASSIVES_6={
   all_might:    {name:'Symbol of Peace',  desc:'L\'équipe entière récupère 5% HP max/tour tant qu\'il est vivant',     fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.05));});}},
   anos:         {name:'Roi Démon Absolu', desc:'Ignore 30% DEF ennemie et réduit les dégâts reçus de 20%',            isDmgReduce:true,reduceAmt:.2,isAnosDef:true},
   gilgamesh:    {name:'Porte de Babylone',desc:'30% de chance de doubler les dégâts de spéciale',                      isDmgMult:true,fn:(hero,bs)=>Math.random()<.3?2:1},
-  yamamoto:     {name:'Flammes Primordiales',desc:'Inflige +35% dégâts critiques et réduit dégâts reçus de 15%',       isDmgReduce:true,reduceAmt:.15,isCritBoost:true},
-  rimuru_td:    {name:'Noyau Azathoth',   desc:'Soigne 6% HP max de toute l\'équipe à chaque début de tour',           fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.06));});}},
+  yamamoto:     {name:'Flammes Primordiales',desc:'Critiques renforcés, dégâts reçus -15%. En Infini: brûle l’ennemi à chaque tour', isDmgReduce:true,reduceAmt:.15,isCritBoost:true,isInfiniteBurn:true},
+  rimuru_td:    {name:'Noyau Azathoth',   desc:'Soigne 6% HP max/tour. En Infini: ajoute aussi un bouclier à toute l’équipe', fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.06));});},isInfiniteShield:true},
 };
 // Merge into PASSIVES
 Object.assign(PASSIVES,PASSIVES_6);
