@@ -2118,9 +2118,9 @@ function startInfinite(){
 
 function makeInfiniteEnemy(wave){
   const templates=[
-    {name:'Chasseur',emoji:'🗡'},{name:'Berserk',emoji:'💢'},{name:'Sorcier Noir',emoji:'🧙'},
-    {name:'Dragon',emoji:'🐲'},{name:'Titan',emoji:'🗿'},{name:'Démon',emoji:'😈'},
-    {name:'Dieu de la Guerre',emoji:'⚡'},{name:'Entité Cosmique',emoji:'🌑'},
+    {name:'Chasseur',emoji:'🗡',element:'neutral'},{name:'Berserk',emoji:'💢',element:'fire'},{name:'Sorcier Noir',emoji:'🧙',element:'dark'},
+    {name:'Dragon',emoji:'🐲',element:'fire'},{name:'Titan',emoji:'🗿',element:'water'},{name:'Démon',emoji:'😈',element:'dark'},
+    {name:'Dieu de la Guerre',emoji:'⚡',element:'thunder'},{name:'Entité Cosmique',emoji:'🌑',element:'light'},
   ];
   const t=templates[Math.floor(Math.random()*templates.length)];
   const abilities=[];
@@ -2139,7 +2139,7 @@ function makeInfiniteEnemy(wave){
     maxHp:Math.round(400*Math.pow(1.18,wave-1)),
     atk:Math.round(50*Math.pow(1.15,wave-1)),
     def:Math.round(10*Math.pow(1.12,wave-1)),
-    shield:0,enraged:false,statuses:[],
+    shield:0,enraged:false,statuses:[],element:t.element||'neutral',
   };
 }
 
@@ -2178,7 +2178,7 @@ function renderInfiniteUI(){
       <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
       <div class="vs-divider"><div class="vs-text">VS</div></div>
       <div class="fighter-group"><div class="fighter-group-title">💀 Ennemi</div>
-        <div class="fighter ${e.currentHp<=0?'dead':''}" id="inf-enemy"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div></div></div>
+        <div class="fighter ${e.currentHp<=0?'dead':''}" id="inf-enemy"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}</div>${e.element?`<div style="margin-top:2px"><span class="elem-badge ${ELEMENTS[e.element].cls}">${ELEMENTS[e.element].emoji} ${ELEMENTS[e.element].name}</span></div>`:''}<div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div></div></div>
       </div>
     </div>
     <div class="battle-log">${logHTML}</div>${actHTML}`;
@@ -2234,6 +2234,12 @@ function doInfiniteAttack(mode){
     }
     const combo=bs.combo||0;
     if(combo>=3){dmg=Math.round(dmg*(1+combo*0.05));}
+	const heroElem=CHAR_ELEMENTS[getBaseId(hero.id)]||'neutral';
+    const enemyElem=bs.enemy.element||'neutral';
+    const elemMult=getElemMult(heroElem,enemyElem);
+    if(elemMult>1) addInfLog(`${ELEMENTS[heroElem].emoji} Avantage élémentaire! ×${elemMult}`,'log-special');
+    else if(elemMult<1) addInfLog(`${ELEMENTS[heroElem].emoji} Désavantage élémentaire ×${elemMult}`,'log-debuff');
+    dmg=Math.round(dmg*elemMult);
     applyPassiveTrigger(hero,bs,'lifesteal',dmg);
     if(getPassive(hero.id)&&getPassive(hero.id).isFreeze&&!bs.enemy._frozen){bs.enemy._frozen=true;bs.enemy.atk=Math.round(bs.enemy.atk*.8);addInfLog(`❄ Gel! ATK ennemi -20%`,'log-special');}
     if(getPassive(hero.id)&&getPassive(hero.id).isAntiRegen) bs.enemy._antiRegen=true;
