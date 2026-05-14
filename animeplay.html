@@ -296,8 +296,8 @@
   .equip-slot-name{font-size:.8rem;font-weight:700;}
   .equip-slot-stat{font-size:.65rem;color:var(--green);}
   .equip-slot-empty{font-size:.78rem;color:var(--muted);}
-  .equip-unequip{color:var(--red);cursor:pointer;font-size:1rem;opacity:.6;transition:opacity .15s;}
-  .equip-unequip:hover{opacity:1;}
+  .equip-unequip{color:var(--red);cursor:pointer;font-size:1rem;opacity:.6;transition:opacity .15s;background:transparent;border:0;padding:4px 7px;line-height:1;border-radius:6px;}
+  .equip-unequip:hover{opacity:1;background:rgba(255,68,68,.12);}
   .items-inventory{margin-top:14px;}
   .items-inv-title{font-size:.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
   .item-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;}
@@ -351,6 +351,17 @@
   .profile-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
   .profile-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
   .profile-val{font-size:1.05rem;color:var(--gold);font-weight:700;margin-top:4px;}
+  .profile-section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:14px;}
+  .profile-section-title{font-size:.76rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+  .profile-chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .profile-chip{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:999px;padding:5px 9px;font-size:.72rem;color:var(--muted);}
+  .profile-chip b{color:var(--gold);}
+  .profile-team{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;}
+  .profile-unit{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;}
+  .profile-unit:hover{border-color:var(--gold);transform:translateY(-1px);}
+  .profile-unit-emoji{font-size:1.8rem;}
+  .profile-unit-name{font-weight:700;font-size:.84rem;}
+  .profile-unit-sub{font-size:.66rem;color:var(--muted);margin-top:2px;}
   .chart-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;}
   .chart-title{font-size:.75rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
   .hbar-row{display:flex;align-items:center;gap:8px;margin:6px 0;}
@@ -2554,6 +2565,9 @@ const SHOP_ITEMS=[
   {id:'tears_cache',    name:'Cache d\'Éveil',       emoji:'💫', desc:'Ajoute 8 Larmes d\'Éveil pour les crafts endgame.', price:3200, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+8;}, label:'+8 Larmes'},
   {id:'starter_gear',   name:'Kit Équipement',       emoji:'🎒', desc:'Donne 1 Épée d\'Acier, 1 Armure de Fer et 1 Anneau de Vitesse.', price:2800, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.steel_sword=(state.items.steel_sword||0)+1;state.items.iron_armor=(state.items.iron_armor||0)+1;state.items.speed_ring=(state.items.speed_ring||0)+1;}, label:'Lot x3 items'},
   {id:'legend_gear',    name:'Offre Légendaire',     emoji:'🛍️', desc:'Donne 1 Katana du Néant, 1 Armure Phénix et 1 Emblème Chrono.', price:7800, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.void_katana=(state.items.void_katana||0)+1;state.items.phoenix_mail=(state.items.phoenix_mail||0)+1;state.items.chrono_emblem=(state.items.chrono_emblem||0)+1;}, label:'Lot légendaire'},
+  {id:'chill_summon_bundle',name:'Offre Invoc Chill', emoji:'🌙', desc:'Pack détente: +300 cristaux et +2 invocations immédiates.', price:3600, currency:'gold', reward:()=>{state.crystals+=300;const r=[];for(let i=0;i<2;i++)r.push(rollChar());showResults(r);}, label:'+300 💎 +2 pulls'},
+  {id:'awakening_bundle',name:'Offre Éveil Express', emoji:'💫', desc:'Accélère l\'endgame: +10 Larmes, +5 Cristaux rares et +12 Éclats magiques.', price:6200, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+10;state.materials.rare_crystal=(state.materials.rare_crystal||0)+5;state.materials.magic_shard=(state.materials.magic_shard||0)+12;}, label:'Pack Éveil'},
+  {id:'mythic_gear_bundle',name:'Offre Stuff Mythique', emoji:'🐉', desc:'Donne 1 Faux des Origines, 1 Plastron Astral et 1 Couronne du Vide.', price:12000, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.origin_scythe=(state.items.origin_scythe||0)+1;state.items.astral_plate=(state.items.astral_plate||0)+1;state.items.crown_of_void=(state.items.crown_of_void||0)+1;}, label:'Set mythique'},
   {id:'update_daily_free',name:'Bonus Maj (Gratuit)', emoji:'🎁', desc:'1 fois par jour: +120 💎, +1200 🪙 et +2 Larmes d\'Éveil.', price:0, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.crystals+=120;state.gold+=1200;state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;}, label:'CLAIMER'},
 ];
 
@@ -2785,19 +2799,62 @@ function renderProfile(){
   const winTotal=(ps.battlesWon||0)+(ps.battlesLost||0);
   const winRate=winTotal>0?Math.round(ps.battlesWon/winTotal*100):0;
   const avgHit=ps.totalHits>0?Math.round(ps.totalDamage/ps.totalHits):0;
-  const chartMax=Math.max(1,ps.totalDamage,ps.healingDone,ps.maxHit,avgHit);
+  const ownedUnique=ALL_CHARS.filter(c=>isOwnedAny(c.id)).length;
+  const collectionPct=Math.round(ownedUnique/ALL_CHARS.length*100);
+  const doneAch=ACHIEVEMENTS.filter(a=>state.achDone&&state.achDone[a.id]).length;
+  const arcsDone=ARCS.filter(a=>(state.arcProgress&&state.arcProgress[a.id]||0)>=a.waves).length;
+  const currentArc=ARCS.find(a=>a.id===state.currentArc)||ARCS[0];
+  const currentWave=Math.min((state.arcProgress&&state.arcProgress[currentArc.id]||0)+1,currentArc.waves);
+  const ownedRoster=getOwnedRoster();
+  const strongest=ownedRoster.map(c=>({...c,power:getCharPower(c.id)})).sort((a,b)=>b.power-a.power).slice(0,3);
+  const rarityCounts=[6,5,4,3,2].map(r=>({rarity:r,count:ALL_CHARS.filter(c=>c.rarity===r&&isOwnedAny(c.id)).length,total:ALL_CHARS.filter(c=>c.rarity===r).length}));
+  const equippedSlots=Object.values(state.equipment||{}).reduce((sum,eq)=>sum+['weapon','armor','accessory'].filter(slot=>eq&&eq[slot]).length,0);
+  const teamIds=(state.team||[]).filter(Boolean);
+  const activeLinks=getActiveLinks(teamIds);
+  const nextXp=state.playerLevel>=20?'MAX':getXpToNext(state.playerLevel||1);
+  const chartMax=Math.max(1,ps.totalDamage,ps.healingDone,ps.maxHit,avgHit,ownedUnique,doneAch);
   const bars=[
     {label:'Dégâts totaux',value:ps.totalDamage,color:'linear-gradient(90deg,#ff5d5d,#ff9966)'},
     {label:'Soin total',value:ps.healingDone,color:'linear-gradient(90deg,#39ff14,#00c853)'},
     {label:'Coup max',value:ps.maxHit,color:'linear-gradient(90deg,#ffd54f,#ffb300)'},
     {label:'Dégât moyen/coup',value:avgHit,color:'linear-gradient(90deg,#00d4ff,#7c4dff)'},
   ];
+  const renderUnit=(c,emptyText='Slot vide')=>c?`<div class="profile-unit" onclick="openCharModal('${c.id}')"><div class="profile-unit-emoji">${c.emoji}</div><div><div class="profile-unit-name">${c.name}</div><div class="profile-unit-sub">${'★'.repeat(c.rarity)} · ${c.anime} · Puissance ${getCharPower(c.id).toLocaleString()}</div></div></div>`:`<div class="profile-unit" style="cursor:default;opacity:.55"><div class="profile-unit-emoji">➕</div><div><div class="profile-unit-name">${emptyText}</div><div class="profile-unit-sub">Ajoutez un perso dans l'onglet Équipe</div></div></div>`;
   cont.innerHTML=`
+  <div class="profile-grid">
+      <div class="profile-card"><div class="profile-label">👤 Niveau joueur</div><div class="profile-val">${state.playerLevel||1}</div><div class="profile-label">XP ${state.xp||0}/${nextXp}</div></div>
+      <div class="profile-card"><div class="profile-label">📚 Collection</div><div class="profile-val">${ownedUnique}/${ALL_CHARS.length}</div><div class="profile-label">${collectionPct}% complété</div></div>
+      <div class="profile-card"><div class="profile-label">🏆 Succès</div><div class="profile-val">${doneAch}/${ACHIEVEMENTS.length}</div><div class="profile-label">débloqués</div></div>
+      <div class="profile-card"><div class="profile-label">🗺 Progression</div><div class="profile-val">${arcsDone}/${ARCS.length}</div><div class="profile-label">arcs terminés · vague ${currentWave}/${currentArc.waves}</div></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">⚔ Équipe actuelle</div>
+      <div class="profile-team">${[0,1,2].map(i=>renderUnit(getCharById((state.team||[])[i]))).join('')}</div>
+      <div class="profile-chip-row" style="margin-top:10px">${activeLinks.length?activeLinks.map(l=>`<span class="profile-chip">🔗 <b>${l.name}</b> ${l.desc}</span>`).join(''):'<span class="profile-chip">Aucun lien actif pour le moment</span>'}</div>
+    </div>
     <div class="profile-grid">
       <div class="profile-card"><div class="profile-label">⚔ Dégâts infligés</div><div class="profile-val">${(ps.totalDamage||0).toLocaleString()}</div></div>
       <div class="profile-card"><div class="profile-label">💥 Taux critique</div><div class="profile-val">${critRate}%</div></div>
       <div class="profile-card"><div class="profile-label">🏆 Taux de victoire</div><div class="profile-val">${winRate}%</div></div>
       <div class="profile-card"><div class="profile-label">✨ Spéciales lancées</div><div class="profile-val">${(ps.specialCasts||0).toLocaleString()}</div></div>
+	  <div class="profile-card"><div class="profile-label">🔥 Série actuelle</div><div class="profile-val">${state.winStreak||0}</div></div>
+      <div class="profile-card"><div class="profile-label">♾ Record Infini</div><div class="profile-val">${state.infiniteBest||0}</div></div>
+      <div class="profile-card"><div class="profile-label">🎒 Items équipés</div><div class="profile-val">${equippedSlots}</div></div>
+      <div class="profile-card"><div class="profile-label">🔨 Forge totale</div><div class="profile-val">${getTotalForgeLevel()}</div></div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">🌟 Top puissance</div>
+      <div class="profile-team">${strongest.length?strongest.map(c=>renderUnit(c)).join(''):'<div class="profile-chip">Aucun personnage obtenu.</div>'}</div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-section-title">📦 Inventaire & raretés</div>
+      <div class="profile-chip-row">
+        <span class="profile-chip">🪙 <b>${(state.gold||0).toLocaleString()}</b> or</span>
+        <span class="profile-chip">💎 <b>${(state.crystals||0).toLocaleString()}</b> cristaux</span>
+        <span class="profile-chip">🎒 <b>${getTotalOwnedItemsCount()}</b> items</span>
+        <span class="profile-chip">💫 <b>${((state.materials||{}).awakening_tears||0).toLocaleString()}</b> larmes</span>
+        ${rarityCounts.map(r=>`<span class="profile-chip">${'★'.repeat(r.rarity)} <b>${r.count}/${r.total}</b></span>`).join('')}
+      </div>
     </div>
     <div class="chart-block">
       <div class="chart-title">Graphiques de performance</div>
@@ -2808,7 +2865,6 @@ function renderProfile(){
       </div>`).join('')}
     </div>`;
 }
-
 // ═══════════════════════════════════════════
 //  PULL HISTORY
 // ═══════════════════════════════════════════
@@ -2935,6 +2991,16 @@ const ITEM_DEFS=[
   {id:'life_amulet',  name:'Amulette de Vie',  emoji:'❤', type:'accessory',slot:'accessory',stats:{hp:800,def:50},  desc:'+800 HP +50 DEF'},
   {id:'chrono_emblem',name:'Emblème Chrono',   emoji:'⏱️',type:'accessory',slot:'accessory',stats:{atk:90,sDmg:140,critBoost:0.05},desc:'+90 ATK +140 Spéciale +5% Crit'},
   {id:'crown_of_void',name:'Couronne du Vide', emoji:'🜂',type:'accessory',slot:'accessory',stats:{hp:1200,def:140,critBoost:0.1},desc:'+1200 HP +140 DEF +10% Crit'},
+  // 🌙 MAJ CHILL — équipements
+  {id:'storm_fans',   name:'Éventails de Tempête',emoji:'🌪️',type:'weapon',slot:'weapon',stats:{atk:180,sDmg:90,critBoost:0.04},desc:'+180 ATK +90 Spéciale +4% Crit'},
+  {id:'oni_claws',    name:'Griffes Oni',        emoji:'👹', type:'weapon',slot:'weapon',stats:{atk:300,critBoost:0.15},desc:'+300 ATK +15% Crit'},
+  {id:'starlight_bow',name:'Arc Stellaire',      emoji:'🏹', type:'weapon',slot:'weapon',stats:{atk:260,sDmg:260},desc:'+260 ATK +260 Spéciale'},
+  {id:'moon_haori',   name:'Haori Lunaire',      emoji:'🌙', type:'armor', slot:'armor', stats:{def:160,hp:900,critBoost:0.04},desc:'+160 DEF +900 HP +4% Crit'},
+  {id:'oni_guard',    name:'Garde Oni',          emoji:'⛩️',type:'armor', slot:'armor', stats:{def:320,hp:1800},desc:'+320 DEF +1800 HP'},
+  {id:'star_cloak',   name:'Cape des Étoiles',   emoji:'🌠', type:'armor', slot:'armor', stats:{def:240,hp:1200,sDmg:120},desc:'+240 DEF +1200 HP +120 Spéciale'},
+  {id:'lucky_charm',  name:'Porte-bonheur Chill',emoji:'🍀', type:'accessory',slot:'accessory',stats:{atk:60,hp:500,def:60},desc:'+60 ATK +500 HP +60 DEF'},
+  {id:'mana_orb',     name:'Orbe de Mana',       emoji:'🔵', type:'accessory',slot:'accessory',stats:{sDmg:220,critBoost:0.06},desc:'+220 Spéciale +6% Crit'},
+  {id:'dragon_badge', name:'Badge du Dragon',    emoji:'🐉', type:'accessory',slot:'accessory',stats:{atk:140,hp:900,critBoost:0.08},desc:'+140 ATK +900 HP +8% Crit'},
 ];
 const CRAFT_RECIPES=[
   {result:'iron_sword',   cost:{iron:3,gold_ore:0},   goldCost:200,  label:'3 Fer + 200🪙'},
@@ -2952,6 +3018,15 @@ const CRAFT_RECIPES=[
   {result:'astral_plate', cost:{cloth:18,iron:14,magic_shard:10,awakening_tears:4},goldCost:7800,label:'18 Tissu + 14 Fer + 10 Éclats + 4 Larmes + 7800🪙'},
   {result:'chrono_emblem',cost:{magic_shard:10,rare_crystal:5,awakening_tears:2},goldCost:5200,label:'10 Éclats + 5 Cristaux rares + 2 Larmes + 5200🪙'},
   {result:'crown_of_void',cost:{rare_crystal:8,magic_shard:12,awakening_tears:5},goldCost:8600,label:'8 Cristaux rares + 12 Éclats + 5 Larmes + 8600🪙'},
+  {result:'storm_fans',   cost:{iron:7,cloth:4,magic_shard:3},goldCost:1500,label:'7 Fer + 4 Tissu + 3 Éclats + 1500🪙'},
+  {result:'oni_claws',    cost:{iron:12,rare_crystal:2,magic_shard:5},goldCost:3600,label:'12 Fer + 2 Cristaux rares + 5 Éclats + 3600🪙'},
+  {result:'starlight_bow',cost:{iron:10,cloth:6,magic_shard:8,rare_crystal:2},goldCost:3900,label:'10 Fer + 6 Tissu + 8 Éclats + 2 Cristaux rares + 3900🪙'},
+  {result:'moon_haori',   cost:{cloth:9,magic_shard:4},goldCost:1900,label:'9 Tissu + 4 Éclats + 1900🪙'},
+  {result:'oni_guard',    cost:{cloth:13,iron:9,rare_crystal:3},goldCost:4300,label:'13 Tissu + 9 Fer + 3 Cristaux rares + 4300🪙'},
+  {result:'star_cloak',   cost:{cloth:12,magic_shard:9,rare_crystal:2},goldCost:4100,label:'12 Tissu + 9 Éclats + 2 Cristaux rares + 4100🪙'},
+  {result:'lucky_charm',  cost:{cloth:5,iron:4,magic_shard:1},goldCost:900,label:'5 Tissu + 4 Fer + 1 Éclat + 900🪙'},
+  {result:'mana_orb',     cost:{magic_shard:7,rare_crystal:2},goldCost:2600,label:'7 Éclats + 2 Cristaux rares + 2600🪙'},
+  {result:'dragon_badge', cost:{iron:8,rare_crystal:4,awakening_tears:2},goldCost:5600,label:'8 Fer + 4 Cristaux rares + 2 Larmes + 5600🪙'},
 ];
 const MATERIAL_NAMES={iron:'⚒ Fer',cloth:'🧵 Tissu',magic_shard:'💎 Éclat Magique',rare_crystal:'🔮 Cristal Rare',awakening_tears:'💫 Larmes d\'Éveil'};
 
@@ -3027,7 +3102,7 @@ function renderEquipSlots(){
                 :`<div class="equip-slot-empty">[ ${slotNames[slot]} vide ]</div>`}
         </div>
 		<button class="craft-btn" style="padding:5px 8px;font-size:.68rem" onclick="equipBestItem('${selectedEquipChar}','${slot}')">⭐ Meilleur</button>
-        ${item?`<div class="equip-unequip" onclick="unequipItem('${selectedEquipChar}','${slot}')">✕</div>`:''}
+        ${item?`<button type="button" class="equip-unequip" aria-label="Déséquiper ${item.name}" onclick="handleUnequipClick(event,'${selectedEquipChar}','${slot}')">✕</button>`:''}
       </div>`;
     }).join('')}
     <div class="items-inventory">
@@ -3037,7 +3112,7 @@ function renderEquipSlots(){
           const isOnThis=equip[item.slot]===item.id;
           const availableCount=Math.max(0,count-getEquippedItemCount(item.id,selectedEquipChar));
           const noFreeCopy=!isOnThis&&availableCount<=0;
-          return `<div class="item-card ${noFreeCopy?'equipped-elsewhere':''}" onclick="${noFreeCopy?'':isOnThis?`unequipItem('${selectedEquipChar}','${item.slot}')`:`equipItem('${selectedEquipChar}','${item.id}')`}">
+          return `<div class="item-card ${noFreeCopy?'equipped-elsewhere':''}" onclick="${noFreeCopy?'':isOnThis?`handleUnequipClick(event,'${selectedEquipChar}','${item.slot}')`:`equipItem('${selectedEquipChar}','${item.id}')`}">
             <div class="item-icon">${item.emoji}</div>
             <div class="item-info">
               <div class="item-name">${item.name}</div>
@@ -3128,11 +3203,20 @@ function equipItem(charId,itemId){
   equip[item.slot]=itemId;
   save();renderEquipSlots();showToast(`⚔ ${item.name} équipé sur ${getCharById(charId)?.name||getCharById(baseId)?.name||baseId}!`);
 }
+function handleUnequipClick(event,charId,slot){
+  if(event){event.preventDefault();event.stopPropagation();}
+  unequipItem(charId,slot);
+}
 function unequipItem(charId,slot){
+  const validSlots=['weapon','armor','accessory'];
+  if(!validSlots.includes(slot))return;
+  const baseId=getBaseId(charId);
   const equip=getCharEquip(baseId);
-  equip[item.slot]=itemId;
-  save();renderEquipSlots();showToast(`⚔ ${item.name} équipé sur ${getCharById(charId)?.name||getCharById(baseId)?.name||baseId}!`);
-  save();renderEquipSlots();
+  if(!equip[slot]){showToast('ℹ️ Ce slot est déjà vide.');return;}
+  const item=ITEM_DEFS.find(x=>x.id===equip[slot]);
+  equip[slot]=null;
+  save();renderEquipment();
+  showToast(`${item?item.emoji+' '+item.name:'Équipement'} déséquipé.`);
 }
 function craftItem(recipeResult){
   const recipe=CRAFT_RECIPES.find(r=>r.result===recipeResult);
@@ -3352,6 +3436,7 @@ const PASSIVES_6={
   yamamoto:     {name:'Flammes Primordiales',desc:'Critiques renforcés, dégâts reçus -15%. En Infini: brûle l’ennemi à chaque tour', isDmgReduce:true,reduceAmt:.15,isCritBoost:true,isInfiniteBurn:true},
   rimuru_td:    {name:'Noyau Azathoth',   desc:'Soigne 6% HP max/tour. En Infini: ajoute aussi un bouclier à toute l’équipe', fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.06));});},isInfiniteShield:true},
   vegeta_ue:    {name:'Ultra Ego',        desc:'Réduit les dégâts reçus de 18% + critiques renforcés', isDmgReduce:true,reduceAmt:.18,isCritBoost:true},
+  
 };
 // Merge into PASSIVES
 Object.assign(PASSIVES,PASSIVES_6);
