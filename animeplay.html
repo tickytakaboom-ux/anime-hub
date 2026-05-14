@@ -729,6 +729,18 @@ const ALL_CHARS=[
   {id:'rengoku',name:'Kyojuro Rengoku',anime:'Demon Slayer',emoji:'🔥',rarity:4,atk:480,hp:1480,def:178,sp:'Flamme du Purgatoire',sDmg:820,type:'Attaquant'},
   {id:'obito',name:'Obito Uchiha',anime:'Naruto Shippuden',emoji:'🌀',rarity:5,atk:700,hp:2220,def:245,sp:'Kamui Tempête',sDmg:1500,type:'Mage'},
   {id:'madoka_goddess',name:'Madoka Kaname Déesse',anime:'Madoka Magica',emoji:'🏹',rarity:6,atk:1410,hp:3650,def:530,sp:'Arrow of Salvation',sDmg:2500,type:'Support'},
+  // 🌙 MAJ CHILL — nouveaux persos
+  {id:'vegeta_ue',name:'Vegeta Ultra Ego',anime:'Dragon Ball Super',emoji:'💜',rarity:6,atk:1120,hp:3850,def:470,sp:'Final Explosion Ego',sDmg:2620,type:'Tank'},
+  {id:'yuta',name:'Yuta Okkotsu',anime:'Jujutsu Kaisen',emoji:'💍',rarity:5,atk:635,hp:2050,def:235,sp:'Rika Déchaînée',sDmg:1390,type:'Mage'},
+  {id:'shanks',name:'Shanks le Roux',anime:'One Piece',emoji:'🍶',rarity:5,atk:675,hp:1980,def:225,sp:'Haki Royal',sDmg:1450,type:'Attaquant'},
+  {id:'meruem',name:'Meruem',anime:'HxH',emoji:'♟',rarity:5,atk:625,hp:2480,def:315,sp:'Roi des Fourmis',sDmg:1280,type:'Tank'},
+  {id:'yuno_spirit',name:'Yuno Spirit Dive',anime:'Black Clover',emoji:'🍃',rarity:5,atk:640,hp:1920,def:215,sp:'Spirit Storm',sDmg:1410,type:'Attaquant'},
+  {id:'bakugo',name:'Katsuki Bakugo',anime:'My Hero Academia',emoji:'💣',rarity:4,atk:465,hp:1360,def:158,sp:'Howitzer Impact',sDmg:780,type:'Attaquant'},
+  {id:'maki',name:'Maki Zenin',anime:'Jujutsu Kaisen',emoji:'🥢',rarity:4,atk:455,hp:1450,def:175,sp:'Playful Cloud',sDmg:760,type:'Attaquant'},
+  {id:'nezuko',name:'Nezuko Kamado',anime:'Demon Slayer',emoji:'🎋',rarity:4,atk:390,hp:1580,def:205,sp:'Blood Demon Art',sDmg:690,type:'Tank'},
+  {id:'lelouch',name:'Lelouch Lamperouge',anime:'Code Geass',emoji:'♛',rarity:4,atk:345,hp:1320,def:150,sp:'Geass Command',sDmg:610,type:'Support'},
+  {id:'holo',name:'Holo la Sage Louve',anime:'Spice and Wolf',emoji:'🐺',rarity:3,atk:230,hp:990,def:125,sp:'Harvest Blessing',sDmg:360,type:'Support'},
+  {id:'anya',name:'Anya Forger',anime:'Spy x Family',emoji:'🥜',rarity:2,atk:125,hp:620,def:82,sp:'Lecture Mentale',sDmg:205,type:'Support'},
 ];
 
 const ARCS = [
@@ -1797,6 +1809,15 @@ const PASSIVES = {
   mash:      {name:'Corps Inébranlable',   desc:'Réduit les dégâts reçus de 18%', fn:null, isDmgReduce:true, reduceAmt:.18},
   violet:    {name:'Sang-Froid',           desc:'25% de chance d\'esquiver les attaques ennemies', fn:null, isDodge:true, dodgeChance:.25},
   gabimaru:  {name:'Ninja Immortel',       desc:'30% de chance d\'attaquer 2 fois par tour', fn:null, isDoubleHit:true, doubleChance:.3},
+  // 🌙 MAJ CHILL
+  yuta:      {name:'Amour Maudit',        desc:'Vole 18% des dégâts infligés en HP', fn:null, isLifesteal:true, lifestealAmt:.18},
+  shanks:    {name:'Haki du Roux',        desc:'Les critiques infligent 2.5× au lieu de 1.8×', fn:null, isCritBoost:true},
+  meruem:    {name:'Roi Chimère',         desc:'Se régénère de 8% HP max chaque tour', fn:(hero)=>{ hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(hero.maxHp*.08)); }},
+  yuno_spirit:{name:'Esprit du Vent',     desc:'35% de chance d\'attaquer 2 fois par tour', fn:null, isDoubleHit:true, doubleChance:.35},
+  bakugo:    {name:'Explosion Nerveuse',  desc:'20% de chance de doubler les dégâts d\'attaque normale', fn:(hero,bs)=>Math.random()<.2?2:1, isDmgMult:true},
+  maki:      {name:'Force Céleste',       desc:'Réduit les dégâts reçus de 12%', fn:null, isDmgReduce:true, reduceAmt:.12},
+  nezuko:    {name:'Sang Démoniaque',     desc:'Vole 10% des dégâts infligés en HP', fn:null, isLifesteal:true, lifestealAmt:.1},
+  lelouch:   {name:'Ordre Absolu',        desc:'15% de chance d\'annuler l\'attaque ennemie', fn:null, isDodge:true, dodgeChance:.15},
 };
 
 function getPassive(id){ return PASSIVES[getBaseId(id)]||null; }
@@ -2878,6 +2899,8 @@ const CHAR_ELEMENTS={
   violet:'light',gabimaru:'fire',
   anos:'dark',gilgamesh:'light',yamamoto:'fire',rimuru_td:'water',
   takemichi:'neutral',denji:'dark',rengoku:'fire',obito:'dark',madoka_goddess:'light',
+  vegeta_ue:'dark',yuta:'light',shanks:'light',meruem:'dark',yuno_spirit:'thunder',
+  bakugo:'fire',maki:'neutral',nezuko:'fire',lelouch:'dark',holo:'water',anya:'neutral',
 };
 function getElemMult(attackerElem, defenderElem){
   if(!attackerElem||!defenderElem)return 1;
@@ -3328,6 +3351,7 @@ const PASSIVES_6={
   gilgamesh:    {name:'Porte de Babylone',desc:'30% de chance de doubler les dégâts de spéciale',                      isDmgMult:true,fn:(hero,bs)=>Math.random()<.3?2:1},
   yamamoto:     {name:'Flammes Primordiales',desc:'Critiques renforcés, dégâts reçus -15%. En Infini: brûle l’ennemi à chaque tour', isDmgReduce:true,reduceAmt:.15,isCritBoost:true,isInfiniteBurn:true},
   rimuru_td:    {name:'Noyau Azathoth',   desc:'Soigne 6% HP max/tour. En Infini: ajoute aussi un bouclier à toute l’équipe', fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.06));});},isInfiniteShield:true},
+  vegeta_ue:    {name:'Ultra Ego',        desc:'Réduit les dégâts reçus de 18% + critiques renforcés', isDmgReduce:true,reduceAmt:.18,isCritBoost:true},
 };
 // Merge into PASSIVES
 Object.assign(PASSIVES,PASSIVES_6);
