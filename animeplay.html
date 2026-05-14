@@ -48,12 +48,18 @@
   .pity-track{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
   .pity-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));border-radius:3px;transition:width .4s;}
   /* RESULT */
-  .gacha-result{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+  .gacha-result{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:14px;overflow:hidden;}
   .gacha-result.show{display:flex;animation:fadeIn .4s ease;}
-  .result-cards{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:820px;padding:16px;}
-  .result-card{width:105px;border-radius:12px;padding:10px 7px;text-align:center;cursor:default;animation:card-appear .4s ease both;border:2px solid transparent;position:relative;overflow:hidden;}
-  @keyframes card-appear{from{transform:scale(0) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
-  .result-card.r5{background:linear-gradient(160deg,#2a1a00,#4a2e00);border-color:var(--gold);box-shadow:0 0 20px rgba(245,200,66,.5);}
+  .gacha-result.show::before{content:'';position:absolute;width:42vmax;height:42vmax;border-radius:50%;background:radial-gradient(circle,rgba(180,79,255,.26),transparent 58%);animation:summon-burst 1.15s ease-out both;pointer-events:none;}
+  .gacha-result.show.has-ultra::before{background:radial-gradient(circle,rgba(0,212,255,.38),rgba(245,200,66,.18),transparent 62%);}
+  .gacha-result.show.has-rare::before{background:radial-gradient(circle,rgba(245,200,66,.30),transparent 60%);}
+  @keyframes summon-burst{0%{transform:scale(.15) rotate(0deg);opacity:0;}35%{opacity:1;}100%{transform:scale(1.35) rotate(120deg);opacity:0;}}
+  .result-cards{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:820px;padding:16px;position:relative;z-index:1;}
+  .result-card{width:105px;border-radius:12px;padding:10px 7px;text-align:center;cursor:default;animation:card-appear .48s cubic-bezier(.2,1.4,.35,1) both;border:2px solid transparent;position:relative;overflow:hidden;}
+  .result-card::before{content:'';position:absolute;inset:-70% -40%;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.34),transparent 65%);transform:translateX(-70%) rotate(18deg);animation:card-shine 1.2s ease both;animation-delay:inherit;pointer-events:none;}
+  @keyframes card-appear{0%{transform:scale(.15) rotate(-14deg);opacity:0;filter:blur(6px);}70%{transform:scale(1.08) rotate(2deg);filter:blur(0);}100%{transform:scale(1) rotate(0deg);opacity:1;}}
+  @keyframes card-shine{0%,35%{transform:translateX(-75%) rotate(18deg);}100%{transform:translateX(75%) rotate(18deg);}}
+  .result-card.r5{background:linear-gradient(160deg,#2a1a00,#4a2e00);border-color:var(--gold);box-shadow:0 0 20px rgba(245,200,66,.5);animation-name:card-appear,rare-pulse;animation-duration:.48s,1.6s;animation-fill-mode:both,both;}
   .result-card.r4{background:linear-gradient(160deg,#1a0a2a,#2e1050);border-color:var(--purple);box-shadow:0 0 15px rgba(180,79,255,.4);}
   .result-card.r3{background:linear-gradient(160deg,#0a1a2a,#102040);border-color:var(--blue);}
   .result-card.r2{background:linear-gradient(160deg,#0a1a0a,#102010);border-color:#444;}
@@ -246,8 +252,9 @@
   /* ── 6★ ULTRA-LÉGENDAIRE ── */
   .r6{border-color:rgba(0,212,255,.6)!important;}
   .coll-card.r6{background:linear-gradient(160deg,#001a2a,#002a40);border-color:rgba(0,212,255,.5);}
-  .result-card.r6{background:linear-gradient(160deg,#001a2a,#002240);border-color:#00d4ff;box-shadow:0 0 30px rgba(0,212,255,.7);}
+  .result-card.r6{background:linear-gradient(160deg,#001a2a,#002240);border-color:#00d4ff;box-shadow:0 0 30px rgba(0,212,255,.7);animation-name:card-appear,ultra-glow;animation-duration:.48s,1.25s;animation-fill-mode:both,both;animation-iteration-count:1,infinite;}
   .result-card.r6 .stars-row span{color:#00d4ff;}
+  @keyframes rare-pulse{0%,100%{box-shadow:0 0 20px rgba(245,200,66,.5);}50%{box-shadow:0 0 32px rgba(245,200,66,.85),0 0 60px rgba(245,200,66,.25);}}
   @keyframes ultra-glow{0%,100%{box-shadow:0 0 20px rgba(0,212,255,.6),0 0 40px rgba(0,212,255,.2);}50%{box-shadow:0 0 35px rgba(0,212,255,.9),0 0 70px rgba(0,212,255,.4);}}
   .team-slot.filled.r6{border-color:rgba(0,212,255,.7);background:linear-gradient(135deg,var(--card),rgba(0,212,255,.07));animation:ultra-glow 2s infinite;}
   /* ── AWAKENED ── */
@@ -315,16 +322,43 @@
   .craft-btn{background:linear-gradient(135deg,#0a1a2a,#102040);border:1px solid var(--blue);color:var(--text);padding:6px 12px;border-radius:7px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;transition:all .2s;white-space:nowrap;flex-shrink:0;}
   .craft-btn:hover{box-shadow:0 0 10px rgba(0,212,255,.25);}
   .craft-btn:disabled{opacity:.35;cursor:not-allowed;}
-  .dmg-float{position:fixed;pointer-events:none;z-index:9999;font-family:'Cinzel Decorative',serif;font-weight:900;animation:dmg-rise .9s ease-out forwards;}
+  .dmg-float{position:fixed;pointer-events:none;z-index:9999;font-family:'Cinzel Decorative',serif;font-weight:900;animation:dmg-rise .9s ease-out forwards;filter:drop-shadow(0 0 10px currentColor);}
+  .dmg-float.heal{animation-name:heal-rise;}
+  @keyframes dmg-rise{0%{opacity:0;transform:translateY(8px) scale(.65) rotate(-4deg);}18%{opacity:1;transform:translateY(0) scale(1.25) rotate(2deg);}80%{opacity:.9;}100%{opacity:0;transform:translateY(-68px) scale(.75) rotate(-2deg);}}
+  @keyframes heal-rise{0%{opacity:0;transform:translateY(12px) scale(.7);}20%{opacity:1;transform:translateY(0) scale(1.15);}100%{opacity:0;transform:translateY(-58px) scale(.9);}}
+  .combat-effect{position:fixed;left:0;top:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+  .combat-effect.slash{width:90px;height:18px;border-radius:999px;background:linear-gradient(90deg,transparent,currentColor,#fff,currentColor,transparent);filter:drop-shadow(0 0 10px currentColor);animation:fx-slash .42s ease-out forwards;}
+  .combat-effect.magic{width:76px;height:76px;border:2px solid currentColor;border-radius:50%;box-shadow:0 0 22px currentColor,inset 0 0 18px currentColor;animation:fx-magic .62s ease-out forwards;}
+  .combat-effect.burst{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#fff 0 7%,currentColor 8% 22%,transparent 58%);filter:drop-shadow(0 0 18px currentColor);animation:fx-burst .72s ease-out forwards;}
+  .combat-effect.heal{width:82px;height:82px;border-radius:50%;background:radial-gradient(circle,rgba(57,255,20,.42),transparent 62%);box-shadow:0 0 26px #39ff14;animation:fx-heal .7s ease-out forwards;}
+  .combat-effect.crit{width:110px;height:110px;border-radius:50%;background:conic-gradient(from 20deg,transparent,currentColor,transparent,currentColor,transparent);filter:drop-shadow(0 0 18px currentColor);animation:fx-crit .55s ease-out forwards;}
+  .battle-area.screen-shake{animation:screen-shake .38s ease;}
+  .battle-area.screen-shake-heavy{animation:screen-shake-heavy .55s ease;}
+  .combat-flash{position:fixed;inset:0;pointer-events:none;z-index:9997;background:rgba(255,255,255,.18);animation:combat-flash .28s ease-out forwards;}
+  .combat-flash.burst{background:radial-gradient(circle,rgba(255,255,255,.38),rgba(255,68,68,.18),transparent 70%);animation-duration:.45s;}
+  @keyframes fx-slash{0%{opacity:0;transform:translate(-50%,-50%) rotate(-22deg) scaleX(.25);}30%{opacity:1;}100%{opacity:0;transform:translate(-50%,-50%) rotate(-22deg) scaleX(1.35) translateX(34px);}}
+  @keyframes fx-magic{0%{opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(0);}45%{opacity:1;}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35) rotate(95deg);}}
+  @keyframes fx-burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.2);}35%{opacity:1;}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5);}}
+  @keyframes fx-heal{0%{opacity:0;transform:translate(-50%,-50%) scale(.55);}35%{opacity:1;}100%{opacity:0;transform:translate(-50%,-60%) scale(1.25);}}
+  @keyframes fx-crit{0%{opacity:0;transform:translate(-50%,-50%) scale(.45) rotate(0);}35%{opacity:1;}100%{opacity:0;transform:translate(-50%,-50%) scale(1.28) rotate(90deg);}}
+  @keyframes screen-shake{0%,100%{transform:translate(0);}20%{transform:translate(-4px,2px);}40%{transform:translate(5px,-2px);}60%{transform:translate(-3px,-1px);}80%{transform:translate(3px,1px);}}
+  @keyframes screen-shake-heavy{0%,100%{transform:translate(0) scale(1);}18%{transform:translate(-8px,4px) scale(1.005);}36%{transform:translate(9px,-5px) scale(1.005);}54%{transform:translate(-7px,-3px) scale(1.002);}72%{transform:translate(6px,3px);}90%{transform:translate(-2px,1px);}}
+  @keyframes combat-flash{0%{opacity:0;}25%{opacity:1;}100%{opacity:0;}}
   @keyframes dmg-rise{0%{opacity:1;transform:translateY(0) scale(1.1);}80%{opacity:.9;}100%{opacity:0;transform:translateY(-62px) scale(.75);}}
   /* ── FIGHTER ANIMATIONS ── */
   @keyframes fighter-attack{0%{transform:translateX(0);}30%{transform:translateX(22px) scale(1.05);}70%{transform:translateX(22px) scale(1.05);}100%{transform:translateX(0) scale(1);}}
+  .dmg-float{position:fixed;pointer-events:none;z-index:9999;font-family:'Cinzel Decorative',serif;font-weight:900;animation:dmg-rise .9s ease-out forwards;filter:drop-shadow(0 0 10px currentColor);}
+  .dmg-float.heal{animation-name:heal-rise;}
+  @keyframes dmg-rise{0%{opacity:0;transform:translateY(8px) scale(.65) rotate(-4deg);}18%{opacity:1;transform:translateY(0) scale(1.25) rotate(2deg);}80%{opacity:.9;}100%{opacity:0;transform:translateY(-68px) scale(.75) rotate(-2deg);}}
+  @keyframes heal-rise{0%{opacity:0;transform:translateY(12px) scale(.7);}20%{opacity:1;transform:translateY(0) scale(1.15);}100%{opacity:0;transform:translateY(-58px) scale(.9);}}
   @keyframes fighter-hit{0%{transform:translateX(0);filter:brightness(1);}20%{transform:translateX(-8px);filter:brightness(2) saturate(0);}50%{transform:translateX(4px);filter:brightness(1.6);}100%{transform:translateX(0);filter:brightness(1);}}
   @keyframes fighter-death{0%{opacity:1;transform:scale(1);}100%{opacity:.25;transform:scale(.9) grayscale(1);}}
-  @keyframes fighter-crit{0%{transform:scale(1);}30%{transform:scale(1.15);}60%{transform:scale(.95);}100%{transform:scale(1);}}
+  @keyframes fighter-crit{0%{transform:scale(1);}22%{transform:scale(1.18) rotate(-1deg);filter:brightness(2) drop-shadow(0 0 18px #ff4400);}55%{transform:scale(.94) rotate(1deg);}100%{transform:scale(1);filter:brightness(1);}}
   .fighter.anim-attack{animation:fighter-attack .45s ease;}
+  .fighter.anim-special{animation:fighter-special .62s ease;}
+  .fighter.anim-burst{animation:fighter-burst .72s ease;}
   .fighter.anim-hit{animation:fighter-hit .35s ease;}
-  .fighter.anim-crit{animation:fighter-crit .4s ease;}
+  .fighter.anim-crit{animation:fighter-crit .46s ease;}
   /* ── TERRAIN BANNER ── */
   .terrain-banner{border-radius:10px;padding:7px 14px;margin-bottom:12px;font-size:.75rem;display:flex;align-items:center;gap:8px;border:1px solid;}
   /* ── XP BAR ── */
@@ -1134,6 +1168,10 @@ function doGacha(n){
 
 function showResults(chars){
   const cont=document.getElementById('result-cards');cont.innerHTML='';
+  const overlay=document.getElementById('gacha-result');
+  overlay.classList.remove('has-rare','has-ultra');
+  if(chars.some(c=>c.rarity>=6))overlay.classList.add('has-ultra');
+  else if(chars.some(c=>c.rarity>=5))overlay.classList.add('has-rare');
   chars.forEach((c,i)=>{
     const isNew=state.owned[c.id]===1;
     const div=document.createElement('div');
@@ -1141,9 +1179,9 @@ function showResults(chars){
     div.innerHTML=`${isNew?'<div class="new-badge">NEW!</div>':''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div class="stars-row">${'<span>★</span>'.repeat(c.rarity)}</div>`;
     cont.appendChild(div);
   });
-  document.getElementById('gacha-result').classList.add('show');
+  overlay.classList.add('show');
 }
-function closeResult(){document.getElementById('gacha-result').classList.remove('show');}
+function closeResult(){const o=document.getElementById('gacha-result');o.classList.remove('show','has-rare','has-ultra');}
 
 function filterColl(f,btn){
   currentCollFilter=f;
@@ -1420,7 +1458,7 @@ function doAttack(mode){
     if(bs.enemy.currentHp<=0)return;
     let dmg=0,logText='',logType='log-hit';
     // Queue hero attack animation
-    bs._pendingFloats.push({id:`hero-${heroIdx}`,cls:'anim-attack',delay:heroIdx*100,float:null});
+    bs._pendingFloats.push({id:`hero-${heroIdx}`,cls:getAttackAnimClass(mode),delay:heroIdx*100,float:null});
     if(mode==='normal'){
       dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
       dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);
@@ -1465,7 +1503,7 @@ function doAttack(mode){
           t.currentHp=Math.min(t.maxHp,t.currentHp+heal);
           state.playerStats.healingDone=(state.playerStats.healingDone||0)+heal;
           const tIdx=bs.heroes.indexOf(t);
-          bs._pendingFloats.push({id:`hero-${tIdx}`,cls:'anim-attack',delay:200,float:'+'+heal,floatId:`hero-${tIdx}`,color:'#39ff14'});
+          bs._pendingFloats.push({id:`hero-${tIdx}`,cls:'anim-special',delay:200,float:'+'+heal,floatId:`hero-${tIdx}`,color:'#39ff14',effect:'heal'});
           addLog(`💚 ${hero.name} soigne ${t.name} (+${heal} HP)`,'log-heal');
         }
       }
@@ -1508,7 +1546,7 @@ function doAttack(mode){
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
     // Queue enemy-hit animation + damage float
     const isCritDmg=(logType==='log-crit');
-    bs._pendingFloats.push({id:'enemy-fighter',cls:isCritDmg?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'enemy-fighter',color:isCritDmg?'#ff4400':'#ff6666'});
+    bs._pendingFloats.push({id:'enemy-fighter',cls:isCritDmg?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'enemy-fighter',color:isCritDmg?'#ff4400':'#ff6666',effect:getImpactEffect(mode,isCritDmg),shake:mode==='burst'?'burst':isCritDmg?'hit':null,flash:mode==='burst'?'burst':isCritDmg?'hit':null});
     applyPassiveTrigger(hero,bs,'lifesteal',dmg);
     // Arc 6 terrain: 10% of damage dealt reflected back to attacker
     if(state.currentArc===6&&bs.enemy.currentHp>0){
@@ -1554,7 +1592,7 @@ function doAttack(mode){
         t.currentHp=Math.max(0,t.currentHp-ed);
         // Queue hero-hit anim + float
         const tIdx=bs.heroes.indexOf(t);
-        bs._pendingFloats.push({id:`hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`hero-${tIdx}`,color:'#ff9966'});
+        bs._pendingFloats.push({id:`hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`hero-${tIdx}`,color:'#ff9966',effect:'slash',shake:e.isBoss?'hit':null});
         addLog(`💀 ${e.name} frappe ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');
       }
     }
@@ -1572,21 +1610,7 @@ function doAttack(mode){
   checkBattleEnd();
   renderBattleUI();
   // Fire floats and animations AFTER DOM rebuild (elements have fresh positions)
-  bs._pendingFloats&&bs._pendingFloats.forEach(f=>{
-    setTimeout(()=>{
-      const el=document.getElementById(f.id);
-      if(el){
-        el.classList.remove('anim-attack','anim-hit','anim-crit');
-        void el.offsetWidth;
-        el.classList.add(f.cls);
-        setTimeout(()=>el.classList.remove(f.cls),450);
-      }
-      if(f.float!=null){
-        const rect=document.getElementById(f.floatId)?.getBoundingClientRect();
-        if(rect) spawnDmgFloatAt(f.float,f.color,rect.left+rect.width/2-24,rect.top+10);
-      }
-    },f.delay);
-  });
+  flushQueuedCombatFx(bs._pendingFloats);
   bs._pendingFloats=[];
 }
 function tickStatuses(bs){
@@ -2227,7 +2251,7 @@ function doInfiniteAttack(mode){
   alive.forEach((hero,heroIdx)=>{
     if(bs.enemy.currentHp<=0)return;
     let dmg=0,logText='',logType='log-hit';
-    bs._pendingFloats.push({id:`inf-hero-${heroIdx}`,cls:'anim-attack',delay:heroIdx*100,float:null});
+    bs._pendingFloats.push({id:`inf-hero-${heroIdx}`,cls:getAttackAnimClass(mode),delay:heroIdx*100,float:null});
     if(mode==='normal'){
       dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));
       dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);
@@ -2257,7 +2281,7 @@ function doInfiniteAttack(mode){
           const t=alive[Math.floor(Math.random()*alive.length)];
           t.currentHp=Math.min(t.maxHp,t.currentHp+heal);
           const tIdx=bs.heroes.indexOf(t);
-          bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-attack',delay:220,float:'+'+heal,floatId:`inf-hero-${tIdx}`,color:'#39ff14'});
+          bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-special',delay:220,float:'+'+heal,floatId:`inf-hero-${tIdx}`,color:'#39ff14',effect:'heal'});
           addInfLog(`💚 ${hero.name} soigne ${t.name} (+${heal})`,'log-heal');
         }
       }
@@ -2280,7 +2304,7 @@ function doInfiniteAttack(mode){
     dmg=Math.max(1,dmg-defR);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
     const isCritDmg=(logType==='log-crit');
-    bs._pendingFloats.push({id:'inf-enemy',cls:isCritDmg?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'inf-enemy',color:isCritDmg?'#ff4400':'#ff6666'});
+    bs._pendingFloats.push({id:'inf-enemy',cls:isCritDmg?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'inf-enemy',color:isCritDmg?'#ff4400':'#ff6666',effect:getImpactEffect(mode,isCritDmg),shake:mode==='burst'?'burst':isCritDmg?'hit':null,flash:mode==='burst'?'burst':isCritDmg?'hit':null});
     addInfLog(logText,logType);
   });
   if(mode==='burst')bs.burstCharge=0;
@@ -2306,7 +2330,7 @@ function doInfiniteAttack(mode){
 		if((t.shield||0)>0){const absorbed=Math.min(t.shield,ed);t.shield-=absorbed;ed-=absorbed;if(absorbed>0)addInfLog(`🛡 Bouclier absorbe ${absorbed}`,'log-heal');}
         t.currentHp=Math.max(0,t.currentHp-ed);
         const tIdx=bs.heroes.indexOf(t);
-        bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`inf-hero-${tIdx}`,color:'#ff9966'});
+        bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`inf-hero-${tIdx}`,color:'#ff9966',effect:'slash',shake:e.isBoss?'hit':null});
         addInfLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');
       }
     }
@@ -2344,13 +2368,7 @@ function doInfiniteAttack(mode){
   // Fire animations after DOM rebuild
   const pending=[...bs._pendingFloats];
   bs._pendingFloats=[];
-  pending.forEach(f=>{
-    setTimeout(()=>{
-      const el=document.getElementById(f.id);
-      if(el){el.classList.remove('anim-attack','anim-hit','anim-crit');void el.offsetWidth;el.classList.add(f.cls);setTimeout(()=>el.classList.remove(f.cls),450);}
-      if(f.float!=null){const rel=document.getElementById(f.floatId);if(rel){const rect=rel.getBoundingClientRect();spawnDmgFloatAt(f.float,f.color,rect.left+rect.width/2-24,rect.top+10);}}
-    },f.delay);
-  });
+  flushQueuedCombatFx(pending);
   document.getElementById('infinite-best').innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Meilleur record</div><div style="font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold)">Vague ${state.infiniteBest||0}</div>`;
 }
 
@@ -2443,17 +2461,17 @@ function renderTournamentUI(){
 }
 function doTournamentAttack(mode){
   const bs=state.tournament;if(!bs||bs.over)return;if(mode==='burst'&&(bs.burstCharge||0)<3)return;const alive=bs.heroes.filter(h=>h.currentHp>0);if(!alive.length)return;if(!bs._pendingFloats)bs._pendingFloats=[];
-  alive.forEach((hero,heroIdx)=>{if(bs.enemy.currentHp<=0)return;let dmg=0,logText='',logType='log-hit';bs._pendingFloats.push({id:`tour-hero-${heroIdx}`,cls:'anim-attack',delay:heroIdx*100,float:null});
+  alive.forEach((hero,heroIdx)=>{if(bs.enemy.currentHp<=0)return;let dmg=0,logText='',logType='log-hit';bs._pendingFloats.push({id:`tour-hero-${heroIdx}`,cls:getAttackAnimClass(mode),delay:heroIdx*100,float:null});
     if(mode==='normal'){dmg=hero.atk+randInt(-Math.round(hero.atk*.15),Math.round(hero.atk*.15));dmg=applyPassiveTrigger(hero,bs,'dmgMult',dmg);applyPassiveTrigger(hero,bs,'escanor');applyPassiveTrigger(hero,bs,'onNormalAtk');const crit=Math.random()<(hero.critChance||0.2);const critMult=getPassive(hero.id)&&getPassive(hero.id).isCritBoost?2.5:1.8;if(crit){dmg=Math.round(dmg*critMult);logType='log-crit';logText=`💥 CRIT! ${hero.name} (${dmg})`;}else logText=`⚔ ${hero.name} (${dmg})`;if((hero.spCooldown||0)>0)hero.spCooldown=Math.max(0,hero.spCooldown-1);}
     else if(mode==='special'){if((hero.spCooldown||0)>0){dmg=hero.atk;logText=`⚔ ${hero.name} (CD)`;hero.spCooldown=Math.max(0,hero.spCooldown-1);}else{const p=getPassive(hero.id);dmg=hero.sDmg+randInt(-Math.round(hero.sDmg*.1),Math.round(hero.sDmg*.1));if(p&&p.isMegumin){dmg=Math.round(hero.sDmg*1.8);logType='log-crit';logText=`💥✨ ${hero.name}: ${hero.sp}! (${dmg})`;}else{logText=`✨ ${hero.name}: ${hero.sp}! (${dmg})`;logType='log-special';}hero.spCooldown=hero.spMaxCd||3;applyPassiveTrigger(hero,bs,'onSpecial');}}
     else{dmg=Math.round(hero.sDmg*2.8)+randInt(-100,100);logText=`💥 BURST! ${hero.name} (${dmg})`;logType='log-crit';hero.spCooldown=hero.spMaxCd||3;}
-    applyPassiveTrigger(hero,bs,'lifesteal',dmg);const p2=getPassive(hero.id);const defR=(p2&&p2.isZeno)?0:(p2&&p2.isAnosDef)?Math.round(bs.enemy.def*.7):(p2&&p2.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def);dmg=Math.max(1,dmg-defR);bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);bs._pendingFloats.push({id:'tour-enemy',cls:logType==='log-crit'?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'tour-enemy',color:logType==='log-crit'?'#ff4400':'#ff6666'});addTourLog(logText,logType);
+    applyPassiveTrigger(hero,bs,'lifesteal',dmg);const p2=getPassive(hero.id);const defR=(p2&&p2.isZeno)?0:(p2&&p2.isAnosDef)?Math.round(bs.enemy.def*.7):(p2&&p2.isMegumin&&mode==='special'?Math.round(bs.enemy.def*.4):bs.enemy.def);dmg=Math.max(1,dmg-defR);bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);bs._pendingFloats.push({id:'tour-enemy',cls:logType==='log-crit'?'anim-crit':'anim-hit',delay:heroIdx*100+180,float:dmg,floatId:'tour-enemy',color:logType==='log-crit'?'#ff4400':'#ff6666',effect:getImpactEffect(mode,logType==='log-crit'),shake:mode==='burst'?'burst':logType==='log-crit'?'hit':null,flash:mode==='burst'?'burst':logType==='log-crit'?'hit':null});addTourLog(logText,logType);
   });
   if(mode==='burst')bs.burstCharge=0;else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
-  if(bs.enemy.currentHp>0){const e=bs.enemy;if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.55);addTourLog('😡 ENRAGE! ATK ×1.55','log-crit');}if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.12){e.shield=Math.round(e.maxHp*.06);addTourLog('🛡 Bouclier!','log-debuff');}if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.18){const rg=Math.round(e.maxHp*.035);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addTourLog(`💚 Regen +${rg}`,'log-heal');}const alive2=bs.heroes.filter(h=>h.currentHp>0);const attacks=e.isBoss?2:1;for(let k=0;k<attacks&&alive2.length;k++){const t=alive2[Math.floor(Math.random()*alive2.length)];let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));ed=applyDefensivePassive(t,ed,bs);ed=Math.max(1,ed-t.def);t.currentHp=Math.max(0,t.currentHp-ed);const ti=bs.heroes.indexOf(t);bs._pendingFloats.push({id:`tour-hero-${ti}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`tour-hero-${ti}`,color:'#ff9966'});addTourLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');}}
+  if(bs.enemy.currentHp>0){const e=bs.enemy;if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.55);addTourLog('😡 ENRAGE! ATK ×1.55','log-crit');}if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.12){e.shield=Math.round(e.maxHp*.06);addTourLog('🛡 Bouclier!','log-debuff');}if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.18){const rg=Math.round(e.maxHp*.035);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addTourLog(`💚 Regen +${rg}`,'log-heal');}const alive2=bs.heroes.filter(h=>h.currentHp>0);const attacks=e.isBoss?2:1;for(let k=0;k<attacks&&alive2.length;k++){const t=alive2[Math.floor(Math.random()*alive2.length)];let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));ed=applyDefensivePassive(t,ed,bs);ed=Math.max(1,ed-t.def);t.currentHp=Math.max(0,t.currentHp-ed);const ti=bs.heroes.indexOf(t);bs._pendingFloats.push({id:`tour-hero-${ti}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`tour-hero-${ti}`,color:'#ff9966',effect:'slash',shake:e.isBoss?'hit':null});addTourLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');}}
   if(bs.enemy.currentHp<=0){bs.over=true;bs.won=true;bs.wins=(bs.wins||0)+1;addTourLog(`🏆 Round ${bs.round} gagné!`,'log-win');if(bs.round>=bs.maxRounds){state.tournamentClears=(state.tournamentClears||0)+1;if(bs.rewardEligible&&canClaimTournamentReward()){state.gold+=2500;state.crystals+=180;if(!state.materials)state.materials={};state.materials.rare_crystal=(state.materials.rare_crystal||0)+2;state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;markTournamentRewardClaimed();addTourLog('👑 Tournoi remporté! Récompense quotidienne +2500🪙 +180💎 +2🔮 +2💫','log-win');}else addTourLog('✅ Tournoi remporté, mais la récompense quotidienne est déjà prise.','log-debuff');}}
   else if(!bs.heroes.some(h=>h.currentHp>0)){bs.over=true;bs.won=false;addTourLog(`💔 Tournoi perdu au round ${bs.round}.`,'log-crit');}
-  state.tournamentBest=Math.max(state.tournamentBest||0,bs.wins||0);save();updateRes();renderTournamentUI();const pending=[...(bs._pendingFloats||[])];bs._pendingFloats=[];pending.forEach(f=>{setTimeout(()=>{const el=document.getElementById(f.id);if(el){el.classList.remove('anim-attack','anim-hit','anim-crit');void el.offsetWidth;el.classList.add(f.cls);setTimeout(()=>el.classList.remove(f.cls),450);}if(f.float!=null){const rel=document.getElementById(f.floatId);if(rel){const r=rel.getBoundingClientRect();spawnDmgFloatAt(f.float,f.color,r.left+r.width/2-24,r.top+10);}}},f.delay);});
+  state.tournamentBest=Math.max(state.tournamentBest||0,bs.wins||0);save();updateRes();renderTournamentUI();const pending=[...(bs._pendingFloats||[])];bs._pendingFloats=[];flushQueuedCombatFx(pending);
 }
 function addTourLog(text,type=''){if(state.tournament)state.tournament.log.push({text,type});}
 function nextTournamentRound(){const bs=state.tournament;if(!bs)return;bs.round++;bs.enemy=makeTournamentEnemy(bs.round);bs.heroes.forEach(h=>{h.shield=0;h.statuses=[];});bs.log=[{text:`🚩 Round ${bs.round}: aucun soin reçu.`,type:'log-special'}];bs.over=false;bs.won=false;bs.combo=0;save();renderTournamentUI();}
@@ -2508,7 +2526,7 @@ function spawnDmgFloat(text, color, targetEl){
     y=rect.top+10;
   }
   const el=document.createElement('div');
-  el.className='dmg-float';
+  el.className=`dmg-float ${String(text).startsWith('+')?'heal':''}`;
   el.style.cssText=`left:${x}px;top:${y}px;color:${color};font-size:${String(text).length>4?'1rem':'1.3rem'};text-shadow:0 2px 8px #000c;`;
   el.textContent=text;
   document.body.appendChild(el);
@@ -2517,11 +2535,57 @@ function spawnDmgFloat(text, color, targetEl){
 
 function spawnDmgFloatAt(text, color, x, y){
   const el=document.createElement('div');
-  el.className='dmg-float';
+  el.className=`dmg-float ${String(text).startsWith('+')?'heal':''}`;
   el.style.cssText=`left:${x}px;top:${y}px;color:${color};font-size:${String(text).length>4?'1rem':'1.3rem'};text-shadow:0 2px 8px #000c;`;
   el.textContent=text;
   document.body.appendChild(el);
   setTimeout(()=>el&&el.remove(),950);
+}
+function getImpactEffect(mode,isCrit=false){return mode==='burst'?'burst':isCrit?'crit':mode==='special'?'magic':'slash';}
+function spawnCombatEffectAt(kind,x,y,color='#ff6666'){
+  if(!kind)return;
+  const el=document.createElement('div');
+  el.className=`combat-effect ${kind}`;
+  el.style.cssText=`left:${x}px;top:${y}px;color:${color};`;
+  document.body.appendChild(el);
+  setTimeout(()=>el&&el.remove(),800);
+}
+function flashCombat(kind='hit'){
+  const el=document.createElement('div');
+  el.className=`combat-flash ${kind==='burst'?'burst':''}`;
+  document.body.appendChild(el);
+  setTimeout(()=>el&&el.remove(),500);
+}
+function shakeBattleArea(kind='hit'){
+  const area=document.querySelector('.screen.active .battle-area')||document.querySelector('.battle-area');
+  if(!area)return;
+  const cls=kind==='burst'?'screen-shake-heavy':'screen-shake';
+  area.classList.remove('screen-shake','screen-shake-heavy');
+  void area.offsetWidth;
+  area.classList.add(cls);
+  setTimeout(()=>area.classList.remove(cls),kind==='burst'?580:420);
+}
+function playQueuedCombatFx(f){
+  const el=document.getElementById(f.id);
+  if(el){
+    el.classList.remove(...FIGHTER_ANIM_CLASSES);
+    void el.offsetWidth;
+    el.classList.add(f.cls);
+    setTimeout(()=>el.classList.remove(f.cls),getFighterAnimDuration(f.cls));
+  }
+  const rel=f.floatId?document.getElementById(f.floatId):el;
+  const rect=rel?.getBoundingClientRect();
+  if(rect){
+    const x=rect.left+rect.width/2;
+    const y=rect.top+10;
+    if(f.effect)spawnCombatEffectAt(f.effect,x,y+rect.height*.35,f.color);
+    if(f.float!=null)spawnDmgFloatAt(f.float,f.color,x-24,y);
+  }
+  if(f.shake)shakeBattleArea(f.shake);
+  if(f.flash)flashCombat(f.flash);
+}
+function flushQueuedCombatFx(queue){
+  (queue||[]).forEach(f=>setTimeout(()=>playQueuedCombatFx(f),f.delay||0));
 }
 
 // ═══════════════════════════════════════════
@@ -2540,13 +2604,16 @@ const TERRAINS={
 // ═══════════════════════════════════════════
 //  ANIMATED BATTLE HELPER
 // ═══════════════════════════════════════════
+const FIGHTER_ANIM_CLASSES=['anim-attack','anim-special','anim-burst','anim-hit','anim-crit'];
+function getAttackAnimClass(mode){return mode==='burst'?'anim-burst':mode==='special'?'anim-special':'anim-attack';}
+function getFighterAnimDuration(cls){return cls==='anim-burst'?760:cls==='anim-special'?660:cls==='anim-crit'?500:460;}
 function animFighter(id,cls){
   const el=document.getElementById(id);
   if(!el)return;
-  el.classList.remove('anim-attack','anim-hit','anim-crit');
+  el.classList.remove(...FIGHTER_ANIM_CLASSES);
   void el.offsetWidth;
   el.classList.add(cls);
-  setTimeout(()=>el.classList.remove(cls),450);
+  setTimeout(()=>el.classList.remove(cls),getFighterAnimDuration(cls));
 }
 
 // ═══════════════════════════════════════════
