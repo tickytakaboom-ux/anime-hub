@@ -39,6 +39,17 @@
   .hint-dot{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--blue);color:var(--blue);font-size:.65rem;font-weight:700;cursor:pointer;margin-left:6px;vertical-align:middle;user-select:none;}
   .hint-text{display:none;margin-top:6px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);border-radius:8px;padding:7px 10px;font-size:.72rem;color:var(--muted);line-height:1.4;}
   .hint-text.show{display:block;}
+  .onboarding-panel{background:linear-gradient(135deg,rgba(0,212,255,.075),rgba(180,79,255,.06));border:1px solid rgba(0,212,255,.22);border-radius:14px;padding:12px 14px;margin:0 0 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
+  .onboarding-panel.hidden{display:none;}
+  .onboarding-copy{min-width:0;}
+  .onboarding-kicker{font-size:.66rem;color:var(--blue);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:3px;}
+  .onboarding-title{font-weight:800;color:var(--text);font-size:.92rem;}
+  .onboarding-desc{font-size:.75rem;color:var(--muted);line-height:1.35;margin-top:2px;}
+  .onboarding-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
+  .onboarding-btn{background:linear-gradient(135deg,#0a1a2a,#102040);border:1px solid var(--blue);color:var(--text);border-radius:9px;padding:7px 12px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
+  .onboarding-btn:hover{transform:translateY(-1px);box-shadow:0 0 12px rgba(0,212,255,.24);}
+  .onboarding-btn.secondary{background:transparent;border-color:var(--border);color:var(--muted);}
+  @media(max-width:620px){.onboarding-panel{align-items:flex-start;flex-direction:column}.onboarding-actions{justify-content:flex-start}}
   /* GACHA */
   .gacha-banner{background:radial-gradient(circle at 50% 0%,rgba(245,200,66,.08),transparent 34%),linear-gradient(135deg,var(--bg3),#1a1040);border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.05);}
   .gacha-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(180,79,255,.08));pointer-events:none;}
@@ -554,6 +565,8 @@
     <button class="tab-btn" onclick="showTab('history',this)">📜 Historique</button>
   </nav>
 
+  <div id="onboarding-panel" class="onboarding-panel"></div>
+  
   <div id="gacha" class="screen active">
     <div class="section-title">✦ INVOCATION</div>
     <div class="gacha-banner">
@@ -1007,7 +1020,7 @@ const ARCS = [
   ]},
 ];
 
-let state={crystals:500,gold:1200,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,tempEvent:{startDate:'',fragments:0,claimed:{}},updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
+let state={crystals:650,gold:1800,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,tempEvent:{startDate:'',fragments:0,claimed:{}},updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -1027,6 +1040,35 @@ function animateActiveScreen(name){
   const screen=document.getElementById(name);
   if(!screen)return;
   applyStagger(screen,'.coll-card,.bench-card,.shop-item,.quest-card,.ach-card,.forge-card,.fusion-card,.equip-char-card,.equip-slot,.item-card,.craft-card,.profile-card,.profile-section,.profile-unit,.hist-item,.arc-btn');
+}
+function switchTab(name){
+  const btn=[...document.querySelectorAll('.tab-btn')].find(b=>b.getAttribute('onclick')?.includes(`'${name}'`));
+  showTab(name,btn||null);
+}
+function getClaimableQuestCount(){
+  if(!state.quests)return 0;
+  return ['dailyActive','weeklyActive','monthlyActive'].reduce((sum,k)=>sum+(state.quests[k]||[]).filter(q=>!q.claimed&&q.progress>=q.target).length,0);
+}
+function getOnboardingStep(){
+  const teamCount=(state.team||[]).filter(Boolean).length;
+  const ownedCount=Object.values(state.owned||{}).reduce((s,n)=>s+n,0)+Object.values(state.awakenedOwned||{}).reduce((s,n)=>s+n,0);
+  const wins=state.totalWins||0;
+  const claimable=getClaimableQuestCount();
+  const firstUnit=(state.team||[]).find(Boolean);
+  const firstCost=firstUnit?Math.min(getUpgradeCost(firstUnit,'atk'),getUpgradeCost(firstUnit,'hp'),getUpgradeCost(firstUnit,'def')):Infinity;
+  if(wins===0&&ownedCount<=3)return {kicker:'Démarrage conseillé',title:'Fais une invocation ×10 puis vérifie ton équipe',desc:'Tu commences avec assez de cristaux pour lancer un ×10. Remplace ensuite tes starters par tes meilleurs tirages avant le combat.',primary:'Aller au Gacha',tab:'gacha',secondary:'Équipe',secondaryTab:'team'};
+  if(teamCount<3)return {kicker:'Étape suivante',title:'Complète ton équipe active',desc:'Une équipe pleine encaisse mieux les dégâts et charge plus vite le Burst. Ajoute 3 personnages avant de pousser les arcs.',primary:'Construire équipe',tab:'team'};
+  if(wins<2)return {kicker:'Premier objectif',title:'Gagne 2 combats pour débloquer les premières quêtes',desc:'Utilise les attaques spéciales dès qu’elles sont prêtes. Le Burst est à garder pour un boss ou un ennemi bas en vie.',primary:'Aller au combat',tab:'battle'};
+  if(claimable>0)return {kicker:'Récompenses disponibles',title:`${claimable} quête${claimable>1?'s':''} à réclamer`,desc:'Les quêtes sont pensées comme ton carburant quotidien : cristaux, or et XP sans forcer du grind inutile.',primary:'Réclamer',tab:'quests'};
+  if((state.gold||0)>=firstCost&&firstUnit)return {kicker:'Power spike',title:'Améliore ton carry en Forge',desc:'Priorité simple : ATK sur ton meilleur DPS, puis HP/DEF si tu meurs. Les coûts early ont été adoucis pour rendre la Forge utile plus tôt.',primary:'Ouvrir Forge',tab:'forge'};
+  return {kicker:'Plan de progression',title:'Pousse l’arc actuel, puis équipe/craft dès que tu bloques',desc:'Boucle recommandée : Combat → Quêtes → Forge/Équipement → Gacha. Si tu perds deux fois, stop combat et renforce ton équipe.',primary:'Combat',tab:'battle',secondary:'Quêtes',secondaryTab:'quests'};
+}
+function renderOnboardingPanel(){
+  const panel=document.getElementById('onboarding-panel');
+  if(!panel)return;
+  const step=getOnboardingStep();
+  panel.classList.remove('hidden');
+  panel.innerHTML=`<div class="onboarding-copy"><div class="onboarding-kicker">${step.kicker}</div><div class="onboarding-title">${step.title}</div><div class="onboarding-desc">${step.desc}</div></div><div class="onboarding-actions"><button class="onboarding-btn" onclick="switchTab('${step.tab}')">${step.primary}</button>${step.secondary?`<button class="onboarding-btn secondary" onclick="switchTab('${step.secondaryTab}')">${step.secondary}</button>`:''}</div>`;
 }
 function updateRes(){
   const snap={crystals:state.crystals,gold:state.gold,wins:state.totalWins||0,arc:state.currentArc,wave:(state.arcProgress[state.currentArc]||0)+1};
@@ -1049,6 +1091,7 @@ function updateRes(){
   if(pf)pf.style.width=(p/90*100)+'%';
   if(pc)pc.textContent=p;
   updateXpBar();
+  renderOnboardingPanel();
 }
 
 function showTab(name,btn){
@@ -1070,6 +1113,7 @@ function showTab(name,btn){
   if(name==='equipment')renderEquipment();
   if(name==='battle')renderBattleScreen();
   animateActiveScreen(name);
+  renderOnboardingPanel();
   updateTempEventFabVisibility(name);
 }
 
@@ -1787,8 +1831,9 @@ function checkBattleEnd(){
     state.winStreak=(state.winStreak||0)+1;
     let streakBonus=0;
     if(state.winStreak>=5) streakBonus=Math.floor(state.winStreak/5)*20;
-    const g=100*state.currentArc*(bs.enemy.isBoss?5:1)+streakBonus;
-    const cr=bs.enemy.isBoss?60:state.currentArc*6;
+    const earlyBonus=state.currentArc===1?25:0;
+    const g=(120*state.currentArc+earlyBonus)*(bs.enemy.isBoss?5:1)+streakBonus;
+    const cr=bs.enemy.isBoss?80:Math.max(8,state.currentArc*7);
     state.gold+=g;state.crystals+=cr;
 	if(bs.heroes.every(h=>h.currentHp>=h.maxHp)) state.noHitWin=true;
     addLog(`🏆 Victoire! +${g}🪙 +${cr}💎${streakBonus>0?` (🔥×${state.winStreak} streak +${streakBonus}🪙)`:''}`, 'log-win');
@@ -1854,7 +1899,7 @@ function toggleAuto(){
 //  FORGE
 // ═══════════════════════════════════════════
 const MAX_UPGRADE=15;
-const UPGRADE_COST_BASE=200; // gold per level per stat
+const UPGRADE_COST_BASE=160; // gold per level per stat — smoother early progression
 const AWAKEN_BALANCE={
   tearsCostByLevel:[3,3,4,4,5,5,6,6,7,8], // lvl 0..9
   awakenedGoldMult:1.2,
@@ -2883,11 +2928,11 @@ function buyShopItem(id){
 //  QUESTS (DAILY / WEEKLY / MONTHLY)
 // ═══════════════════════════════════════════
 const DAILY_QUEST_DEFS=[
-  {id:'q_win3',    icon:'⚔', name:'Guerrier du jour',   desc:'Remporter 3 combats',                   target:3,  trackKey:'dailyWins',   reward:{crystals:20,gold:0},   rewardLabel:'+20 💎'},
-  {id:'q_sp5',     icon:'✨', name:'Maître des Spéciales',desc:'Utiliser 5 attaques spéciales',          target:5,  trackKey:'dailySp',     reward:{crystals:0,gold:300},  rewardLabel:'+300 🪙'},
-  {id:'q_gacha3',  icon:'🎲', name:'Chasseur d\'étoiles', desc:'Effectuer 3 invocations',               target:3,  trackKey:'dailyGacha',  reward:{crystals:15,gold:0},   rewardLabel:'+15 💎'},
+  {id:'q_win3',    icon:'⚔', name:'Guerrier du jour',   desc:'Remporter 2 combats',                   target:2,  trackKey:'dailyWins',   reward:{crystals:25,gold:150}, rewardLabel:'+25 💎 +150 🪙'},
+  {id:'q_sp5',     icon:'✨', name:'Maître des Spéciales',desc:'Utiliser 3 attaques spéciales',          target:3,  trackKey:'dailySp',     reward:{crystals:10,gold:350}, rewardLabel:'+10 💎 +350 🪙'},
+  {id:'q_gacha3',  icon:'🎲', name:'Chasseur d\'étoiles', desc:'Effectuer 2 invocations',               target:2,  trackKey:'dailyGacha',  reward:{crystals:25,gold:0},   rewardLabel:'+25 💎'},
   {id:'q_boss',    icon:'💀', name:'Tueur de Boss',       desc:'Vaincre 1 boss',                        target:1,  trackKey:'dailyBoss',   reward:{crystals:30,gold:200}, rewardLabel:'+30 💎 +200 🪙'},
-  {id:'q_forge',   icon:'🔨', name:'Forgeron du jour',    desc:'Effectuer 2 améliorations en Forge',    target:2,  trackKey:'dailyForge',  reward:{crystals:0,gold:400},  rewardLabel:'+400 🪙'},
+  {id:'q_forge',   icon:'🔨', name:'Forgeron du jour',    desc:'Effectuer 1 amélioration en Forge',     target:1,  trackKey:'dailyForge',  reward:{crystals:10,gold:450}, rewardLabel:'+10 💎 +450 🪙'},
 ];
 const WEEKLY_QUEST_DEFS=[
   {id:'w_win30',   icon:'🛡️',name:'Briseur de Semaine',    desc:'Remporter 30 combats cette semaine',            target:30, trackKey:'weeklyWins',  reward:{crystals:200,gold:2500}, rewardLabel:'+200 💎 +2500 🪙'},
@@ -3552,8 +3597,8 @@ function giveAllForTesting(){
 
 function resetForTesting(){
   state={
-    crystals:500,
-    gold:1200,
+    crystals:650,
+    gold:1800,
     totalWins:0,
     owned:{gon:1,krillin:1,rock_lee:1},
     team:['gon','krillin','rock_lee'],
