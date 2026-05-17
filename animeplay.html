@@ -67,6 +67,23 @@
   .pity-label{font-size:.72rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
   .pity-track{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
   .pity-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));border-radius:3px;transition:width .4s;}
+
+  .banner-selector{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:14px;}
+  .banner-card{background:linear-gradient(135deg,rgba(255,255,255,.045),rgba(255,255,255,.012));border:1px solid var(--border);border-radius:13px;padding:11px 12px;text-align:left;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;}
+  .banner-card::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.06),transparent 65%);transform:translateX(-120%);transition:transform .45s ease;pointer-events:none;}
+  .banner-card:hover{transform:translateY(-1px);border-color:rgba(245,200,66,.55);box-shadow:0 8px 18px rgba(0,0,0,.22);}
+  .banner-card:hover::before{transform:translateX(120%);}
+  .banner-card.active{border-color:var(--gold);box-shadow:0 0 16px rgba(245,200,66,.2),inset 0 1px 0 rgba(255,255,255,.06);}
+  .banner-card.limited{background:radial-gradient(circle at 100% 0%,rgba(180,79,255,.16),transparent 38%),linear-gradient(135deg,rgba(0,212,255,.055),rgba(180,79,255,.045));}
+  .banner-kicker{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:3px;}
+  .banner-name{font-family:'Cinzel Decorative',serif;font-size:.86rem;color:var(--text);line-height:1.2;}
+  .banner-card.active .banner-name{color:var(--gold);}
+  .banner-desc{font-size:.72rem;color:var(--muted);line-height:1.25;margin-top:5px;}
+  .banner-featured{font-size:.7rem;color:var(--blue);margin-top:7px;font-weight:700;}
+  .banner-tag{position:absolute;right:9px;top:9px;border:1px solid rgba(0,212,255,.35);border-radius:999px;padding:2px 7px;font-size:.58rem;letter-spacing:1px;color:var(--blue);background:rgba(0,212,255,.08);font-weight:800;}
+  .active-banner-info{margin:12px 0 0;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 11px;text-align:left;font-size:.76rem;color:var(--muted);line-height:1.35;}
+  .active-banner-info b{color:var(--gold);}
+  .rateup-badge{position:absolute;left:8px;bottom:8px;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;border-radius:999px;padding:2px 7px;font-size:.58rem;font-weight:900;letter-spacing:1px;box-shadow:0 0 10px rgba(0,212,255,.35);}
   /* RESULT */
   .gacha-result{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:14px;overflow:hidden;}
   .gacha-result.show{display:flex;animation:gacha-overlay-in .28s ease;}
@@ -390,13 +407,10 @@
   @keyframes screen-shake{0%,100%{transform:translate(0);}20%{transform:translate(-4px,2px);}40%{transform:translate(5px,-2px);}60%{transform:translate(-3px,-1px);}80%{transform:translate(3px,1px);}}
   @keyframes screen-shake-heavy{0%,100%{transform:translate(0) scale(1);}18%{transform:translate(-8px,4px) scale(1.005);}36%{transform:translate(9px,-5px) scale(1.005);}54%{transform:translate(-7px,-3px) scale(1.002);}72%{transform:translate(6px,3px);}90%{transform:translate(-2px,1px);}}
   @keyframes combat-flash{0%{opacity:0;}25%{opacity:1;}100%{opacity:0;}}
-  @keyframes dmg-rise{0%{opacity:1;transform:translateY(0) scale(1.1);}80%{opacity:.9;}100%{opacity:0;transform:translateY(-62px) scale(.75);}}
   /* ── FIGHTER ANIMATIONS ── */
   @keyframes fighter-attack{0%{transform:translateX(0);}30%{transform:translateX(22px) scale(1.05);}70%{transform:translateX(22px) scale(1.05);}100%{transform:translateX(0) scale(1);}}
-  .dmg-float{position:fixed;pointer-events:none;z-index:9999;font-family:'Cinzel Decorative',serif;font-weight:900;animation:dmg-rise .9s ease-out forwards;filter:drop-shadow(0 0 10px currentColor);}
-  .dmg-float.heal{animation-name:heal-rise;}
-  @keyframes dmg-rise{0%{opacity:0;transform:translateY(8px) scale(.65) rotate(-4deg);}18%{opacity:1;transform:translateY(0) scale(1.25) rotate(2deg);}80%{opacity:.9;}100%{opacity:0;transform:translateY(-68px) scale(.75) rotate(-2deg);}}
-  @keyframes heal-rise{0%{opacity:0;transform:translateY(12px) scale(.7);}20%{opacity:1;transform:translateY(0) scale(1.15);}100%{opacity:0;transform:translateY(-58px) scale(.9);}}
+  @keyframes fighter-special{0%{transform:translateX(0) scale(1);filter:brightness(1);}28%{transform:translateX(18px) scale(1.08);filter:brightness(1.8) drop-shadow(0 0 14px var(--purple));}58%{transform:translateX(10px) scale(1.02);filter:brightness(1.4) drop-shadow(0 0 22px var(--blue));}100%{transform:translateX(0) scale(1);filter:brightness(1);}}
+  @keyframes fighter-burst{0%{transform:scale(1);filter:brightness(1);}20%{transform:scale(1.12);filter:brightness(2.2) drop-shadow(0 0 18px var(--gold));}45%{transform:translateX(28px) scale(1.18);filter:brightness(2.6) drop-shadow(0 0 28px var(--red));}100%{transform:scale(1);filter:brightness(1);}}
   @keyframes fighter-hit{0%{transform:translateX(0);filter:brightness(1);}20%{transform:translateX(-8px);filter:brightness(2) saturate(0);}50%{transform:translateX(4px);filter:brightness(1.6);}100%{transform:translateX(0);filter:brightness(1);}}
   @keyframes fighter-death{0%{opacity:1;transform:scale(1);}100%{opacity:.25;transform:scale(.9) grayscale(1);}}
   @keyframes fighter-crit{0%{transform:scale(1);}22%{transform:scale(1.18) rotate(-1deg);filter:brightness(2) drop-shadow(0 0 18px #ff4400);}55%{transform:scale(.94) rotate(1deg);}100%{transform:scale(1);filter:brightness(1);}}
@@ -480,7 +494,7 @@
   .hist-stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;justify-content:center;}
   .hist-stat{font-size:.8rem;color:var(--muted);}
   .hist-stat span{color:var(--gold);font-weight:700;}
-  
+
   .temp-event-fab{position:fixed;top:14px;right:14px;z-index:9998;background:linear-gradient(135deg,#2a0c3f,#4b1f73);border:1px solid rgba(180,79,255,.6);color:#f2e8ff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 18px rgba(180,79,255,.35);backdrop-filter:blur(4px);transition:transform .2s ease,box-shadow .2s ease;animation:event-fab-pulse 2.2s ease-in-out infinite;padding:0;line-height:1.1;text-align:center;}
   .temp-event-fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,.4),0 0 28px rgba(180,79,255,.55);}
   .temp-event-fab.hidden{display:none;}
@@ -496,11 +510,12 @@
   @keyframes event-fill-flow{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
   @keyframes event-modal-in{from{transform:translateY(8px) scale(.98);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
   @keyframes event-shimmer{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
-  
+
   .coll-card,.bench-card,.shop-item,.quest-card,.ach-card,.forge-card,.fusion-card,.equip-char-card,.item-card,.craft-card,.profile-card,.profile-section,.profile-unit{will-change:transform,opacity;}
   .coll-card::after,.shop-item::after,.profile-card::after,.ach-card::after,.forge-card::after,.fusion-card::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,transparent,rgba(255,255,255,.06),transparent);opacity:0;transition:opacity .2s;pointer-events:none;}
   .coll-card:hover::after,.shop-item:hover::after,.profile-card:hover::after,.ach-card:hover::after,.forge-card:hover::after,.fusion-card:hover::after{opacity:1;}
   .shop-item,.ach-card,.forge-card,.fusion-card,.profile-card{position:relative;overflow:hidden;}
+
   /* ── LIGHT VISUAL POLISH (static, low-cost) ── */
   .forge-card,.fusion-card,.quest-card,.ach-card,.shop-item,.equip-char-card,.equip-slots-panel,.equip-slot,.item-card,.craft-card,.profile-card,.profile-section,.profile-unit,.chart-block{
     background-image:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008));
@@ -524,8 +539,7 @@
     html{scroll-behavior:auto!important;}
     .star,header h1,.screen.active:not(#battle):not(#infinite):not(#tournament),.ui-pop-item,.res-item.res-pulse,.temp-event-fab,.temp-event-fill,.toast.show{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;}
   }
-  
-  
+
 </style>
 </head>
 <body>
@@ -560,23 +574,25 @@
     <button class="tab-btn" onclick="showTab('profile',this)">👤 Profil</button>
     <button class="tab-btn" onclick="showTab('battle',this)">🔥 Combat</button>
     <button class="tab-btn" onclick="showTab('infinite',this)">♾ Infini</button>
-	<button class="tab-btn" onclick="showTab('tournament',this)">🏟 Tournoi</button>
+    <button class="tab-btn" onclick="showTab('tournament',this)">🏟 Défi Quotidien</button>
     <button class="tab-btn" onclick="showTab('achievements',this)">🏆 Succès</button>
     <button class="tab-btn" onclick="showTab('history',this)">📜 Historique</button>
   </nav>
 
   <div id="onboarding-panel" class="onboarding-panel"></div>
-  
+
   <div id="gacha" class="screen active">
     <div class="section-title">✦ INVOCATION</div>
+    <div id="banner-selector" class="banner-selector"></div>
     <div class="gacha-banner">
-      <div class="gacha-title">✦ BANNIÈRE MULTI-UNIVERS ✦</div>
-      <div class="gacha-subtitle">65+ guerriers de tous les mondes vous attendent</div>
-      <div class="gacha-orb" onclick="doGacha(1)"><div class="gacha-orb-inner">🌀</div></div>
+      <div class="gacha-title" id="gacha-banner-title">✦ BANNIÈRE MULTI-UNIVERS ✦</div>
+      <div class="gacha-subtitle" id="gacha-banner-subtitle">Tous les guerriers permanents vous attendent</div>
+      <div class="gacha-orb" onclick="doGacha(1)"><div class="gacha-orb-inner" id="gacha-orb-icon">🌀</div></div>
       <div class="gacha-btns">
         <button class="gacha-btn" onclick="doGacha(1)">INVOQUER ×1<span class="cost">💎 50 cristaux</span></button>
         <button class="gacha-btn" onclick="doGacha(10)">INVOQUER ×10<span class="cost">💎 450 cristaux (−10%)</span></button>
       </div>
+      <div class="active-banner-info" id="active-banner-info"></div>
       <div class="pity-bar">
         <div class="pity-label">Pitié ★★★★★ — <span id="pity-count">0</span>/90 invocations <span class="hint-dot" onclick="toggleHint('hint-pity')">?</span></div>
         <div class="hint-text" id="hint-pity">À 90 invocations sans 5★ ou plus, le prochain tirage garantit un 5★ minimum (pas forcément 6★).</div>
@@ -585,7 +601,8 @@
     </div>
     <div class="rates-box">
       <h3>⭐ Taux d'invocation <span class="hint-dot" onclick="toggleHint('hint-rates')">?</span></h3>
-      <div class="hint-text" id="hint-rates">Les taux sont par invocation. Le 6★ est ultra-rare (0.3%). Le mode ×10 ne change pas les taux, il réduit juste le coût.</div>
+      <div class="hint-text" id="hint-rates">Les taux sont par invocation. Le 6★ est ultra-rare (0.3%). Le mode ×10 ne change pas les taux, il réduit juste le coût. Sur une bannière limitée, si la rareté obtenue contient des héros en rate-up, 50% des tirages de cette rareté visent un héros vedette.</div>
+      <div class="rate-row"><div>🎯 Rate-up</div><span style="color:var(--gold)">Vedettes limitées</span><span style="color:var(--gold)">50% de la rareté</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐⭐⭐</div><span style="color:var(--blue)">Ultra-Légendaire</span><span style="color:var(--blue)">0.3%</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐⭐</div><span style="color:var(--gold)">Légendaire</span><span style="color:var(--gold)">3% (garanti à 90)</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐</div><span style="color:var(--purple)">Épique</span><span style="color:var(--purple)">15%</span></div>
@@ -666,10 +683,10 @@
     <div class="section-title">🏆 SUCCÈS</div>
     <div id="achievements-grid"></div>
   </div>
-  
+
   <div id="tournament" class="screen">
-    <div class="section-title">🏟 TOURNOI <span class="hint-dot" onclick="toggleHint('hint-tournament')">?</span></div>
-    <div class="hint-text" id="hint-tournament">3 combats consécutifs avec une équipe verrouillée. Les HP et cooldowns sont conservés entre les rounds, mais les statuts sont nettoyés.</div>
+    <div class="section-title">🏟 TOURNOI QUOTIDIEN <span class="hint-dot" onclick="toggleHint('hint-tournament')">?</span></div>
+    <div class="hint-text" id="hint-tournament">Défi quotidien en 3 combats consécutifs avec une équipe verrouillée. Le thème change chaque jour et ajoute une récompense bonus à la première victoire complète.</div>
     <div id="tournament-best" style="text-align:center;margin-bottom:16px;"></div>
     <div class="battle-area"><div id="tournament-content"></div></div>
   </div>
@@ -723,6 +740,7 @@
     <div class="battle-area"><div id="battle-content"></div></div>
   </div>
 </div>
+
 
 <button id="temp-event-fab" class="temp-event-fab hidden" onclick="openTempEventModal()" title="Événement 7 jours">🎯</button>
 <div id="temp-event-modal" class="temp-event-modal" onclick="closeTempEventModal(event)">
@@ -868,6 +886,12 @@ const ALL_CHARS=[
   {id:'lelouch',name:'Lelouch Lamperouge',anime:'Code Geass',emoji:'♛',rarity:4,atk:345,hp:1320,def:150,sp:'Geass Command',sDmg:610,type:'Support'},
   {id:'holo',name:'Holo la Sage Louve',anime:'Spice and Wolf',emoji:'🐺',rarity:3,atk:230,hp:990,def:125,sp:'Harvest Blessing',sDmg:360,type:'Support'},
   {id:'anya',name:'Anya Forger',anime:'Spy x Family',emoji:'🥜',rarity:2,atk:125,hp:620,def:82,sp:'Lecture Mentale',sDmg:205,type:'Support'},
+  {id:'gojo_unsealed',name:'Gojo Libéré',anime:'Jujutsu Kaisen',emoji:'🌌',rarity:6,atk:1180,hp:3600,def:485,sp:'Unlimited Hollow',sDmg:2680,type:'Mage',limited:true},
+];
+
+const GACHA_BANNERS=[
+  {id:'standard',name:'Multi-Univers',kicker:'Permanent',emoji:'🌀',tag:'BASE',title:'✦ BANNIÈRE MULTI-UNIVERS ✦',subtitle:'Tous les guerriers permanents vous attendent',desc:'Pool permanent disponible tout le temps, sans héros limités.',featuredIds:[],featuredChance:0},
+  {id:'limited_curses',name:'Domaine Maudit',kicker:'Limité simple',emoji:'🌌',tag:'LIMITÉ',title:'✦ DOMAINE MAUDIT ✦',subtitle:'Rate-up sur Gojo Libéré, Sukuna et Yuta',desc:'Bannière limitée JJK : héros vedettes en rate-up.',featuredIds:['gojo_unsealed','sukuna_full','yuta'],featuredChance:.5},
 ];
 
 const ARCS = [
@@ -1091,6 +1115,7 @@ function updateRes(){
   if(pf)pf.style.width=(p/90*100)+'%';
   if(pc)pc.textContent=p;
   updateXpBar();
+  renderGachaBannerUI();
   renderOnboardingPanel();
 }
 
@@ -1099,6 +1124,7 @@ function showTab(name,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(name).classList.add('active');
   if(btn)btn.classList.add('active');
+  if(name==='gacha')renderGachaBannerUI();
   if(name==='collection')renderCollection('all');
   if(name==='team')renderTeam();
   if(name==='forge')renderForge();
@@ -1116,6 +1142,8 @@ function showTab(name,btn){
   renderOnboardingPanel();
   updateTempEventFabVisibility(name);
 }
+
+
 
 const TEMP_EVENT_STEPS=[
   {need:220,reward:'takemichi',label:'Palier 1 — Takemichi (★★)'},
@@ -1289,6 +1317,65 @@ function addToTeamFromModal(id){
   showToast(`✅ ${getCharById(id)?.name||id} ajouté à l'équipe !`);
 }
 
+function getGachaBanner(id){
+  return GACHA_BANNERS.find(b=>b.id===id)||GACHA_BANNERS[0];
+}
+function getActiveGachaBanner(){
+  return getGachaBanner(state.activeBanner||'standard');
+}
+function getBannerFeaturedChars(banner=getActiveGachaBanner()){
+  return (banner.featuredIds||[]).map(id=>getCharById(id)).filter(Boolean);
+}
+function isFeaturedOnActiveBanner(id){
+  const banner=getActiveGachaBanner();
+  return (banner.featuredIds||[]).includes(getBaseId(id));
+}
+function selectGachaBanner(id){
+  state.activeBanner=getGachaBanner(id).id;
+  save();
+  renderGachaBannerUI();
+  showToast(`🎯 Bannière active : ${getActiveGachaBanner().name}`);
+}
+function getBannerPool(rarity,banner=getActiveGachaBanner()){
+  const featured=new Set(banner.featuredIds||[]);
+  return ALL_CHARS.filter(c=>c.rarity===rarity&&(!c.limited||featured.has(c.id)));
+}
+function pickBannerCharacter(rarity,banner=getActiveGachaBanner()){
+  const pool=getBannerPool(rarity,banner);
+  const featured=pool.filter(c=>(banner.featuredIds||[]).includes(c.id));
+  const useFeatured=featured.length>0&&Math.random()<(banner.featuredChance||0);
+  const pickPool=useFeatured?featured:pool;
+  return pickPool[Math.floor(Math.random()*pickPool.length)]||pool[0]||ALL_CHARS.find(c=>c.rarity===rarity);
+}
+function renderGachaBannerUI(){
+  const selector=document.getElementById('banner-selector');
+  if(!selector)return;
+  const active=getActiveGachaBanner();
+  selector.innerHTML=GACHA_BANNERS.map(b=>{
+    const featured=getBannerFeaturedChars(b).map(c=>c.name).join(' · ')||'Pool permanent';
+    return `<button class="banner-card ${b.id===active.id?'active':''} ${b.id!=='standard'?'limited':''}" onclick="selectGachaBanner('${b.id}')">
+      <span class="banner-tag">${b.tag}</span>
+      <div class="banner-kicker">${b.kicker}</div>
+      <div class="banner-name">${b.emoji} ${b.name}</div>
+      <div class="banner-desc">${b.desc}</div>
+      <div class="banner-featured">${featured}</div>
+    </button>`;
+  }).join('');
+  const title=document.getElementById('gacha-banner-title');
+  const subtitle=document.getElementById('gacha-banner-subtitle');
+  const orb=document.getElementById('gacha-orb-icon');
+  const info=document.getElementById('active-banner-info');
+  if(title)title.textContent=active.title;
+  if(subtitle)subtitle.textContent=active.subtitle;
+  if(orb)orb.textContent=active.emoji;
+  if(info){
+    const featured=getBannerFeaturedChars(active);
+    info.innerHTML=active.id==='standard'
+      ? `<b>Pool permanent :</b> ${ALL_CHARS.filter(c=>!c.limited).length} héros disponibles. Les héros limités restent exclus de cette bannière.`
+      : `<b>Rate-up simple :</b> ${featured.map(c=>`${c.emoji} ${c.name} (${c.rarity}★)`).join(' · ')}. Bannière de lancement affichée seule pour les 2 premières semaines : 50% des tirages de la bonne rareté ciblent une vedette.`;
+  }
+}
+
 function doGacha(n){
   const cost=n===1?50:450;
   if(state.crystals<cost){alert('Pas assez de cristaux ! 💎');return;}
@@ -1317,7 +1404,8 @@ function renderGachaCard(c,i,instant=false){
   const div=document.createElement('div');
   div.className=`result-card r${c.rarity}`;
   div.style.animationDelay=instant?'0s':`${Math.min(i*.08,.7)}s`;
-  div.innerHTML=`${isNew?'<div class="new-badge">NEW!</div>':''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div class="stars-row">${'<span>★</span>'.repeat(c.rarity)}</div>`;
+  const rateUp=isFeaturedOnActiveBanner(c.id);
+  div.innerHTML=`${isNew?'<div class="new-badge">NEW!</div>':''}${rateUp?'<div class="rateup-badge">RATE UP</div>':''}<span class="char-emoji">${c.emoji}</span><div class="char-name">${c.name}</div><div class="char-anime">${c.anime}</div><div class="stars-row">${'<span>★</span>'.repeat(c.rarity)}</div>`;
   cont.appendChild(div);
 }
 function finishGachaReveal(){
@@ -1335,7 +1423,6 @@ function skipGachaReveal(){
   gachaRevealChars.forEach((c,i)=>renderGachaCard(c,i,true));
   finishGachaReveal();
 }
-
 function showResults(chars){
   clearGachaRevealTimers();
   gachaRevealChars=[...chars];
@@ -1633,7 +1720,7 @@ function renderBattleUI(){
       </div>
     </div>
     <div class="battle-log">${logHTML}</div>
-	${rewardMaterialsHTML}
+    ${rewardMaterialsHTML}
     ${actHTML}
   `;
 }
@@ -1784,7 +1871,7 @@ function doAttack(mode){
         ed=applyDefensivePassive(t,ed,bs);
         if(e.abilities.includes('poison')&&Math.random()<.25){if(!t.statuses.includes('☠Poison')){t.statuses.push('☠Poison');addLog(`☠ ${t.name} est empoisonné!`,'log-debuff');}}
         ed=Math.max(1,ed-t.def);
-		if((t.shield||0)>0){const absorbed=Math.min(t.shield,ed);t.shield-=absorbed;ed-=absorbed;if(absorbed>0)addInfLog(`🛡 Bouclier absorbe ${absorbed}`,'log-heal');}
+        if((t.shield||0)>0){const absorbed=Math.min(t.shield,ed);t.shield-=absorbed;ed-=absorbed;if(absorbed>0)addInfLog(`🛡 Bouclier absorbe ${absorbed}`,'log-heal');}
         t.currentHp=Math.max(0,t.currentHp-ed);
         // Queue hero-hit anim + float
         const tIdx=bs.heroes.indexOf(t);
@@ -1835,7 +1922,7 @@ function checkBattleEnd(){
     const g=(120*state.currentArc+earlyBonus)*(bs.enemy.isBoss?5:1)+streakBonus;
     const cr=bs.enemy.isBoss?80:Math.max(8,state.currentArc*7);
     state.gold+=g;state.crystals+=cr;
-	if(bs.heroes.every(h=>h.currentHp>=h.maxHp)) state.noHitWin=true;
+    if(bs.heroes.every(h=>h.currentHp>=h.maxHp)) state.noHitWin=true;
     addLog(`🏆 Victoire! +${g}🪙 +${cr}💎${streakBonus>0?` (🔥×${state.winStreak} streak +${streakBonus}🪙)`:''}`, 'log-win');
     const arc=ARCS.find(a=>a.id===state.currentArc);
     if(state.arcProgress[state.currentArc]>=arc.waves)addLog(`✅ Arc "${arc.name}" terminé!`,'log-win');
@@ -1856,10 +1943,10 @@ function checkBattleEnd(){
     giveXp(30+state.currentArc*10);
     trackQuest('dailyWins');
     state.playerStats.battlesWon=(state.playerStats.battlesWon||0)+1;
-	const evFrag=bs.enemy.isBoss?randInt(22,42):randInt(9,17);
+    const evFrag=bs.enemy.isBoss?randInt(22,42):randInt(9,17);
     addTempEventFragments(evFrag);
     if(isTempEventActive())addLog(`🎯 Event 7J: +${evFrag} fragments`,'log-special');
-	bs.rewardMaterials=dropMaterials(state.currentArc,bs.enemy.isBoss);
+    bs.rewardMaterials=dropMaterials(state.currentArc,bs.enemy.isBoss);
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
   } else {
@@ -1913,7 +2000,7 @@ function getCharLevel(id){
   return 1+((u.atk||0)+(u.hp||0)+(u.def||0));
 }
 
-function getUpgradeCost(id,stat){  
+function getUpgradeCost(id,stat){
   const baseId=getBaseId(id);
   const u=state.upgrades&&state.upgrades[id]||{atk:0,hp:0,def:0};
   const currentLevel=(u[stat]||0);
@@ -2058,7 +2145,6 @@ function passiveLog(bs,text,type='log-special'){
   else if(bs===state.battleState) addLog(text,type);
   else if(bs===state.tournament) addTourLog(text,type);
 }
-
 function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
   const p=getPassive(hero.id);
   if(!p)return dmg;
@@ -2315,7 +2401,7 @@ function renderAchievements(){
   grid.innerHTML=`<div style="text-align:center;margin-bottom:14px;font-size:.85rem;color:var(--muted)">Complétés: <span style="color:var(--gold);font-weight:700">${done}/${ACHIEVEMENTS.length}</span></div><div class="ach-grid">${ACHIEVEMENTS.map(a=>{
     const isDone=state.achDone&&state.achDone[a.id];
     const prog=a.progress();const max=a.max;const pct=Math.round(prog/max*100);
-	const isSecretLocked=!!a.secret&&!isDone;
+    const isSecretLocked=!!a.secret&&!isDone;
     return `<div class="ach-card ${isDone?'done':'locked'}">
       <div class="ach-icon">${isSecretLocked?'❔':a.icon}</div>
       <div class="ach-info">
@@ -2488,7 +2574,7 @@ function doInfiniteAttack(mode){
     }
     const combo=bs.combo||0;
     if(combo>=3){dmg=Math.round(dmg*(1+combo*0.05));}
-	const heroElem=CHAR_ELEMENTS[getBaseId(hero.id)]||'neutral';
+    const heroElem=CHAR_ELEMENTS[getBaseId(hero.id)]||'neutral';
     const enemyElem=bs.enemy.element||'neutral';
     const elemMult=getElemMult(heroElem,enemyElem);
     if(elemMult>1) addInfLog(`${ELEMENTS[heroElem].emoji} Avantage élémentaire! ×${elemMult}`,'log-special');
@@ -2502,7 +2588,7 @@ function doInfiniteAttack(mode){
     dmg=Math.max(1,dmg-defR);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-dmg);
     const isCritDmg=(logType==='log-crit');
-     bs._pendingFloats.push({id:'inf-enemy',cls:isCritDmg?'anim-crit':'anim-hit',delay:actionIdx*100+180,float:dmg,floatId:'inf-enemy',color:isCritDmg?'#ff4400':'#ff6666',effect:getImpactEffect(mode,isCritDmg),shake:mode==='burst'?'burst':isCritDmg?'hit':null,flash:mode==='burst'?'burst':isCritDmg?'hit':null});
+    bs._pendingFloats.push({id:'inf-enemy',cls:isCritDmg?'anim-crit':'anim-hit',delay:actionIdx*100+180,float:dmg,floatId:'inf-enemy',color:isCritDmg?'#ff4400':'#ff6666',effect:getImpactEffect(mode,isCritDmg),shake:mode==='burst'?'burst':isCritDmg?'hit':null,flash:mode==='burst'?'burst':isCritDmg?'hit':null});
     addInfLog(logText,logType);
   });
   if(mode==='burst')bs.burstCharge=0;
@@ -2525,7 +2611,7 @@ function doInfiniteAttack(mode){
         ed=applyDefensivePassive(t,ed,bs);
         if(tp&&tp.isDmgReduce)ed=Math.round(ed*(1-tp.reduceAmt));
         ed=Math.max(1,ed-t.def);
-		if((t.shield||0)>0){const absorbed=Math.min(t.shield,ed);t.shield-=absorbed;ed-=absorbed;if(absorbed>0)addInfLog(`🛡 Bouclier absorbe ${absorbed}`,'log-heal');}
+        if((t.shield||0)>0){const absorbed=Math.min(t.shield,ed);t.shield-=absorbed;ed-=absorbed;if(absorbed>0)addInfLog(`🛡 Bouclier absorbe ${absorbed}`,'log-heal');}
         t.currentHp=Math.max(0,t.currentHp-ed);
         const tIdx=bs.heroes.indexOf(t);
         bs._pendingFloats.push({id:`inf-hero-${tIdx}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`inf-hero-${tIdx}`,color:'#ff9966',effect:'slash',shake:e.isBoss?'hit':null});
@@ -2584,28 +2670,78 @@ function nextInfiniteWave(){
 }
 function stopInfinite(){state.infiniteBattle=null;renderInfiniteScreen();}
 
+
 // ═══════════════════════════════════════════
 //  MODE TOURNOI
 // ═══════════════════════════════════════════
 const TOURNAMENT_ROUNDS=3;
+const TOURNAMENT_THEMES=[
+  {id:'flame',emoji:'🔥',name:'Fosse Incandescente',element:'fire',rule:'Ennemis Feu: ATK +8%. Les héros Eau sont avantagés.',rewardText:'+4 Éclats Magiques',reward:{materials:{magic_shard:4}},mods:{atk:1.08}},
+  {id:'tide',emoji:'🌊',name:'Sanctuaire des Marées',element:'water',rule:'Ennemis Eau: HP +10%. Les héros Foudre percent mieux cette défense.',rewardText:'+8 Tissus +2 Cristaux rares',reward:{materials:{cloth:8,rare_crystal:2}},mods:{hp:1.10}},
+  {id:'storm',emoji:'⚡',name:'Arène de l’Orage',element:'thunder',rule:'Ennemis Foudre: ATK +12%. Les héros Feu peuvent renverser le tempo.',rewardText:'+3 Cristaux rares',reward:{materials:{rare_crystal:3}},mods:{atk:1.12}},
+  {id:'shadow',emoji:'🌑',name:'Couloir des Ombres',element:'dark',rule:'Ennemis Ténèbres: DEF +12%. Les héros Lumière sont recommandés.',rewardText:'+3 Larmes d’Éveil',reward:{materials:{awakening_tears:3}},mods:{def:1.12}},
+  {id:'radiant',emoji:'✨',name:'Temple Radieux',element:'light',rule:'Ennemis Lumière: HP +8% et DEF +8%. Les héros Ténèbres brillent ici.',rewardText:'+90 Cristaux',reward:{crystals:90},mods:{hp:1.08,def:1.08}},
+  {id:'forge',emoji:'⚒️',name:'Atelier du Rift',element:'neutral',rule:'Ennemis neutres: stats équilibrées. Journée idéale pour farmer le craft.',rewardText:'+10 Fer +6 Tissus +2 Éclats',reward:{materials:{iron:10,cloth:6,magic_shard:2}},mods:{}},
+];
+function getTournamentTheme(dateKey=getTodayKey()){
+  const seed=[...dateKey].reduce((sum,ch)=>sum+ch.charCodeAt(0),0);
+  return TOURNAMENT_THEMES[seed%TOURNAMENT_THEMES.length];
+}
+function getTournamentThemeById(id){return TOURNAMENT_THEMES.find(t=>t.id===id)||getTournamentTheme();}
+function applyTournamentThemeToEnemy(enemy,theme){
+  const mods=theme.mods||{};
+  enemy.element=theme.element||enemy.element||'neutral';
+  if(mods.hp){enemy.maxHp=Math.round(enemy.maxHp*mods.hp);enemy.currentHp=enemy.maxHp;}
+  if(mods.atk)enemy.atk=Math.round(enemy.atk*mods.atk);
+  if(mods.def)enemy.def=Math.round(enemy.def*mods.def);
+  return enemy;
+}
+function grantTournamentThemeReward(theme){
+  const reward=theme.reward||{};
+  const parts=[];
+  if(reward.gold){state.gold+=reward.gold;parts.push(`+${reward.gold}🪙`);}
+  if(reward.crystals){state.crystals+=reward.crystals;parts.push(`+${reward.crystals}💎`);}
+  if(reward.materials){
+    if(!state.materials)state.materials={};
+    Object.entries(reward.materials).forEach(([mat,amt])=>{state.materials[mat]=(state.materials[mat]||0)+amt;parts.push(`${MATERIAL_NAMES[mat]||mat} ×${amt}`);});
+  }
+  return parts.join(' · ');
+}
+function grantTournamentDailyReward(bs){
+  const theme=getTournamentThemeById(bs.themeId);
+  state.gold+=2500;state.crystals+=180;
+  if(!state.materials)state.materials={};
+  state.materials.rare_crystal=(state.materials.rare_crystal||0)+2;
+  state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;
+  const bonus=grantTournamentThemeReward(theme);
+  markTournamentRewardClaimed();
+  return `👑 Défi quotidien terminé! Base +2500🪙 +180💎 +2🔮 +2💫${bonus?` · Bonus ${theme.emoji} ${bonus}`:''}`;
+}
 function getTournamentDaily(){const today=getTodayKey();if(!state.tournamentDaily||state.tournamentDaily.date!==today)state.tournamentDaily={date:today,rewardClaimed:false};return state.tournamentDaily;}
 function canClaimTournamentReward(){return !getTournamentDaily().rewardClaimed;}
 function markTournamentRewardClaimed(){const d=getTournamentDaily();d.rewardClaimed=true;}
 function renderTournamentScreen(){
   const best=state.tournamentBest||0;
   const bestEl=document.getElementById('tournament-best');
-  if(bestEl)bestEl.innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Meilleur résultat</div><div style="font-family:'Cinzel Decorative',serif;font-size:1.7rem;color:var(--gold)">${best}/${TOURNAMENT_ROUNDS} rounds</div>`;
+  if(bestEl){const theme=getTournamentTheme();bestEl.innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Thème du jour — ${theme.emoji} ${theme.name}</div><div style="font-family:'Cinzel Decorative',serif;font-size:1.7rem;color:var(--gold)">Record ${best}/${TOURNAMENT_ROUNDS} rounds</div>`;}
   if(!state.tournament||state.tournament.finished) renderTournamentIdle();
   else renderTournamentUI();
 }
 function renderTournamentIdle(){
   const cont=document.getElementById('tournament-content');if(!cont)return;
+  const theme=getTournamentTheme();
   if(state.team.filter(Boolean).length===0){cont.innerHTML=`<div class="no-team-msg"><div class="big">🏟</div><div>Pas d'équipe ! Allez dans <b>Équipe</b>.</div></div>`;return;}
-  cont.innerHTML=`<div style="text-align:center;padding:40px 20px;">
-    <div style="font-size:3rem;margin-bottom:12px;">🏟</div>
+  cont.innerHTML=`<div style="text-align:center;padding:34px 20px;">
+    <div style="font-size:3rem;margin-bottom:12px;">${theme.emoji}</div>
+    <div style="font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:1rem;margin-bottom:6px;">${theme.name}</div>
     <div style="font-size:.9rem;color:var(--muted);margin-bottom:12px;">3 combats consécutifs avec une équipe verrouillée.<br><b style="color:var(--gold)">Pas de récupération HP</b> entre les rounds.</div>
+    <div style="background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.22);border-radius:12px;padding:10px 12px;margin:0 auto 14px;max-width:560px;text-align:left;">
+      <div style="font-size:.72rem;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Règle quotidienne</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.4">${theme.rule}</div>
+      <div style="font-size:.78rem;color:var(--gold);margin-top:5px">Bonus de clear: ${theme.rewardText}</div>
+    </div>
     <div style="font-size:.75rem;color:var(--muted);margin-bottom:20px;">Récompense quotidienne: ${canClaimTournamentReward()?'<span style="color:var(--green)">disponible</span>':'<span style="color:var(--red)">déjà réclamée</span>'}</div>
-    <button class="battle-btn btn-attack" onclick="startTournament()">🚩 LANCER LE TOURNOI</button>
+    <button class="battle-btn btn-attack" onclick="startTournament()">🚩 LANCER LE DÉFI</button>
   </div>`;
 }
 function buildTournamentHeroes(){
@@ -2625,21 +2761,24 @@ function buildTournamentHeroes(){
   }).filter(Boolean);
 }
 function makeTournamentEnemy(round){
+  const theme=getTournamentThemeById(state.tournament?.themeId);
   const data=[
     {name:'Challenger du Portail',emoji:'🛡',hp:3200,atk:430,def:170,abilities:['enrage','counter']},
     {name:'Duo Maudit',emoji:'🎭',hp:6200,atk:620,def:240,abilities:['enrage','shield','poison','counter']},
-    {name:'⚠ Champion du Tournoi',emoji:'🏆',hp:6400,atk:500,def:210,abilities:['enrage','shield','regen'],isBoss:true},
+    {name:'⚠ Champion du Défi',emoji:'🏆',hp:6400,atk:500,def:210,abilities:['enrage','shield','regen'],isBoss:true},
   ][Math.max(0,Math.min(round-1,2))];
   const totalPower=state.team.reduce((s,id)=>s+(id?getCharPower(id):0),0);
   const roundMult=[1,1.25,1.2][Math.max(0,Math.min(round-1,2))];
   const scale=Math.max(1.2,Math.min(5.5,totalPower/4200))*roundMult;
-  const elemKeys=Object.keys(ELEMENTS).filter(e=>e!=='neutral');
-  return {...data,currentHp:Math.round(data.hp*scale),maxHp:Math.round(data.hp*scale),atk:Math.round(data.atk*scale),def:Math.round(data.def*scale),shield:0,enraged:false,statuses:[],element:elemKeys[Math.floor(Math.random()*elemKeys.length)]};
+  const enemy={...data,currentHp:Math.round(data.hp*scale),maxHp:Math.round(data.hp*scale),atk:Math.round(data.atk*scale),def:Math.round(data.def*scale),shield:0,enraged:false,statuses:[],element:theme.element||'neutral'};
+  return applyTournamentThemeToEnemy(enemy,theme);
 }
 function startTournament(){
   const heroes=buildTournamentHeroes();
   if(!heroes.length){showToast('❌ Équipe vide !');return;}
-  state.tournament={active:true,finished:false,round:1,maxRounds:TOURNAMENT_ROUNDS,teamSnapshot:[...state.team],heroes,enemy:makeTournamentEnemy(1),log:[{text:canClaimTournamentReward()?'🏟 Tournoi lancé ! Récompense quotidienne disponible.':'🏟 Tournoi lancé ! Récompense quotidienne déjà prise.',type:'log-special'}],over:false,won:false,burstCharge:0,combo:0,wins:0,rewardEligible:canClaimTournamentReward()};
+  const theme=getTournamentTheme();
+  state.tournament={active:true,finished:false,round:1,maxRounds:TOURNAMENT_ROUNDS,themeId:theme.id,themeName:theme.name,teamSnapshot:[...state.team],heroes,enemy:null,log:[{text:canClaimTournamentReward()?`🏟 Défi quotidien lancé — ${theme.emoji} ${theme.name}. Récompense disponible.`:`🏟 Défi quotidien lancé — ${theme.emoji} ${theme.name}. Récompense déjà prise.`,type:'log-special'},{text:`📜 Règle: ${theme.rule}`,type:'log-debuff'}],over:false,won:false,burstCharge:0,combo:0,wins:0,rewardEligible:canClaimTournamentReward()};
+  state.tournament.enemy=makeTournamentEnemy(1);
   const links=getActiveLinks(state.tournament.teamSnapshot);
   links.forEach(link=>{heroes.forEach(h=>{if(link.bonus.atk)h.atk=Math.round(h.atk*(1+link.bonus.atk));if(link.bonus.hp){h.hp=Math.round(h.hp*(1+link.bonus.hp));h.currentHp=h.hp;h.maxHp=h.hp;}if(link.bonus.def)h.def=Math.round(h.def*(1+link.bonus.def));if(link.bonus.sDmg)h.sDmg=Math.round(h.sDmg*(1+link.bonus.sDmg));});addTourLog(`🔗 Lien actif: ${link.name}! ${link.desc}`,'log-special');});
   save();renderTournamentUI();
@@ -2647,6 +2786,7 @@ function startTournament(){
 function renderTournamentUI(){
   const cont=document.getElementById('tournament-content'); if(!cont)return;
   const bs=state.tournament;if(!bs){renderTournamentIdle();return;}
+  const theme=getTournamentThemeById(bs.themeId);
   const heroHTML=bs.heroes.map((h,i)=>{const pct=Math.max(0,h.currentHp/h.maxHp*100);const hpC=pct>60?'high':pct>25?'mid':'low';const cd=h.spCooldown||0;const mcd=h.spMaxCd||3;const spBar=`<div class="sp-bar-wrap"><div class="sp-bar" style="width:${cd===0?100:((mcd-cd)/mcd*100)}%"></div></div><div class="${cd===0?'sp-ready':'sp-cd'}">${cd===0?'✨ PRÊTE':`CD:${cd}`}</div>`;return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="tour-hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpC}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${spBar}</div></div>`;}).join('');
   const e=bs.enemy;const epct=Math.max(0,e.currentHp/e.maxHp*100);const ehpC=epct>60?'high':epct>25?'mid':'low';const logHTML=bs.log.slice(-6).map(l=>`<p class="${l.type}">${l.text}</p>`).join('');
   const alive=bs.heroes.filter(h=>h.currentHp>0);const anySpReady=alive.some(h=>(h.spCooldown||0)===0);const bc=bs.burstCharge||0;const animDisabled=getCombatActionDisabledAttr(bs);
@@ -2655,7 +2795,7 @@ function renderTournamentUI(){
   else if(bs.won&&bs.round<bs.maxRounds){actHTML=`<div class="battle-actions"><button class="battle-btn btn-attack" onclick="nextTournamentRound()">➡ ROUND ${bs.round+1}</button><button class="battle-btn btn-special" onclick="stopTournament()">🏳 ARRÊTER</button></div>`;}
   else if(bs.won){actHTML=`<div class="battle-actions"><button class="battle-btn btn-attack" onclick="finishTournament()">🎁 RÉCLAMER</button></div>`;}
   else{actHTML=`<div class="battle-actions"><button class="battle-btn btn-special" onclick="stopTournament()">↩ QUITTER</button></div>`;}
-  cont.innerHTML=`<div class="battle-header"><div class="wave-info">🏟 Tournoi<br><span class="wave-num">Round ${bs.round}/${bs.maxRounds}</span></div><div style="text-align:center;font-size:.72rem;color:var(--muted)">Équipe verrouillée<br><span style="color:var(--gold)">${bs.wins||0} victoire(s)</span></div><div style="font-size:.75rem;color:var(--muted);text-align:right">Règle<br><span style="color:var(--red)">Pas de soin</span></div></div>
+  cont.innerHTML=`<div class="battle-header"><div class="wave-info">${theme.emoji} Défi quotidien<br><span class="wave-num">Round ${bs.round}/${bs.maxRounds}</span></div><div style="text-align:center;font-size:.72rem;color:var(--muted)">${theme.name}<br><span style="color:var(--gold)">${bs.wins||0} victoire(s)</span></div><div style="font-size:.75rem;color:var(--muted);text-align:right">Règle<br><span style="color:var(--red)">Pas de soin</span></div></div><div class="terrain-banner" style="background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.22);color:var(--muted)"><span>${theme.emoji}</span><span>${theme.rule}<br><b style="color:var(--gold)">Bonus: ${theme.rewardText}</b></span></div>
     <div class="combatants"><div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div><div class="vs-divider"><div class="vs-text">VS</div></div><div class="fighter-group"><div class="fighter-group-title">🏟 Adversaire</div><div class="fighter ${e.currentHp<=0?'dead':''}" id="tour-enemy"><div class="fighter-emoji">${e.emoji}</div><div class="fighter-info"><div class="fighter-name">${e.name}${e.enraged?'<span style="color:var(--red);margin-left:4px">🔥ENRAGÉ</span>':''}</div>${e.element?`<div style="margin-top:2px"><span class="elem-badge ${ELEMENTS[e.element].cls}">${ELEMENTS[e.element].emoji} ${ELEMENTS[e.element].name}</span></div>`:''}<div class="hp-bar-wrap"><div class="hp-bar ${ehpC}" style="width:${epct}%"></div></div><div class="hp-text">${Math.max(0,e.currentHp)}/${e.maxHp}</div></div></div></div></div><div class="battle-log">${logHTML}</div>${actHTML}`;
 }
 function doTournamentAttack(mode){
@@ -2668,13 +2808,13 @@ function doTournamentAttack(mode){
   });
   if(mode==='burst')bs.burstCharge=0;else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
   if(bs.enemy.currentHp>0){const e=bs.enemy;if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.55);addTourLog('😡 ENRAGE! ATK ×1.55','log-crit');}if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.12){e.shield=Math.round(e.maxHp*.06);addTourLog('🛡 Bouclier!','log-debuff');}if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.18){const rg=Math.round(e.maxHp*.035);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addTourLog(`💚 Regen +${rg}`,'log-heal');}const alive2=bs.heroes.filter(h=>h.currentHp>0);const attacks=e.isBoss?2:1;for(let k=0;k<attacks&&alive2.length;k++){const t=alive2[Math.floor(Math.random()*alive2.length)];let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));ed=applyDefensivePassive(t,ed,bs);ed=Math.max(1,ed-t.def);t.currentHp=Math.max(0,t.currentHp-ed);const ti=bs.heroes.indexOf(t);bs._pendingFloats.push({id:`tour-hero-${ti}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`tour-hero-${ti}`,color:'#ff9966',effect:'slash',shake:e.isBoss?'hit':null});addTourLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');}}
-  if(bs.enemy.currentHp<=0){bs.over=true;bs.won=true;bs.wins=(bs.wins||0)+1;addTourLog(`🏆 Round ${bs.round} gagné!`,'log-win');if(bs.round>=bs.maxRounds){state.tournamentClears=(state.tournamentClears||0)+1;if(bs.rewardEligible&&canClaimTournamentReward()){state.gold+=2500;state.crystals+=180;if(!state.materials)state.materials={};state.materials.rare_crystal=(state.materials.rare_crystal||0)+2;state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;markTournamentRewardClaimed();addTourLog('👑 Tournoi remporté! Récompense quotidienne +2500🪙 +180💎 +2🔮 +2💫','log-win');}else addTourLog('✅ Tournoi remporté, mais la récompense quotidienne est déjà prise.','log-debuff');}}
+  if(bs.enemy.currentHp<=0){bs.over=true;bs.won=true;bs.wins=(bs.wins||0)+1;addTourLog(`🏆 Round ${bs.round} gagné!`,'log-win');if(bs.round>=bs.maxRounds){state.tournamentClears=(state.tournamentClears||0)+1;if(bs.rewardEligible&&canClaimTournamentReward()){addTourLog(grantTournamentDailyReward(bs),'log-win');}else addTourLog('✅ Tournoi remporté, mais la récompense quotidienne est déjà prise.','log-debuff');}}
   else if(!bs.heroes.some(h=>h.currentHp>0)){bs.over=true;bs.won=false;addTourLog(`💔 Tournoi perdu au round ${bs.round}.`,'log-crit');}
   state.tournamentBest=Math.max(state.tournamentBest||0,bs.wins||0);save();updateRes();const pending=[...(bs._pendingFloats||[])];bs._pendingFloats=[];lockCombatFx(bs,pending,renderTournamentUI);renderTournamentUI();flushQueuedCombatFx(pending);
 }
 function addTourLog(text,type=''){if(state.tournament)state.tournament.log.push({text,type});}
-function nextTournamentRound(){const bs=state.tournament;if(!bs)return;bs.round++;bs.enemy=makeTournamentEnemy(bs.round);bs.heroes.forEach(h=>{h.shield=0;h.statuses=[];});bs.log=[{text:`🚩 Round ${bs.round}: aucun soin reçu.`,type:'log-special'}];bs.over=false;bs.won=false;bs.combo=0;save();renderTournamentUI();}
-function finishTournament(){if(state.tournament)state.tournament.finished=true;save();renderTournamentScreen();showToast(canClaimTournamentReward()?'🏟 Tournoi terminé !':'🏟 Tournoi terminé — récompense quotidienne déjà prise.');checkAchievements();}
+function nextTournamentRound(){const bs=state.tournament;if(!bs)return;bs.round++;bs.enemy=makeTournamentEnemy(bs.round);bs.heroes.forEach(h=>{h.shield=0;h.statuses=[];});const theme=getTournamentThemeById(bs.themeId);bs.log=[{text:`🚩 Round ${bs.round}: aucun soin reçu.`,type:'log-special'},{text:`${theme.emoji} ${theme.name}: ${theme.rule}`,type:'log-debuff'}];bs.over=false;bs.won=false;bs.combo=0;save();renderTournamentUI();}
+function finishTournament(){if(state.tournament)state.tournament.finished=true;save();renderTournamentScreen();showToast('🏟 Défi quotidien terminé !');checkAchievements();}
 function stopTournament(){state.tournament=null;save();renderTournamentScreen();}
 
 // ═══════════════════════════════════════════
@@ -3111,7 +3251,7 @@ function renderProfile(){
   ];
   const renderUnit=(c,emptyText='Slot vide')=>c?`<div class="profile-unit" onclick="openCharModal('${c.id}')"><div class="profile-unit-emoji">${c.emoji}</div><div><div class="profile-unit-name">${c.name}</div><div class="profile-unit-sub">${'★'.repeat(c.rarity)} · ${c.anime} · Puissance ${getCharPower(c.id).toLocaleString()}</div></div></div>`:`<div class="profile-unit" style="cursor:default;opacity:.55"><div class="profile-unit-emoji">➕</div><div><div class="profile-unit-name">${emptyText}</div><div class="profile-unit-sub">Ajoutez un perso dans l'onglet Équipe</div></div></div>`;
   cont.innerHTML=`
-  <div class="profile-grid">
+    <div class="profile-grid">
       <div class="profile-card"><div class="profile-label">👤 Niveau joueur</div><div class="profile-val">${state.playerLevel||1}</div><div class="profile-label">XP ${state.xp||0}/${nextXp}</div></div>
       <div class="profile-card"><div class="profile-label">📚 Collection</div><div class="profile-val">${ownedUnique}/${ALL_CHARS.length}</div><div class="profile-label">${collectionPct}% complété</div></div>
       <div class="profile-card"><div class="profile-label">🏆 Succès</div><div class="profile-val">${doneAch}/${ACHIEVEMENTS.length}</div><div class="profile-label">débloqués</div></div>
@@ -3127,7 +3267,7 @@ function renderProfile(){
       <div class="profile-card"><div class="profile-label">💥 Taux critique</div><div class="profile-val">${critRate}%</div></div>
       <div class="profile-card"><div class="profile-label">🏆 Taux de victoire</div><div class="profile-val">${winRate}%</div></div>
       <div class="profile-card"><div class="profile-label">✨ Spéciales lancées</div><div class="profile-val">${(ps.specialCasts||0).toLocaleString()}</div></div>
-	  <div class="profile-card"><div class="profile-label">🔥 Série actuelle</div><div class="profile-val">${state.winStreak||0}</div></div>
+      <div class="profile-card"><div class="profile-label">🔥 Série actuelle</div><div class="profile-val">${state.winStreak||0}</div></div>
       <div class="profile-card"><div class="profile-label">♾ Record Infini</div><div class="profile-val">${state.infiniteBest||0}</div></div>
       <div class="profile-card"><div class="profile-label">🎒 Items équipés</div><div class="profile-val">${equippedSlots}</div></div>
       <div class="profile-card"><div class="profile-label">🔨 Forge totale</div><div class="profile-val">${getTotalForgeLevel()}</div></div>
@@ -3247,6 +3387,7 @@ const CHAR_ELEMENTS={
   takemichi:'neutral',denji:'dark',rengoku:'fire',obito:'dark',madoka_goddess:'light',
   vegeta_ue:'dark',yuta:'light',shanks:'light',meruem:'dark',yuno_spirit:'thunder',
   bakugo:'fire',maki:'neutral',nezuko:'fire',lelouch:'dark',holo:'water',anya:'neutral',
+  gojo_unsealed:'light',
 };
 function getElemMult(attackerElem, defenderElem){
   if(!attackerElem||!defenderElem)return 1;
@@ -3391,7 +3532,7 @@ function renderEquipSlots(){
           ${item?`<div class="equip-slot-name">${item.name}</div><div class="equip-slot-stat">${item.desc}</div>`
                 :`<div class="equip-slot-empty">[ ${slotNames[slot]} vide ]</div>`}
         </div>
-		<button class="craft-btn" style="padding:5px 8px;font-size:.68rem" onclick="equipBestItem('${selectedEquipChar}','${slot}')">⭐ Meilleur</button>
+        <button class="craft-btn" style="padding:5px 8px;font-size:.68rem" onclick="equipBestItem('${selectedEquipChar}','${slot}')">⭐ Meilleur</button>
         ${item?`<button type="button" class="equip-unequip" aria-label="Déséquiper ${item.name}" onclick="handleUnequipClick(event,'${selectedEquipChar}','${slot}')">✕</button>`:''}
       </div>`;
     }).join('')}
@@ -3454,7 +3595,6 @@ function getEquippedItemCount(itemId,excludeCharId=null){
   });
   return n;
 }
-
 function getItemScoreForChar(item,charId){
   const c=getCharById(charId)||{type:'Attaquant'};
   const st=item.stats||{};
@@ -3481,7 +3621,6 @@ function equipBestItem(charId,slot){
   equipItem(charId,best.id);
   showToast(`⭐ Meilleur ${slot==='weapon'?'arme':slot==='armor'?'armure':'accessoire'} équipé: ${best.name}`);
 }
-
 function equipItem(charId,itemId){
   const item=ITEM_DEFS.find(x=>x.id===itemId);
   if(!item)return;
@@ -3726,7 +3865,7 @@ const PASSIVES_6={
   yamamoto:     {name:'Flammes Primordiales',desc:'Critiques renforcés, dégâts reçus -15%. En Infini: brûle l’ennemi à chaque tour', isDmgReduce:true,reduceAmt:.15,isCritBoost:true,isInfiniteBurn:true},
   rimuru_td:    {name:'Noyau Azathoth',   desc:'Soigne 6% HP max/tour. En Infini: ajoute aussi un bouclier à toute l’équipe', fn:(hero,bs)=>{bs.heroes.forEach(h=>{if(h.currentHp>0)h.currentHp=Math.min(h.maxHp,h.currentHp+Math.round(h.maxHp*.06));});},isInfiniteShield:true},
   vegeta_ue:    {name:'Ultra Ego',        desc:'Réduit les dégâts reçus de 18% + critiques renforcés', isDmgReduce:true,reduceAmt:.18,isCritBoost:true},
-  
+  gojo_unsealed:{name:'Infinité Libérée', desc:'Réduit les dégâts reçus de 35% et esquive 20% des attaques', isDmgReduce:true,reduceAmt:.35,isDodge:true,dodgeChance:.2},
 };
 // Merge into PASSIVES
 Object.assign(PASSIVES,PASSIVES_6);
@@ -3827,8 +3966,7 @@ function rollChar(){
   else if(r<18.3) rarity=4;
   else if(r<53.3) rarity=3;
   else rarity=2;
-  const pool=ALL_CHARS.filter(c=>c.rarity===rarity);
-  const char=pool[Math.floor(Math.random()*pool.length)];
+  const char=pickBannerCharacter(rarity,getActiveGachaBanner());
   state.owned[char.id]=(state.owned[char.id]||0)+1;
   return char;
 }
@@ -3836,6 +3974,7 @@ function rollChar(){
 // INIT
 buildStars();
 load();
+if(!GACHA_BANNERS.some(b=>b.id===state.activeBanner))state.activeBanner='standard';
 if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0};
 if(state.arcProgress[6]===undefined)state.arcProgress[6]=0;
 if(state.arcProgress[7]===undefined)state.arcProgress[7]=0;
