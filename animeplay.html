@@ -20,6 +20,9 @@
   .subtitle{font-size:.7rem;letter-spacing:6px;color:var(--muted);margin-top:4px;text-transform:uppercase;}
   .resources{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
   .res-item{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:5px;}
+  .sound-toggle{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:5px 12px;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;}
+  .sound-toggle:hover,.sound-toggle.on{border-color:var(--blue);color:var(--blue);box-shadow:0 0 10px rgba(0,212,255,.18);}
+  .sound-toggle.off{opacity:.65;}
   .tabs{display:flex;gap:5px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
   .tab-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .2s;position:relative;overflow:hidden;}
   .tab-btn::after{content:'';position:absolute;left:50%;bottom:3px;width:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--blue));border-radius:2px;transform:translateX(-50%);transition:width .22s ease;}
@@ -275,6 +278,12 @@
   .ach-prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:2px;transition:width .4s;}
   /* PASSIVE */
   .passive-tag{display:inline-block;background:rgba(180,79,255,.15);border:1px solid rgba(180,79,255,.3);border-radius:6px;padding:1px 7px;font-size:.62rem;color:var(--purple);margin-top:3px;}
+  .system-guide{background:linear-gradient(135deg,rgba(0,212,255,.075),rgba(180,79,255,.045));border:1px solid rgba(0,212,255,.22);border-radius:12px;padding:10px 12px;margin-bottom:12px;color:var(--muted);font-size:.74rem;line-height:1.35;}
+  .system-guide b{color:var(--gold);}.system-guide ul{margin:6px 0 0 16px;padding:0;}
+  .elem-match{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 7px;font-size:.6rem;font-weight:800;letter-spacing:.4px;margin-top:3px;border:1px solid rgba(255,255,255,.12);}
+  .elem-match.adv{color:var(--green);background:rgba(57,255,20,.08);border-color:rgba(57,255,20,.25);}.elem-match.dis{color:var(--red);background:rgba(230,57,70,.08);border-color:rgba(230,57,70,.25);}.elem-match.neutral{color:var(--muted);background:rgba(255,255,255,.04);}
+  .equip-reco{background:rgba(245,200,66,.07);border:1px solid rgba(245,200,66,.22);border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:.72rem;color:var(--muted);line-height:1.35;}.equip-reco b{color:var(--gold);}.equip-reco-row{margin-top:3px;}
+  .mat-source{display:inline-block;margin-left:4px;color:var(--blue);cursor:help;font-weight:800;}.craft-missing{font-size:.62rem;color:var(--muted);margin-top:3px;line-height:1.3;}
   /* CHARACTER DETAIL MODAL */
   .char-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;align-items:center;justify-content:center;padding:16px;}
   .char-modal-overlay.show{display:flex;animation:fadeIn .25s ease;}
@@ -556,6 +565,7 @@
     <div class="res-item">🔥 Arc <span id="arc-progress">1</span></div>
     <div class="res-item">⚡ Vague <span id="wave-progress">1</span></div>
     <div class="res-item">🏅 <span id="total-wins">0</span> victoires</div>
+	<button class="sound-toggle" id="sound-toggle" type="button" onclick="toggleSound()" title="Activer/désactiver les sons légers">🔊 Sons</button>
   </div>
   <div class="xp-bar-wrap">
     <div class="xp-level">Niv. <span id="player-level">1</span></div>
@@ -1044,12 +1054,70 @@ const ARCS = [
   ]},
 ];
 
-let state={crystals:650,gold:1800,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,tempEvent:{startDate:'',fragments:0,claimed:{}},updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
+let state={crystals:650,gold:1800,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,soundOn:true,tempEvent:{startDate:'',fragments:0,claimed:{}},updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function save(){try{localStorage.setItem('isekai2',JSON.stringify(state));}catch(e){}}
 function load(){try{const s=localStorage.getItem('isekai2');if(s){const d=JSON.parse(s);Object.assign(state,d);}}catch(e){}}
+
+let audioCtx=null;
+let lastSfxAt={};
+function getAudioContext(){
+  const Ctx=window.AudioContext||window.webkitAudioContext;
+  if(!Ctx)return null;
+  if(!audioCtx)audioCtx=new Ctx();
+  if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+function playTone(freq=440,duration=.08,type='sine',volume=.035,delay=0){
+  if(state.soundOn===false)return;
+  const ctx=getAudioContext();if(!ctx)return;
+  const start=ctx.currentTime+delay;
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.type=type;osc.frequency.setValueAtTime(freq,start);
+  gain.gain.setValueAtTime(0.0001,start);
+  gain.gain.exponentialRampToValueAtTime(volume,start+.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001,start+duration);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(start);osc.stop(start+duration+.02);
+}
+function playSfx(name){
+  if(state.soundOn===false)return;
+  const now=Date.now();
+  const minGap=name==='attack'?140:name==='reveal'?65:90;
+  if(lastSfxAt[name]&&now-lastSfxAt[name]<minGap)return;
+  lastSfxAt[name]=now;
+  const seq={
+    click:[[520,.045,'triangle',.018,0]],
+    tab:[[420,.035,'sine',.014,0],[620,.045,'sine',.012,.035]],
+    summon:[[260,.08,'sine',.026,0],[520,.11,'triangle',.028,.055],[780,.12,'sine',.022,.12]],
+    reveal:[[660,.045,'triangle',.018,0]],
+    rare:[[740,.09,'triangle',.03,0],[1040,.13,'sine',.032,.075]],
+    ultra:[[660,.08,'triangle',.032,0],[990,.1,'triangle',.035,.07],[1320,.18,'sine',.03,.15]],
+    attack:[[160,.045,'sawtooth',.018,0],[90,.055,'square',.012,.035]],
+    special:[[420,.07,'triangle',.026,0],[760,.1,'sine',.028,.06]],
+    burst:[[120,.08,'sawtooth',.025,0],[520,.12,'triangle',.03,.04],[900,.16,'sine',.026,.12]],
+    win:[[523,.08,'triangle',.026,0],[659,.08,'triangle',.026,.075],[784,.14,'sine',.028,.15]],
+    craft:[[420,.05,'triangle',.02,0],[540,.07,'triangle',.02,.05]],
+    equip:[[360,.045,'sine',.018,0],[600,.075,'triangle',.02,.045]],
+    error:[[180,.08,'sawtooth',.018,0]],
+  }[name]||[[440,.05,'sine',.018,0]];
+  seq.forEach(([f,d,t,v,del])=>playTone(f,d,t,v,del));
+}
+function updateSoundToggle(){
+  const btn=document.getElementById('sound-toggle');if(!btn)return;
+  const on=state.soundOn!==false;
+  btn.textContent=on?'🔊 Sons':'🔇 Muet';
+  btn.classList.toggle('on',on);btn.classList.toggle('off',!on);
+  btn.title=on?'Sons légers activés':'Sons désactivés';
+}
+function toggleSound(){
+  state.soundOn=state.soundOn===false;
+  save();updateSoundToggle();
+  if(state.soundOn)playSfx('tab');
+}
 
 function buildStars(){const c=document.getElementById('stars');for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--o:${.2+Math.random()*.6};animation-delay:${Math.random()*4}s`;c.appendChild(s);}}
 
@@ -1117,9 +1185,11 @@ function updateRes(){
   updateXpBar();
   renderGachaBannerUI();
   renderOnboardingPanel();
+  updateSoundToggle();
 }
 
 function showTab(name,btn){
+  playSfx('tab');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(name).classList.add('active');
@@ -1331,6 +1401,7 @@ function isFeaturedOnActiveBanner(id){
   return (banner.featuredIds||[]).includes(getBaseId(id));
 }
 function selectGachaBanner(id){
+  playSfx('click');
   state.activeBanner=getGachaBanner(id).id;
   save();
   renderGachaBannerUI();
@@ -1378,7 +1449,8 @@ function renderGachaBannerUI(){
 
 function doGacha(n){
   const cost=n===1?50:450;
-  if(state.crystals<cost){alert('Pas assez de cristaux ! 💎');return;}
+  if(state.crystals<cost){playSfx('error');alert('Pas assez de cristaux ! 💎');return;}
+  playSfx('summon');
   state.crystals-=cost;
   const results=[];
   for(let i=0;i<n;i++)results.push(rollChar());
@@ -1443,11 +1515,14 @@ function showResults(chars){
   overlay.classList.remove('show');
   void overlay.offsetWidth;
   overlay.classList.add('show');
+  if(best>=6)playSfx('ultra');
+  else if(best>=5)playSfx('rare');
   const revealStart=best>=6?760:best>=5?580:340;
   chars.forEach((c,i)=>{
     gachaRevealTimers.push(setTimeout(()=>{
       if(i===0&&stage)stage.innerHTML='';
       renderGachaCard(c,i);
+	  playSfx(c.rarity>=6?'ultra':c.rarity>=5?'rare':'reveal');
       if(c.rarity>=5)flashCombat(c.rarity>=6?'burst':'hit');
       if(i===chars.length-1)finishGachaReveal();
     },revealStart+i*(c.rarity>=5?160:95)));
@@ -1661,7 +1736,8 @@ function renderBattleUI(){
   const bs=state.battleState;if(!bs)return;
   const arc=ARCS.find(a=>a.id===state.currentArc);
   const wd=state.arcProgress[state.currentArc]||0;
-
+  
+  const enemyElemForUI=bs.enemy?.element||'neutral';
   const heroHTML=bs.heroes.map((h,i)=>{
     const pct=Math.max(0,h.currentHp/h.maxHp*100);
     const hpClass=pct>60?'high':pct>25?'mid':'low';
@@ -1670,7 +1746,9 @@ function renderBattleUI(){
     const cd=h.spCooldown||0;const maxCd=h.spMaxCd||3;
     const spBar=`<div class="sp-bar-wrap"><div class="sp-bar" style="width:${cd===0?100:((maxCd-cd)/maxCd*100)}%"></div></div><div class="${cd===0?'sp-ready':'sp-cd'}">${cd===0?`✨ ${h.sp} PRÊTE`:`✨ CD: ${cd} tour${cd>1?'s':''}`}</div>`;
     const awakenBadge=h._awakened?`<span class="awakened-badge">⭐ÉVEILLÉ</span>`:'';
-    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-type">${h.type} ${awakenBadge}</div><div class="fighter-name">${h.name}</div><div class="hp-bar-wrap"><div class="hp-bar ${hpClass}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${shB}${spBar}${si}</div></div>`;
+    const heroElem=CHAR_ELEMENTS[getBaseId(h.id)]||'neutral';
+    const elemLine=`<div style="margin-top:2px">${getElemBadge(h.id)} ${renderElementMatchupBadge(heroElem,enemyElemForUI)}</div>`;
+    return `<div class="fighter ${h.currentHp<=0?'dead':''}" id="hero-${i}"><div class="fighter-emoji">${h.emoji}</div><div class="fighter-info"><div class="fighter-type">${h.type} ${awakenBadge}</div><div class="fighter-name">${h.name}</div>${elemLine}<div class="hp-bar-wrap"><div class="hp-bar ${hpClass}" style="width:${pct}%"></div></div><div class="hp-text">${Math.max(0,h.currentHp)}/${h.maxHp}</div>${shB}${spBar}${si}</div></div>`;
   }).join('');
 
   const e=bs.enemy;
@@ -1712,6 +1790,7 @@ function renderBattleUI(){
     ${getTerrainHTML(state.currentArc)}
     ${renderTeamLinks(state.team.filter(Boolean))}
     ${bossHTML}
+	${renderTeamElementInsight(bs.heroes,e.element||'neutral')}
     <div class="combatants">
       <div class="fighter-group"><div class="fighter-group-title">🗡 Vos Guerriers</div>${heroHTML}</div>
       <div class="vs-divider"><div class="vs-text">VS</div></div>
@@ -1731,6 +1810,7 @@ function doAttack(mode){
   const bs=state.battleState;if(!bs||bs.over||isCombatFxLocked(bs))return;
   if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
   if(mode==='burst'&&(bs.burstCharge||0)<3)return;
+  if(!state.autoMode)playSfx(mode==='burst'?'burst':mode==='special'?'special':'attack');
   const alive=bs.heroes.filter(h=>h.currentHp>0);
   if(!alive.length){checkBattleEnd();return;}
   tickStatuses(bs);
@@ -1799,11 +1879,11 @@ function doAttack(mode){
     const combo=bs.combo||0;
     if(combo>=3){ const mult=1+(combo*0.05); dmg=Math.round(dmg*mult); }
     // Element multiplier
-    const heroElem=CHAR_ELEMENTS[hero.id]||'neutral';
+    const heroElem=CHAR_ELEMENTS[getBaseId(hero.id)]||'neutral';
     const enemyElem=bs.enemy.element||'neutral';
     const elemMult=getElemMult(heroElem,enemyElem);
-    if(elemMult>1) addLog(`${ELEMENTS[heroElem].emoji} Avantage élémentaire! ×${elemMult}`,'log-special');
-    else if(elemMult<1) addLog(`${ELEMENTS[heroElem].emoji} Désavantage élémentaire ×${elemMult}`,'log-debuff');
+    if(elemMult>1) addLog(`${ELEMENTS[heroElem].emoji} ${ELEMENTS[heroElem].name} > ${ELEMENTS[enemyElem].emoji} ${ELEMENTS[enemyElem].name}: avantage élémentaire ×${elemMult}`,'log-special');
+    else if(elemMult<1) addLog(`${ELEMENTS[heroElem].emoji} ${ELEMENTS[heroElem].name} < ${ELEMENTS[enemyElem].emoji} ${ELEMENTS[enemyElem].name}: désavantage ×${elemMult}`,'log-debuff');
     dmg=Math.round(dmg*elemMult);
     if(bs.enemy.abilities.includes('counter')&&Math.random()<.2&&bs.enemy.currentHp>0){
       const cd=Math.round(dmg*.35);
@@ -1947,13 +2027,14 @@ function checkBattleEnd(){
     addTempEventFragments(evFrag);
     if(isTempEventActive())addLog(`🎯 Event 7J: +${evFrag} fragments`,'log-special');
     bs.rewardMaterials=dropMaterials(state.currentArc,bs.enemy.isBoss);
+	playSfx('win');
     save();updateRes();checkAchievements();
     if(state.autoMode)toggleAuto();
   } else {
     const alive=bs.heroes.filter(h=>h.currentHp>0);
     if(!alive.length){
       if(!state.playerStats)state.playerStats={totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0};
-      bs.over=true;bs.won=false;addLog('💔 Défaite... Renforcez votre équipe!','log-crit');state.winStreak=0;state.playerStats.battlesLost=(state.playerStats.battlesLost||0)+1;save();if(state.autoMode)toggleAuto();
+      bs.over=true;bs.won=false;addLog('💔 Défaite... Renforcez votre équipe!','log-crit');playSfx('error');state.winStreak=0;state.playerStats.battlesLost=(state.playerStats.battlesLost||0)+1;save();if(state.autoMode)toggleAuto();
     }
   }
 }
@@ -2148,8 +2229,19 @@ function passiveLog(bs,text,type='log-special'){
 function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
   const p=getPassive(hero.id);
   if(!p)return dmg;
-  if(triggerType==='onNormalAtk'&&p.fn) p.fn(hero,bs);
-  if(triggerType==='onTurnStart'&&p.fn) p.fn(hero,bs);
+  if(triggerType==='onNormalAtk'&&p.fn){
+    const beforeCd=hero.spCooldown||0;
+    p.fn(hero,bs);
+    if((hero.spCooldown||0)<beforeCd)passiveLog(bs,`⚡ Passif ${p.name}: cooldown spéciale −${beforeCd-(hero.spCooldown||0)} (${hero.name})`,'log-special');
+  }
+  if(triggerType==='onTurnStart'&&p.fn){
+    const beforeHp=hero.currentHp||0;
+    const beforeStatuses=(hero.statuses||[]).join('|');
+    p.fn(hero,bs);
+    const healed=(hero.currentHp||0)-beforeHp;
+    if(healed>0)passiveLog(bs,`⚡ Passif ${p.name}: ${hero.name} récupère ${healed} HP`,'log-heal');
+    if(beforeStatuses!==(hero.statuses||[]).join('|'))passiveLog(bs,`⚡ Passif ${p.name}: statut purifié sur ${hero.name}`,'log-special');
+  }
   if(triggerType==='onTurnStart'&&bs===state.infiniteBattle&&p.isInfiniteBurn&&bs.enemy&&bs.enemy.currentHp>0){
     const burn=Math.min(2500,Math.round(bs.enemy.maxHp*.025));
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-burn);
@@ -2162,28 +2254,37 @@ function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
     });
     passiveLog(bs,`🩵 ${hero.name}: Barrière Azathoth (+bouclier équipe)`,'log-heal');
   }
-  if(triggerType==='dmgMult'&&p.isDmgMult) return dmg*p.fn(hero,bs);
-  if(triggerType==='lifesteal'&&p.isLifesteal){ hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(dmg*p.lifestealAmt)); }
+  if(triggerType==='dmgMult'&&p.isDmgMult){
+    const out=dmg*p.fn(hero,bs);
+    if(out>dmg)passiveLog(bs,`⚡ Passif ${p.name}: dégâts ×${(out/dmg).toFixed(1)} sur ${hero.name}`,'log-special');
+    return out;
+  }
+  if(triggerType==='lifesteal'&&p.isLifesteal){
+    const heal=Math.round(dmg*p.lifestealAmt);
+    const before=hero.currentHp;
+    hero.currentHp=Math.min(hero.maxHp,hero.currentHp+heal);
+    if(hero.currentHp>before)passiveLog(bs,`🩸 Passif ${p.name}: ${hero.name} vole ${hero.currentHp-before} HP`,'log-heal');
+  }
   if(triggerType==='escanor'&&p.isEscanor){
     if(!hero._escanorStacks)hero._escanorStacks=0;
-    if(hero._escanorStacks<10){ hero.atk=Math.round(hero.atk*1.05); hero._escanorStacks++; }
+    if(hero._escanorStacks<10){ hero.atk=Math.round(hero.atk*1.05); hero._escanorStacks++; passiveLog(bs,`☀ Passif ${p.name}: ATK ${hero.name} +5% (${hero._escanorStacks}/10)`,'log-special'); }
   }
   // Beerus Hakai — 15% chance on normal atk to smite 15% max HP
   if(triggerType==='onNormalAtk'&&p.isBeerusSmite&&bs.enemy.currentHp>0&&Math.random()<.15){
     const smite=Math.round(bs.enemy.maxHp*.15);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-smite);
-    addLog(`😼 Beerus: HAKAI! (−${smite} HP ennemi)`,'log-crit');
+    passiveLog(bs,`😼 Passif ${p.name}: HAKAI! (−${smite} HP ennemi)`,'log-crit');
   }
   // Baryon drain — each normal attack drains 8% enemy max HP
   if(triggerType==='onNormalAtk'&&p.isBaryonDrain&&bs.enemy.currentHp>0){
     const drain=Math.round(bs.enemy.maxHp*.08);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-drain);
-    addLog(`☀ Baryon Mode: drain ${drain} HP ennemi!`,'log-special');
+    passiveLog(bs,`☀ Passif ${p.name}: drain ${drain} HP ennemi!`,'log-special');
   }
   // Senku boost — on any special, boost team ATK 8%
   if(triggerType==='onSpecial'&&p.isSenkuBoost){
     bs.heroes.filter(h=>h.currentHp>0).forEach(h=>{h.atk=Math.round(h.atk*1.08);});
-    addLog(`🧪 Senku: Boost ATK équipe +8%!`,'log-special');
+    passiveLog(bs,`🧪 Passif ${p.name}: Boost ATK équipe +8%!`,'log-special');
   }
   // Law swap — first turn only, if enemy HP > 70%
   if(triggerType==='onBattleStart'&&p.isLawSwap&&!hero._lawUsed&&bs.enemy.currentHp/bs.enemy.maxHp>.7){
@@ -2191,7 +2292,7 @@ function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
     bs.enemy.currentHp=Math.max(1,bs.enemy.currentHp-stolen);
     hero.currentHp=Math.min(hero.maxHp,hero.currentHp+Math.round(stolen*.5));
     hero._lawUsed=true;
-    addLog(`🔱 Law: SHAMBLES! Échange HP (−${stolen} ennemi)`,'log-special');
+    passiveLog(bs,`🔱 Passif ${p.name}: SHAMBLES! Échange HP (−${stolen} ennemi)`,'log-special');
   }
   return dmg;
 }
@@ -2199,22 +2300,22 @@ function applyPassiveTrigger(hero, bs, triggerType, dmg=0){
 function applyDefensivePassive(hero, dmg, bs){
   const p=getPassive(hero.id);
   if(!p)return dmg;
-  if(p.isDmgReduce) dmg=Math.round(dmg*(1-p.reduceAmt));
+  if(p.isDmgReduce){const before=dmg;dmg=Math.round(dmg*(1-p.reduceAmt));if(before>dmg)passiveLog(bs,`🛡 Passif ${p.name}: dégâts reçus −${before-dmg} (${hero.name})`,'log-special');}
   if(p.isFullCounter&&bs.enemy.currentHp>0){
     const reflected=Math.round(dmg*p.counterAmt);
     bs.enemy.currentHp=Math.max(0,bs.enemy.currentHp-reflected);
-    addLog(`🔄 ${hero.name} Full Counter! (${reflected} dmg refléchi)`,'log-special');
+    passiveLog(bs,`🔄 Passif ${p.name}: ${hero.name} renvoie ${reflected} dégâts`,'log-special');
   }
   if(p.isLastStand&&!hero._lastStandUsed&&hero.currentHp/hero.maxHp<.3){
     const heal=Math.round(hero.maxHp*.15);
     hero.currentHp=Math.min(hero.maxHp,hero.currentHp+heal);
     hero._lastStandUsed=true;
-    addLog(`💙 ${hero.name} Oni Berserk! (+${heal} HP)`,'log-heal');
+    passiveLog(bs,`💙 Passif ${p.name}: ${hero.name} récupère ${heal} HP`,'log-heal');
   }
   // Accelerator blocks first hit
   if(p.isFirstBlock&&!hero._blockUsed){
     hero._blockUsed=true;
-    addLog(`🌀 ${hero.name} Réflexion Vectorielle: attaque annulée!`,'log-special');
+    passiveLog(bs,`🌀 Passif ${p.name}: attaque annulée pour ${hero.name}`,'log-special');
     return 0;
   }
   return dmg;
@@ -2253,11 +2354,12 @@ function renderFusion(){
     const canConvert6=c.rarity===6&&normalCount>=3;
     return canFuseNormal||canAwaken5||canShow5Awakened||canShow5Owned||canConvert6;
   }).sort((a,b)=>b.rarity-a.rarity);
+  const fusionGuide=`<div class="system-guide"><b>🔮 Fusion / Éveil — comment lire cet écran</b><ul><li><b>3 doublons 2★ à 4★</b> fusionnent en un personnage aléatoire de la rareté supérieure.</li><li><b>3 doublons 5★</b> permettent l'<b>Éveil</b>: une version séparée avec stats ×1.5.</li><li><b>3 copies éveillées 5★</b> se convertissent en Larmes d'Éveil; <b>3 doublons 6★</b> en cristaux.</li></ul></div>`;
   if(!fuseable.length){
-    grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">Aucun personnage fusionnable.<br><small>Il vous faut 3 doublons du même personnage.</small></div>';
+    grid.innerHTML=fusionGuide+'<div style="text-align:center;color:var(--muted);padding:40px;">Aucun personnage fusionnable.<br><small>Il vous faut 3 doublons du même personnage.</small></div>';
     return;
     }
-  grid.innerHTML=fuseable.map(c=>{
+  grid.innerHTML=fusionGuide+fuseable.map(c=>{
     const count=getNormalCount(c.id);
     const awakenedCount=getAwakenedCount(c.id);
     const is5star=c.rarity===5;
@@ -2301,6 +2403,7 @@ function doFusion(id){
   state.owned[result.id]=(state.owned[result.id]||0)+1;
   state.fusionCount=(state.fusionCount||0)+1;
   save(); renderFusion();
+  playSfx('rare');
   showToast(`🔮 Fusion! ${c.name} → ${result.emoji} ${result.name} ${'★'.repeat(result.rarity)}`);
   checkAchievements();
 }
@@ -3055,9 +3158,11 @@ function buyShopItem(id){
     if(state.updateGiftDaily.date===today&&state.updateGiftDaily.claimed)return;
     state.updateGiftDaily={date:today,claimed:true};
   }else{
-    if(state.gold<item.price)return;
+    if(state.gold<item.price){playSfx('error');return;}
     state.gold-=item.price;
   }
+  const isSummonPurchase=item.id.includes('pull')||item.id.includes('summon');
+  playSfx(isSummonPurchase?'summon':'craft');
   item.reward();
   save();updateRes();renderShop();
   showToast(`✅ ${item.name} acheté !`);
@@ -3187,6 +3292,7 @@ function claimQuest(type,idx){
   state.gold+=(q.reward.gold||0);
   giveXp(80);
   save();updateRes();renderQuests();
+  playSfx('win');
   showToast(`✅ Quête "${q.name}" complétée! ${q.rewardLabel}`);
   checkAchievements();
 }
@@ -3402,7 +3508,26 @@ function getElemBadge(id){
   const e=ELEMENTS[elem];
   return `<span class="elem-badge ${e.cls}">${e.emoji} ${e.name}</span>`;
 }
-
+function getElementMatchupLabel(attackerElem, defenderElem){
+  const mult=getElemMult(attackerElem||'neutral',defenderElem||'neutral');
+  if(mult>1)return {cls:'adv',text:`Avantage ×${mult}`,icon:'▲'};
+  if(mult<1)return {cls:'dis',text:`Désavantage ×${mult}`,icon:'▼'};
+  return {cls:'neutral',text:'Neutre',icon:'◆'};
+}
+function renderElementMatchupBadge(attackerElem, defenderElem){
+  const a=ELEMENTS[attackerElem||'neutral']||ELEMENTS.neutral;
+  const d=ELEMENTS[defenderElem||'neutral']||ELEMENTS.neutral;
+  const m=getElementMatchupLabel(attackerElem,defenderElem);
+  return `<span class="elem-match ${m.cls}" title="${a.name} attaque ${d.name}: ${m.text}">${m.icon} ${m.text}</span>`;
+}
+function renderTeamElementInsight(heroes, enemyElem){
+  const rows=(heroes||[]).filter(h=>h.currentHp>0).map(h=>{
+    const elem=CHAR_ELEMENTS[getBaseId(h.id)]||'neutral';
+    const e=ELEMENTS[elem]||ELEMENTS.neutral;
+    return `${h.emoji} ${h.name}: ${e.emoji} ${e.name} ${renderElementMatchupBadge(elem,enemyElem)}`;
+  });
+  return `<div class="system-guide" style="margin-bottom:12px"><b>🧭 Lecture élémentaire</b><br>${rows.join('<br>')}<br><span style="font-size:.68rem">Avantage = dégâts ×1.3 · désavantage = dégâts ×0.8.</span></div>`;
+}
 // ═══════════════════════════════════════════
 //  EQUIPMENT SYSTEM
 // ═══════════════════════════════════════════
@@ -3460,6 +3585,16 @@ const CRAFT_RECIPES=[
   {result:'dragon_badge', cost:{iron:8,rare_crystal:4,awakening_tears:2},goldCost:5600,label:'8 Fer + 4 Cristaux rares + 2 Larmes + 5600🪙'},
 ];
 const MATERIAL_NAMES={iron:'⚒ Fer',cloth:'🧵 Tissu',magic_shard:'💎 Éclat Magique',rare_crystal:'🔮 Cristal Rare',awakening_tears:'💫 Larmes d\'Éveil'};
+const MATERIAL_SOURCES={
+  iron:'Combats arcs 1+; Atelier du Rift; Pack Forgeron en boutique.',
+  cloth:'Combats arcs 1+; Sanctuaire des Marées; Atelier du Rift; Pack Forgeron.',
+  magic_shard:'Combats arcs 2+; Défi quotidien Feu/Forge; Pack Forgeron.',
+  rare_crystal:'Combats arcs 4+; Défis quotidiens; boutique Pack Forgeron/Éveil.',
+  awakening_tears:'Boss arcs 4+; Couloir des Ombres; Cache d’Éveil; conversion de 5★ éveillés.',
+};
+function getMaterialSourceText(mat){return MATERIAL_SOURCES[mat]||'Principalement via combats, boutique et récompenses événement.';}
+function renderMaterialSourceHint(mat){return `<span class="mat-source" title="Où obtenir: ${getMaterialSourceText(mat)}">ⓘ</span>`;}
+
 
 let selectedEquipChar=null;
 
@@ -3482,6 +3617,27 @@ function getItemBonus(id){
     Object.entries(item.stats).forEach(([k,v])=>{if(bonus[k]!==undefined)bonus[k]+=v;});
   });
   return bonus;
+}
+
+function getEquipmentRoleHint(charId){
+  const c=getCharById(charId)||{type:'Attaquant'};
+  if(c.type==='Tank')return 'Priorité: HP/DEF pour tenir, puis ATK si le tank tape déjà fort.';
+  if(c.type==='Support')return 'Priorité: survie (HP/DEF) et spéciale; l’ATK reste utile pour les soins.';
+  if(c.type==='Mage')return 'Priorité: dégâts de spéciale, ATK et critique; HP/DEF en second.';
+  return 'Priorité: ATK/critique, puis dégâts de spéciale; défense si tu meurs trop vite.';
+}
+function getItemRecommendationReason(item,charId){
+  const c=getCharById(charId)||{type:'Attaquant'};
+  const st=item.stats||{};
+  const parts=[];
+  if(st.atk)parts.push(`${st.atk} ATK`);if(st.sDmg)parts.push(`${st.sDmg} spéciale`);if(st.hp)parts.push(`${st.hp} HP`);if(st.def)parts.push(`${st.def} DEF`);if(st.critBoost)parts.push(`${Math.round(st.critBoost*100)}% crit`);
+  return `${c.type}: ${parts.join(' + ')||'bonus utile'}`;
+}
+function renderEquipmentRecommendation(charId){
+  const slots=['weapon','armor','accessory'];
+  const slotNames={weapon:'Arme',armor:'Armure',accessory:'Accessoire'};
+  const rows=slots.map(slot=>{const best=getBestItemForSlot(charId,slot);return best?`<div class="equip-reco-row"><b>${slotNames[slot]}:</b> ${best.emoji} ${best.name} — ${getItemRecommendationReason(best,charId)}</div>`:`<div class="equip-reco-row"><b>${slotNames[slot]}:</b> aucun item libre.</div>`;}).join('');
+  return `<div class="equip-reco"><b>⭐ Recommandation auto</b><br>${getEquipmentRoleHint(charId)}${rows}</div>`;
 }
 
 function renderEquipment(){
@@ -3523,9 +3679,12 @@ function renderEquipSlots(){
   const slotNames={weapon:'Arme',armor:'Armure',accessory:'Accessoire'};
   panel.innerHTML=`<div class="equip-slots-title">${c.emoji} ${c.name} — Équipement</div>
     <div style="font-size:.7rem;color:var(--green);margin-bottom:10px;">Bonus total: +${bonus.atk} ATK / +${bonus.hp} HP / +${bonus.def} DEF${bonus.sDmg>0?` / +${bonus.sDmg} SP`:''}${bonus.critBoost>0?` / +${Math.round(bonus.critBoost*100)}% Crit`:''}</div>
+	${renderEquipmentRecommendation(selectedEquipChar)}
     ${slots.map(slot=>{
       const itemId=equip[slot];
       const item=itemId?ITEM_DEFS.find(x=>x.id===itemId):null;
+	  const best=getBestItemForSlot(selectedEquipChar,slot);
+      const bestHint=best?`<div style="font-size:.62rem;color:var(--gold);margin-top:2px">Conseillé: ${best.emoji} ${best.name} — ${getItemRecommendationReason(best,selectedEquipChar)}</div>`:'';
       return `<div class="equip-slot ${item?'filled':''}">
         <div class="equip-slot-icon">${item?item.emoji:slotIcons[slot]}</div>
         <div class="equip-slot-info">
@@ -3534,6 +3693,7 @@ function renderEquipSlots(){
         </div>
         <button class="craft-btn" style="padding:5px 8px;font-size:.68rem" onclick="equipBestItem('${selectedEquipChar}','${slot}')">⭐ Meilleur</button>
         ${item?`<button type="button" class="equip-unequip" aria-label="Déséquiper ${item.name}" onclick="handleUnequipClick(event,'${selectedEquipChar}','${slot}')">✕</button>`:''}
+		${bestHint}
       </div>`;
     }).join('')}
     <div class="items-inventory">
@@ -3563,19 +3723,22 @@ function renderCraftList(){
   list.innerHTML=CRAFT_RECIPES.map(r=>{
     const item=ITEM_DEFS.find(x=>x.id===r.result);
     const canCraft=Object.entries(r.cost).every(([k,v])=>(mats[k]||0)>=v)&&(state.gold||0)>=r.goldCost;
-    const matDisplay=Object.entries(r.cost).map(([k,v])=>`<span style="color:${(mats[k]||0)>=v?'var(--green)':'var(--red)'}">${MATERIAL_NAMES[k]||k}: ${mats[k]||0}/${v}</span>`).join(' · ');
+    const matEntries=Object.entries(r.cost);
+    const matDisplay=matEntries.map(([k,v])=>`<span style="color:${(mats[k]||0)>=v?'var(--green)':'var(--red)'}">${MATERIAL_NAMES[k]||k}: ${mats[k]||0}/${v}${renderMaterialSourceHint(k)}</span>`).join(' · ');
+    const missingSources=matEntries.filter(([k,v])=>(mats[k]||0)<v).map(([k])=>`${MATERIAL_NAMES[k]||k}: ${getMaterialSourceText(k)}`);
     return `<div class="craft-card">
       <div style="font-size:1.6rem">${item.emoji}</div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:.82rem">${item.name}</div>
         <div style="font-size:.65rem;color:var(--green);margin:2px 0">${item.desc}</div>
         <div style="font-size:.62rem">${matDisplay} · <span style="color:${(state.gold||0)>=r.goldCost?'var(--gold)':'var(--red)'}">🪙${r.goldCost}</span></div>
+		${missingSources.length?`<div class="craft-missing">📍 Où farmer: ${missingSources.join(' · ')}</div>`:''}
       </div>
       <button class="craft-btn" onclick="craftItem('${r.result}')" ${canCraft?'':'disabled'}>Crafter</button>
     </div>`;
   }).join('');
   // Show materials
-  const matHTML=Object.entries(mats).filter(([,v])=>v>0).map(([k,v])=>`<span style="font-size:.75rem;color:var(--muted)">${MATERIAL_NAMES[k]||k}: <b style="color:var(--gold)">${v}</b></span>`).join(' · ');
+  const matHTML=Object.entries(mats).filter(([,v])=>v>0).map(([k,v])=>`<span style="font-size:.75rem;color:var(--muted)" title="Où obtenir: ${getMaterialSourceText(k)}">${MATERIAL_NAMES[k]||k}: <b style="color:var(--gold)">${v}</b>${renderMaterialSourceHint(k)}</span>`).join(' · ');
   list.insertAdjacentHTML('afterbegin',`<div style="margin-bottom:10px;font-size:.72rem;color:var(--muted)">🎒 Matériaux: ${matHTML||'Aucun — gagnez des combats pour en obtenir!'}</div>`);
 }
 
@@ -3630,7 +3793,8 @@ function equipItem(charId,itemId){
   if(usedElsewhere>=ownedCount){showToast(`❌ Plus de copie libre pour ${item.name}`);return;}
   const equip=getCharEquip(baseId);
   equip[item.slot]=itemId;
-  save();renderEquipSlots();showToast(`⚔ ${item.name} équipé sur ${getCharById(charId)?.name||getCharById(baseId)?.name||baseId}!`);
+  save();renderEquipSlots();playSfx('equip');
+  showToast(`⚔ ${item.name} équipé sur ${getCharById(charId)?.name||getCharById(baseId)?.name||baseId}!`);
 }
 function handleUnequipClick(event,charId,slot){
   if(event){event.preventDefault();event.stopPropagation();}
@@ -3659,6 +3823,7 @@ function craftItem(recipeResult){
   state.items[recipeResult]=(state.items[recipeResult]||0)+1;
   const item=ITEM_DEFS.find(x=>x.id===recipeResult);
   save();updateRes();renderEquipment();
+  playSfx('craft');
   showToast(`🔧 ${item.emoji} ${item.name} crafté!`);
 }
 
@@ -3945,6 +4110,7 @@ function doAwaken(id){
   renderCollection(currentCollFilter||'all');
   renderTeam();
   const c=ALL_CHARS.find(x=>x.id===id);
+  playSfx('ultra');
   showToast(`⭐ ${c.emoji} ${c.name} éveillé ! (Normal: ${getNormalCount(id)} · Éveillé: ${getAwakenedCount(id)})`);
   checkAchievements();
 }
@@ -3974,6 +4140,7 @@ function rollChar(){
 // INIT
 buildStars();
 load();
+if(state.soundOn===undefined)state.soundOn=true;
 if(!GACHA_BANNERS.some(b=>b.id===state.activeBanner))state.activeBanner='standard';
 if(!state.arcProgress)state.arcProgress={1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0};
 if(state.arcProgress[6]===undefined)state.arcProgress[6]=0;
