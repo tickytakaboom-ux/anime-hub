@@ -280,6 +280,10 @@
   .passive-tag{display:inline-block;background:rgba(180,79,255,.15);border:1px solid rgba(180,79,255,.3);border-radius:6px;padding:1px 7px;font-size:.62rem;color:var(--purple);margin-top:3px;}
   .system-guide{background:linear-gradient(135deg,rgba(0,212,255,.075),rgba(180,79,255,.045));border:1px solid rgba(0,212,255,.22);border-radius:12px;padding:10px 12px;margin-bottom:12px;color:var(--muted);font-size:.74rem;line-height:1.35;}
   .system-guide b{color:var(--gold);}.system-guide ul{margin:6px 0 0 16px;padding:0;}
+  .daily-chest{background:radial-gradient(circle at 100% 0%,rgba(245,200,66,.16),transparent 38%),linear-gradient(135deg,rgba(245,200,66,.085),rgba(0,212,255,.045));border:1px solid rgba(245,200,66,.3);border-radius:14px;padding:12px;margin:0 auto 14px;max-width:620px;text-align:left;box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
+  .daily-chest-title{font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:.92rem;margin-bottom:6px;}.daily-chest-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+  .daily-chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:3px 9px;font-size:.72rem;color:var(--text);}.daily-chip.hot{border-color:rgba(245,200,66,.35);color:var(--gold);}
+  .weekly-track{height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin:7px 0 5px;}.weekly-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple),var(--gold));border-radius:99px;transition:width .35s;}
   .elem-match{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 7px;font-size:.6rem;font-weight:800;letter-spacing:.4px;margin-top:3px;border:1px solid rgba(255,255,255,.12);}
   .elem-match.adv{color:var(--green);background:rgba(57,255,20,.08);border-color:rgba(57,255,20,.25);}.elem-match.dis{color:var(--red);background:rgba(230,57,70,.08);border-color:rgba(230,57,70,.25);}.elem-match.neutral{color:var(--muted);background:rgba(255,255,255,.04);}
   .equip-reco{background:rgba(245,200,66,.07);border:1px solid rgba(245,200,66,.22);border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:.72rem;color:var(--muted);line-height:1.35;}.equip-reco b{color:var(--gold);}.equip-reco-row{margin-top:3px;}
@@ -2810,6 +2814,39 @@ function grantTournamentThemeReward(theme){
   }
   return parts.join(' · ');
 }
+const TOURNAMENT_SURPRISES=[
+  {label:'+60💎 Cristaux bonus',weight:42,grant:()=>{state.crystals+=60;}},
+  {label:'+3🔮 Cristaux rares',weight:24,grant:()=>{if(!state.materials)state.materials={};state.materials.rare_crystal=(state.materials.rare_crystal||0)+3;}},
+  {label:'+4💫 Larmes d’Éveil',weight:18,grant:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+4;}},
+  {label:'+1 invocation bonus',weight:12,grant:()=>{const c=rollChar();return `${c.emoji} ${c.name} ${'★'.repeat(c.rarity)}`;}},
+  {label:'🎁 Item rare bonus',weight:4,grant:()=>{if(!state.items)state.items={};const pool=['crit_ring','life_amulet','steel_sword','iron_armor'];const id=pool[Math.floor(Math.random()*pool.length)];state.items[id]=(state.items[id]||0)+1;return ITEM_DEFS.find(i=>i.id===id)?.name||id;}},
+];
+function grantTournamentSurpriseReward(){
+  const total=TOURNAMENT_SURPRISES.reduce((s,r)=>s+r.weight,0);
+  let roll=Math.random()*total;
+  const picked=TOURNAMENT_SURPRISES.find(r=>{roll-=r.weight;return roll<=0;})||TOURNAMENT_SURPRISES[0];
+  const extra=picked.grant();
+  return `${picked.label}${extra?` (${extra})`:''}`;
+}
+function getTournamentWeekly(){
+  const wk=getWeekKey();
+  if(!state.tournamentWeekly||state.tournamentWeekly.weekKey!==wk)state.tournamentWeekly={weekKey:wk,clears:0,claimed:false};
+  return state.tournamentWeekly;
+}
+function grantTournamentWeeklyReward(){
+  const weekly=getTournamentWeekly();
+  if(weekly.claimed||weekly.clears<5)return '';
+  if(!state.materials)state.materials={};if(!state.items)state.items={};
+  state.crystals+=650;state.gold+=6000;
+  state.materials.rare_crystal=(state.materials.rare_crystal||0)+6;
+  state.materials.awakening_tears=(state.materials.awakening_tears||0)+6;
+  const itemPool=['void_katana','phoenix_mail','chrono_emblem'];
+  const itemId=itemPool[Math.floor(Math.random()*itemPool.length)];
+  state.items[itemId]=(state.items[itemId]||0)+1;
+  weekly.claimed=true;
+  const item=ITEM_DEFS.find(i=>i.id===itemId);
+  return ` · 🎁 Coffre hebdo 5/5: +650💎 +6000🪙 +6🔮 +6💫 + ${item?.emoji||'🎒'} ${item?.name||itemId}`;
+}
 function grantTournamentDailyReward(bs){
   const theme=getTournamentThemeById(bs.themeId);
   state.gold+=2500;state.crystals+=180;
@@ -2817,16 +2854,25 @@ function grantTournamentDailyReward(bs){
   state.materials.rare_crystal=(state.materials.rare_crystal||0)+2;
   state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;
   const bonus=grantTournamentThemeReward(theme);
-  markTournamentRewardClaimed();
-  return `👑 Défi quotidien terminé! Base +2500🪙 +180💎 +2🔮 +2💫${bonus?` · Bonus ${theme.emoji} ${bonus}`:''}`;
+  const surpriseReward=typeof grantTournamentSurpriseReward==='function'?grantTournamentSurpriseReward():'aucun bonus surprise';
+  const weekly=getTournamentWeekly();
+  if(!weekly.claimed)weekly.clears=Math.min(5,(weekly.clears||0)+1);
+  const weeklyReward=grantTournamentWeeklyReward();
+  const rewardSummary=`Base +2500🪙 +180💎 +2🔮 +2💫${bonus?` · Bonus ${theme.emoji} ${bonus}`:''} · 🎲 Surprise: ${surpriseReward} · Série hebdo ${weekly.clears}/5${weeklyReward}`;
+  markTournamentRewardClaimed(rewardSummary);
+  return `👑 Coffre quotidien ouvert! ${rewardSummary}`;
 }
-function getTournamentDaily(){const today=getTodayKey();if(!state.tournamentDaily||state.tournamentDaily.date!==today)state.tournamentDaily={date:today,rewardClaimed:false};return state.tournamentDaily;}
+function getTournamentDaily(){const today=getTodayKey();if(!state.tournamentDaily||state.tournamentDaily.date!==today)state.tournamentDaily={date:today,rewardClaimed:false,rewardSummary:''};return state.tournamentDaily;}
 function canClaimTournamentReward(){return !getTournamentDaily().rewardClaimed;}
-function markTournamentRewardClaimed(){const d=getTournamentDaily();d.rewardClaimed=true;}
+function markTournamentRewardClaimed(summary=''){const d=getTournamentDaily();d.rewardClaimed=true;if(summary)d.rewardSummary=summary;}
+function renderTournamentClaimedReward(daily=getTournamentDaily()){
+  if(!daily.rewardClaimed)return '';
+  return `<div style="background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.22);border-radius:10px;padding:9px 10px;margin-top:10px;color:var(--muted);font-size:.73rem;line-height:1.35"><b style="color:var(--green)">✅ Récompense obtenue aujourd'hui</b><br>${daily.rewardSummary||'Coffre déjà ouvert aujourd’hui. Le détail sera affiché pour les prochains coffres.'}</div>`;
+}
 function renderTournamentScreen(){
   const best=state.tournamentBest||0;
   const bestEl=document.getElementById('tournament-best');
-  if(bestEl){const theme=getTournamentTheme();bestEl.innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Thème du jour — ${theme.emoji} ${theme.name}</div><div style="font-family:'Cinzel Decorative',serif;font-size:1.7rem;color:var(--gold)">Record ${best}/${TOURNAMENT_ROUNDS} rounds</div>`;}
+  if(bestEl){const theme=getTournamentTheme();const weekly=getTournamentWeekly();bestEl.innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Thème du jour — ${theme.emoji} ${theme.name}</div><div style="font-family:'Cinzel Decorative',serif;font-size:1.7rem;color:var(--gold)">Record ${best}/${TOURNAMENT_ROUNDS} rounds</div><div style="font-size:.75rem;color:var(--muted)">Série hebdo: <span style="color:var(--blue)">${weekly.clears||0}/5</span>${weekly.claimed?' · coffre hebdo réclamé':''}</div>`;}
   if(!state.tournament||state.tournament.finished) renderTournamentIdle();
   else renderTournamentUI();
 }
@@ -2834,16 +2880,25 @@ function renderTournamentIdle(){
   const cont=document.getElementById('tournament-content');if(!cont)return;
   const theme=getTournamentTheme();
   if(state.team.filter(Boolean).length===0){cont.innerHTML=`<div class="no-team-msg"><div class="big">🏟</div><div>Pas d'équipe ! Allez dans <b>Équipe</b>.</div></div>`;return;}
+  const weekly=getTournamentWeekly();
+  const daily=getTournamentDaily();
+  const weeklyPct=Math.min(100,((weekly.clears||0)/5)*100);
   cont.innerHTML=`<div style="text-align:center;padding:34px 20px;">
     <div style="font-size:3rem;margin-bottom:12px;">${theme.emoji}</div>
     <div style="font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:1rem;margin-bottom:6px;">${theme.name}</div>
     <div style="font-size:.9rem;color:var(--muted);margin-bottom:12px;">3 combats consécutifs avec une équipe verrouillée.<br><b style="color:var(--gold)">Pas de récupération HP</b> entre les rounds.</div>
+	<div class="daily-chest">
+      <div class="daily-chest-title">🎁 Coffre quotidien ${canClaimTournamentReward()?'<span style="color:var(--green);font-family:Rajdhani,sans-serif;font-size:.75rem">DISPONIBLE</span>':'<span style="color:var(--red);font-family:Rajdhani,sans-serif;font-size:.75rem">DÉJÀ OUVERT</span>'}</div>
+      <div style="font-size:.76rem;color:var(--muted);line-height:1.35">Termine les 3 rounds pour ouvrir le coffre, obtenir un <b>bonus surprise</b> et avancer vers le coffre hebdomadaire.</div>
+      <div class="daily-chest-grid"><span class="daily-chip">+2500🪙</span><span class="daily-chip">+180💎</span><span class="daily-chip">+2🔮</span><span class="daily-chip">+2💫</span><span class="daily-chip hot">🎲 Surprise</span><span class="daily-chip hot">${theme.emoji} ${theme.rewardText}</span></div>
+	  ${renderTournamentClaimedReward(daily)}
+      <div style="font-size:.72rem;color:var(--muted);margin-top:10px">Série hebdo: <b style="color:var(--blue)">${weekly.clears||0}/5 clears</b>${weekly.claimed?' · <span style="color:var(--gold)">coffre hebdo réclamé</span>':' · coffre hebdo à 5 clears'}</div>
+      <div class="weekly-track"><div class="weekly-fill" style="width:${weeklyPct}%"></div></div>
+    </div>
     <div style="background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.22);border-radius:12px;padding:10px 12px;margin:0 auto 14px;max-width:560px;text-align:left;">
       <div style="font-size:.72rem;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Règle quotidienne</div>
       <div style="font-size:.78rem;color:var(--muted);line-height:1.4">${theme.rule}</div>
-      <div style="font-size:.78rem;color:var(--gold);margin-top:5px">Bonus de clear: ${theme.rewardText}</div>
     </div>
-    <div style="font-size:.75rem;color:var(--muted);margin-bottom:20px;">Récompense quotidienne: ${canClaimTournamentReward()?'<span style="color:var(--green)">disponible</span>':'<span style="color:var(--red)">déjà réclamée</span>'}</div>
     <button class="battle-btn btn-attack" onclick="startTournament()">🚩 LANCER LE DÉFI</button>
   </div>`;
 }
@@ -2911,7 +2966,7 @@ function doTournamentAttack(mode){
   });
   if(mode==='burst')bs.burstCharge=0;else bs.burstCharge=Math.min(3,(bs.burstCharge||0)+1);
   if(bs.enemy.currentHp>0){const e=bs.enemy;if(!e.enraged&&e.abilities.includes('enrage')&&e.currentHp/e.maxHp<.3){e.enraged=true;e.atk=Math.round(e.atk*1.55);addTourLog('😡 ENRAGE! ATK ×1.55','log-crit');}if(e.abilities.includes('shield')&&e.shield<=0&&Math.random()<.12){e.shield=Math.round(e.maxHp*.06);addTourLog('🛡 Bouclier!','log-debuff');}if(e.abilities.includes('regen')&&!e._antiRegen&&Math.random()<.18){const rg=Math.round(e.maxHp*.035);e.currentHp=Math.min(e.maxHp,e.currentHp+rg);addTourLog(`💚 Regen +${rg}`,'log-heal');}const alive2=bs.heroes.filter(h=>h.currentHp>0);const attacks=e.isBoss?2:1;for(let k=0;k<attacks&&alive2.length;k++){const t=alive2[Math.floor(Math.random()*alive2.length)];let ed=e.atk+randInt(-Math.round(e.atk*.15),Math.round(e.atk*.15));ed=applyDefensivePassive(t,ed,bs);ed=Math.max(1,ed-t.def);t.currentHp=Math.max(0,t.currentHp-ed);const ti=bs.heroes.indexOf(t);bs._pendingFloats.push({id:`tour-hero-${ti}`,cls:'anim-hit',delay:k*140+80,float:'-'+ed,floatId:`tour-hero-${ti}`,color:'#ff9966',effect:'slash',shake:e.isBoss?'hit':null});addTourLog(`💀 ${e.name} → ${t.name} (-${ed})`,e.isBoss?'log-crit':'log-hit');}}
-  if(bs.enemy.currentHp<=0){bs.over=true;bs.won=true;bs.wins=(bs.wins||0)+1;addTourLog(`🏆 Round ${bs.round} gagné!`,'log-win');if(bs.round>=bs.maxRounds){state.tournamentClears=(state.tournamentClears||0)+1;if(bs.rewardEligible&&canClaimTournamentReward()){addTourLog(grantTournamentDailyReward(bs),'log-win');}else addTourLog('✅ Tournoi remporté, mais la récompense quotidienne est déjà prise.','log-debuff');}}
+  if(bs.enemy.currentHp<=0){bs.over=true;bs.won=true;bs.wins=(bs.wins||0)+1;addTourLog(`🏆 Round ${bs.round} gagné!`,'log-win');if(bs.round>=bs.maxRounds){state.tournamentClears=(state.tournamentClears||0)+1;if(bs.rewardEligible&&canClaimTournamentReward()){addTourLog(grantTournamentDailyReward(bs),'log-win');}else addTourLog(`✅ Tournoi remporté, mais la récompense quotidienne est déjà prise.${getTournamentDaily().rewardSummary?` Dernier coffre: ${getTournamentDaily().rewardSummary}`:''}`,'log-debuff');}}
   else if(!bs.heroes.some(h=>h.currentHp>0)){bs.over=true;bs.won=false;addTourLog(`💔 Tournoi perdu au round ${bs.round}.`,'log-crit');}
   state.tournamentBest=Math.max(state.tournamentBest||0,bs.wins||0);save();updateRes();const pending=[...(bs._pendingFloats||[])];bs._pendingFloats=[];lockCombatFx(bs,pending,renderTournamentUI);renderTournamentUI();flushQueuedCombatFx(pending);
 }
