@@ -86,6 +86,14 @@
   .banner-tag{position:absolute;right:9px;top:9px;border:1px solid rgba(0,212,255,.35);border-radius:999px;padding:2px 7px;font-size:.58rem;letter-spacing:1px;color:var(--blue);background:rgba(0,212,255,.08);font-weight:800;}
   .active-banner-info{margin:12px 0 0;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 11px;text-align:left;font-size:.76rem;color:var(--muted);line-height:1.35;}
   .active-banner-info b{color:var(--gold);}
+  .banner-rate-guide{margin:10px 0 0;background:linear-gradient(135deg,rgba(245,200,66,.08),rgba(0,212,255,.04));border:1px solid rgba(245,200,66,.22);border-radius:10px;padding:10px 12px;text-align:left;font-size:.74rem;color:var(--muted);line-height:1.4;}
+  .banner-rate-guide b{color:var(--gold);}
+  .banner-rate-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px;}
+  .banner-rate-cell{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:7px;}
+  .banner-rate-cell strong{display:block;color:var(--text);font-size:.72rem;margin-bottom:2px;}
+  .banner-rate-cell span{font-size:.68rem;color:var(--muted);}
+  .banner-rate-note{margin-top:8px;color:var(--muted);font-size:.69rem;}
+  @media(max-width:700px){.banner-rate-grid{grid-template-columns:1fr;}}
   .rateup-badge{position:absolute;left:8px;bottom:8px;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;border-radius:999px;padding:2px 7px;font-size:.58rem;font-weight:900;letter-spacing:1px;box-shadow:0 0 10px rgba(0,212,255,.35);}
   /* RESULT */
   .gacha-result{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:14px;overflow:hidden;}
@@ -496,6 +504,14 @@
   .shop-buy-btn:hover{box-shadow:0 0 10px rgba(245,200,66,.25);}
   .shop-buy-btn:disabled{opacity:.35;cursor:not-allowed;}
   .shop-buy-btn.crystal-btn{background:linear-gradient(135deg,#1a0a3a,#2a1060);border-color:var(--purple);}
+  .account-goals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;}
+  .account-goal{background:linear-gradient(135deg,rgba(0,212,255,.055),rgba(180,79,255,.035));border:1px solid rgba(0,212,255,.16);border-radius:11px;padding:10px;}
+  .account-goal.done{border-color:rgba(57,255,20,.25);background:linear-gradient(135deg,rgba(57,255,20,.07),rgba(255,255,255,.015));}
+  .account-goal-title{font-weight:800;font-size:.78rem;color:var(--text);margin-bottom:4px;}
+  .account-goal-desc{font-size:.7rem;color:var(--muted);line-height:1.35;margin-bottom:7px;}
+  .account-goal-bar{height:5px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;}
+  .account-goal-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--gold));}
+  @media(max-width:860px){.account-goals{grid-template-columns:1fr;}}
   /* ── PULL HISTORY ── */
   .pull-hist-wrap{max-height:400px;overflow-y:auto;}
   .pull-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.78rem;}
@@ -607,6 +623,7 @@
         <button class="gacha-btn" onclick="doGacha(10)">INVOQUER ×10<span class="cost">💎 450 cristaux (−10%)</span></button>
       </div>
       <div class="active-banner-info" id="active-banner-info"></div>
+	  <div class="banner-rate-guide" id="banner-rate-breakdown"></div>
       <div class="pity-bar">
         <div class="pity-label">Pitié ★★★★★ — <span id="pity-count">0</span>/90 invocations <span class="hint-dot" onclick="toggleHint('hint-pity')">?</span></div>
         <div class="hint-text" id="hint-pity">À 90 invocations sans 5★ ou plus, le prochain tirage garantit un 5★ minimum (pas forcément 6★).</div>
@@ -615,6 +632,8 @@
     </div>
     <div class="rates-box">
       <h3>⭐ Taux d'invocation <span class="hint-dot" onclick="toggleHint('hint-rates')">?</span></h3>
+	  <div class="hint-text" id="hint-rates">Étape 1 : le jeu tire d'abord une rareté (ex: 6★ = 0.3%, 5★ = 3%). Étape 2 : sur une bannière limitée, si cette rareté a une vedette, 50% des tirages de cette rareté deviennent une vedette. Exemple : une vedette 5★ seule vaut environ 1.5% par invocation hors pitié.</div>
+      <div class="rate-row"><div>🎯 Rate-up</div><span style="color:var(--gold)">Après la rareté</span><span style="color:var(--gold)">50% vers vedette</span></div>
       <div class="hint-text" id="hint-rates">Les taux sont par invocation. Le 6★ est ultra-rare (0.3%). Le mode ×10 ne change pas les taux, il réduit juste le coût. Sur une bannière limitée, si la rareté obtenue contient des héros en rate-up, 50% des tirages de cette rareté visent un héros vedette.</div>
       <div class="rate-row"><div>🎯 Rate-up</div><span style="color:var(--gold)">Vedettes limitées</span><span style="color:var(--gold)">50% de la rareté</span></div>
       <div class="rate-row"><div>⭐⭐⭐⭐⭐⭐</div><span style="color:var(--blue)">Ultra-Légendaire</span><span style="color:var(--blue)">0.3%</span></div>
@@ -1156,6 +1175,7 @@ function getOnboardingStep(){
   if(teamCount<3)return {kicker:'Étape suivante',title:'Complète ton équipe active',desc:'Une équipe pleine encaisse mieux les dégâts et charge plus vite le Burst. Ajoute 3 personnages avant de pousser les arcs.',primary:'Construire équipe',tab:'team'};
   if(wins<2)return {kicker:'Premier objectif',title:'Gagne 2 combats pour débloquer les premières quêtes',desc:'Utilise les attaques spéciales dès qu’elles sont prêtes. Le Burst est à garder pour un boss ou un ennemi bas en vie.',primary:'Aller au combat',tab:'battle'};
   if(claimable>0)return {kicker:'Récompenses disponibles',title:`${claimable} quête${claimable>1?'s':''} à réclamer`,desc:'Les quêtes sont pensées comme ton carburant quotidien : cristaux, or et XP sans forcer du grind inutile.',primary:'Réclamer',tab:'quests'};
+  if(wins>=20&&(state.crystals||0)>=1500)return {kicker:'Compte avancé',title:'Tes cristaux doivent créer un objectif',desc:'Si ton roster te suffit, utilise les caches endgame de la Boutique pour Forge/Éveil. Si tu vises un perso précis, garde-les pour une bannière rate-up.',primary:'Boutique',tab:'shop',secondary:'Voir rate-up',secondaryTab:'gacha'};
   if((state.gold||0)>=firstCost&&firstUnit)return {kicker:'Power spike',title:'Améliore ton carry en Forge',desc:'Priorité simple : ATK sur ton meilleur DPS, puis HP/DEF si tu meurs. Les coûts early ont été adoucis pour rendre la Forge utile plus tôt.',primary:'Ouvrir Forge',tab:'forge'};
   return {kicker:'Plan de progression',title:'Pousse l’arc actuel, puis équipe/craft dès que tu bloques',desc:'Boucle recommandée : Combat → Quêtes → Forge/Équipement → Gacha. Si tu perds deux fois, stop combat et renforce ton équipe.',primary:'Combat',tab:'battle',secondary:'Quêtes',secondaryTab:'quests'};
 }
@@ -1415,6 +1435,29 @@ function getBannerPool(rarity,banner=getActiveGachaBanner()){
   const featured=new Set(banner.featuredIds||[]);
   return ALL_CHARS.filter(c=>c.rarity===rarity&&(!c.limited||featured.has(c.id)));
 }
+function getBaseRarityRate(rarity){
+  return ({6:.003,5:.03,4:.15,3:.35,2:.467})[rarity]||0;
+}
+function formatPct(value){
+  return `${(value*100).toFixed(value*100<1?3:1).replace(/\.?0+$/,'')}%`;
+}
+function getBannerRateGuideHTML(banner=getActiveGachaBanner()){
+  if(banner.id==='standard'){
+    return `<b>Comment lire les taux :</b> le jeu tire une rareté, puis choisit un héros au hasard dans le pool permanent de cette rareté. Le ×10 ne booste pas les chances, il économise 50💎.
+      <div class="banner-rate-note">💡 Les héros limités ne sont pas dans cette bannière : garde tes cristaux si tu vises un personnage vedette.</div>`;
+  }
+  const featuredByRarity=[...new Set(getBannerFeaturedChars(banner).map(c=>c.rarity))].sort((a,b)=>b-a);
+  const cells=featuredByRarity.map(rarity=>{
+    const featured=getBannerFeaturedChars(banner).filter(c=>c.rarity===rarity);
+    const base=getBaseRarityRate(rarity);
+    const anyFeatured=base*(banner.featuredChance||0);
+    const each=featured.length?anyFeatured/featured.length:0;
+    return `<div class="banner-rate-cell"><strong>${rarity}★ vedette</strong><span>${formatPct(base)} d'avoir un ${rarity}★ → ${formatPct(banner.featuredChance||0)} rate-up = <b>${formatPct(anyFeatured)}</b> vedette (${formatPct(each)} chacun)</span></div>`;
+  }).join('');
+  return `<b>Rate-up en 2 étapes :</b> 1) on tire d'abord la rareté ; 2) si cette rareté contient une vedette, la moitié des tirages de cette rareté cible une vedette.
+    <div class="banner-rate-grid">${cells}</div>
+    <div class="banner-rate-note">🎯 Exemple : si tu obtiens un 5★ sur cette bannière, il a 50% de chances d'être le 5★ vedette. La pitié garantit seulement un 5★ minimum, pas le 6★.</div>`;
+}
 function pickBannerCharacter(rarity,banner=getActiveGachaBanner()){
   const pool=getBannerPool(rarity,banner);
   const featured=pool.filter(c=>(banner.featuredIds||[]).includes(c.id));
@@ -1440,6 +1483,7 @@ function renderGachaBannerUI(){
   const subtitle=document.getElementById('gacha-banner-subtitle');
   const orb=document.getElementById('gacha-orb-icon');
   const info=document.getElementById('active-banner-info');
+  const guide=document.getElementById('banner-rate-breakdown');
   if(title)title.textContent=active.title;
   if(subtitle)subtitle.textContent=active.subtitle;
   if(orb)orb.textContent=active.emoji;
@@ -1447,8 +1491,9 @@ function renderGachaBannerUI(){
     const featured=getBannerFeaturedChars(active);
     info.innerHTML=active.id==='standard'
       ? `<b>Pool permanent :</b> ${ALL_CHARS.filter(c=>!c.limited).length} héros disponibles. Les héros limités restent exclus de cette bannière.`
-      : `<b>Rate-up simple :</b> ${featured.map(c=>`${c.emoji} ${c.name} (${c.rarity}★)`).join(' · ')}. Bannière de lancement affichée seule pour les 2 premières semaines : 50% des tirages de la bonne rareté ciblent une vedette.`;
+      : `<b>Vedettes :</b> ${featured.map(c=>`${c.emoji} ${c.name} (${c.rarity}★)`).join(' · ')}. Le rate-up n'augmente pas le taux de 5★/6★ : il augmente la chance que la rareté obtenue soit une vedette.`;
   }
+  if(guide)guide.innerHTML=getBannerRateGuideHTML(active);
 }
 
 function doGacha(n){
@@ -2846,7 +2891,7 @@ function grantTournamentWeeklyReward(){
   weekly.claimed=true;
   const item=ITEM_DEFS.find(i=>i.id===itemId);
   return ` · 🎁 Coffre hebdo 5/5: +650💎 +6000🪙 +6🔮 +6💫 + ${item?.emoji||'🎒'} ${item?.name||itemId}`;
-}
+}          
 function grantTournamentDailyReward(bs){
   const theme=getTournamentThemeById(bs.themeId);
   state.gold+=2500;state.crystals+=180;
@@ -3156,8 +3201,28 @@ const SHOP_ITEMS=[
   {id:'chill_summon_bundle',name:'Offre Invoc Chill', emoji:'🌙', desc:'Pack détente: +300 cristaux et +2 invocations immédiates.', price:3600, currency:'gold', reward:()=>{state.crystals+=300;const r=[];for(let i=0;i<2;i++)r.push(rollChar());showResults(r);}, label:'+300 💎 +2 pulls'},
   {id:'awakening_bundle',name:'Offre Éveil Express', emoji:'💫', desc:'Accélère l\'endgame: +10 Larmes, +5 Cristaux rares et +12 Éclats magiques.', price:6200, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+10;state.materials.rare_crystal=(state.materials.rare_crystal||0)+5;state.materials.magic_shard=(state.materials.magic_shard||0)+12;}, label:'Pack Éveil'},
   {id:'mythic_gear_bundle',name:'Offre Stuff Mythique', emoji:'🐉', desc:'Donne 1 Faux des Origines, 1 Plastron Astral et 1 Couronne du Vide.', price:12000, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.origin_scythe=(state.items.origin_scythe||0)+1;state.items.astral_plate=(state.items.astral_plate||0)+1;state.items.crown_of_void=(state.items.crown_of_void||0)+1;}, label:'Set mythique'},
+  {id:'endgame_mats_crystals',name:'Cache Endgame', emoji:'💠', desc:'Dépense utile si tu stockes trop de cristaux: +18 Larmes, +10 Cristaux rares et +20 Éclats.', price:900, currency:'crystals', reward:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+18;state.materials.rare_crystal=(state.materials.rare_crystal||0)+10;state.materials.magic_shard=(state.materials.magic_shard||0)+20;}, label:'Mats endgame'},
+  {id:'team_drill_crystals',name:'Drill d\'Équipe', emoji:'🏋️', desc:'Pour comptes avancés: améliore aléatoirement 3 stats sur l\'équipe active, sans or.', price:1200, currency:'crystals', reward:()=>applyTeamCrystalDrill(), label:'+3 upgrades équipe'},
+  {id:'mythic_focus_crystals',name:'Focus Mythique', emoji:'🧿', desc:'Objectif long terme: +30 Larmes, +18 Cristaux rares et +1 item mythique aléatoire.', price:2200, currency:'crystals', reward:()=>{if(!state.materials)state.materials={};if(!state.items)state.items={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+30;state.materials.rare_crystal=(state.materials.rare_crystal||0)+18;const pool=['origin_scythe','astral_plate','crown_of_void'];const it=pool[Math.floor(Math.random()*pool.length)];state.items[it]=(state.items[it]||0)+1;}, label:'Focus mythique'},
   {id:'update_daily_free',name:'Bonus Maj (Gratuit)', emoji:'🎁', desc:'1 fois par jour: +120 💎, +1200 🪙 et +2 Larmes d\'Éveil.', price:0, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.crystals+=120;state.gold+=1200;state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;}, label:'CLAIMER'},
 ];
+
+function applyTeamCrystalDrill(){
+  const ids=(state.team||[]).filter(Boolean);
+  if(!ids.length){showToast('🏋️ Ajoute au moins 1 perso dans ton équipe avant le Drill !');return;}
+  let applied=0;
+  for(let i=0;i<3;i++){
+    const id=ids[i%ids.length];
+    if(!state.upgrades)state.upgrades={};
+    if(!state.upgrades[id])state.upgrades[id]={atk:0,hp:0,def:0};
+    const stats=['atk','hp','def'].filter(s=>(state.upgrades[id][s]||0)<MAX_UPGRADE);
+    if(!stats.length)continue;
+    const stat=stats[Math.floor(Math.random()*stats.length)];
+    state.upgrades[id][stat]++;
+    applied++;
+  }
+  showToast(`🏋️ Drill terminé : ${applied} amélioration${applied>1?'s':''} appliquée${applied>1?'s':''} à l'équipe !`);
+}
 
 function applyForgeKit(){
   // Daily limit of 3
@@ -3183,37 +3248,48 @@ function renderShop(){
   const today=getTodayKey();
   if(!state.updateGiftDaily)state.updateGiftDaily={date:'',claimed:false};
   const freeClaimedToday=state.updateGiftDaily.date===today&&state.updateGiftDaily.claimed;
-  cont.innerHTML=`
-    <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span></div>
-    <div class="shop-grid">${SHOP_ITEMS.map(item=>{
+  const renderItems=(currency)=>SHOP_ITEMS.filter(item=>(item.currency||'gold')===currency).map(item=>{
       const isForgeKit=item.id==='forge_kit';
       const kitUsed=isForgeKit&&state.forgeKitDaily&&state.forgeKitDaily.date===today?state.forgeKitDaily.count:0;
       const kitMaxed=isForgeKit&&kitUsed>=3;
       const isFreeDaily=item.id==='update_daily_free';
-      const disabled=(!isFreeDaily&&(state.gold||0)<item.price)||kitMaxed||(isFreeDaily&&freeClaimedToday);
+      const balance=currency==='crystals'?(state.crystals||0):(state.gold||0);
+      const disabled=(!isFreeDaily&&balance<item.price)||kitMaxed||(isFreeDaily&&freeClaimedToday);
       const extraLabel=isForgeKit?` (${3-kitUsed} restants)` : isFreeDaily?(freeClaimedToday?' (déjà pris)':' (1/jour)') : '';
-      return `<div class="shop-item gold-item">
+      const symbol=currency==='crystals'?'💎':'🪙';
+      return `<div class="shop-item ${currency==='crystals'?'crystal-item':'gold-item'}">
         <span class="shop-emoji">${item.emoji}</span>
         <div class="shop-name">${item.name}</div>
         <div class="shop-desc">${item.desc}</div>
-        <button class="shop-buy-btn" onclick="buyShopItem('${item.id}')" ${disabled?'disabled':''}>
-          ${item.label}${extraLabel} — ${item.price>0?`${item.price.toLocaleString()} 🪙`:'GRATUIT'}
+        <button class="shop-buy-btn ${currency==='crystals'?'crystal-btn':''}" onclick="buyShopItem('${item.id}')" ${disabled?'disabled':''}>
+          ${item.label}${extraLabel} — ${item.price>0?`${item.price.toLocaleString()} ${symbol}`:'GRATUIT'}
         </button>
       </div>`;
-    }).join('')}
-    </div>`;
+    }).join('');
+  cont.innerHTML=`
+    <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span> · Cristaux disponibles: <span style="color:var(--purple);font-weight:700">${(state.crystals||0).toLocaleString()} 💎</span></div>
+    <div style="font-size:.78rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin:8px 0 6px">🪙 Boutique or</div>
+    <div class="shop-grid">${renderItems('gold')}</div>
+    <div style="font-size:.78rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin:18px 0 6px">💎 Dépenses cristaux hors gacha</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-bottom:8px">Pour les comptes qui ont déjà beaucoup invoqué : transforme tes cristaux stockés en Forge, Éveil et équipement endgame.</div>
+    <div class="shop-grid">${renderItems('crystals')}</div>`;
 }
 
 function buyShopItem(id){
   const item=SHOP_ITEMS.find(x=>x.id===id);
   if(!item)return;
   const today=getTodayKey();
+  const currency=item.currency||'gold';
   if(id==='update_daily_free'){
     if(!state.updateGiftDaily)state.updateGiftDaily={date:'',claimed:false};
     if(state.updateGiftDaily.date===today&&state.updateGiftDaily.claimed)return;
     state.updateGiftDaily={date:today,claimed:true};
+  }else if(currency==='crystals'){
+    if(item.id==='team_drill_crystals'&&!(state.team||[]).filter(Boolean).length){playSfx('error');showToast('🏋️ Ajoute un perso dans ton équipe avant le Drill !');return;}
+    if((state.crystals||0)<item.price){playSfx('error');return;}
+    state.crystals-=item.price;
   }else{
-    if(state.gold<item.price){playSfx('error');return;}
+    if((state.gold||0)<item.price){playSfx('error');return;}
     state.gold-=item.price;
   }
   const isSummonPurchase=item.id.includes('pull')||item.id.includes('summon');
@@ -3381,6 +3457,35 @@ function renderQuests(){
     renderQuestList('🗓️ Quêtes hebdomadaires', 'weekly', state.quests.weeklyActive||[])+
     renderQuestList('📆 Quêtes mensuelles', 'monthly', state.quests.monthlyActive||[]);
 }
+
+function getAccountGoals(){
+  const arcsDone=ARCS.filter(a=>(state.arcProgress&&state.arcProgress[a.id]||0)>=a.waves).length;
+  const currentArc=ARCS.find(a=>a.id===state.currentArc)||ARCS[0];
+  const currentWave=Math.min((state.arcProgress&&state.arcProgress[currentArc.id]||0),currentArc.waves);
+  const ownedUnique=ALL_CHARS.filter(c=>isOwnedAny(c.id)).length;
+  const forgeTotal=getTotalForgeLevel();
+  const equippedSlots=Object.values(state.equipment||{}).reduce((sum,eq)=>sum+['weapon','armor','accessory'].filter(slot=>eq&&eq[slot]).length,0);
+  const goals=[
+    {title:`Terminer l'arc ${currentArc.id}`,desc:`Objectif campagne: ${currentArc.name} (${currentWave}/${currentArc.waves} vagues).`,value:currentWave,max:currentArc.waves,cta:'Combat',tab:'battle'},
+    {title:'Roster 70%',desc:`Collection: ${ownedUnique}/${ALL_CHARS.length}. Les bannières servent surtout à combler les trous ou viser les vedettes.`,value:ownedUnique,max:Math.ceil(ALL_CHARS.length*.7),cta:'Gacha',tab:'gacha'},
+    {title:'Forge compte 120',desc:`Forge totale: ${forgeTotal}. Si tu bloques, investis or/cristaux dans ton équipe active.`,value:forgeTotal,max:120,cta:'Forge',tab:'forge'},
+    {title:'Stuff complet équipe',desc:`Slots équipés: ${equippedSlots}/9. Craft + boutique cristaux donnent une vraie progression hors invocation.`,value:equippedSlots,max:9,cta:'Équipement',tab:'equipment'},
+    {title:'Record Infini 25',desc:`Meilleur palier Infini: ${state.infiniteBest||0}. Sert de challenge post-campagne.`,value:state.infiniteBest||0,max:25,cta:'Infini',tab:'infinite'},
+    {title:'Réserve utile',desc:`Cristaux stockés: ${(state.crystals||0).toLocaleString()}. Dépense-les en rate-up ou en caches endgame si ton roster suffit.`,value:Math.min(state.crystals||0,2200),max:2200,cta:'Boutique',tab:'shop'},
+  ];
+  return goals.map(g=>({...g,pct:Math.min(100,Math.round((g.value/g.max)*100)),done:g.value>=g.max}));
+}
+function renderAccountGoals(){
+  return `<div class="profile-section"><div class="profile-section-title">🧭 Objectifs de compte</div>
+    <div style="font-size:.74rem;color:var(--muted);margin-bottom:8px">Pensé pour les comptes déjà avancés : garde une cible claire même après les quêtes quotidiennes.</div>
+    <div class="account-goals">${getAccountGoals().map(g=>`<div class="account-goal ${g.done?'done':''}">
+      <div class="account-goal-title">${g.done?'✅':'🎯'} ${g.title}</div>
+      <div class="account-goal-desc">${g.desc}</div>
+      <div class="account-goal-bar"><div class="account-goal-fill" style="width:${g.pct}%"></div></div>
+      <button class="onboarding-btn secondary" style="margin-top:8px;padding:5px 9px" onclick="switchTab('${g.tab}')">${g.cta}</button>
+    </div>`).join('')}</div></div>`;
+}
+
 function renderProfile(){
   const cont=document.getElementById('profile-content');
   if(!cont)return;
@@ -3418,6 +3523,7 @@ function renderProfile(){
       <div class="profile-card"><div class="profile-label">🏆 Succès</div><div class="profile-val">${doneAch}/${ACHIEVEMENTS.length}</div><div class="profile-label">débloqués</div></div>
       <div class="profile-card"><div class="profile-label">🗺 Progression</div><div class="profile-val">${arcsDone}/${ARCS.length}</div><div class="profile-label">arcs terminés · vague ${currentWave}/${currentArc.waves}</div></div>
     </div>
+	${renderAccountGoals()}
     <div class="profile-section">
       <div class="profile-section-title">⚔ Équipe actuelle</div>
       <div class="profile-team">${[0,1,2].map(i=>renderUnit(getCharById((state.team||[])[i]))).join('')}</div>
