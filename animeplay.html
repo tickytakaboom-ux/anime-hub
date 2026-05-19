@@ -524,22 +524,6 @@
   .hist-stat{font-size:.8rem;color:var(--muted);}
   .hist-stat span{color:var(--gold);font-weight:700;}
 
-  .temp-event-fab{position:fixed;top:14px;right:14px;z-index:9998;background:linear-gradient(135deg,#2a0c3f,#4b1f73);border:1px solid rgba(180,79,255,.6);color:#f2e8ff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 18px rgba(180,79,255,.35);backdrop-filter:blur(4px);transition:transform .2s ease,box-shadow .2s ease;animation:event-fab-pulse 2.2s ease-in-out infinite;padding:0;line-height:1.1;text-align:center;}
-  .temp-event-fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,.4),0 0 28px rgba(180,79,255,.55);}
-  .temp-event-fab.hidden{display:none;}
-  .temp-event-modal{position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(180,79,255,.2),transparent 45%),rgba(0,0,0,.76);display:none;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity .25s ease;}
-  .temp-event-modal.show{display:flex;opacity:1;}
-  .temp-event-box{width:min(92vw,720px);background:linear-gradient(180deg,#0e1220,#131a2b);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 26px rgba(0,212,255,.16);position:relative;overflow:hidden;animation:event-modal-in .25s ease;}
-  .temp-event-box::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%);transform:translateX(-100%);animation:event-shimmer 4s linear infinite;pointer-events:none;}
-  .temp-event-track{height:18px;background:rgba(255,255,255,.08);border-radius:12px;overflow:hidden;margin:10px 0;border:1px solid rgba(255,255,255,.08);}
-  .temp-event-fill{height:100%;background:linear-gradient(90deg,#00d4ff,#7e6dff,#b44fff);background-size:180% 180%;animation:event-fill-flow 2.8s ease-in-out infinite;}
-  .temp-step{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px 10px;margin:7px 0;background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.01));transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;}
-  .temp-step:hover{transform:translateY(-1px);border-color:rgba(0,212,255,.4);box-shadow:0 6px 14px rgba(0,0,0,.25);}
-  @keyframes event-fab-pulse{0%,100%{box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 16px rgba(180,79,255,.3);}50%{box-shadow:0 10px 24px rgba(0,0,0,.45),0 0 26px rgba(180,79,255,.6);}}
-  @keyframes event-fill-flow{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
-  @keyframes event-modal-in{from{transform:translateY(8px) scale(.98);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
-  @keyframes event-shimmer{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
-
   .coll-card,.bench-card,.shop-item,.quest-card,.ach-card,.forge-card,.fusion-card,.equip-char-card,.item-card,.craft-card,.profile-card,.profile-section,.profile-unit{will-change:transform,opacity;}
   .coll-card::after,.shop-item::after,.profile-card::after,.ach-card::after,.forge-card::after,.fusion-card::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,transparent,rgba(255,255,255,.06),transparent);opacity:0;transition:opacity .2s;pointer-events:none;}
   .coll-card:hover::after,.shop-item:hover::after,.profile-card:hover::after,.ach-card:hover::after,.forge-card:hover::after,.fusion-card:hover::after{opacity:1;}
@@ -566,7 +550,7 @@
   @keyframes toast-pop{0%{transform:translateX(-50%) translateY(80px) scale(.9);opacity:0;}70%{transform:translateX(-50%) translateY(-4px) scale(1.04);opacity:1;}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1;}}
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto!important;}
-    .star,header h1,.screen.active:not(#battle):not(#infinite):not(#tournament),.ui-pop-item,.res-item.res-pulse,.temp-event-fab,.temp-event-fill,.toast.show{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;}
+    .star,header h1,.screen.active:not(#battle):not(#infinite):not(#tournament),.ui-pop-item,.res-item.res-pulse,.toast.show{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;}
   }
 
 </style>
@@ -775,15 +759,6 @@
 </div>
 
 
-<button id="temp-event-fab" class="temp-event-fab hidden" onclick="openTempEventModal()" title="Événement 7 jours">🎯</button>
-<div id="temp-event-modal" class="temp-event-modal" onclick="closeTempEventModal(event)">
-  <div class="temp-event-box">
-    <div class="section-title">🎯 Quête Temporaire — Ascension par Fragments (7 jours)</div>
-    <div id="temp-event-content"></div>
-    <div style="text-align:right;margin-top:10px"><button class="battle-btn btn-special" onclick="closeTempEventModal()">Fermer</button></div>
-  </div>
-</div>
-
 <div class="gacha-result" id="gacha-result">
   <div style="font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--gold);margin-bottom:6px;position:relative;z-index:2;">✦ INVOCATION ✦</div>
   <div class="gacha-callout" id="gacha-callout"></div>
@@ -901,7 +876,7 @@ const ALL_CHARS=[
   {id:'muzan',name:'Muzan Kibutsuji',anime:'Demon Slayer',emoji:'🌹',rarity:6,atk:880,hp:3600,def:410,sp:'Sang Démoniaque',sDmg:2000,type:'Attaquant'},
   {id:'sukuna_full',name:'Sukuna 20 Doigts',anime:'Jujutsu Kaisen',emoji:'🔱',rarity:6,atk:1050,hp:3700,def:430,sp:'Malevolent Shrine MAX',sDmg:2500,type:'Attaquant'},
   {id:'all_might',name:'All Might Prime',anime:'My Hero Academia',emoji:'💪',rarity:6,atk:980,hp:3900,def:440,sp:'United States of SMASH',sDmg:2300,type:'Tank'},
-  // ✨ EVENT 7J — nouveaux persos (1 par rareté)
+  // ✨ Anciens héros événementiels maintenant permanents (1 par rareté)
   {id:'takemichi',name:'Takemichi Hanagaki',anime:'Tokyo Revengers',emoji:'🥊',rarity:2,atk:185,hp:700,def:95,sp:'Never Give Up',sDmg:280,type:'Tank'},
   {id:'denji',name:'Denji',anime:'Chainsaw Man',emoji:'🪚',rarity:3,atk:330,hp:980,def:116,sp:'Chainsaw Rush',sDmg:505,type:'Attaquant'},
   {id:'rengoku',name:'Kyojuro Rengoku',anime:'Demon Slayer',emoji:'🔥',rarity:4,atk:480,hp:1480,def:178,sp:'Flamme du Purgatoire',sDmg:820,type:'Attaquant'},
@@ -1077,7 +1052,7 @@ const ARCS = [
   ]},
 ];
 
-let state={crystals:650,gold:1800,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,soundOn:true,tempEvent:{startDate:'',fragments:0,claimed:{}},updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
+let state={crystals:650,gold:1800,totalWins:0,owned:{},team:[null,null,null],currentArc:1,arcProgress:{1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0},pity:0,battleState:null,autoMode:false,autoInterval:null,selectedSlot:null,soundOn:true,updateGiftDaily:{date:'',claimed:false},weeklyEvent:{weekKey:'',claimed:false},playerStats:{totalDamage:0,totalHits:0,critHits:0,specialCasts:0,battlesWon:0,battlesLost:0,maxHit:0,healingDone:0}};
 let currentCollFilter='all';
 
 function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -1234,26 +1209,7 @@ function showTab(name,btn){
   if(name==='battle')renderBattleScreen();
   animateActiveScreen(name);
   renderOnboardingPanel();
-  updateTempEventFabVisibility(name);
 }
-
-
-
-const TEMP_EVENT_STEPS=[
-  {need:220,reward:'takemichi',label:'Palier 1 — Takemichi (★★)'},
-  {need:620,reward:'denji',label:'Palier 2 — Denji (★★★)'},
-  {need:1120,reward:'rengoku',label:'Palier 3 — Rengoku (★★★★)'},
-  {need:1820,reward:'obito',label:'Palier 4 — Obito (★★★★★)'},
-  {need:2700,reward:'madoka_goddess',label:'Palier 5 — Madoka Déesse (★★★★★★)'},
-];
-function initTempEvent(){const t=getTodayKey();if(!state.tempEvent)state.tempEvent={startDate:t,fragments:0,claimed:{}};if(!state.tempEvent.startDate)state.tempEvent.startDate=t;}
-function isTempEventActive(){initTempEvent();const s=new Date(state.tempEvent.startDate+'T00:00:00Z');const diff=Math.floor((Date.now()-s.getTime())/86400000);return diff>=0&&diff<7;}
-function addTempEventFragments(n){initTempEvent();if(isTempEventActive())state.tempEvent.fragments=(state.tempEvent.fragments||0)+n;}
-function updateTempEventFabVisibility(tabName){const fab=document.getElementById('temp-event-fab');if(!fab)return;const allowed=['gacha','collection','team','forge','shop','quests'];const show=allowed.includes(tabName||'gacha');fab.classList.toggle('hidden',!show);const active=isTempEventActive();fab.textContent=active?'🎯':'✅';fab.title=active?'Événement 7 jours':'Événement terminé';}
-function openTempEventModal(){if(!isTempEventActive()){showToast('✅ Événement 7j terminé.');return;}renderTempEventModal();document.getElementById('temp-event-modal').classList.add('show');}
-function closeTempEventModal(e){if(e&&e.target&&e.target.id!=='temp-event-modal')return;document.getElementById('temp-event-modal').classList.remove('show');}
-function claimTempEventStep(idx){const st=TEMP_EVENT_STEPS[idx];if(!st)return;initTempEvent();if((state.tempEvent.claimed||{})[st.reward])return;if((state.tempEvent.fragments||0)<st.need)return;state.owned[st.reward]=(state.owned[st.reward]||0)+1;state.tempEvent.claimed[st.reward]=true;save();updateRes();renderTempEventModal();renderCollection(currentCollFilter||'all');renderTeam();showToast('🎁 Récompense event obtenue !');}
-function renderTempEventModal(){initTempEvent();const c=document.getElementById('temp-event-content');if(!c)return;const frag=state.tempEvent.fragments||0;const max=TEMP_EVENT_STEPS[TEMP_EVENT_STEPS.length-1].need;const pct=Math.min(100,Math.round(frag/max*100));const start=new Date(state.tempEvent.startDate+'T00:00:00Z');const end=new Date(start);end.setUTCDate(end.getUTCDate()+7);const left=Math.max(0,Math.ceil((end-new Date())/86400000));c.innerHTML=`<div style="font-size:.8rem;color:var(--muted)">Temps restant: <b style="color:var(--gold)">${left} jour(s)</b> · Fragments: <b style="color:var(--blue)">${frag}</b></div><div class="temp-event-track"><div class="temp-event-fill" style="width:${pct}%"></div></div>${TEMP_EVENT_STEPS.map((s,i)=>{const done=!!(state.tempEvent.claimed||{})[s.reward];const ok=frag>=s.need;return `<div class="temp-step"><div><div style="font-weight:700;font-size:.8rem">${s.label}</div><div style="font-size:.68rem;color:var(--muted)">Objectif: ${s.need} fragments</div></div><button class="battle-btn btn-attack" onclick="claimTempEventStep(${i})" ${(!ok||done)?'disabled':''}>${done?'✅ Pris':'Réclamer'}</button></div>`;}).join('')}`;}
 
 // ═══════════════════════════════════════════
 //  POWER FORMULA — ATK + HP + DEF + upgrades
@@ -2072,9 +2028,6 @@ function checkBattleEnd(){
     giveXp(30+state.currentArc*10);
     trackQuest('dailyWins');
     state.playerStats.battlesWon=(state.playerStats.battlesWon||0)+1;
-    const evFrag=bs.enemy.isBoss?randInt(22,42):randInt(9,17);
-    addTempEventFragments(evFrag);
-    if(isTempEventActive())addLog(`🎯 Event 7J: +${evFrag} fragments`,'log-special');
     bs.rewardMaterials=dropMaterials(state.currentArc,bs.enemy.isBoss);
 	playSfx('win');
     save();updateRes();checkAchievements();
@@ -3203,7 +3156,7 @@ const SHOP_ITEMS=[
   {id:'mythic_gear_bundle',name:'Offre Stuff Mythique', emoji:'🐉', desc:'Donne 1 Faux des Origines, 1 Plastron Astral et 1 Couronne du Vide.', price:12000, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.origin_scythe=(state.items.origin_scythe||0)+1;state.items.astral_plate=(state.items.astral_plate||0)+1;state.items.crown_of_void=(state.items.crown_of_void||0)+1;}, label:'Set mythique'},
   {id:'endgame_mats_crystals',name:'Cache Endgame', emoji:'💠', desc:'Dépense utile si tu stockes trop de cristaux: +18 Larmes, +10 Cristaux rares et +20 Éclats.', price:900, currency:'crystals', reward:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+18;state.materials.rare_crystal=(state.materials.rare_crystal||0)+10;state.materials.magic_shard=(state.materials.magic_shard||0)+20;}, label:'Mats endgame'},
   {id:'team_drill_crystals',name:'Drill d\'Équipe', emoji:'🏋️', desc:'Pour comptes avancés: améliore aléatoirement 3 stats sur l\'équipe active, sans or.', price:1200, currency:'crystals', reward:()=>applyTeamCrystalDrill(), label:'+3 upgrades équipe'},
-  {id:'mythic_focus_crystals',name:'Focus Mythique', emoji:'🧿', desc:'Objectif long terme: +30 Larmes, +18 Cristaux rares et +1 item mythique aléatoire.', price:2200, currency:'crystals', reward:()=>{if(!state.materials)state.materials={};if(!state.items)state.items={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+30;state.materials.rare_crystal=(state.materials.rare_crystal||0)+18;const pool=['origin_scythe','astral_plate','crown_of_void'];const it=pool[Math.floor(Math.random()*pool.length)];state.items[it]=(state.items[it]||0)+1;}, label:'Focus mythique'},
+  {id:'mythic_focus_crystals',name:'Focus Mythique', emoji:'🧿', desc:'Objectif long terme: +30 Larmes, +18 Cristaux rares et +1 item mythique aléatoire.', price:2200, currency:'crystals', reward:()=>{if(!state.materials)state.materials={};if(!state.items)state.items={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+30;state.materials.rare_crystal=(state.materials.rare_crystal||0)+18;const pool=['origin_scythe','astral_plate','crown_of_void'];const it=pool[Math.floor(Math.random()*pool.length)];state.items[it]=(state.items[it]||0)+1;const item=ITEM_DEFS.find(x=>x.id===it);return `${item?.emoji||'🎒'} ${item?.name||it}`;}, label:'Focus mythique'},
   {id:'update_daily_free',name:'Bonus Maj (Gratuit)', emoji:'🎁', desc:'1 fois par jour: +120 💎, +1200 🪙 et +2 Larmes d\'Éveil.', price:0, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.crystals+=120;state.gold+=1200;state.materials.awakening_tears=(state.materials.awakening_tears||0)+2;}, label:'CLAIMER'},
 ];
 
@@ -3266,13 +3219,70 @@ function renderShop(){
         </button>
       </div>`;
     }).join('');
+  const last=state.lastShopPurchase;
+  const lastPurchaseHTML=last?`<div style="background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.22);border-radius:10px;padding:9px 10px;margin-bottom:12px;color:var(--muted);font-size:.73rem;line-height:1.35"><b style="color:var(--green)">✅ Dernier achat : ${last.name}</b><br>${last.summary}</div>`:'';
   cont.innerHTML=`
     <div style="text-align:center;margin-bottom:16px;font-size:.82rem;color:var(--muted)">Or disponible: <span style="color:var(--gold);font-weight:700">${(state.gold||0).toLocaleString()} 🪙</span> · Cristaux disponibles: <span style="color:var(--purple);font-weight:700">${(state.crystals||0).toLocaleString()} 💎</span></div>
+	${lastPurchaseHTML}
     <div style="font-size:.78rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin:8px 0 6px">🪙 Boutique or</div>
     <div class="shop-grid">${renderItems('gold')}</div>
     <div style="font-size:.78rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin:18px 0 6px">💎 Dépenses cristaux hors gacha</div>
     <div style="font-size:.74rem;color:var(--muted);margin-bottom:8px">Pour les comptes qui ont déjà beaucoup invoqué : transforme tes cristaux stockés en Forge, Éveil et équipement endgame.</div>
+	<div style="background:rgba(180,79,255,.06);border:1px solid rgba(180,79,255,.18);border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:.72rem;color:var(--muted);line-height:1.35"><b style="color:var(--purple)">Objet mythique :</b> équipement de palier max (Faux des Origines, Plastron Astral ou Couronne du Vide), avec des bonus plus forts que les légendaires et pensé pour l'endgame.</div>
     <div class="shop-grid">${renderItems('crystals')}</div>`;
+}
+
+function cloneCounts(obj){return JSON.parse(JSON.stringify(obj||{}));}
+function getShopPurchaseSnapshot(){
+  return {
+    crystals:state.crystals||0,
+    gold:state.gold||0,
+    xp:state.xp||0,
+    level:state.playerLevel||1,
+    owned:cloneCounts(state.owned),
+    items:cloneCounts(state.items),
+    materials:cloneCounts(state.materials),
+    upgrades:cloneCounts(state.upgrades),
+  };
+}
+function diffCountMap(before,after,formatter){
+  const keys=new Set([...Object.keys(before||{}),...Object.keys(after||{})]);
+  const out=[];
+  keys.forEach(k=>{
+    const diff=((after||{})[k]||0)-((before||{})[k]||0);
+    if(diff>0)out.push(formatter(k,diff));
+  });
+  return out;
+}
+function describeUpgradeDelta(before={},after={}){
+  const out=[];
+  const ids=new Set([...Object.keys(before||{}),...Object.keys(after||{})]);
+  ids.forEach(id=>{
+    const b=before[id]||{};
+    const a=after[id]||{};
+    ['atk','hp','def'].forEach(stat=>{
+      const diff=(a[stat]||0)-(b[stat]||0);
+      if(diff>0){
+        const c=getCharById(id)||getCharById(getBaseId(id));
+        out.push(`${c?.emoji||'⚔'} ${c?.name||id} +${diff} ${stat.toUpperCase()}`);
+      }
+    });
+  });
+  return out;
+}
+function describeShopPurchaseDelta(before,rewardText=''){
+  const after=getShopPurchaseSnapshot();
+  const parts=[];
+  if(after.crystals>before.crystals)parts.push(`+${after.crystals-before.crystals}💎`);
+  if(after.gold>before.gold)parts.push(`+${after.gold-before.gold}🪙`);
+  if(after.level>before.level)parts.push(`Niveau +${after.level-before.level}`);
+  if(after.xp>before.xp)parts.push(`+${after.xp-before.xp} XP`);
+  parts.push(...diffCountMap(before.materials,after.materials,(id,n)=>`${MATERIAL_NAMES[id]||id} ×${n}`));
+  parts.push(...diffCountMap(before.items,after.items,(id,n)=>{const item=ITEM_DEFS.find(x=>x.id===id);return `${item?.emoji||'🎒'} ${item?.name||id} ×${n}`;}));
+  parts.push(...diffCountMap(before.owned,after.owned,(id,n)=>{const c=getCharById(id);return `${c?.emoji||'✨'} ${c?.name||id} ×${n}`;}));
+  parts.push(...describeUpgradeDelta(before.upgrades,after.upgrades));
+  if(rewardText&&!parts.some(p=>rewardText.includes(p)||p.includes(rewardText)))parts.push(rewardText);
+  return parts.length?parts.join(' · '):'effet appliqué';
 }
 
 function buyShopItem(id){
@@ -3294,9 +3304,12 @@ function buyShopItem(id){
   }
   const isSummonPurchase=item.id.includes('pull')||item.id.includes('summon');
   playSfx(isSummonPurchase?'summon':'craft');
-  item.reward();
+  const beforeReward=getShopPurchaseSnapshot();
+  const rewardText=item.reward();
+  const rewardSummary=describeShopPurchaseDelta(beforeReward,rewardText);
+  state.lastShopPurchase={name:item.name,summary:`Reçu : ${rewardSummary}`};
   save();updateRes();renderShop();
-  showToast(`✅ ${item.name} acheté !`);
+  showToast(`✅ Achat : ${item.name} · Reçu : ${rewardSummary}`);
   checkAchievements();
 }
 
@@ -4342,8 +4355,6 @@ if(!state.owned||Object.keys(state.owned).length===0){
 }
 updateRes();
 checkAchievements();
-updateTempEventFabVisibility('gacha');
-renderTempEventModal();
 setupLocalCheatFab();
 </script>
 </body>
