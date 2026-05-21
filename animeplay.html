@@ -3141,12 +3141,10 @@ function animFighter(id,cls){
 const SHOP_ITEMS=[
   {id:'crystals_small', name:'Sachet de Cristaux',  emoji:'💎', desc:'Obtenez 50 cristaux immédiatement.',         price:500,  currency:'gold', reward:()=>{state.crystals+=50;},  label:'+50 💎'},
   {id:'crystals_big',   name:'Coffre de Cristaux',  emoji:'💎', desc:'Obtenez 200 cristaux immédiatement.',        price:1800, currency:'gold', reward:()=>{state.crystals+=200;}, label:'+200 💎'},
-  {id:'gold_pull',      name:'Invocation Garantie', emoji:'🎲', desc:'Une invocation gratuite (équivalent 50💎).', price:800,  currency:'gold', reward:()=>{const c=rollChar();showResults([c]);}, label:'×1 Pull'},
   {id:'forge_kit',      name:'Kit de Forge',        emoji:'🔨', desc:'Améliore 1 stat aléatoire d\'un perso aléatoire possédé. Limité à 3 achats/jour.', price:2000, currency:'gold', reward:()=>applyForgeKit(), label:'Forge Aléatoire'},
   {id:'xp_boost',       name:'Parchemin d\'XP',     emoji:'📜', desc:'Gagnez 500 XP instantanément.',               price:400,  currency:'gold', reward:()=>{giveXp(500);}, label:'+500 XP'},
   {id:'hp_potion',      name:'Potion de Vie',        emoji:'🧪', desc:'Soigne toute votre équipe à 100% HP avant le prochain combat.', price:300, currency:'gold', reward:()=>{state.pendingHeal=true;}, label:'Soin complet'},
   {id:'crystal_pull10', name:'10 Invocations',       emoji:'🌀', desc:'10 invocations garanties (économie vs acheter des cristaux).',    price:4000, currency:'gold', reward:()=>{const r=[];for(let i=0;i<10;i++)r.push(rollChar());showResults(r);}, label:'×10 Pulls'},
-  {id:'reset_cd',       name:'Réinitialisation CD',  emoji:'⚡', desc:'Remet à zéro tous les cooldowns de spéciale de votre équipe.',   price:350,  currency:'gold', reward:()=>{state.pendingCdReset=true;showToast('⚡ CD spéciales réinitialisés au prochain combat!');}, label:'Reset CD'},
   {id:'equip_pack',     name:'Pack Forgeron',        emoji:'🧰', desc:'Matériaux de craft: +20 Fer, +15 Tissu, +10 Éclats, +3 Cristaux rares.', price:2500, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.materials.iron=(state.materials.iron||0)+20;state.materials.cloth=(state.materials.cloth||0)+15;state.materials.magic_shard=(state.materials.magic_shard||0)+10;state.materials.rare_crystal=(state.materials.rare_crystal||0)+3;}, label:'Pack Matériaux'},
   {id:'tears_cache',    name:'Cache d\'Éveil',       emoji:'💫', desc:'Ajoute 8 Larmes d\'Éveil pour les crafts endgame.', price:3200, currency:'gold', reward:()=>{if(!state.materials)state.materials={};state.materials.awakening_tears=(state.materials.awakening_tears||0)+8;}, label:'+8 Larmes'},
   {id:'starter_gear',   name:'Kit Équipement',       emoji:'🎒', desc:'Donne 1 Épée d\'Acier, 1 Armure de Fer et 1 Anneau de Vitesse.', price:2800, currency:'gold', reward:()=>{if(!state.items)state.items={};state.items.steel_sword=(state.items.steel_sword||0)+1;state.items.iron_armor=(state.items.iron_armor||0)+1;state.items.speed_ring=(state.items.speed_ring||0)+1;}, label:'Lot x3 items'},
@@ -3673,8 +3671,8 @@ function getElemMult(attackerElem, defenderElem){
   if(!attackerElem||!defenderElem)return 1;
   const chart=ELEMENT_CHART[attackerElem];
   if(!chart)return 1;
-  if(chart.strong===defenderElem)return 1.3;
-  if(chart.weak===defenderElem)return 0.8;
+  if(chart.strong===defenderElem)return 1.55;
+  if(chart.weak===defenderElem)return 0.65;
   return 1;
 }
 function getElemBadge(id){
@@ -4005,17 +4003,17 @@ function craftItem(recipeResult){
 function dropMaterials(arcId,isBoss=false){
   if(!state.materials)state.materials={};
   const dropTable={
-    1:{iron:[1,3],cloth:[1,2]},
-    2:{iron:[2,4],cloth:[1,3],magic_shard:[0,1]},
-    3:{iron:[2,5],cloth:[2,4],magic_shard:[1,2]},
-    4:{iron:[3,6],cloth:[2,5],magic_shard:[1,3],rare_crystal:[0,1]},
-    5:{iron:[3,7],cloth:[3,6],magic_shard:[2,4],rare_crystal:[0,1]},
-    6:{iron:[4,8],cloth:[3,7],magic_shard:[2,5],rare_crystal:[1,2]},
-    7:{iron:[5,10],cloth:[4,8],magic_shard:[3,6],rare_crystal:[1,3]},
-    8:{iron:[6,11],cloth:[5,9],magic_shard:[4,7],rare_crystal:[2,4]},
-    9:{iron:[7,13],cloth:[6,10],magic_shard:[5,8],rare_crystal:[3,5]},
-	10:{iron:[8,14],cloth:[7,11],magic_shard:[6,9],rare_crystal:[4,6]},
-    11:{iron:[9,16],cloth:[8,12],magic_shard:[7,10],rare_crystal:[5,7]},
+    1:{iron:[1,2],cloth:[1,1]},
+    2:{iron:[1,3],cloth:[1,2],magic_shard:[0,1]},
+    3:{iron:[2,4],cloth:[1,3],magic_shard:[0,2]},
+    4:{iron:[2,5],cloth:[2,4],magic_shard:[1,2],rare_crystal:[0,1]},
+    5:{iron:[2,6],cloth:[2,5],magic_shard:[1,3],rare_crystal:[0,1]},
+    6:{iron:[3,7],cloth:[2,6],magic_shard:[1,4],rare_crystal:[0,2]},
+    7:{iron:[4,8],cloth:[3,7],magic_shard:[2,5],rare_crystal:[1,2]},
+    8:{iron:[4,9],cloth:[3,8],magic_shard:[2,6],rare_crystal:[1,3]},
+    9:{iron:[5,10],cloth:[4,9],magic_shard:[3,7],rare_crystal:[2,4]},
+	10:{iron:[6,11],cloth:[5,10],magic_shard:[4,8],rare_crystal:[2,5]},
+    11:{iron:[7,12],cloth:[6,11],magic_shard:[5,9],rare_crystal:[3,6]},
   };
   const drops=dropTable[Math.min(arcId,11)]||dropTable[11];
   const gained=[];
