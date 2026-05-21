@@ -1721,6 +1721,8 @@ function initBattleState(){
   state.battleState={heroes:chars,enemy,log:[],turn:0,over:false,won:false,burstCharge:0,combo:0};
   // Apply team links
   applyTeamLinks(chars);
+  const diversity=applyTeamDiversityBuff(chars);
+  state._teamDiversityBattle=diversity;
   // Fire battle-start passives (Law swap, Whitebeard ATK debuff)
   chars.forEach(h=>{
     applyPassiveTrigger(h,state.battleState,'onBattleStart');
@@ -1734,6 +1736,14 @@ function renderBattle(){
   if(state.team.filter(Boolean).length===0){cont.innerHTML=`<div class="no-team-msg"><div class="big">⚔</div><div>Pas d'équipe !</div><div style="margin-top:8px;font-size:.8rem;">Allez dans <b>Équipe</b> pour recruter des guerriers.</div></div>`;return;}
   if(!state.battleState||state.battleState.over)initBattleState();
   renderBattleUI();
+}
+
+function renderTeamDiversityHint(teamIds,battleDiversity){
+  const ids=(teamIds||[]).filter(Boolean);
+  if(ids.length<2)return '';
+  const d=battleDiversity||getTeamDiversityMult(ids);
+  const p=d.profile||getTeamDiversityProfile(ids);
+  return `<div class="terrain-banner" style="background:rgba(124,77,255,.08);border-color:rgba(124,77,255,.3)"><span style="font-size:1.2rem">🧩</span><div><b style="font-size:.78rem">Diversité d'équipe</b><br><span style="font-size:.68rem;color:var(--muted)">Éléments ${p.uniqueElemCount}/3 · Animes ${p.uniqueAnimeCount}/3 · Rôles ${p.uniqueTypeCount}/3 → Bonus global <b style="color:var(--gold)">×${d.mult.toFixed(2)}</b></span></div></div>`;
 }
 
 function renderBattleUI(){
@@ -1794,6 +1804,7 @@ function renderBattleUI(){
     </div>
     ${getTerrainHTML(state.currentArc)}
     ${renderTeamLinks(state.team.filter(Boolean))}
+	${renderTeamDiversityHint(state.team.filter(Boolean),state._teamDiversityBattle)}
     ${bossHTML}
 	${renderTeamElementInsight(bs.heroes,e.element||'neutral')}
     <div class="combatants">
@@ -4219,6 +4230,41 @@ const TEAM_LINKS=[
   {id:'bleach_team',   name:'Équipe Bleach',    animes:['Bleach'],                  required:2,bonus:{atk:0.20,hp:0.15},desc:'+20% ATK +15% HP'},
   {id:'full_link',     name:'Multivers Uni',    animes:null,required:3,uniqueAnimes:3,bonus:{atk:0.10,hp:0.10,def:0.10},desc:'+10% tout (3 animes différents)'},
 ];
+
+
+function getTeamDiversityProfile(ids=[]){
+  const clean=(ids||[]).filter(Boolean);
+  const uniqueElems=new Set(clean.map(id=>CHAR_ELEMENTS[getBaseId(id)]||'neutral'));
+  const uniqueAnimes=new Set(clean.map(id=>getCharById(id)?.anime||''));
+  const uniqueTypes=new Set(clean.map(id=>getCharById(id)?.type||''));
+  return {
+    uniqueElemCount:uniqueElems.size,
+    uniqueAnimeCount:[...uniqueAnimes].filter(Boolean).length,
+    uniqueTypeCount:[...uniqueTypes].filter(Boolean).length,
+  };
+}
+function getTeamDiversityMult(ids=[]){
+  const p=getTeamDiversityProfile(ids);
+  let mult=1;
+  if(p.uniqueElemCount>=3)mult+=0.15;
+  else if(p.uniqueElemCount===2)mult+=0.07;
+  if(p.uniqueAnimeCount>=3)mult+=0.08;
+  if(p.uniqueTypeCount>=3)mult+=0.07;
+  return {mult:Math.min(1.35,mult),profile:p};
+}
+function applyTeamDiversityBuff(heroes){
+  const ids=(heroes||[]).map(h=>h.id);
+  const d=getTeamDiversityMult(ids);
+  (heroes||[]).forEach(h=>{
+    h.atk=Math.round(h.atk*d.mult);
+    h.hp=Math.round(h.hp*d.mult);
+    h.currentHp=Math.round(h.currentHp*d.mult);
+    h.maxHp=Math.round(h.maxHp*d.mult);
+    h.def=Math.round(h.def*d.mult);
+    h.sDmg=Math.round(h.sDmg*d.mult);
+  });
+  return d;
+}
 
 function getActiveLinks(teamIds){
   const active=[];
