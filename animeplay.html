@@ -23,7 +23,11 @@
   .sound-toggle{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:5px 12px;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;}
   .sound-toggle:hover,.sound-toggle.on{border-color:var(--blue);color:var(--blue);box-shadow:0 0 10px rgba(0,212,255,.18);}
   .sound-toggle.off{opacity:.65;}
-  .tabs{display:flex;gap:5px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+  .tabs{display:flex;gap:5px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;}
+  .tab-groups{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
+  .group-btn{background:var(--bg2);border:1px solid var(--border);color:var(--muted);padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+  .group-btn.active{border-color:var(--gold);color:var(--gold);background:linear-gradient(135deg,rgba(245,200,66,.12),rgba(255,170,0,.06));}
+  .subtabs{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;}
   .tab-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:all .2s;position:relative;overflow:hidden;}
   .tab-btn::after{content:'';position:absolute;left:50%;bottom:3px;width:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--blue));border-radius:2px;transform:translateX(-50%);transition:width .22s ease;}
   .tab-btn:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px);}
@@ -576,22 +580,8 @@
     <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
     <div class="xp-text"><span id="xp-current">0</span>/<span id="xp-next">100</span> XP</div>
   </div>
-  <nav class="tabs">
-    <button class="tab-btn active" onclick="showTab('gacha',this)">🎲 Gacha</button>
-    <button class="tab-btn" onclick="showTab('collection',this)">📚 Collection</button>
-    <button class="tab-btn" onclick="showTab('team',this)">⚔ Équipe</button>
-    <button class="tab-btn" onclick="showTab('forge',this)">🔨 Forge</button>
-    <button class="tab-btn" onclick="showTab('fusion',this)">🔮 Fusion</button>
-    <button class="tab-btn" onclick="showTab('equipment',this)">⚙ Équipement</button>
-    <button class="tab-btn" onclick="showTab('shop',this)">🛒 Boutique</button>
-    <button class="tab-btn" onclick="showTab('quests',this)">📋 Quêtes</button>
-    <button class="tab-btn" onclick="showTab('profile',this)">👤 Profil</button>
-    <button class="tab-btn" onclick="showTab('battle',this)">🔥 Combat</button>
-    <button class="tab-btn" onclick="showTab('infinite',this)">♾ Infini</button>
-    <button class="tab-btn" onclick="showTab('tournament',this)">🏟 Défi Quotidien</button>
-    <button class="tab-btn" onclick="showTab('achievements',this)">🏆 Succès</button>
-    <button class="tab-btn" onclick="showTab('history',this)">📜 Historique</button>
-  </nav>
+  <div class="tab-groups" id="tab-groups"></div>
+  <nav class="tabs subtabs" id="subtabs"></nav>
 
   <div id="onboarding-panel" class="onboarding-panel"></div>
 
@@ -738,6 +728,13 @@
     <div id="quests-content"></div>
   </div>
 
+
+  <div id="chapters" class="screen">
+    <div class="section-title">📖 CHAPITRES LONG TERME</div>
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px;text-align:center;">Objectif principal du compte : progresse chapitre par chapitre avec des défis de diversité d'équipe.</div>
+    <div id="chapters-content"></div>
+  </div>
+  
   <div id="profile" class="screen">
     <div class="section-title">👤 STATISTIQUES JOUEUR</div>
     <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px;text-align:center;">Suivi global de tes combats : dégâts, critiques, ratios et performances.</div>
@@ -1131,8 +1128,27 @@ function animateActiveScreen(name){
   if(!screen)return;
   applyStagger(screen,'.coll-card,.bench-card,.shop-item,.quest-card,.ach-card,.forge-card,.fusion-card,.equip-char-card,.equip-slot,.item-card,.craft-card,.profile-card,.profile-section,.profile-unit,.hist-item,.arc-btn');
 }
+const TAB_GROUPS={
+  progression:[{id:'battle',label:'🔥 Combat'},{id:'infinite',label:'♾ Infini'},{id:'tournament',label:'🏟 Défi Quotidien'},{id:'chapters',label:'📖 Chapitres'}],
+  roster:[{id:'collection',label:'📚 Collection'},{id:'team',label:'⚔ Équipe'},{id:'forge',label:'🔨 Forge'},{id:'fusion',label:'🔮 Fusion'},{id:'equipment',label:'⚙ Équipement'}],
+  economie:[{id:'gacha',label:'🎲 Gacha'},{id:'shop',label:'🛒 Boutique'},{id:'quests',label:'📋 Quêtes'}],
+  compte:[{id:'profile',label:'👤 Profil'},{id:'achievements',label:'🏆 Succès'},{id:'history',label:'📜 Historique'}],
+};
+let activeTabGroup='economie';
+function getGroupOfTab(tab){
+  return Object.keys(TAB_GROUPS).find(g=>TAB_GROUPS[g].some(t=>t.id===tab))||'economie';
+}
+function renderTabGroups(){
+  const el=document.getElementById('tab-groups');if(!el)return;
+  el.innerHTML=Object.keys(TAB_GROUPS).map(g=>`<button class="group-btn ${g===activeTabGroup?'active':''}" onclick="selectTabGroup('${g}')">${g==='progression'?'⚔ Progression':g==='roster'?'🧬 Roster':g==='economie'?'💰 Économie':'👤 Compte'}</button>`).join('');
+}
+function renderSubtabs(){
+  const el=document.getElementById('subtabs');if(!el)return;
+  el.innerHTML=(TAB_GROUPS[activeTabGroup]||[]).map((t,i)=>`<button class="tab-btn ${i===0?'active':''}" onclick="showTab('${t.id}',this)">${t.label}</button>`).join('');
+}
+function selectTabGroup(group){activeTabGroup=group;renderTabGroups();renderSubtabs();const first=(TAB_GROUPS[group]||[])[0];if(first)showTab(first.id,[...document.querySelectorAll('#subtabs .tab-btn')][0]);}
 function switchTab(name){
-  const btn=[...document.querySelectorAll('.tab-btn')].find(b=>b.getAttribute('onclick')?.includes(`'${name}'`));
+  const btn=[...document.querySelectorAll('#subtabs .tab-btn')].find(b=>b.getAttribute('onclick')?.includes(`'${name}'`));
   showTab(name,btn||null);
 }
 function getClaimableQuestCount(){
@@ -1189,6 +1205,8 @@ function updateRes(){
 
 function showTab(name,btn){
   playSfx('tab');
+  const grp=getGroupOfTab(name);
+  if(grp!==activeTabGroup){activeTabGroup=grp;renderTabGroups();renderSubtabs();}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(name).classList.add('active');
@@ -1203,6 +1221,7 @@ function showTab(name,btn){
   if(name==='tournament')renderTournamentScreen();
   if(name==='shop')renderShop();
   if(name==='quests')renderQuests();
+  if(name==='chapters')renderChapters();
   if(name==='profile')renderProfile();
   if(name==='history')renderHistory();
   if(name==='equipment')renderEquipment();
@@ -3508,6 +3527,26 @@ function renderAccountGoals(){
     </div>`).join('')}</div></div>`;
 }
 
+
+function getChapterDefs(){
+  return [
+    {id:'c1',name:'Diversité I',desc:"Gagner 20 combats et avoir 3 éléments uniques dans l'équipe active.",check:()=> (state.totalWins||0)>=20 && getTeamDiversityProfile((state.team||[]).filter(Boolean)).uniqueElemCount>=3,progress:()=>Math.min(100,Math.round(((state.totalWins||0)/20)*100))},
+    {id:'c2',name:'Diversité II',desc:"Atteindre 60 victoires et 3 rôles uniques dans l'équipe.",check:()=> (state.totalWins||0)>=60 && getTeamDiversityProfile((state.team||[]).filter(Boolean)).uniqueTypeCount>=3,progress:()=>Math.min(100,Math.round(((state.totalWins||0)/60)*100))},
+    {id:'c3',name:'Artisanat',desc:'Atteindre 80 niveaux de forge cumulés.',check:()=> getTotalForgeLevel()>=80,progress:()=>Math.min(100,Math.round((getTotalForgeLevel()/80)*100))},
+    {id:'c4',name:'Conquête',desc:'Terminer les arcs 1 à 8.',check:()=> ARCS.filter(a=>(state.arcProgress&&state.arcProgress[a.id]||0)>=a.waves).length>=8,progress:()=>Math.min(100,Math.round((ARCS.filter(a=>(state.arcProgress&&state.arcProgress[a.id]||0)>=a.waves).length/8)*100))},
+  ];
+}
+function renderChapters(){
+  const cont=document.getElementById('chapters-content');if(!cont)return;
+  const defs=getChapterDefs();
+  let unlocked=true;
+  cont.innerHTML=defs.map((c,i)=>{const done=!!(state.chapterDone&&state.chapterDone[c.id]);const canSee=unlocked||done;const ok=canSee&&c.check();if(ok&&!done){if(!state.chapterDone)state.chapterDone={};state.chapterDone[c.id]=true;save();}
+    if(!done&&canSee&&ok)unlocked=true; else if(!done)unlocked=false;
+    const pct=done?100:c.progress();
+    return `<div class="quest-card ${done?'done':''}" style="margin-bottom:10px;${!canSee?'opacity:.5':''}"><div class="quest-icon">${done?'✅':'📖'}</div><div class="quest-info"><div class="quest-name">Chapitre ${i+1} — ${c.name}</div><div class="quest-desc">${canSee?c.desc:'🔒 Débloque le chapitre précédent'} </div><div class="quest-prog-wrap"><div class="quest-prog-fill" style="width:${canSee?pct:0}%"></div></div></div><button class="quest-claim-btn" disabled>${done?'Terminé':canSee?'En cours':'Verrouillé'}</button></div>`;
+  }).join('');
+}
+
 function renderProfile(){
   const cont=document.getElementById('profile-content');
   if(!cont)return;
@@ -4399,6 +4438,8 @@ if(!state.owned||Object.keys(state.owned).length===0){
 }
 updateRes();
 checkAchievements();
+renderTabGroups();
+renderSubtabs();
 setupLocalCheatFab();
 </script>
 </body>
